@@ -1,0 +1,31 @@
+WHPL1
+PLPatch	0	81	"tentacles.whp"
+PLPatch	0	87	"real pinwheel.whp"
+PLPatch	0	69	"pinwheel.whp"
+PLPatch	0	82	"pinwheel fab color.whp"
+PLPatch	0	84	"mercedes.whp"
+PLPatch	0	89	"lotus light.whp"
+PLPatch	0	85	"kaleid.whp"
+PLPatch	0	73	"cross.whp"
+PLPatch	0	79	"good2.whp"
+PLPatch	0	80	"shimmer.whp"
+PLPatchSecs	60
+PLXFadeSecs	30
+PLPlaying	1
+PLShuffle	1
+PLCurPatch	7
+XFPos	0
+XFSeconds	0
+XFLoop	0
+XFWaveform	0
+MASpeed	6
+MAZoom	1
+MADamping	0.0417762
+MATempo	13.5
+MFViewSel	3
+MFEditSel	3
+MFOrigin	0.5 0.5
+MFMirror	1
+MFDrawMode	0
+MFOrgMotion	2
+MFReverse	0

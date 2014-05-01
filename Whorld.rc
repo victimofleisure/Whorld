@@ -1,0 +1,2125 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\Whorld.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\Whorld.ico"
+IDI_STOPU               ICON    DISCARDABLE     "res\\stopu.ico"
+IDI_PLAYU               ICON    DISCARDABLE     "res\\playu.ico"
+IDI_LOOPU               ICON    DISCARDABLE     "res\\loopu.ico"
+IDI_STOPD               ICON    DISCARDABLE     "res\\stopd.ico"
+IDI_PLAYD               ICON    DISCARDABLE     "res\\playd.ico"
+IDI_LOOPD               ICON    DISCARDABLE     "res\\loopd.ico"
+IDI_PL_PLAYING          ICON    DISCARDABLE     "res\\pl_playing.ico"
+IDI_PL_NORMAL           ICON    DISCARDABLE     "res\\pl_normal.ico"
+IDI_PL_XFADING          ICON    DISCARDABLE     "res\\pl_xfading.ico"
+IDI_PAUSEU              ICON    DISCARDABLE     "res\\pauseu.ico"
+IDI_PAUSED              ICON    DISCARDABLE     "res\\paused.ico"
+IDR_WHORLDTYPE          ICON    DISCARDABLE     "res\\WhorldDoc.ico"
+IDR_WHORLD_PLAYLIST     ICON    DISCARDABLE     "res\\WhorldPlaylist.ico"
+IDR_WHORLD_MOVIE        ICON    DISCARDABLE     "res\\WhorldMovie.ico"
+IDR_WHORLD_SNAPSHOT     ICON    DISCARDABLE     "res\\WhorldSnapshot.ico"
+IDI_SAVE                ICON    DISCARDABLE     "res\\save.ico"
+IDI_OPEN                ICON    DISCARDABLE     "res\\open.ico"
+IDI_TAKE_SNAP           ICON    DISCARDABLE     "res\\take_sna.ico"
+IDI_SET_IN              ICON    DISCARDABLE     "res\\set_in.ico"
+IDI_SET_OUT             ICON    DISCARDABLE     "res\\set_out.ico"
+IDI_GOTO_START          ICON    DISCARDABLE     "res\\goto_start.ico"
+IDI_GOTO_END            ICON    DISCARDABLE     "res\\goto_end.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "Save M&ix...\tShift+S",       ID_FILE_SAVE_MIX
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view\tShift+V",     ID_FILE_PRINT_PREVIEW
+        MENUITEM "Print Set&up...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "&Take Snapshot...\tCtrl+T",   ID_FILE_TAKE_SNAPSHOT
+        MENUITEM "&Load Snapshot...\tCtrl+L",   ID_FILE_LOAD_SNAPSHOT
+        MENUITEM "&Export Bitmap...\tCtrl+E",   ID_FILE_EXPORT_BITMAP
+        MENUITEM SEPARATOR
+        POPUP "Pla&ylist"
+        BEGIN
+            MENUITEM "&New\tCtrl+Shift+N",          ID_PL_FILE_NEW
+            MENUITEM "&Open...\tCtrl+Shift+O",      ID_PL_FILE_OPEN
+            MENUITEM "&Save\tCtrl+Shift+S",         ID_PL_FILE_SAVE
+            MENUITEM "Save &As...",                 ID_PL_FILE_SAVE_AS
+            MENUITEM SEPARATOR
+            MENUITEM "Recent Playlist",             ID_PL_FILE_MRU_FILE1
+            , GRAYED
+        END
+        POPUP "&Movie"
+        BEGIN
+            MENUITEM "&Record...\tCtrl+R",          ID_FILE_MOVIE_RECORD
+            MENUITEM "&Play...",                    ID_FILE_MOVIE_PLAY
+            MENUITEM "&Export...",                  ID_FILE_MOVIE_EXPORT
+            MENUITEM "Re&size...",                  ID_FILE_MOVIE_RESIZE
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Document",                   ID_EDIT_DOCUMENT
+        MENUITEM "Crossfader &A",               ID_EDIT_XFADER_A
+        MENUITEM "Crossfader &B",               ID_EDIT_XFADER_B
+        MENUITEM "Crossfader &Mix",             ID_EDIT_XFADER_MIX
+        MENUITEM "Master &Offsets",             ID_EDIT_MASTER_OFFSETS
+        MENUITEM "&Global Params",              ID_EDIT_GLOBAL_PARMS
+        MENUITEM SEPARATOR
+        MENUITEM "&Random Patch\tF10",          ID_EDIT_RANDOM_PATCH
+        POPUP "&Patch Mode"
+        BEGIN
+            MENUITEM "&Full\tShift+F",              ID_EDIT_PATCH_FULL
+            MENUITEM "&Geometry\tShift+G",          ID_EDIT_PATCH_GEOMETRY
+        END
+        POPUP "&Crossfader"
+        BEGIN
+            MENUITEM "Auto &Fade\tF12",             ID_EDIT_XFADE_PLAY
+            MENUITEM "L&oop\tShift+F12",            ID_EDIT_XFADE_LOOP
+            MENUITEM SEPARATOR
+            MENUITEM "Next Patch &A\tLeft Arrow",   ID_EDIT_NEXT_PATCH_TO_A
+            MENUITEM "Next Patch &B\tRight Arrow",  ID_EDIT_NEXT_PATCH_TO_B
+            MENUITEM SEPARATOR
+            MENUITEM "&More Time\tCtrl+Up Arrow",   ID_EDIT_XFADE_TIME_UP
+            MENUITEM "&Less Time\tCtrl+Down Arrow", ID_EDIT_XFADE_TIME_DOWN
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Zero Controllers\tShift+Z",  ID_EDIT_ZERO_CONTROLLERS
+    END
+    POPUP "&Image"
+    BEGIN
+        MENUITEM "&Loop Hue\tF2",               ID_IMG_LOOP_HUE
+        MENUITEM "&Rotate Hue\tF3",             ID_IMG_ROTATE_HUE
+        POPUP "&Invert"
+        BEGIN
+            MENUITEM "&Color\tF4",                  ID_IMG_INVERT_COLOR
+            MENUITEM "&Fill\tShift+F6",             ID_IMG_INVERT_FILL
+            MENUITEM "&Outline\tShift+F7",          ID_IMG_INVERT_OUTLINE
+            MENUITEM "&X-Ray\tShift+F8",            ID_IMG_INVERT_XRAY
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Mirror\tF5",                 ID_IMG_MIRROR
+        MENUITEM "&Fill\tF6",                   ID_IMG_FILL
+        MENUITEM "&Outline\tF7",                ID_IMG_OUTLINE
+        MENUITEM "&X-Ray\tF8",                  ID_IMG_XRAY
+        MENUITEM SEPARATOR
+        MENUITEM "Random &Phase\tF9",           ID_IMG_RANDOM_PHASE
+        MENUITEM "R&everse\tBackspace",         ID_IMG_REVERSE
+        MENUITEM "&Convex\t\\",                 ID_IMG_CONVEX
+        MENUITEM SEPARATOR
+        POPUP "Origi&n"
+        BEGIN
+            MENUITEM "&Center\tShift+C",            ID_IMG_CENTER_ORIGIN
+            MENUITEM "&Drag\tShift+D",              ID_IMG_DRAG_ORIGIN
+            MENUITEM "&Random\tShift+R",            ID_IMG_RANDOM_ORIGIN
+            MENUITEM "&Toggle\tF1 (VJ mode only)",  ID_IMG_TOGGLE_ORIGIN
+        END
+        POPUP "&Tempo"
+        BEGIN
+            MENUITEM "Nudge &Up\t+",                ID_TEMPO_NUDGE_UP
+            MENUITEM "Nudge &Down\t-",              ID_TEMPO_NUDGE_DOWN
+            MENUITEM "&Resync\tEnter",              ID_TEMPO_RESYNC
+            MENUITEM "Dou&ble\t]",                  ID_TEMPO_DOUBLE
+            MENUITEM "&Half\t[",                    ID_TEMPO_HALF
+        END
+        POPUP "&Damping"
+        BEGIN
+            MENUITEM "&More\tUp Arrow",             ID_IMG_DAMPING_UP
+            MENUITEM "&Less\tDown Arrow",           ID_IMG_DAMPING_DOWN
+        END
+        POPUP "&Video"
+        BEGIN
+            POPUP "&Select"
+            BEGIN
+                MENUITEM "&0\tNum0",                    ID_IMG_VIDEO_SELECT0
+                MENUITEM "&1\tNum1",                    ID_IMG_VIDEO_SELECT1
+                MENUITEM "&2\tNum2",                    ID_IMG_VIDEO_SELECT2
+                MENUITEM "&3\tNum3",                    ID_IMG_VIDEO_SELECT3
+                MENUITEM "&4\tNum4",                    ID_IMG_VIDEO_SELECT4
+                MENUITEM "&5\tNum5",                    ID_IMG_VIDEO_SELECT5
+                MENUITEM "&6\tNum6",                    ID_IMG_VIDEO_SELECT6
+                MENUITEM "&7\tNum7",                    ID_IMG_VIDEO_SELECT7
+                MENUITEM "&8\tNum8",                    ID_IMG_VIDEO_SELECT8
+                MENUITEM "&9\tNum9",                    ID_IMG_VIDEO_SELECT9
+                MENUITEM SEPARATOR
+                MENUITEM "&None\tNum.",                 ID_IMG_VIDEO_SELECT_NONE
+
+            END
+            POPUP "&Blending"
+            BEGIN
+                MENUITEM "~Src && Dst\tShift+Num0",     ID_IMG_VIDEO_ROP0
+                MENUITEM "~Src | Dst\tShift+Num1",      ID_IMG_VIDEO_ROP1
+                MENUITEM "Src && ~Dst\tShift+Num2",     ID_IMG_VIDEO_ROP2
+                MENUITEM "Src | ~Dst\tShift+Num3",      ID_IMG_VIDEO_ROP3
+                MENUITEM "Src && Dst\tShift+Num4",      ID_IMG_VIDEO_ROP4
+                MENUITEM "Src | Dst\tShift+Num5",       ID_IMG_VIDEO_ROP5
+                MENUITEM "Src ^ Dst\tShift+Num6",       ID_IMG_VIDEO_ROP6
+                MENUITEM "~(Src && Dst)\tShift+Num7",   ID_IMG_VIDEO_ROP7
+                MENUITEM "~(Src | Dst)\tShift+Num8",    ID_IMG_VIDEO_ROP8
+                MENUITEM "~(Src ^ Dst)\tShift+Num9",    ID_IMG_VIDEO_ROP9
+                , HELP
+            END
+            MENUITEM SEPARATOR
+            MENUITEM "&Previous\tPage Up",          ID_EDIT_PAGE_UP
+            MENUITEM "&Next\tPage Down",            ID_EDIT_PAGE_DOWN
+            MENUITEM "&Rewind\tHome",               ID_EDIT_HOME
+            MENUITEM "&Auto-Rewind\tShift+Home",    ID_IMG_VIDEO_AUTO_REWIND
+            MENUITEM SEPARATOR
+            MENUITEM "&Cycle\tCtrl+J",              ID_IMG_VIDEO_CYCLE
+            POPUP "Cycle &Length"
+            BEGIN
+                MENUITEM "&1\tAlt+Num1",                ID_IMG_VIDEO_CYCLE_LEN1
+
+                MENUITEM "&2\tAlt+Num2",                ID_IMG_VIDEO_CYCLE_LEN2
+
+                MENUITEM "&3\tAlt+Num3",                ID_IMG_VIDEO_CYCLE_LEN3
+
+                MENUITEM "&4\tAlt+Num4",                ID_IMG_VIDEO_CYCLE_LEN4
+
+                MENUITEM "&5\tAlt+Num5",                ID_IMG_VIDEO_CYCLE_LEN5
+
+                MENUITEM "&6\tAlt+Num6",                ID_IMG_VIDEO_CYCLE_LEN6
+
+                MENUITEM "&7\tAlt+Num7",                ID_IMG_VIDEO_CYCLE_LEN7
+
+                MENUITEM "&8\tAlt+Num8",                ID_IMG_VIDEO_CYCLE_LEN8
+
+                MENUITEM "&9\tAlt+Num9",                ID_IMG_VIDEO_CYCLE_LEN9
+
+                MENUITEM "1&0\tAlt+Num0",               ID_IMG_VIDEO_CYCLE_LEN0
+
+            END
+            MENUITEM SEPARATOR
+            MENUITEM "&Random &Origin\tCtrl+Shift+R", 
+                                                    ID_IMG_VIDEO_RANDOM_ORIGIN
+
+        END
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "&Master\tShift+M",            ID_VIEW_MASTER
+        MENUITEM "&Parameters\tShift+P",        ID_VIEW_PARMS
+        MENUITEM "&Numbers\tShift+N",           ID_VIEW_NUMBERS
+        MENUITEM "P&laylist\tShift+L",          ID_VIEW_PLAYLIST
+        MENUITEM "&Crossfader\tShift+X",        ID_VIEW_CROSSFADER
+        MENUITEM SEPARATOR
+        MENUITEM "Mi&x\tCtrl+M",                ID_VIEW_MIX
+        MENUITEM "&Autoplay\tCtrl+A",           ID_VIEW_AUTOPLAY
+        MENUITEM SEPARATOR
+        MENUITEM "&Options...\tShift+O",        ID_VIEW_OPTIONS
+        MENUITEM "M&IDI Setup\tShift+I",        ID_VIEW_MIDI_SETUP
+        MENUITEM "&Demo",                       ID_VIEW_DEMO
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Full Screen\tF11",           ID_WND_FULL_SCREEN
+        MENUITEM "&Veejay\tCtrl+F11",           ID_WND_VEEJAY
+        MENUITEM SEPARATOR
+        MENUITEM "P&anic\tEsc",                 ID_WND_PANIC
+        MENUITEM "&Pause\tSpace",               ID_WND_PAUSE
+        MENUITEM "&Clear\tDelete",              ID_WND_CLEAR
+        MENUITEM "&Step\tShift+Space",          ID_WND_STEP
+        MENUITEM SEPARATOR
+        MENUITEM "&Zoom Center\tShift+W",       ID_WND_ZOOM_CENTER
+        MENUITEM "&Detach",                     ID_WND_DETACH
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Help Topics\tF1",            ID_HELP_INDEX
+        MENUITEM "Whorld on the &Web",          ID_APP_HOME_PAGE
+        MENUITEM SEPARATOR
+        MENUITEM "&About Whorld...",            ID_APP_ABOUT
+    END
+END
+
+IDR_SNAPSHOT MENU DISCARDABLE 
+BEGIN
+    POPUP "Snapshot"
+    BEGIN
+        MENUITEM "&Previous\tPage Up",          ID_EDIT_PAGE_UP
+        MENUITEM "&Next\tPage Down",            ID_EDIT_PAGE_DOWN
+        MENUITEM "&First\tHome",                ID_EDIT_HOME
+        MENUITEM "&Last\tEnd",                  ID_EDIT_END
+        MENUITEM SEPARATOR
+        MENUITEM "&Slide Show...",              ID_SNAP_SLIDE_SHOW
+        MENUITEM SEPARATOR
+        MENUITEM "&Export All...\tCtrl+Shift+E", ID_SNAP_EXPORT_ALL
+    END
+END
+
+IDR_PLAYLIST MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_PL_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_PL_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_PL_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_PL_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert Patches...\tIns",     ID_PL_FILE_INSERT_PATCHES
+        MENUITEM "Import &MIDI Setup...",       ID_PL_FILE_IMPORT_MIDI_SETUP
+        MENUITEM "Export &Thumbnails...",       ID_PL_FILE_EXPORT_THUMBS
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_PL_FILE_MRU_FILE1, GRAYED
+    END
+    POPUP "&Edit"
+    BEGIN
+        POPUP "&Send To"
+        BEGIN
+            MENUITEM "&Document",                   ID_PL_EDIT_SEND_TO_DOC
+            MENUITEM "Crossfader &A",               ID_PL_EDIT_SEND_TO_A
+            MENUITEM "Crossfader &B",               ID_PL_EDIT_SEND_TO_B
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_PL_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_PL_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_PL_EDIT_PASTE
+        MENUITEM "&Delete\tDel",                ID_PL_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "Select A&ll\tCtrl+A",         ID_PL_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Remove Key\tBackspace",      ID_PL_EDIT_REMOVE_KEY
+        MENUITEM "&Auto-Assign Keys",           ID_PL_EDIT_AUTO_ASSIGN
+        MENUITEM SEPARATOR
+        MENUITEM "&MIDI Mapping...",            ID_PL_EDIT_MIDI_MAPPING
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Details",                    ID_PL_VIEW_TYPE_DETAILS
+        MENUITEM "&Thumbnails",                 ID_PL_VIEW_TYPE_THUMBS
+        MENUITEM SEPARATOR
+        POPUP "Thumbnail &Size"
+        BEGIN
+            MENUITEM "&Tiny",                       ID_PL_VIEW_THUMB_SIZE0
+            MENUITEM "&Small",                      ID_PL_VIEW_THUMB_SIZE1
+            MENUITEM "&Medium",                     ID_PL_VIEW_THUMB_SIZE2
+            MENUITEM "&Large",                      ID_PL_VIEW_THUMB_SIZE3
+            MENUITEM "&Huge",                       ID_PL_VIEW_THUMB_SIZE4
+        END
+        MENUITEM "&Refresh Thumbnails",         ID_PL_VIEW_REFRESH_THUMBS
+    END
+END
+
+IDR_PLAYLIST_CONTEXT MENU DISCARDABLE 
+BEGIN
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Pl&ay",                       ID_PL_EDIT_FADE_TO
+        POPUP "&Send To"
+        BEGIN
+            MENUITEM "&Document",                   ID_PL_EDIT_SEND_TO_DOC
+            MENUITEM "Crossfader &A",               ID_PL_EDIT_SEND_TO_A
+            MENUITEM "Crossfader &B",               ID_PL_EDIT_SEND_TO_B
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert Patches...",          ID_PL_FILE_INSERT_PATCHES
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t",                        ID_PL_EDIT_CUT
+        MENUITEM "&Copy",                       ID_PL_EDIT_COPY
+        MENUITEM "&Paste",                      ID_PL_EDIT_PASTE
+        MENUITEM "&Delete",                     ID_PL_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "&Remove Key",                 ID_PL_EDIT_REMOVE_KEY
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "A",            ID_VIEW_AUTOPLAY,       VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_IMG_CENTER_ORIGIN,   VIRTKEY, SHIFT, NOINVERT
+    "D",            ID_IMG_DRAG_ORIGIN,     VIRTKEY, SHIFT, NOINVERT
+    "E",            ID_FILE_EXPORT_BITMAP,  VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_SNAP_EXPORT_ALL,     VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "F",            ID_EDIT_PATCH_FULL,     VIRTKEY, SHIFT, NOINVERT
+    "G",            ID_EDIT_PATCH_GEOMETRY, VIRTKEY, SHIFT, NOINVERT
+    "I",            ID_VIEW_MIDI_SETUP,     VIRTKEY, SHIFT, NOINVERT
+    "J",            ID_IMG_VIDEO_CYCLE,     VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_FILE_LOAD_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_VIEW_PLAYLIST,       VIRTKEY, SHIFT, NOINVERT
+    "M",            ID_VIEW_MIX,            VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_VIEW_MASTER,         VIRTKEY, SHIFT, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_VIEW_NUMBERS,        VIRTKEY, SHIFT, NOINVERT
+    "N",            ID_PL_FILE_NEW,         VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, NOINVERT
+    "O",            ID_PL_FILE_OPEN,        VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_VIEW_PARMS,          VIRTKEY, SHIFT, NOINVERT
+    "R",            ID_FILE_MOVIE_RECORD,   VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_IMG_RANDOM_ORIGIN,   VIRTKEY, SHIFT, NOINVERT
+    "R",            ID_IMG_VIDEO_RANDOM_ORIGIN, VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE_MIX,       VIRTKEY, SHIFT, NOINVERT
+    "S",            ID_PL_FILE_SAVE,        VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "T",            ID_FILE_TAKE_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_FILE_PRINT_PREVIEW,  VIRTKEY, SHIFT, NOINVERT
+    VK_F1,          ID_HELP_INDEX,          VIRTKEY, NOINVERT
+    VK_F10,         ID_EDIT_RANDOM_PATCH,   VIRTKEY, NOINVERT
+    VK_F11,         ID_WND_FULL_SCREEN,     VIRTKEY, NOINVERT
+    VK_F11,         ID_WND_VEEJAY,          VIRTKEY, CONTROL, NOINVERT
+    VK_F12,         ID_EDIT_XFADE_PLAY,     VIRTKEY, NOINVERT
+    VK_F12,         ID_EDIT_XFADE_LOOP,     VIRTKEY, SHIFT, NOINVERT
+    VK_F2,          ID_IMG_LOOP_HUE,        VIRTKEY, NOINVERT
+    VK_F3,          ID_IMG_ROTATE_HUE,      VIRTKEY, NOINVERT
+    VK_F4,          ID_IMG_INVERT_COLOR,    VIRTKEY, NOINVERT
+    VK_F5,          ID_IMG_MIRROR,          VIRTKEY, NOINVERT
+    VK_F6,          ID_IMG_FILL,            VIRTKEY, NOINVERT
+    VK_F6,          ID_IMG_INVERT_FILL,     VIRTKEY, SHIFT, NOINVERT
+    VK_F7,          ID_IMG_OUTLINE,         VIRTKEY, NOINVERT
+    VK_F7,          ID_IMG_INVERT_OUTLINE,  VIRTKEY, SHIFT, NOINVERT
+    VK_F8,          ID_IMG_XRAY,            VIRTKEY, NOINVERT
+    VK_F8,          ID_IMG_INVERT_XRAY,     VIRTKEY, SHIFT, NOINVERT
+    VK_F9,          ID_IMG_RANDOM_PHASE,    VIRTKEY, NOINVERT
+    VK_NUMPAD0,     ID_IMG_VIDEO_SELECT0,   VIRTKEY, NOINVERT
+    VK_NUMPAD0,     ID_IMG_VIDEO_ROP0,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD0,     ID_IMG_VIDEO_CYCLE_LEN0, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD1,     ID_IMG_VIDEO_SELECT1,   VIRTKEY, NOINVERT
+    VK_NUMPAD1,     ID_IMG_VIDEO_ROP1,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD1,     ID_IMG_VIDEO_CYCLE_LEN1, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD2,     ID_IMG_VIDEO_SELECT2,   VIRTKEY, NOINVERT
+    VK_NUMPAD2,     ID_IMG_VIDEO_ROP2,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD2,     ID_IMG_VIDEO_CYCLE_LEN2, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD3,     ID_IMG_VIDEO_SELECT3,   VIRTKEY, NOINVERT
+    VK_NUMPAD3,     ID_IMG_VIDEO_ROP3,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD3,     ID_IMG_VIDEO_CYCLE_LEN3, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD4,     ID_IMG_VIDEO_SELECT4,   VIRTKEY, NOINVERT
+    VK_NUMPAD4,     ID_IMG_VIDEO_ROP4,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD4,     ID_IMG_VIDEO_CYCLE_LEN4, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD5,     ID_IMG_VIDEO_SELECT5,   VIRTKEY, NOINVERT
+    VK_NUMPAD5,     ID_IMG_VIDEO_ROP5,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD5,     ID_IMG_VIDEO_CYCLE_LEN5, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD6,     ID_IMG_VIDEO_SELECT6,   VIRTKEY, NOINVERT
+    VK_NUMPAD6,     ID_IMG_VIDEO_ROP6,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD6,     ID_IMG_VIDEO_CYCLE_LEN6, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD7,     ID_IMG_VIDEO_SELECT7,   VIRTKEY, NOINVERT
+    VK_NUMPAD7,     ID_IMG_VIDEO_ROP7,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD7,     ID_IMG_VIDEO_CYCLE_LEN7, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD8,     ID_IMG_VIDEO_SELECT8,   VIRTKEY, NOINVERT
+    VK_NUMPAD8,     ID_IMG_VIDEO_ROP8,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD8,     ID_IMG_VIDEO_CYCLE_LEN8, VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD9,     ID_IMG_VIDEO_SELECT9,   VIRTKEY, NOINVERT
+    VK_NUMPAD9,     ID_IMG_VIDEO_ROP9,      VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD9,     ID_IMG_VIDEO_CYCLE_LEN9, VIRTKEY, ALT, NOINVERT
+    "W",            ID_WND_ZOOM_CENTER,     VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "X",            ID_VIEW_CROSSFADER,     VIRTKEY, SHIFT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_ZERO_CONTROLLERS, VIRTKEY, SHIFT, NOINVERT
+END
+
+IDR_PLAYLIST ACCELERATORS DISCARDABLE 
+BEGIN
+    "A",            ID_PL_EDIT_SELECT_ALL,  VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_PL_EDIT_COPY,        VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_PL_FILE_NEW,         VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_PL_FILE_OPEN,        VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_PL_FILE_SAVE,        VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_PL_EDIT_PASTE,       VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_PL_EDIT_DELETE,      VIRTKEY, NOINVERT
+    VK_INSERT,      ID_PL_FILE_INSERT_PATCHES, VIRTKEY, NOINVERT
+    "X",            ID_PL_EDIT_CUT,         VIRTKEY, CONTROL, NOINVERT
+END
+
+IDR_MAIN_FOCUS ACCELERATORS DISCARDABLE 
+BEGIN
+    "+",            ID_TEMPO_NUDGE_UP,      ASCII,  NOINVERT
+    "-",            ID_TEMPO_NUDGE_DOWN,    ASCII,  NOINVERT
+    "=",            ID_TEMPO_NUDGE_UP,      ASCII,  NOINVERT
+    VK_BACK,        ID_IMG_REVERSE,         VIRTKEY, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_BACK,        ID_IMG_STEP_BACKWARD,   VIRTKEY, SHIFT, NOINVERT
+    VK_DECIMAL,     ID_IMG_VIDEO_SELECT_NONE, VIRTKEY, NOINVERT
+    VK_DELETE,      ID_WND_CLEAR,           VIRTKEY, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_DOWN,        ID_IMG_DAMPING_DOWN,    VIRTKEY, NOINVERT
+    VK_DOWN,        ID_EDIT_XFADE_TIME_DOWN, VIRTKEY, CONTROL, NOINVERT
+    VK_END,         ID_EDIT_END,            VIRTKEY, NOINVERT
+    VK_ESCAPE,      ID_WND_PANIC,           VIRTKEY, NOINVERT
+    VK_HOME,        ID_EDIT_HOME,           VIRTKEY, NOINVERT
+    VK_HOME,        ID_IMG_VIDEO_AUTO_REWIND, VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_LEFT,        ID_EDIT_NEXT_PATCH_TO_A, VIRTKEY, NOINVERT
+    VK_NEXT,        ID_EDIT_PAGE_DOWN,      VIRTKEY, NOINVERT
+    VK_PRIOR,       ID_EDIT_PAGE_UP,        VIRTKEY, NOINVERT
+    VK_RETURN,      ID_TEMPO_RESYNC,        VIRTKEY, NOINVERT
+    VK_RETURN,      ID_IMG_STEP_FORWARD,    VIRTKEY, SHIFT, NOINVERT
+    VK_RIGHT,       ID_EDIT_NEXT_PATCH_TO_B, VIRTKEY, NOINVERT
+    VK_SPACE,       ID_WND_PAUSE,           VIRTKEY, NOINVERT
+    VK_SPACE,       ID_WND_STEP,            VIRTKEY, SHIFT, NOINVERT
+    VK_UP,          ID_IMG_DAMPING_UP,      VIRTKEY, NOINVERT
+    VK_UP,          ID_EDIT_XFADE_TIME_UP,  VIRTKEY, CONTROL, NOINVERT
+    "[",            ID_TEMPO_HALF,          ASCII,  NOINVERT
+    "\\",           ID_IMG_CONVEX,          ASCII,  NOINVERT
+    "]",            ID_TEMPO_DOUBLE,        ASCII,  NOINVERT
+    "_",            ID_TEMPO_NUDGE_DOWN,    ASCII,  NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 207, 127
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Whorld"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
+    LTEXT           "Whorld Version 1.0.1\nCopyleft 2005 Chris Korda",
+                    IDC_ABOUT_TEXT,40,7,100,17,SS_NOPREFIX
+    DEFPUSHBUTTON   "OK",IDOK,160,7,40,14,WS_GROUP
+    EDITTEXT        IDC_ABOUT_CREDITS,7,39,193,29,ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL
+    LTEXT           "http://whorld.org",IDC_ABOUT_URL,40,23,54,8,SS_NOTIFY
+    EDITTEXT        IDC_ABOUT_LICENSE,7,75,193,45,ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL
+END
+
+IDD_PARM_ROW DIALOG DISCARDABLE  0, 0, 388, 14
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Static",IDC_PM_TITLE,0,0,54,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_PM_PARM_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,57,0,80,12
+    EDITTEXT        IDC_PM_PARM_EDIT,140,0,50,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_PM_PARM_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,181,0,11,
+                    12
+    COMBOBOX        IDC_PM_MOD_WAVE,192,0,60,90,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_PM_MOD_AMP,254,0,42,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_PM_MOD_AMP_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,287,0,10,
+                    12
+    EDITTEXT        IDC_PM_MOD_FREQ,298,0,42,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_PM_MOD_FREQ_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,331,0,10,
+                    12
+    EDITTEXT        IDC_PM_MOD_PW,342,0,42,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_PM_MOD_PW_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,375,0,11,
+                    12
+END
+
+IDD_PARMS DIALOG DISCARDABLE  0, 0, 300, 150
+STYLE WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Parameters"
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_NUMBERS DIALOGEX 200, 0, 86, 215
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Numbers"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    RTEXT           "",IDC_RES_CAPS,4,4,50,207
+    LTEXT           "",IDC_RES_VALS,58,4,24,207
+END
+
+IDD_CROSS DIALOGEX 0, 100, 230, 121
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Crossfader"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Position:",IDC_STATIC,7,7,28,8
+    EDITTEXT        IDC_XF_POS_EDIT,7,17,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_XF_POS_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | 
+                    UDS_AUTOBUDDY | UDS_ARROWKEYS,39,17,10,14
+    CONTROL         "Slider1",IDC_XF_POS_SLIDER,"msctls_trackbar32",
+                    TBS_AUTOTICKS | TBS_BOTH | WS_TABSTOP,52,7,126,25
+    LTEXT           "Seconds:",IDC_STATIC,184,7,31,8
+    EDITTEXT        IDC_XF_SECS_EDIT,183,17,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_XF_SECS_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,215,17,10,
+                    14
+    GROUPBOX        "A",IDC_STATIC,8,35,94,47,BS_CENTER
+    COMBOBOX        IDC_XF_NAME_A,14,45,80,75,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "Open",IDC_XF_OPEN_A,14,62,40,14
+    PUSHBUTTON      "Save",IDC_XF_SAVE_A,54,62,40,14
+    CONTROL         "Play",IDC_XF_PLAY,"Button",BS_AUTOCHECKBOX | BS_ICON | 
+                    BS_PUSHLIKE | WS_TABSTOP,107,39,16,14
+    CONTROL         "Stop",IDC_XF_STOP,"Button",BS_AUTOCHECKBOX | BS_ICON | 
+                    BS_PUSHLIKE | WS_TABSTOP,107,53,16,14
+    CONTROL         "Loop",IDC_XF_LOOP,"Button",BS_AUTOCHECKBOX | BS_ICON | 
+                    BS_PUSHLIKE | WS_TABSTOP,107,67,16,14
+    GROUPBOX        "B",IDC_STATIC,129,35,94,47,BS_CENTER
+    COMBOBOX        IDC_XF_NAME_B,136,45,80,75,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "Open",IDC_XF_OPEN_B,136,62,40,14
+    PUSHBUTTON      "Save",IDC_XF_SAVE_B,176,62,40,14
+    GROUPBOX        "Edit",IDC_STATIC,7,84,80,30,BS_CENTER | WS_GROUP
+    CONTROL         "A",IDC_XF_EDIT_A,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_TABSTOP,14,95,22,14
+    CONTROL         "B",IDC_XF_EDIT_B,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_TABSTOP,36,95,22,14
+    CONTROL         "Mix",IDC_XF_EDIT_MIX,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,58,95,22,14
+    GROUPBOX        "Mix",IDC_STATIC,93,84,74,30,BS_CENTER | WS_GROUP
+    CONTROL         "View",IDC_XF_MIX_VIEW,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,100,95,30,14
+    PUSHBUTTON      "Save",IDC_XF_MIX_SAVE,130,95,30,14,BS_PUSHLIKE
+    LTEXT           "Waveform:",IDC_STATIC,174,86,36,8
+    COMBOBOX        IDC_XF_WAVEFORM,173,96,50,90,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_ROW_DIALOG_FORM DIALOG DISCARDABLE  0, 0, 240, 137
+STYLE WS_CHILD | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_PLAYLIST DIALOGEX 200, 100, 162, 161
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Playlist"
+MENU IDR_PLAYLIST
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "List1",IDC_PL_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | 
+                    WS_TABSTOP,7,3,148,94
+    LTEXT           "Bank:",IDC_PL_BANK_CAP,7,100,20,8
+    COMBOBOX        IDC_PL_BANK,7,111,30,57,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Assign key:",IDC_PL_HOTKEY_CAP,44,100,37,8
+    CONTROL         "HotKey1",IDC_PL_HOTKEY,"msctls_hotkey32",WS_BORDER | 
+                    WS_TABSTOP,43,111,48,14
+    CTEXT           "Autoplay:",IDC_PL_AUTOPLAY_CAP,98,100,57,8
+    CONTROL         "Shuffle",IDC_PL_SHUFFLE,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,98,111,34,14
+    CONTROL         "",IDC_PL_PLAY,"Button",BS_AUTOCHECKBOX | BS_ICON | 
+                    BS_PUSHLIKE | WS_TABSTOP,137,111,18,14
+    LTEXT           "Patch secs:",IDC_PL_PATCH_SECS_CAP,7,128,38,8
+    EDITTEXT        IDC_PL_PATCH_SECS_EDIT,7,139,38,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_PL_PATCH_SECS_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,36,139,11,
+                    14
+    CTEXT           "Crossfade seconds:",IDC_PL_XFADE_SECS_CAP,51,128,104,8
+    CONTROL         "Slider1",IDC_PL_XFADE_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,48,139,66,15
+    EDITTEXT        IDC_PL_XFADE_SECS_EDIT,117,139,38,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_PL_XFADE_SECS_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,146,139,
+                    11,14
+END
+
+IDD_MISSING_FILES_DLG DIALOG DISCARDABLE  0, 0, 316, 28
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Missing Files"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Search && Proceed",IDOK,7,7,70,14
+    PUSHBUTTON      "Proceed",IDC_MISF_PROCEED,85,7,70,14
+    PUSHBUTTON      "Open Dialog...",IDC_MISF_OPENDLG,162,7,70,14
+    PUSHBUTTON      "Cancel",IDCANCEL,239,7,70,14
+END
+
+IDD_REPLACE_FILES_DLG DIALOG DISCARDABLE  0, 0, 273, 242
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Replace Files"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List2",IDC_RPLF_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | 
+                    WS_TABSTOP,7,7,259,176
+    PUSHBUTTON      "Browse...",IDC_RPLF_BROWSE,14,190,72,14
+    PUSHBUTTON      "Search Folder...",IDC_RPLF_SEARCH_FOLDER,100,190,72,14
+    PUSHBUTTON      "Search All",IDC_RPLF_SEARCH_ALL,186,190,72,14
+    DEFPUSHBUTTON   "OK",IDOK,134,221,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,195,221,50,14
+END
+
+IDD_FILE_SEARCH_DLG DIALOG DISCARDABLE  0, 0, 154, 47
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "File Search"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,52,26,50,14
+    CTEXT           "Searching...",IDC_STATUS,7,7,140,8
+END
+
+IDD_MASTER DIALOGEX 305, 0, 168, 144
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Master"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    RTEXT           "Speed:",IDC_STATIC,3,3,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_SPEED_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,3,80,12
+    EDITTEXT        IDC_MAST_SPEED_EDIT,126,3,40,12,ES_AUTOHSCROLL
+    RTEXT           "Zoom:",IDC_STATIC,3,17,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_ZOOM_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,17,80,12
+    EDITTEXT        IDC_MAST_ZOOM_EDIT,126,17,40,12,ES_AUTOHSCROLL
+    RTEXT           "Damping:",IDC_STATIC,3,31,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_DAMPING_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,31,80,12
+    EDITTEXT        IDC_MAST_DAMPING_EDIT,126,31,40,12,ES_AUTOHSCROLL
+    RTEXT           "Trail:",IDC_STATIC,3,45,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_TRAIL_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,45,80,12
+    EDITTEXT        IDC_MAST_TRAIL_EDIT,126,45,40,12,ES_AUTOHSCROLL
+    RTEXT           "Rings:",IDC_STATIC,3,59,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_RINGS_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,59,80,12
+    EDITTEXT        IDC_MAST_RINGS_EDIT,126,59,40,12,ES_AUTOHSCROLL
+    RTEXT           "Tempo:",IDC_STATIC,3,73,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_TEMPO_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,73,80,12
+    EDITTEXT        IDC_MAST_TEMPO_EDIT,126,73,40,12,ES_AUTOHSCROLL
+    RTEXT           "Hue Loop:",IDC_STATIC,3,87,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_HUE_LOOP_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,87,80,12
+    EDITTEXT        IDC_MAST_HUE_LOOP_EDIT,126,87,40,12,ES_AUTOHSCROLL
+    RTEXT           "Canvas:",IDC_STATIC,3,101,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_CANVAS_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,101,80,12
+    EDITTEXT        IDC_MAST_CANVAS_EDIT,126,101,40,12,ES_AUTOHSCROLL
+    RTEXT           "Copies:",IDC_STATIC,3,115,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_COPIES_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,115,80,12
+    EDITTEXT        IDC_MAST_COPIES_EDIT,126,115,40,12,ES_AUTOHSCROLL
+    RTEXT           "Spread:",IDC_STATIC,3,129,36,12,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_MAST_SPREAD_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,43,129,80,12
+    EDITTEXT        IDC_MAST_SPREAD_EDIT,126,129,40,12,ES_AUTOHSCROLL
+END
+
+IDD_EXPORT DIALOG DISCARDABLE  0, 0, 129, 175
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Export Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Bitmap dimensions",IDC_STATIC,11,7,107,139
+    CONTROL         "&Use window size",IDC_EXP_USE_WND_SIZE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,30,21,69,10
+    RTEXT           "&Width:",IDC_STATIC,38,39,22,8
+    EDITTEXT        IDC_EXP_WIDTH,63,37,40,14,ES_AUTOHSCROLL
+    RTEXT           "&Height:",IDC_STATIC,35,58,24,8
+    EDITTEXT        IDC_EXP_HEIGHT,63,56,40,14,ES_AUTOHSCROLL
+    RTEXT           "&Resolution:",IDC_STATIC,23,77,36,8
+    EDITTEXT        IDC_EXP_RESOLUTION,63,75,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Resizing",IDC_STATIC,26,94,77,41,WS_GROUP
+    CONTROL         "&Crop",IDC_EXP_SCALE_TO_FIT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,38,105,31,10
+    CONTROL         "&Scale to fit",IDC_EXP_SCALE_TO_FIT2,"Button",
+                    BS_AUTORADIOBUTTON,38,118,49,10
+    PUSHBUTTON      "OK",IDOK,11,154,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,68,154,50,14
+END
+
+IDD_MULTI_FILE DIALOG DISCARDABLE  0, 0, 186, 24
+STYLE DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Preview",IDC_MULTI_FILE_PREVIEW,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,7,41,10
+END
+
+IDD_SLIDE_SHOW DIALOG DISCARDABLE  0, 0, 145, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Slide Show"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Seconds per slide:",IDC_STATIC,19,9,59,8
+    EDITTEXT        IDC_SS_SECONDS,83,7,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SS_SECS_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,118,7,10,14
+    CONTROL         "Loop",IDC_SS_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    26,28,32,10
+    CONTROL         "Full screen",IDC_SS_FULL_SCREEN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,70,28,50,10
+    DEFPUSHBUTTON   "OK",IDOK,18,45,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,77,45,50,14
+END
+
+IDD_OPTS_DISPLAY DIALOG DISCARDABLE  0, 0, 200, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Display"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "DirectDraw",IDC_STATIC,7,7,186,53
+    CONTROL         "Use &DirectDraw",IDC_OP_USE_DIRDRAW,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,16,19,66,10
+    CONTROL         "&Mirror to back buffer",IDC_OP_MIRROR_PRECISE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,16,30,79,10
+    CONTROL         "Allow &Exclusive mode",IDC_OP_ALLOW_EXCLUSIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,16,42,84,10
+    LTEXT           "&Back buffer location:",IDC_STATIC,108,18,66,8
+    COMBOBOX        IDC_OP_BACK_BUF_LOC,108,29,72,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Frame rate:",IDC_STATIC,16,63,36,8
+    EDITTEXT        IDC_OP_FRAME_RATE,16,74,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OP_FRAME_RATE_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,46,74,11,
+                    14
+    CONTROL         "&Print from bitmap",IDC_OP_PRINT_FROM_BITMAP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,107,72,68,10
+END
+
+IDD_OPTS_INPUT DIALOG DISCARDABLE  0, 0, 200, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Input"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "&Mouse sensitivity:",IDC_STATIC,7,10,62,14,
+                    SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_OP_MOUSE_SENS_SLIDER,"msctls_trackbar32",
+                    TBS_AUTOTICKS | WS_TABSTOP,72,10,90,18
+    EDITTEXT        IDC_OP_MOUSE_SENS_EDIT,165,10,28,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    RTEXT           "&Wheel sensitivity:",IDC_STATIC,7,29,62,14,
+                    SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_OP_WHEEL_SENS_SLIDER,"msctls_trackbar32",
+                    TBS_AUTOTICKS | WS_TABSTOP,72,29,90,18
+    EDITTEXT        IDC_OP_WHEEL_SENS_EDIT,165,29,28,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    RTEXT           "&Tempo nudge %:",IDC_STATIC,7,48,62,14,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_OP_TEMPO_NUDGE_SLIDER,"msctls_trackbar32",
+                    TBS_AUTOTICKS | WS_TABSTOP,72,48,90,19
+    EDITTEXT        IDC_OP_TEMPO_NUDGE_EDIT,165,48,28,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+END
+
+IDD_MIDI_SETUP_ROW DIALOG DISCARDABLE  0, 0, 324, 14
+STYLE WS_CHILD | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Static",IDC_MS_TITLE,0,1,76,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MS_RANGE_START,80,1,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_MS_RANGE_START_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,112,1,10,
+                    12
+    EDITTEXT        IDC_MS_RANGE_END,122,1,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_MS_RANGE_END_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,154,1,10,
+                    12
+    COMBOBOX        IDC_MS_EVENT,164,1,40,67,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    EDITTEXT        IDC_MS_CHAN,206,1,40,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_MS_CHAN_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,237,1,11,
+                    12
+    EDITTEXT        IDC_MS_CTRL,248,1,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_MS_CTRL_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,279,1,11,
+                    12
+    EDITTEXT        IDC_MS_VALUE,290,1,30,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER | NOT WS_TABSTOP
+END
+
+IDD_MIDI_SETUP DIALOGEX 305, 100, 295, 150
+STYLE WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "MIDI Setup"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Learn",IDC_MS_LEARN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,8,34,10
+    PUSHBUTTON      "Restore Defaults",IDC_MS_RESTORE_DEFAULTS,44,6,64,14
+    PUSHBUTTON      "Zero Controllers",IDC_MS_ZERO_CONTROLS,112,6,64,14
+    PUSHBUTTON      "Auto Assign...",IDC_MS_AUTO_ASSIGN,180,6,56,14
+    CONTROL         "Advanced",IDC_MS_ADVANCED,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,241,8,49,10
+END
+
+IDD_OPTS_MIDI DIALOG DISCARDABLE  0, 0, 200, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MIDI"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_OP_MIDI_DEV,47,16,93,53,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Device:",IDC_STATIC,18,18,26,8
+    CONTROL         "MIDI Sync",IDC_OP_MIDI_SYNC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,47,39,49,10
+END
+
+IDD_PROGRESS DIALOG DISCARDABLE  0, 0, 186, 49
+STYLE DS_MODALFRAME | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Progress"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | 
+                    WS_BORDER,7,7,172,14
+    PUSHBUTTON      "Cancel",IDCANCEL,67,28,50,14
+END
+
+IDD_MOVIE_PLAYER DIALOG DISCARDABLE  0, 0, 280, 47
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | 
+    WS_CAPTION | WS_SYSMENU
+CAPTION "Movie Player"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Slider1",IDC_MP_POS,"msctls_trackbar32",TBS_NOTICKS | 
+                    TBS_ENABLESELRANGE | WS_TABSTOP,7,7,266,16
+    CHECKBOX        "Open",IDC_MP_OPEN,7,26,16,14,BS_ICON | BS_PUSHLIKE
+    CHECKBOX        "Save",IDC_MP_SAVE,23,26,16,14,BS_ICON | BS_PUSHLIKE
+    CHECKBOX        "Take Snap",IDC_MP_TAKE_SNAP,39,26,16,14,BS_ICON | 
+                    BS_PUSHLIKE
+    CHECKBOX        "Play",IDC_MP_PLAY,60,26,16,14,BS_ICON | BS_PUSHLIKE
+    CHECKBOX        "Pause",IDC_MP_PAUSE,76,26,16,14,BS_ICON | BS_PUSHLIKE
+    CHECKBOX        "Stop",IDC_MP_STOP,92,26,16,14,BS_ICON | BS_PUSHLIKE
+    CHECKBOX        "Loop",IDC_MP_LOOP,108,26,16,14,BS_ICON | BS_PUSHLIKE
+    CHECKBOX        "Start",IDC_MP_GOTO_START,129,26,16,14,BS_ICON | 
+                    BS_PUSHLIKE
+    CHECKBOX        "End",IDC_MP_GOTO_END,145,26,16,14,BS_ICON | BS_PUSHLIKE
+    CHECKBOX        "Set In",IDC_MP_SET_IN,161,26,16,14,BS_ICON | 
+                    BS_PUSHLIKE
+    CHECKBOX        "Set Out",IDC_MP_SET_OUT,177,26,16,14,BS_ICON | 
+                    BS_PUSHLIKE
+    RTEXT           "Static",IDC_MP_TIME,197,26,76,14,SS_CENTERIMAGE
+END
+
+IDD_MOVIE_EXPORT DIALOG DISCARDABLE  0, 0, 218, 202
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Movie Export"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Input",IDC_STATIC,7,7,98,104
+    RTEXT           "Size:",IDC_STATIC,13,18,20,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MEX_IN_SIZE,36,18,60,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    GROUPBOX        "Output",IDC_STATIC,114,7,97,104
+    RTEXT           "Si&ze:",IDC_STATIC,119,18,20,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_MEX_OUT_SIZE,142,18,60,51,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Resizing:",IDC_STATIC,31,33,65,35,WS_GROUP
+    CONTROL         "&Crop",IDC_MEX_SCALE_TO_FIT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,41,42,31,10
+    CONTROL         "&Scale to fit",IDC_SCALE_TO_FIT2,"Button",
+                    BS_AUTORADIOBUTTON,41,54,49,10
+    RTEXT           "Frame rate:",IDC_STATIC,13,73,40,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MEX_IN_FRAME_RATE,56,73,40,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    RTEXT           "Length:",IDC_STATIC,25,89,28,11,SS_CENTERIMAGE
+    EDITTEXT        IDC_MEX_IN_LENGTH,56,89,40,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    RTEXT           "&Width:",IDC_STATIC,133,37,26,11,SS_CENTERIMAGE
+    EDITTEXT        IDC_MEX_OUT_WIDTH,162,37,40,12,ES_AUTOHSCROLL
+    RTEXT           "&Height:",IDC_STATIC,133,53,26,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MEX_OUT_HEIGHT,162,53,40,12,ES_AUTOHSCROLL
+    RTEXT           "Frame &rate:",IDC_STATIC,119,73,40,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MEX_OUT_FRAME_RATE,162,73,40,12,ES_AUTOHSCROLL
+    RTEXT           "Length:",IDC_STATIC,131,89,28,11,SS_CENTERIMAGE
+    EDITTEXT        IDC_MEX_OUT_LENGTH,162,89,40,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    GROUPBOX        "Frame range",IDC_STATIC,7,115,204,41
+    CONTROL         "&All",IDC_MEX_RANGE_SUBSET,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,17,126,23,10
+    CONTROL         "S&ubset",IDC_MEX_RANGE_SUBSET2,"Button",
+                    BS_AUTORADIOBUTTON,17,139,38,10
+    LTEXT           "&First frame:",IDC_STATIC,89,123,35,8
+    EDITTEXT        IDC_MEX_RANGE_FIRST,89,133,50,14,ES_AUTOHSCROLL
+    LTEXT           "&Last frame:",IDC_STATIC,151,123,36,8
+    EDITTEXT        IDC_MEX_RANGE_LAST,151,133,50,14,ES_AUTOHSCROLL
+    CONTROL         "Export &bitmaps",IDC_MEX_EXPORT_BITMAPS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,162,62,10
+    DEFPUSHBUTTON   "OK",IDOK,101,181,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,161,181,50,14
+    CONTROL         "Display output frames ",IDC_MEX_DISPLAY_OUTPUT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,101,162,85,10
+END
+
+IDD_POPUP_MSG DIALOG DISCARDABLE  0, 0, 126, 20
+STYLE WS_POPUP | WS_VISIBLE | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_OPTS_FOLDER DIALOG DISCARDABLE  0, 0, 200, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Folder"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Default folder for output files:",IDC_STATIC,11,7,91,8
+    EDITTEXT        IDC_OP_SNAP_FOLDER_EDIT,11,18,162,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_OP_SNAP_FOLDER_BROWSE,175,18,16,14
+    LTEXT           "Use default folder:",IDC_STATIC,11,35,58,10,
+                    SS_CENTERIMAGE
+    CONTROL         "In &VJ mode",IDC_OP_SNAP_FOLDER_ALWAYS,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,76,35,51,10
+    CONTROL         "Al&ways",IDC_OP_SNAP_FOLDER_ALWAYS2,"Button",
+                    BS_AUTORADIOBUTTON,133,35,38,10
+END
+
+IDD_MOVIE_RESIZE DIALOG DISCARDABLE  0, 0, 120, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Resize Movie"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "&Width:",IDC_STATIC,23,7,26,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MRS_WIDTH,55,7,40,14,ES_AUTOHSCROLL
+    RTEXT           "&Height:",IDC_STATIC,23,24,26,11,SS_CENTERIMAGE
+    EDITTEXT        IDC_MRS_HEIGHT,55,24,40,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,7,45,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,63,45,50,14
+END
+
+IDD_MIDI_AUTO_ASSIGN DIALOG DISCARDABLE  0, 0, 212, 121
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MIDI Auto Assign"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Properties",IDC_STATIC,7,3,198,39
+    CONTROL         "&All",IDC_MAA_PROP_RANGE,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,14,14,23,10
+    CONTROL         "&Range",IDC_MAA_PROP_RANGE2,"Button",BS_AUTORADIOBUTTON,
+                    14,26,37,10
+    LTEXT           "&First:",IDC_STATIC,56,11,16,8
+    COMBOBOX        IDC_MAA_PROP_FIRST,56,21,69,82,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Last:",IDC_STATIC,130,11,16,8
+    COMBOBOX        IDC_MAA_PROP_LAST,130,21,68,82,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Event",IDC_STATIC,7,46,61,47
+    CONTROL         "&Off",IDC_MAA_EVENT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,14,56,25,10
+    CONTROL         "&Controller",IDC_MAA_EVENT2,"Button",BS_AUTORADIOBUTTON,
+                    14,67,45,10
+    CONTROL         "&Note",IDC_MAA_EVENT3,"Button",BS_AUTORADIOBUTTON,14,78,
+                    31,10
+    GROUPBOX        "C&hannel",IDC_STATIC,77,46,60,47,WS_GROUP
+    EDITTEXT        IDC_MAA_CHAN,87,58,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_MAA_CHAN_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,120,58,10,
+                    14
+    CONTROL         "Range",IDC_MAA_CHAN_RANGE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,87,76,37,10
+    GROUPBOX        "Parameter",IDC_MAA_PARM_CAP,145,46,60,47
+    EDITTEXT        IDC_MAA_PARAM,155,58,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_MAA_PARAM_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,187,58,10,
+                    14
+    CONTROL         "Range",IDC_MAA_PARAM_RANGE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,155,76,37,10
+    CONTROL         "&Set channel only",IDC_MAA_SET_CHAN_ONLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,99,69,10
+    DEFPUSHBUTTON   "OK",IDOK,94,100,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,155,100,50,14
+END
+
+IDD_PLAYLIST_MIDI DIALOG DISCARDABLE  0, 0, 182, 85
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Playlist MIDI Mapping"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Mapping scheme",IDC_STATIC,7,5,88,52
+    CONTROL         "&None",IDC_PLM_SCHEME,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,16,16,33,10
+    CONTROL         "&Program changes",IDC_PLM_SCHEME2,"Button",
+                    BS_AUTORADIOBUTTON,16,28,71,10
+    CONTROL         "&Range of notes",IDC_PLM_SCHEME3,"Button",
+                    BS_AUTORADIOBUTTON,16,40,65,10
+    RTEXT           "&Channel:",IDC_STATIC,102,7,29,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_PLM_CHAN,135,7,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_PLM_CHAN_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,167,7,10,
+                    14
+    RTEXT           "&First:",IDC_STATIC,102,24,29,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_PLM_FIRST,135,24,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_PLM_FIRST_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,167,24,10,
+                    14
+    RTEXT           "&Last:",IDC_STATIC,102,42,29,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_PLM_LAST,135,42,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin3",IDC_PLM_LAST_SPIN,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,167,42,10,
+                    14
+    DEFPUSHBUTTON   "OK",IDOK,67,64,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,125,64,50,14
+END
+
+IDD_VIDEO_COMPR DIALOG DISCARDABLE  0, 0, 207, 137
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Video Compression"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Compressor:",IDC_STATIC,7,7,40,8
+    COMBOBOX        IDC_VCD_COMBO,7,17,134,97,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Compression &Quality:",IDC_VCD_QUAL_CAP,7,35,66,8
+    LTEXT           "",IDC_VCD_QUAL_NUM,89,35,33,8
+    CONTROL         "Slider1",IDC_VCD_QUALITY,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,7,46,134,15
+    RTEXT           "&Data Rate:",IDC_VCD_DATA_RATE_CAP,11,68,62,12,
+                    SS_CENTERIMAGE
+    EDITTEXT        IDC_VCD_DATA_RATE_EDIT,78,68,30,12,ES_AUTOHSCROLL
+    LTEXT           "Kb/sec",IDC_VCD_DATA_RATE_UNIT,112,68,25,12,
+                    SS_CENTERIMAGE
+    RTEXT           "&Key Frame Every:",IDC_VCD_KEY_FRAME_CAP,10,84,62,12,
+                    SS_CENTERIMAGE
+    EDITTEXT        IDC_VCD_KEY_FRAME_EDIT,78,84,30,12,ES_AUTOHSCROLL
+    LTEXT           "frames",IDC_VCD_KEY_FRAME_UNIT,112,84,25,12,
+                    SS_CENTERIMAGE
+    RTEXT           "&P Frames Per Key:",IDC_VCD_P_FRAMES_CAP,10,100,62,12,
+                    SS_CENTERIMAGE
+    EDITTEXT        IDC_VCD_P_FRAMES_EDIT,78,100,30,12,ES_AUTOHSCROLL
+    LTEXT           "frames",IDC_VCD_P_FRAMES_UNIT,112,100,25,12,
+                    SS_CENTERIMAGE
+    RTEXT           "&Window Size:",IDC_VCD_WND_SIZE_CAP,10,116,62,12,
+                    SS_CENTERIMAGE
+    EDITTEXT        IDC_VCD_WND_SIZE_EDIT,78,116,30,12,ES_AUTOHSCROLL
+    LTEXT           "frames",IDC_VCD_WND_SIZE_UNIT,112,116,25,12,
+                    SS_CENTERIMAGE
+    DEFPUSHBUTTON   "OK",IDOK,150,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,150,24,50,14
+    PUSHBUTTON      "Con&figure...",IDC_VCD_CONFIG,150,45,50,14
+    PUSHBUTTON      "&About...",IDC_VCD_ABOUT,150,63,50,14
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,7,6,0
+ PRODUCTVERSION 1,7,6,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Anal Software\0"
+            VALUE "FileDescription", "Whorld Application\0"
+            VALUE "FileVersion", "1, 7, 6, 0\0"
+            VALUE "InternalName", "Whorld\0"
+            VALUE "LegalCopyright", "Copyleft (C) 2006\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "Whorld.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Whorld Application\0"
+            VALUE "ProductVersion", "1, 7, 6, 0\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 200
+        VERTGUIDE, 40
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 120
+    END
+
+    IDD_PARMS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 143
+    END
+
+    IDD_NUMBERS, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 82
+        VERTGUIDE, 54
+        VERTGUIDE, 58
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 211
+    END
+
+    IDD_CROSS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 223
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_PLAYLIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 155
+    END
+
+    IDD_MISSING_FILES_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 21
+    END
+
+    IDD_REPLACE_FILES_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 266
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 235
+        HORZGUIDE, 204
+    END
+
+    IDD_FILE_SEARCH_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 147
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
+    END
+
+    IDD_MASTER, DIALOG
+    BEGIN
+        LEFTMARGIN, 3
+        VERTGUIDE, 43
+        VERTGUIDE, 123
+        VERTGUIDE, 126
+        TOPMARGIN, 3
+    END
+
+    IDD_EXPORT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 122
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 168
+    END
+
+    IDD_MULTI_FILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 17
+    END
+
+    IDD_SLIDE_SHOW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 138
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
+
+    IDD_OPTS_DISPLAY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 193
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_OPTS_INPUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 193
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_MIDI_SETUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 288
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 143
+    END
+
+    IDD_OPTS_MIDI, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 193
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
+
+    IDD_MOVIE_PLAYER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 273
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
+    END
+
+    IDD_MOVIE_EXPORT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 211
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 195
+    END
+
+    IDD_OPTS_FOLDER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 193
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_MOVIE_RESIZE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 113
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
+
+    IDD_MIDI_AUTO_ASSIGN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_PLAYLIST_MIDI, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 175
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 78
+    END
+
+    IDD_VIDEO_COMPR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 200
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 130
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_FILE_PRINT_PREVIEW
+    BUTTON      ID_FILE_TAKE_SNAPSHOT
+    SEPARATOR
+    BUTTON      ID_IMG_LOOP_HUE
+    BUTTON      ID_IMG_ROTATE_HUE
+    BUTTON      ID_IMG_INVERT_COLOR
+    SEPARATOR
+    BUTTON      ID_IMG_MIRROR
+    BUTTON      ID_IMG_FILL
+    BUTTON      ID_IMG_OUTLINE
+    BUTTON      ID_IMG_XRAY
+    SEPARATOR
+    BUTTON      ID_IMG_REVERSE
+    BUTTON      ID_IMG_CONVEX
+    BUTTON      ID_IMG_CENTER_ORIGIN
+    BUTTON      ID_IMG_DRAG_ORIGIN
+    BUTTON      ID_IMG_RANDOM_ORIGIN
+    SEPARATOR
+    BUTTON      ID_VIEW_MIX
+    BUTTON      ID_VIEW_AUTOPLAY
+    SEPARATOR
+    BUTTON      ID_WND_PAUSE
+    BUTTON      ID_WND_CLEAR
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_DRAG_SINGLE         CURSOR  DISCARDABLE     "res\\dragsingle.cur"
+IDC_DRAG_MULTI          CURSOR  DISCARDABLE     "res\\dragmulti.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_OPTS_DISPLAY DLGINIT
+BEGIN
+    IDC_OP_BACK_BUF_LOC, 0x403, 5, 0
+0x7541, 0x6f74, "\000" 
+    IDC_OP_BACK_BUF_LOC, 0x403, 14, 0
+0x7953, 0x7473, 0x6d65, 0x6d20, 0x6d65, 0x726f, 0x0079, 
+    IDC_OP_BACK_BUF_LOC, 0x403, 13, 0
+0x6956, 0x6564, 0x206f, 0x656d, 0x6f6d, 0x7972, "\000" 
+    0
+END
+
+IDD_MOVIE_EXPORT DLGINIT
+BEGIN
+    IDC_MEX_OUT_SIZE, 0x403, 10, 0
+0x3233, 0x2030, 0x2078, 0x3432, 0x0030, 
+    IDC_MEX_OUT_SIZE, 0x403, 10, 0
+0x3436, 0x2030, 0x2078, 0x3834, 0x0030, 
+    IDC_MEX_OUT_SIZE, 0x403, 7, 0
+0x7543, 0x7473, 0x6d6f, "\000" 
+    0
+END
+
+IDD_MIDI_SETUP_ROW DLGINIT
+BEGIN
+    IDC_MS_EVENT, 0x403, 4, 0
+0x464f, 0x0046, 
+    IDC_MS_EVENT, 0x403, 5, 0
+0x5443, 0x4c52, "\000" 
+    IDC_MS_EVENT, 0x403, 5, 0
+0x4f4e, 0x4554, "\000" 
+    IDC_MS_EVENT, 0x403, 6, 0
+0x4950, 0x4354, 0x0048, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "Whorld\n\nWhorld\nWhorld Files (*.whp)\n.whp\nWhorld.Document\nWhorld Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Whorld"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new patch\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the current patch\nSave"
+    ID_FILE_SAVE_AS         "Save the current patch with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the current image\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyleft\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+    ID_HELP_INDEX           "List Help topics\nHelp"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_IMG_REVERSE          "Grow rings inward\nReverse"
+    ID_IMG_ROTATE_HUE       "Rotate hue 90 degrees\nRotate Hue"
+    ID_IMG_SET_ORIGIN       "Set origin to cursor position\nSet Origin"
+    ID_IMG_STEP_BACKWARD    "Step rings backward\nStep Backward"
+    ID_IMG_STEP_FORWARD     "Step rings forward\nStep Forward"
+    ID_IMG_TOGGLE_ORIGIN    "Switch between drag and random\nToggle Origin"
+    ID_IMG_VIDEO_AUTO_REWIND 
+                            "Automatically rewind clips before playing them\nRewind Video"
+    ID_IMG_VIDEO_CYCLE      "Cycle video clips in sync with tempo\nCycle Video"
+    ID_IMG_VIDEO_CYCLE_LEN0 "Cycle most recent 10 video clips\nCycle 10"
+    ID_IMG_VIDEO_CYCLE_LEN1 "Cycle most recent 1 video clips\nCycle 1"
+    ID_IMG_VIDEO_CYCLE_LEN2 "Cycle most recent 2 video clips\nCycle 2"
+    ID_IMG_VIDEO_CYCLE_LEN3 "Cycle most recent 3 video clips\nCycle 3"
+    ID_IMG_VIDEO_CYCLE_LEN4 "Cycle most recent 4 video clips\nCycle 4"
+    ID_IMG_VIDEO_CYCLE_LEN5 "Cycle most recent 5 video clips\nCycle 5"
+    ID_IMG_VIDEO_CYCLE_LEN6 "Cycle most recent 6 video clips\nCycle 6"
+    ID_IMG_VIDEO_CYCLE_LEN7 "Cycle most recent 7 video clips\nCycle 7"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_IMG_VIDEO_CYCLE_LEN8 "Cycle most recent 8 video clips\nCycle 8"
+    ID_IMG_VIDEO_CYCLE_LEN9 "Cycle most recent 9 video clips\nCycle 9"
+    ID_IMG_VIDEO_RANDOM_ORIGIN 
+                            "Randomize video origin when mirrored\nVideo Random Origin"
+    ID_IMG_VIDEO_ROP0       "AND inverted source with destination\nROP DSna"
+    ID_IMG_VIDEO_ROP1       "OR inverted source with destination\nROP DSno"
+    ID_IMG_VIDEO_ROP2       "AND source with inverted destination\nROP SDna"
+    ID_IMG_VIDEO_ROP3       "OR source with inverted destination\nROP SDno"
+    ID_IMG_VIDEO_ROP4       "AND source with destination\nROP DSa"
+    ID_IMG_VIDEO_ROP5       "OR source with destination\nROP DSo"
+    ID_IMG_VIDEO_ROP6       "XOR source with destination\nROP DSx"
+    ID_IMG_VIDEO_ROP7       "AND source with destination, invert result\nROP DSan"
+    ID_IMG_VIDEO_ROP8       "OR source with destination, invert result\nROP DSon"
+    ID_IMG_VIDEO_ROP9       "XOR source with destination, invert result\nROP DSxn"
+    ID_IMG_VIDEO_SELECT0    "Select video clip 0\nClip 0"
+    ID_IMG_VIDEO_SELECT1    "Select video clip 1\nClip 1"
+    ID_IMG_VIDEO_SELECT2    "Select video clip 2\nClip 2"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_IMG_VIDEO_SELECT3    "Select video clip 3\nClip 3"
+    ID_IMG_VIDEO_SELECT4    "Select video clip 4\nClip 4"
+    ID_IMG_VIDEO_SELECT5    "Select video clip 5\nClip 5"
+    ID_IMG_VIDEO_SELECT6    "Select video clip 6\nClip 6"
+    ID_IMG_VIDEO_SELECT7    "Select video clip 7\nClip 7"
+    ID_IMG_VIDEO_SELECT8    "Select video clip 8\nClip 8"
+    ID_IMG_VIDEO_SELECT9    "Select video clip 9\nClip 9"
+    ID_IMG_VIDEO_SELECT_NONE "Disable video\nVideo Off"
+    ID_IMG_XRAY             "Draw rings with XOR pen\nX-Ray"
+    ID_INDICATOR_AUTOPLAY   "AUTO"
+    ID_INDICATOR_FRAME_RATE "000.00"
+    ID_INDICATOR_HUE_LOOP   "HUE°"
+    ID_INDICATOR_MIX        "MIX"
+    ID_INDICATOR_ORG_MOTION "DRAG"
+    ID_INDICATOR_PATCH_MODE "GEOM"
+    ID_INDICATOR_PAUSE      "PAUSE"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_RECORD     "REC"
+    ID_INDICATOR_TEMPO      "000.00"
+    ID_PL_EDIT_AUTO_ASSIGN  "Assign keys to list in QWERTY order\nAuto-Assign Keys"
+    ID_PL_EDIT_COPY         "Copy the selection and put it on the Clipboard\nCopy"
+    ID_PL_EDIT_CUT          "Cut the selection and put it on the Clipboard\nCut"
+    ID_PL_EDIT_DELETE       "Delete the current selection\nDelete"
+    ID_PL_EDIT_MIDI_MAPPING "Assign MIDI events to patches\nMIDI Mapping"
+    ID_PL_EDIT_PASTE        "Insert Clipboard contents\nPaste"
+    ID_PL_EDIT_REMOVE_KEY   "Remove the current key assignment\nClear Key"
+    ID_PL_EDIT_SELECT_ALL   "Select the entire playlist\nSelect All"
+    ID_PL_EDIT_SEND_TO_A    "Send to crossfader input A\nCrossfader A"
+    ID_PL_EDIT_SEND_TO_B    "Send to crossfader input B\nCrossfader B"
+    ID_PL_EDIT_SEND_TO_DOC  "Send to document\nDocument"
+    ID_PL_FILE_IMPORT_MIDI  "Import MIDI setup from another playlist\nImport MIDI Setup"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_PL_FILE_INSERT_PATCHES 
+                            "Insert one or more patches into the playlist\nInsert Patch"
+    ID_PL_FILE_MRU_FILE1    "Open this playlist"
+    ID_PL_FILE_MRU_FILE2    "Open this playlist"
+    ID_PL_FILE_MRU_FILE3    "Open this playlist"
+    ID_PL_FILE_MRU_FILE4    "Open this playlist"
+    ID_PL_FILE_NEW          "Create a new playlist\nPlaylist New"
+    ID_PL_FILE_OPEN         "Open an existing playlist\nPlaylist Open"
+    ID_PL_FILE_SAVE         "Save the current playlist\nPlaylist Save"
+    ID_PL_FILE_SAVE_AS      "Save the current playlist with a new name\nPlaylist Save As"
+    ID_PL_VIEW_REFRESH_THUMBS "Recreate thumbnails from source files"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_PL_VIEW_TYPE_DETAILS "View details"
+    ID_PL_VIEW_TYPE_THUMBS  "View thumbnails"
+    ID_SNAP_EXPORT_ALL      "Export all snapshots\nExport All"
+    ID_SNAP_SLIDE_SHOW      "Display snapshots as a slide show\nSlide Show"
+    ID_TEMPO_DOUBLE         "Multiply current tempo by two\nTempo Double"
+    ID_TEMPO_HALF           "Divide current tempo by two\nTempo Half"
+    ID_TEMPO_NUDGE_DOWN     "Decrease tempo by nudge percentage\nTempo Nudge Down"
+    ID_TEMPO_NUDGE_UP       "Increase tempo by nudge percentage\nTempo Nudge Up"
+    ID_TEMPO_RESYNC         "Resynchronize tempo\nTempo Resync"
+    ID_VIEW_AUTOPLAY        "Play the current playlist\nAutoplay"
+    ID_VIEW_CROSSFADER      "Show or hide the crossfader dialog\nCrossfader"
+    ID_VIEW_DEMO            "View demo\nDemo"
+    ID_VIEW_MASTER          "Show or hide the master speed dialog\nMaster Speed"
+    ID_VIEW_MIDI_SETUP      "Show or hide the MIDI setup dialog\nMIDI Setup"
+    ID_VIEW_MIX             "View crossfader mix\nView Mix"
+    ID_VIEW_NUMBERS         "Show or hide the numbers dialog\nNumbers"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_OPTIONS         "Show the options dialog\nOptions"
+    ID_VIEW_PARMS           "Show or hide the parameters dialog\nParameters"
+    ID_VIEW_PLAYLIST        "Show or hide the playlist dialog\nPlaylist"
+    ID_WND_CLEAR            "Clear window\nClear"
+    ID_WND_DETACH           "Detach view from main frame\nDetatch"
+    ID_WND_FULL_SCREEN      "Toggle full screen mode\nFull Screen"
+    ID_WND_PANIC            "Restore default settings\nPanic"
+    ID_WND_PAUSE            "Freeze current frame\nPause"
+    ID_WND_STEP             "Step forward one frame at a time\nStep"
+    ID_WND_VEEJAY           "Toggle live performance mode\nVeejay"
+    ID_WND_ZOOM_CENTER      "Enable window-centered zoom\nWindow Zoom"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_HOME_PAGE        "Go to the Whorld home page"
+    ID_EDIT_DOCUMENT        "Select the current document for editing\nEdit Document"
+    ID_EDIT_END             "Go to last item\nLast"
+    ID_EDIT_GLOBAL_PARMS    "Select global parameters for editing\nEdit Global Params"
+    ID_EDIT_HOME            "Go to first item\nFirst"
+    ID_EDIT_MASTER_OFFSETS  "Select master offsets for editing\nEdit Master Offsets"
+    ID_EDIT_NEXT_PATCH_TO_A "Load playlist's next patch into crossfader input A\nNext Patch A"
+    ID_EDIT_NEXT_PATCH_TO_B "Load playlist's next patch into crossfader input B\nNext Patch B"
+    ID_EDIT_PAGE_DOWN       "Go to next item\nNext"
+    ID_EDIT_PAGE_UP         "Go to previous item\nPrevious"
+    ID_EDIT_PATCH_FULL      "Loading a patch affects all settings\nPatch Full"
+    ID_EDIT_PATCH_GEOMETRY  "Loading a patch affects geometry only\nPatch Geometry"
+    ID_EDIT_RANDOM_PATCH    "Generate a random patch from crossfader inputs\nRandom Patch"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_XFADER_A        "Select crossfader input A for editing\nEdit Crossfader A"
+    ID_EDIT_XFADER_B        "Select crossfader input B for editing\nEdit Crossfader B"
+    ID_EDIT_XFADER_MIX      "Select crossfader output for editing\nEdit Crossfader Mix"
+    ID_EDIT_XFADE_LOOP      "Enable/disable looping of automated crossfade\nLoop"
+    ID_EDIT_XFADE_PLAY      "Start/stop automated crossfade\nAuto Fade"
+    ID_EDIT_XFADE_TIME_DOWN "Decrease crossfade time\nShorter Crossfade"
+    ID_EDIT_XFADE_TIME_UP   "Increase crossfade time\nLonger Crossfade"
+    ID_EDIT_ZERO_CONTROLLERS 
+                            "Reset all MIDI controllers to zero\nZero Controllers"
+    ID_FILE_EXPORT_BITMAP   "Export the current image to a bitmap file\nExport Bitmap"
+    ID_FILE_LOAD_SNAPSHOT   "Restore one or more captured images\nLoad Snapshot"
+    ID_FILE_MOVIE_EXPORT    "Export a recorded movie\nExport Movie"
+    ID_FILE_MOVIE_PLAY      "Play a movie\nPlay Movie"
+    ID_FILE_MOVIE_RECORD    "Record a movie\nRecord Movie"
+    ID_FILE_MOVIE_RESIZE    "Change the frame size of a movie\nResize Movie"
+    ID_FILE_SAVE_MIX        "Save the current mix as a new patch\nMake Patch"
+    ID_FILE_TAKE_SNAPSHOT   "Capture the current image\nTake Snapshot"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_IMG_BACKWARDS        "Grow from outside towards center\nBackwards"
+    ID_IMG_CENTER_ORIGIN    "Center origin within window\nCenter Origin"
+    ID_IMG_CONVEX           "Draw rings in descending size order\nConvex"
+    ID_IMG_DAMPING_DOWN     "Decrease damping\nLess Damping"
+    ID_IMG_DAMPING_UP       "Increase damping\nMore Damping"
+    ID_IMG_DRAG_ORIGIN      "Enable origin dragging\nDrag Origin"
+    ID_IMG_FILL             "Fill area between rings\nFill"
+    ID_IMG_INVERT_COLOR     "Invert color\nInvert Color"
+    ID_IMG_INVERT_FILL      "Toggle fill for all rings\nInvert Fill"
+    ID_IMG_INVERT_OUTLINE   "Toggle outline for all rings\nInvert Outline"
+    ID_IMG_INVERT_XRAY      "Toggle XOR pen for all rings\nInvert X-Ray"
+    ID_IMG_LOOP_HUE         "Limit hue cycling\nLoop Hue"
+    ID_IMG_MIRROR           "Mirror image\nMirror"
+    ID_IMG_OUTLINE          "Outline filled rings\nOutline"
+    ID_IMG_RANDOM_ORIGIN    "Enable random origin\nRandom Origin"
+    ID_IMG_RANDOM_PHASE     "Randomize modulator phases\nRandom Phase"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APP_ABOUT_TEXT      "Whorld Version %d.%d.%d.%d\nCopyleft 2006 Chris Korda"
+    IDS_APP_CREDITS         "Andrew Berlin, Brenda Biagioni, Andres Hernandez, Steve Hoey, Toshi Hoo, Robert Kimberk, Jeff Mission, Paul Mueller, Kevin Roche, Walter Zengerle"
+    IDS_APP_LICENSE         "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA."
+    IDS_BTAE_ADD_COMPR      "Can't add AVI Compressor filter."
+    IDS_BTAE_ADD_FRAME      "Can't add frame."
+    IDS_BTAE_ADD_MUX        "Can't add AVI Mux filter."
+    IDS_BTAE_ADD_SOURCE     "Can't add BmpToAvi filter."
+    IDS_BTAE_ADD_WRITER     "Can't add File Writer filter."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BTAE_STOP_GRAPH     "Can't stop graph."
+    IDS_BTAE_SUCCESS        "Success."
+    IDS_CANT_CREATE_SURFACE "Can't create %d x %d surface."
+    IDS_CANT_DETACH         "Can't create detached frame"
+    IDS_CANT_EXPORT_AVI     "Can't export AVI file: %1"
+    IDS_CANT_HOOK_KEYBD     "Can't hook keyboard."
+    IDS_CANT_LAUNCH_TIMER   "Can't launch timer thread."
+    IDS_CF_MIX_NAME         "Mix"
+    IDS_CF_SAVE_PROMPT      "Save changes to %1: %2?"
+    IDS_CREATING_THUMBS     "Creating thumbnails..."
+    IDS_DD_CANT_CREATE      "Can't create DirectDraw interface: %1."
+    IDS_DD_CANT_CREATE_SURFACE 
+                            "Can't create %d x %d surface.\nDirectDraw: %s."
+    IDS_DD_TRY_GDI          "Try using GDI instead of DirectDraw?"
+    IDS_DI_CANT_CREATE      "Can't create DirectInput interface: %1."
+    IDS_DOC_BAD_FORMAT      "Unexpected file format."
+    IDS_FILTER_AVI          "AVI Files (*.avi)|*.avi|All Files (*.*)|*.*||"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FILTER_BMP          "BMP Files (*.bmp)|*.bmp|All Files (*.*)|*.*||"
+    IDS_FILTER_MAIN         "Whorld Files (*.whp,*.whl,*.whs,*.whm,*.avi)|*.whp;*.whl;*.whs;*.whm;*.avi|Patch Files (*.whp)|*.whp|Playlist Files (*.whl)|*.whl|Snapshot Files (*.whs)|*.whs|Movie Files (*.whm)|*.whm|AVI Files (*.avi)|*.avi|All Files (*.*)|*.*||"
+    IDS_FILTER_MOVIE        "Movie Files (*.whm)|*.whm|All Files (*.*)|*.*||"
+    IDS_FILTER_PATCH        "Patch Files (*.whp)|*.whp|All Files (*.*)|*.*||"
+    IDS_FILTER_PATCH_LINK   "Patch Files (*.whp, *.avi)|*.whp;*.avi|All Files (*.*)|*.*||"
+    IDS_FILTER_PLAYLIST     "Playlist Files (*.whl)|*.whl|All Files (*.*)|*.*||"
+    IDS_FILTER_SNAPSHOT     "Snapshot Files (*.whs)|*.whs|All Files (*.*)|*.*||"
+    IDS_FILTER_THUMBS       "Thumbnail Files (*.wrc)|*.wrc|All Files (*.*)|*.*||"
+    IDS_GDI_CANT_CREATE     "Can't create GDI back buffer."
+    IDS_HLINK_CANT_LAUNCH   "Can't launch browser."
+    IDS_MAA_CTRL            "Controll&er"
+    IDS_MAA_NOTE            "Not&e"
+    IDS_MAST_MAX_RINGS      "MAX"
+    IDS_MEX_BAD_FRAME_RANGE "Invalid frame range."
+    IDS_MEX_CUSTOM          "Custom"
+    IDS_MEX_NOT_ENOUGH_DISK "Not enough disk space."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MF_CANT_EXPORT      "Can't export bitmap."
+    IDS_MF_CANT_RANDOM_PATCH "Crossfader inputs A and B are identical."
+    IDS_MF_DEMO_BROWSE      "Browse for demo playlist?"
+    IDS_MF_EXPORT           "Export"
+    IDS_MF_HELP_FILE_MISSING "Can't find help file '%1'."
+    IDS_MF_RECORD           "RECORD"
+    IDS_MF_SAVE_MIX         "Save Mix"
+    IDS_MF_STOP             "STOP"
+    IDS_MF_VEEJAY_MODE_TEXT "You're about to enter full-screen veejay mode. The ONLY way to exit this mode is by pressing Ctrl+F11."
+    IDS_MF_VEEJAY_MODE_TITLE "Entering Veejay Mode"
+    IDS_MF_VIEW_DEMO_TEXT   "Do you want to view the demo?"
+    IDS_MF_VIEW_DEMO_TITLE  "Welcome to Whorld"
+    IDS_MIDI_CANT_CREATE    "Can't create MIDI device: %1"
+    IDS_MOVIE_OPEN          "Open Movie"
+    IDS_MOVIE_RECORD        "Record Movie"
+    IDS_MP_AUTOPLAY         "Autoplay"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MP_BANK             "Bank"
+    IDS_MP_CANVAS_SCALE     "Canvas Scale"
+    IDS_MP_CLEAR            "Clear"
+    IDS_MP_CONVEX           "Convex"
+    IDS_MP_COPIES           "Copies"
+    IDS_MP_DAMPING          "Damping"
+    IDS_MP_FILL             "Fill"
+    IDS_MP_HUE              "Hue"
+    IDS_MP_HUE_LOOP_LENGTH  "Hue Loop Len"
+    IDS_MP_INVERT_COLOR     "Invert Color"
+    IDS_MP_LOAD_NEXT_A      "Load Next A"
+    IDS_MP_LOAD_NEXT_B      "Load Next B"
+    IDS_MP_LOOP_HUE         "Loop Hue"
+    IDS_MP_MIRROR           "Mirror"
+    IDS_MP_ORIGIN_X         "Origin X"
+    IDS_MP_ORIGIN_Y         "Origin Y"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MP_OUTLINE          "Outline"
+    IDS_MP_PATCH_MODE       "Patch Mode"
+    IDS_MP_PATCH_SECS       "Patch Secs"
+    IDS_MP_PAUSE            "Pause"
+    IDS_MP_RANDOM_PATCH     "Random Patch"
+    IDS_MP_RANDOM_PHASE     "Random Phase"
+    IDS_MP_REVERSE          "Reverse"
+    IDS_MP_RINGS            "Rings"
+    IDS_MP_ROTATE_HUE       "Rotate Hue"
+    IDS_MP_SPEED            "Speed"
+    IDS_MP_SPREAD           "Spread"
+    IDS_MP_TOGGLE_ORIGIN    "Toggle Origin"
+    IDS_MP_TRAIL            "Trail"
+    IDS_MP_VIDEO_BLENDING   "Video Blending"
+    IDS_MP_VIDEO_CYCLE      "Cycle Video"
+    IDS_MP_VIDEO_CYCLE_LEN  "Video Cycle Length"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MP_VIDEO_ORIGIN_X   "Video Origin X"
+    IDS_MP_VIDEO_ORIGIN_Y   "Video Origin Y"
+    IDS_MP_VIDEO_RAND_ORG   "Video Rand Origin"
+    IDS_MP_VIDEO_SELECT     "Video Select"
+    IDS_MP_XFADE_LOOP       "XFade Loop"
+    IDS_MP_XFADE_PLAY       "XFade Play"
+    IDS_MP_XFADE_POS        "XFade Pos"
+    IDS_MP_XFADE_SECS       "XFade Secs"
+    IDS_MP_XRAY             "X-Ray"
+    IDS_MP_ZOOM             "Zoom"
+    IDS_MP_ZOOM_CENTER      "Zoom Center"
+    IDS_MS_CHAN             "Channel"
+    IDS_MS_CTRL             "Controller"
+    IDS_MS_EVENT            "Event"
+    IDS_MS_GLOB_PREFIX      "Glob"
+    IDS_MS_NONE             "None"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MS_OSC_AMP          "Amp"
+    IDS_MS_OSC_FREQ         "Freq"
+    IDS_MS_OSC_PW           "PW"
+    IDS_MS_OSC_WAVE         "Wave"
+    IDS_MS_RANGE            "Range"
+    IDS_MS_RESTORE_DEFAULT  "Restore default MIDI setup?"
+    IDS_MS_VALUE            "Value"
+    IDS_OPTIONS             "Options"
+    IDS_OP_MUST_RESTART     "You must restart the application for this change to take effect."
+    IDS_OP_NO_MIDI_IN       "No MIDI Input"
+    IDS_OP_RESET_ALL        "Reset all options to their default values?"
+    IDS_OP_VIDEO_MEM        "Mirroring may not work correctly with back buffer in video memory."
+    IDS_ORG_MOTION_DRAG     "DRAG"
+    IDS_ORG_MOTION_RANDOM   "RAND"
+    IDS_PL_AUTO_ASSIGN_KEYS "QWERTYUIOPASDFGHJKLZXCVBNM"
+    IDS_PL_AUTO_ASSIGN_WARN "Current key assignments will be lost, continue?  "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PL_BAD_PATCH        "Can't read patch file(s)."
+    IDS_PL_BAD_VIDEO        "Can't open video '%1'.\n%2"
+    IDS_PL_CACHING_VIDEOS   "Caching videos..."
+    IDS_PL_CANT_READ        "Can't read playlist."
+    IDS_PL_CANT_WRITE       "Can't write playlist."
+    IDS_PL_COL_KEY          "Key"
+    IDS_PL_COL_NAME         "Name"
+    IDS_PL_COL_PATH         "Path"
+    IDS_PL_IMPORT_MIDI_SETUP "Import MIDI Setup"
+    IDS_PL_INSERT_PATCHES   "Insert Patches"
+    IDS_PL_KEY_ASSIGNED     "Key '%1' is assigned to '%2'.\nReassign it to '%3'?"
+    IDS_PL_KEY_RESERVED     "Key is reserved for the application."
+    IDS_PL_NO_PATCHES       "Playlist is empty."
+    IDS_PL_OPEN             "Open Playlist"
+    IDS_PL_SAVE_AS          "Save Playlist As"
+    IDS_PL_SAVE_PROMPT      "Save changes to playlist %1?"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PL_UNTITLED         "Untitled"
+    IDS_PM_AMP              "Amplitude"
+    IDS_PM_FREQ             "Frequency"
+    IDS_PM_PW               "Pulse W"
+    IDS_PM_SLIDER           "Value Slider"
+    IDS_PM_VALUE            "Value"
+    IDS_PM_WAVE             "Waveform"
+    IDS_RPLF_FILENAME       "Filename"
+    IDS_RPLF_MISSING        "Missing"
+    IDS_RPLF_REPLACED       "Replaced"
+    IDS_RPLF_STATUS         "Status"
+    IDS_SNAP_LOAD           "Load Snapshot"
+    IDS_SNAP_TAKE           "Take Snapshot"
+    IDS_SS_SLIDE_NUMBER     "Slide %d"
+    IDS_VCDE_CONNECT        "Can't connect compressor."
+    IDS_VCDE_GET_GRAPH      "Can't get filter graph."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_VCDE_GET_STATE      "Can't get Vfw dialog state."
+    IDS_VCDE_INIT_COM       "Can't initialize COM."
+    IDS_VCDE_SET_DATA_RATE  "Can't set Data Rate."
+    IDS_VCDE_SET_KEY_FRAMES "Can't set Key Frame Rate."
+    IDS_VCDE_SET_PFRAMES    "Can't set P Frames Per Key."
+    IDS_VCDE_SET_QUALITY    "Can't set Quality."
+    IDS_VCDE_SET_STATE      "Can't set Vfw dialog state."
+    IDS_VCDE_SET_WND_SIZE   "Can't set Window Size."
+    IDS_VCDE_SHOW_ABOUT     "Can't show About dialog."
+    IDS_VCDE_SHOW_CONFIG    "Can't show Configure dialog."
+    IDS_VCD_UNCOMPRESSED    "Full Frames (Uncompressed)"
+    IDS_VL_CANT_LOAD_MOVIE  "Can't load movie while recording."
+    IDS_VP_ASPECT_RATIO     "Aspect Ratio"
+    IDS_VP_BK_HUE           "Bk Hue"
+    IDS_VP_BK_LIGHTNESS     "Bk Lightness"
+    IDS_VP_BK_SATURATION    "Bk Saturation"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_VP_COLOR_SPEED      "Color Speed"
+    IDS_VP_EVEN_CURVE       "Even Curve"
+    IDS_VP_EVEN_SHEAR       "Even Shear"
+    IDS_VP_HUE              "Hue"
+    IDS_VP_LIGHTNESS        "Lightness"
+    IDS_VP_LINE_WIDTH       "Line Width"
+    IDS_VP_ODD_CURVE        "Odd Curve"
+    IDS_VP_ODD_SHEAR        "Odd Shear"
+    IDS_VP_ORIGIN_X         "Origin X"
+    IDS_VP_ORIGIN_Y         "Origin Y"
+    IDS_VP_PINWHEEL         "Pinwheel"
+    IDS_VP_POLY_SIDES       "Ring Sides"
+    IDS_VP_RING_COUNT       "Ring Count"
+    IDS_VP_RING_GROWTH      "Ring Growth"
+    IDS_VP_RING_SPACING     "Ring Spacing"
+    IDS_VP_ROTATE_SPEED     "Rotate Speed"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_VP_ROTATION         "Rotation"
+    IDS_VP_SATURATION       "Saturation"
+    IDS_VP_SKEW_ANGLE       "Skew Angle"
+    IDS_VP_SKEW_RADIUS      "Skew Radius"
+    IDS_VP_STAR_FACTOR      "Star Factor"
+    IDS_WAVE_PULSE          "Pulse"
+    IDS_WAVE_RAMP_DOWN      "Ramp Down"
+    IDS_WAVE_RAMP_UP        "Ramp Up"
+    IDS_WAVE_RANDOM         "Random"
+    IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
+    IDS_WAVE_SINE           "Sine"
+    IDS_WAVE_SQUARE         "Square"
+    IDS_WAVE_TRIANGLE       "Triangle"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BTAE_CONNECT_COMPR  "Can't connect to AVI Compressor."
+    IDS_BTAE_CONNECT_MUX    "Can't connect to AVI Mux."
+    IDS_BTAE_CONNECT_WRITER "Can't connect to File Writer."
+    IDS_BTAE_CREATE_GRAPH   "Can't create filter graph."
+    IDS_BTAE_CREATE_MUX     "Can't create AVI Mux filter."
+    IDS_BTAE_CREATE_SOURCE  "Can't create BmpToAvi filter."
+    IDS_BTAE_CREATE_WRITER  "Can't create File Writer filter."
+    IDS_BTAE_GET_BMPTOAVI   "Can't get IBmpToAvi interface."
+    IDS_BTAE_GET_CONTROL    "Can't get IMediaControl interface."
+    IDS_BTAE_GET_EVENT      "Can't get IMediaEvent interface."
+    IDS_BTAE_GET_FILE_SINK  "Can't get IFileSink interface."
+    IDS_BTAE_GET_PIN        "Can't get pin."
+    IDS_BTAE_INIT_COM       "Can't initialize COM."
+    IDS_BTAE_RUN_GRAPH      "Can't run graph."
+    IDS_BTAE_SET_FILE_NAME  "Can't set output file name."
+    IDS_BTAE_SET_PARMS      "Can't set parameters."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToolbar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_OP_RESET_ALL        "Reset All"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\Whorld.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

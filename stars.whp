@@ -1,0 +1,10 @@
+WHORLD1
+RingGrowth	2	0	0	0
+RingSpacing	3	0	1	1
+PolySides	5	2	2	0.005
+RotateSpeed	0	0	0.01	0.02
+AspectRatio	0	0	0	0
+SkewRadius	0	0	0	0
+SkewAngle	0	0	0	0
+ColorSpeed	1	0	0	0
+StarFactor	0	0	1	0.2

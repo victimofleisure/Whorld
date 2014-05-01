@@ -1,0 +1,20 @@
+WHORLD1
+RingGrowth	2.23933	0	0	0	0.5
+RingSpacing	16.5	2	15	0.027	0.5
+PolySides	40	2	0	0	0.5
+RotateSpeed	0.000282205	0	0.000443739	0.005	0.5
+AspectRatio	0	0	2	0.008	0.5
+SkewRadius	0	0	0	0	0.5
+SkewAngle	0.00252492	0	0	0	0.5
+StarFactor	0	2	0.85	0.0324	0.5
+ColorSpeed	1.56797	0	0	0	0.5
+Lightness	0.5	0	0.0413519	0.127	0.5
+Saturation	0.96	0	0.0343638	0.136	0.5
+BkHue	0	0	0	0	0.5
+BkLightness	0	0	0	0	0.5
+BkSaturation	1	0	0	0	0.5
+Pinwheel	0	1	2	0.05	0.5
+LineWidth	1	0	0	0	0.5
+Origin	0.5 0.5
+DrawMode	0
+Mirror	0

@@ -1,0 +1,18 @@
+<title>Even Curve</title>
+<body>
+
+<h3>Even Curve</h3>
+
+<p>This is the curvature at even vertices, i.e. the vertices that are NOT affected by <a href="../Parameters/Star_Factor.htm">Star Factor</a> and <a href="../Parameters/Pinwheel.htm">Pinwheel</a>. The curvature at odd vertices is controlled separately, via the <a href="../Parameters/Odd_Curve.htm">Odd Curve</a> parameter. Curvatures are normalized such that positive values produce simple curves, negative values produce loops or curls, and at zero, there's no curvature. Note that curves require considerably more processing power than straight lines, and may reduce <a href="../Loose_Ends/Performance.htm">performance</a>.
+
+<p>Each pair of adjacent vertices forms a Bézier curve, with a control point at either end. The control points are constrained such that the vector between a control point and its corresponding vertex is always tangent. The vector's length is the ring's radius multiplied by the appropriate curvature (odd or even). Thus curvature doesn't vary with radius.
+
+<p>The following diagram shows the shapes that result from various combinations of odd and even <em>positive</em> curvature, with Star Factor = 1. An arbitrary curvature of 1/3 is used in all cases, to simplify the illustration.
+
+<p><img src="../images/Bezier-pos.gif">
+
+<p>The following diagram shows the shapes that result from various combinations of odd and even <em>negative</em> curvature.
+
+<p><img src="../images/Bezier-neg.gif">
+
+</body>

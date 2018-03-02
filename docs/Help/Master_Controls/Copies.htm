@@ -1,0 +1,16 @@
+<title>Copies</title>
+<body>
+
+<h3>Copies</h3>
+
+<p>This setting, combined with the <a href="../Master_Controls/Spread.htm">Spread</a> setting, allows you to draw multiple groups of rings at once. Copies is the number of groups to draw, and Spread is their distance from the <a href="../Modes/Origin_Motion.htm">origin</a>, in pixels. The groups are evenly spaced along a circular path around the origin: e.g. if Copies is 5, the groups will form a pentagon, centered on the origin, with a radius of Spread.
+
+<p>The resulting effect is different from <a href="../Effects/Mirror.htm">mirroring</a>: the groups may interleave, and usually aren't identical. As new rings are born, each group takes a turn to receive a ring, in round-robin fashion, similar to dealing cards. The groups usually have subtle differences from each other, because in a typical <a href="../Patches/Patches.htm">patch</a>, the ring <a href="../Parameters/Parameters.htm">parameters</a> are gradually changing as the rings are dealt.
+
+<p>The amount of interleaving depends on how far apart the groups are spread, and the <a href="../Master_Controls/Rings.htm">ring limit</a>. Using <a href="../Master_Controls/Trail.htm">Trail</a> with multiple groups of rings and a low ring limit results in an effect somewhat like a swarm of bees, or airplanes flying in formation. If the number of copies is large, the effect will be perceived as a circular origin motion rather than distinct groups.
+
+<p>Note that as the number of copies increases, the distance between rings within each group also increases proportionally. This occurs because the same number of rings that would normally form a single group are now being divided among multiple groups. If this is a problem, you can compensate for it by decreasing <a href="../Parameters/Ring_Spacing.htm">Ring Spacing</a>.
+
+<p>Also note that large Spread values can cause new rings to die immediately as soon as they're born. This is probably a bug, but you can work around it by increasing <a href="../Master_Controls/Canvas_scale.htm">Canvas Scale</a>, or by decreasing Spread.
+
+</body>

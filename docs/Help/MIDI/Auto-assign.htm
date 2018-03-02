@@ -1,0 +1,40 @@
+<title>Auto-assign</title>
+<body>
+
+<h3>Auto-assign</h3>
+
+<p>This dialog allows you to assign MIDI messages to multiple properties at once, as opposed to editing the properties one by one in the <a href="../MIDI/MIDI_Setup.htm">MIDI Setup</a> dialog. This can save time in situations where the device sends a contiguous range of messages, and you want to assign them to a contiguous group of properties. To take advantage of this feature, you have to know which messages your device sends; otherwise, use <a href="../MIDI/Learn_mode.htm">Learn mode</a> instead.
+
+<p>For example, suppose your device sends controllers 20 through 35 on channel 1, and you want to assign them to the <a href="../Parameters/Parameters.htm">parameters</a>. The assignments can be made as follows:
+
+<ol>
+<li>In the MIDI Setup dialog, press the "Auto-Assign" button.
+<li>Under Properties, select "Range"; then set the First combo box to "Ring Growth", and the Last combo box to "Bk Saturation".
+<li>Under Event, select "Controller".
+<li>Set Channel to 1; its Range checkbox should be <em>unchecked</em>.
+<li>Set Controller to 20; its Range checkbox should be <em>checked</em>.
+<li>Press "OK" to make the assignments.
+</ol>
+
+<p>If the device sends a single controller on a range of channels, e.g. controller 20 on channels 1 through 16, the procedure is identical, except that the two Range checkboxes must be reversed.
+
+<dl>
+
+<dt>Range
+<dd>Use these controls to specify which properties should have messages assigned to them. Select "All" to assign to all properties; otherwise, select "Range", and use the First and Last combo boxes to specify the range.
+
+<dt>Event
+<dd>Use this control to specify the type of message to assign to the selected properties: "Controller" to assign continuous controllers, or "Note" to assign notes. To remove existing assignments, select "Off".
+
+<dt>Channel
+<dd>Use these controls to specify which channel(s) to assign to the selected properties. If the Range checkbox is checked, a sequential range of channels is assigned, starting from the specified channel; otherwise the specified channel is assigned to all of the selected properties.
+
+<dt>Controller
+<dd>Use these controls to specify which controller/note number(s) to assign to the selected properties. If the Range checkbox is checked, a sequential range of numbers is assigned, starting from the specified number; otherwise the specified number is assigned to all of the selected properties. If Event is set to "Note", the edit box displays and understands MIDI note numbers, e.g. F#4.
+
+<dt>Set channel only
+<dd>If this box is checked, only the channels are assigned; message type and controller/note number are not affected. This option is useful for moving an existing MIDI setup to a different channel.
+
+</dl>
+
+</body>

@@ -1,0 +1,18 @@
+<title>Canvas scale</title>
+<body>
+
+<h3>Canvas scale</h3>
+
+<p>The <em>canvas</em> is the rectangular area within which rings can exist. A ring normally grows outward from the origin, and when it gets big enough so that all of its vertices are outside the canvas, it dies (i.e. it's deleted from the ring list). In <a href="../Effects/Reverse.htm">reverse</a>, a ring grows inward from the edges of the canvas, and dies when its radius reaches zero.
+
+<p>Canvas Scale is the size of the canvas, expressed as a percentage of the current window size. It ranges from 100 to 300. The default value (140) ensures that in almost all cases, rings will die (or be born, in reverse) entirely off-screen. At 100, the canvas is the same size as the window, in which case ring deaths (or births) may be visible.
+
+<p><img src="../images/CanvasScale.gif">
+
+<p>Canvas scale also interacts with <a href="../Master_Controls/Zoom.htm">zoom</a> to determine how far outside the window the origin can be <a href="../Modes/Origin_Motion.htm">dragged</a>. Origin dragging is limited to either the zoomed canvas or the window, whichever is bigger. If both canvas scale and zoom are 100%, origin dragging is limited to the window.
+
+<p>Canvas scale and window size both affect <a href="../Loose_Ends/Performance.htm">performance</a>, because the bigger they are, the more rings can exist at once. Performance can be improved by reducing canvas scale, the window size, or both. The number of rings can also be limited explicitly, via the master <a href="../Master_Controls/Rings.htm">Rings</a> setting.
+
+<p>Canvas scale can be changed via the Master dialog, or MIDI.
+
+</body>

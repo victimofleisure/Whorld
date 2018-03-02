@@ -1,0 +1,80 @@
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 80%
+}
+table { font-size: 100% }	/* fixes IE5 tables don't inherit font size bug */
+body {
+	BACKGROUND-COLOR: #000000
+}
+img {
+	BORDER: 0px;
+	TEXT-ALIGN: center;
+	VERTICAL-ALIGN: middle
+}
+img.thumb {
+	BORDER: 0px;
+	TEXT-ALIGN: center;
+	VERTICAL-ALIGN: middle;
+	PADDING-BOTTOM: 5px
+}
+h1 {
+	TEXT-ALIGN: center
+}
+.title {
+	FONT-SIZE: larger; FONT-WEIGHT: bold
+}
+.menu {
+	BACKGROUND-COLOR: #ffffff;
+	BORDER-TOP: #000000 1px inset;
+	BORDER-LEFT: #000000 1px inset;
+	BORDER-BOTTOM: #000000 1px inset;
+	BORDER-RIGHT: #000000 1px inset;
+	PADDING-TOP: 5px;
+	PADDING-LEFT: 5px;
+	PADDING-BOTTOM: 5px;
+	PADDING-RIGHT: 5px;
+	POSITION: absolute;
+	TOP: 1em;
+	LEFT: 1em;
+	WIDTH: 7.5em
+}
+#body {
+	BACKGROUND-COLOR: #ffffff;
+	BORDER-TOP: #000000 1px inset;
+	BORDER-LEFT: #000000 1px inset;
+	BORDER-BOTTOM: #000000 1px inset;
+	BORDER-RIGHT: #000000 1px inset;
+	PADDING-TOP: 5px;
+	PADDING-LEFT: 5px;
+	PADDING-BOTTOM: 5px;
+	PADDING-RIGHT: 5px;
+	POSITION: absolute;
+	TOP: 1em;
+	LEFT: 10em;
+	WIDTH: 640px
+}
+#gallery {
+	BACKGROUND-COLOR: #000000;
+	BORDER-TOP: #000000 0px inset;
+	BORDER-LEFT: #000000 0px inset;
+	BORDER-BOTTOM: #000000 0px inset;
+	BORDER-RIGHT: #000000 0px inset;
+	PADDING-TOP: 5px;
+	PADDING-LEFT: 5px;
+	PADDING-BOTTOM: 5px;
+	PADDING-RIGHT: 5px;
+	POSITION: absolute;
+	TOP: 1em;
+	LEFT: 10em;
+	WIDTH: 640px
+}
+.menuitem0 {
+	PADDING-LEFT: 0px
+}
+.menuitem1 {
+	PADDING-LEFT: 10px
+}
+.slideshow {
+	font-size:10px;
+	text-decoration:none;
+	color:#ffffff;
+}

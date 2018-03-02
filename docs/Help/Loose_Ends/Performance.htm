@@ -1,0 +1,26 @@
+<title>Performance</title>
+<body>
+
+<h3>Performance</h3>
+
+<p>Performance problems typically manifest themselves as a slowing-down or jerkiness of the animation, with visible pauses between frames. In extreme cases, the user interface may become unresponsive. Should this occur during a performance, pressing <a href="../Loose_Ends/Panic.htm">Panic</a> will usually resolve the situation.
+
+<p>The best solution is a more powerful computer. Whorld is graphics-bound, which means that upgrading the graphics card will probably make more difference than adding memory or upgrading the CPU. On the other hand, a cutting-edge graphics card may not perform optimally (or at all) without upgrades to other components, so it might be easier to start from scratch. The <a href="../Getting_Started/Requirements.htm">recommended system</a> cost approximately $1300 in Q3 2005, not including the trackball and MIDI controller. It's a medium-duty gamer-style system, and it manages to avoid slowdowns in almost all cases, even while recording a movie.
+
+<p>Note that the recommended system is housed in a SFF (Small Form-Factor) Micro-ATX case, not a laptop. This has obvious disadvantages (it's not as portable as a laptop, and there's no built-in screen or keyboard/mouse) but at the time of this writing, there are no PC laptops powerful enough to run Whorld optimally, and even if there were, they would be absurdly expensive. For the moment, if you want Whorld to run smoothly in all modes, be prepared to lug a SFF machine to your gigs. It weighs about 20 pounds and fits in a gym bag.
+
+<p>The other performance solutions can be divided into two categories: less rings, and less effects.
+
+<p>Less rings means keeping the ring count low, and there are various ways to achieve this. The most direct method is the master <a href="../Master_Controls/Rings.htm">Rings</a> setting. This allows you to place an absolute limit on the number of rings. The downside is that you may drastically simplify the composition, though this could be a plus in some cases.
+
+<p>Decreasing the <a href="../Master_Controls/Canvas_scale.htm">canvas size</a> also helps keep the ring count low. The downside is that at values below 140%, rings may die (or be born) on-screen. Also there will be less hidden stuff to see when you zoom all the way out.
+
+<p>Increasing <a href="../Parameters/Ring_Spacing.htm">Ring Spacing</a> is another way to reduce the ring count. The downside is that the composition becomes more spread-out and sparse.
+
+<p>The ring count can also be reduced by decreasing the window size and/or the screen resolution. For VJs, decreasing the window size isn't an option, because performing is always done full-screen. However, lowering the screen resolution to 1024x768 or less makes good sense. At higher resolutions, 1-pixel-wide lines start to look too thin anyway, and increasing the line width above 1 pixel is a major performance hit (see below). In addition, the native resolution of most projectors is currently 1024x768 or less, so drawing at higher resolutions is wasted work.
+
+<p>Less effects means being careful about any of the following: <a href="../Effects/Fill.htm">Fill</a> mode, <a href="../Effects/Outline.htm">Outline</a> mode, <a href="../Effects/X-Ray.htm">X-Ray</a> mode, <a href="../Parameters/Line_Width.htm">Line Widths</a> greater than one, and <a href="../Master_Controls/Zoom.htm">zooming in</a>. All of these caused increased graphics overhead, and in combination they can be deadly. X-Ray is by far the worst offender. Using X-Ray with wide lines, fill and outline can bring even the mighty Radeon X800XL to its knees. To use all of these effects at once, you may have to give up something else, e.g. limit the number of rings, increase the ring spacing, zoom out, etc.
+
+<p>Extreme negative <a href="../Parameters/Star_Factor.htm">Star Factor</a> can also create performance problems, because it causes some of a ring's vertices to remain visible for much longer than others. Since a ring is only deleted when <em>all</em> of its vertices are off-canvas, extreme negative Star Factor prolongs the ring's life, thereby increasing the average ring count.
+
+</body>

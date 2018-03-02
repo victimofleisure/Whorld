@@ -1,0 +1,15 @@
+<title>Zero Controllers</title>
+<body>
+
+<h3>Zero Controllers</h3>
+
+<p>This command resets the <a href="../Patches/Master_Offsets.htm">Master Offsets</a> to zero, thereby eliminating their influence on the <a href="../Parameters/Parameters.htm">parameters</a>, and returning the animation to its "natural" state. The change may be drastic, depending on how far from zero the master offsets are at the time. To execute the command, use <span class="cmd">Edit/Zero Controllers</span> or <span class="key">Shift+Z</span>. Note that <a href="../Loose_Ends/Panic.htm">Panic</a> also resets the master offsets, along with other critical settings.
+
+<p>If the offsets were being manipulated via <a href="../MIDI/MIDI_Setup.htm">MIDI controllers</a>, the positions of the knobs (or sliders, or whatever) are no longer meaningful. To fix this, move the controls to their default positions. These moves may disrupt the animation unless you power off or disconnect the MIDI device before making them.
+
+<p>In addition, any <a href="../Patches/Oscillator_Override.htm">oscillator override</a> properties that have been changed via MIDI are reset.  In typical configurations, this effectively disables all oscillator overrides.
+
+
+
+
+</body>

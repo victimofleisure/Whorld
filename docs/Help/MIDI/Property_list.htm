@@ -1,0 +1,61 @@
+<title>Property list</title>
+<body>
+
+<h3>Property list</h3>
+
+<p>Whorld has various properties to which MIDI messages can be <a href="../MIDI/MIDI_Setup.htm">assigned</a>. The <em>property list</em> is a two-dimensional table that shows the current assignments, and allows you to edit them. Each row in the table displays information about the MIDI message that's assigned to the corresponding property. The columns are described below.
+
+<dl>
+
+<dt>Range
+<dd>This determines how much effect a MIDI message has on its property. Signed MIDI values are mapped to the specified range, such that &minus;63 corresponds to the range's first value, +64 corresponds to the range's second value, and 0 corresponds to the midpoint between them.
+
+<p>Range lets you make a trade-off between the <em>precision</em> and <em>magnitude</em> of a MIDI control: making the range smaller allows finer adjustments, but reduces the control's overall effect. The range's first value can be greater than the second, in which case the control's effect is inverted.
+
+<p>Whorld's properties can be divided into four groups, as shown below:
+
+<p><dl>
+<dt>Parameters
+<dd>When a MIDI control is assigned to a <a href="../Parameters/Parameters.htm">parameter</a>, it controls that parameter's <a href="../Patches/Master_Offsets.htm">Master Offset</a>, which is <em>added</em> to the parameter's current value.
+
+<dt>Other continuous values
+<dd>These are properties such as <a href="../Master_Controls/Zoom.htm">Zoom</a>, which aren't parameters, but are also <em>continuous</em>, i.e. they can have many values. Unlike parameters, these properties don't have master offsets: when you move the MIDI control, you're directly setting the property, not adding an offset to it.
+
+<dt>Switches
+<dd>These are <em>boolean</em> properties, i.e. properties that are either "on" or "off", such as <a href="../Effects/Mirror.htm">Mirror</a>. The Range for these properties should always be 0..1 for normal operation, or 1..0 for inverted operation. Other values may give incorrect results.
+
+<dt>Oscillator properties
+<dd>These properties allow you to control the <a href="../Patches/Oscillator_Override.htm">oscillator override</a> for each parameter, as well as the <a href="../Parameters/Global_Parameters.htm">global</a> oscillators. Note that the oscillator properties are normally <em>hidden</em>. To assign MIDI messages to these properties, you must first check the "Advanced" checkbox in the MIDI setup dialog's upper-right corner. The default ranges are listed below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Property</th><th>Range</th><th>Comment</th></tr>
+<tr><td>Waveform</td><td>0..8</td><td>Distributes <a href="../Patches/Waveforms.htm">waveforms</a> evenly along controller's sweep.
+<tr><td>Amplitude</td><td>?</td><td>Range depends on the parameter.</td></tr>
+<tr><td>Frequency</td><td>0..1</td><td>Oscillator frequency in Hertz.</td></tr>
+<tr><td>Pulse Width</td><td>0..1</td><td>Fractional duty cycle; ignored unless waveform is "Pulse".</td></tr>
+</table>
+
+</dl>
+
+<p><dt>Event
+<dd>This is the type of MIDI message assigned to the property. The possible values are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>OFF</td><td>No message is assigned to the property.</td></tr>
+<tr><td>CTRL</td><td>A continuous controller message is assigned to the property; the controller edit box specifies the controller number.</td></tr>
+<tr><td>NOTE</td><td>A note is assigned to the property. In this case the controller edit box displays and understands MIDI note numbers, e.g. F#4. Pressing the note <em>toggles</em> the property, i.e. flips it back and forth between +Range and &minus;Range. Releasing the note has no effect. Notes are useful for controlling switches (see above).
+<tr><td>PITCH</td><td>The pitch bend message is assigned to the property. In this case the controller edit box is ignored.</td></tr>
+</table>
+
+<p><dt>Channel
+<dd>This is the channel on which the property's MIDI message is expected to arrive, ranging from 1 to 16.
+
+<dt>Controller
+<dd>For controller messages, this is the controller number, from 0 to 127; note that controllers above 120 are normally reserved for channel mode messages. For note messages, this is the note number, from C0 to G10. For pitch bend messages, this value is ignored.
+
+<dt>Value
+<dd>This is the actual data byte from the property's most recently received message, which can be helpful when debugging MIDI problems. It's displayed as a read-only signed value from &minus;64 to +63.
+
+</dl>
+
+</body>

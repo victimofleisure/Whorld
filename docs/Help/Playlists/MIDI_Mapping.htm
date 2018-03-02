@@ -1,0 +1,25 @@
+<title>MIDI Mapping</title>
+<body>
+
+<h3>MIDI Mapping</h3>
+
+<p>This dialog lets you <em>map</em> MIDI messages to your <a href="../Playlists/Playlists.htm">playlist</a>, so that you can play its <a href="../Patches/Patches.htm">patches</a> via MIDI. To show this dialog, choose <span class="cmd">Edit/MIDI Mapping</span> from the <a href="../Playlists/Playlist_dialog.htm">playlist dialog</a>'s menus. Two mapping schemes are supported: one uses program change messages, and the other uses a range of notes. Use the dialog's radio buttons to choose a scheme, as follows:
+
+<dl>
+
+<dt>None
+<dd>Select this option to disable playing patches via MIDI.
+
+<dt>Program changes
+<dd>Select this option to play patches via MIDI program change messages. Use the Channel edit box to specify which channel you're sending the messages on. The First and Last edit boxes are ignored. The program change messages are sequentially mapped to the current bank's patches: program 0 plays the first patch, program 1 plays the second patch, and so forth.
+
+<dt>Range of notes
+<dd>Select this option to play patches via a range of MIDI notes. Use the Channel edit box to specify which channel you're sending the notes on, and the First and Last edit boxes to specify the range of notes. The notes are sequentially mapped to the current bank's patches: the first note plays the first patch, the second note plays the second patch, and so forth. It's possible to choose notes that are also assigned to properties in the <a href="../MIDI/MIDI_Setup.htm">MIDI setup</a> dialog, in which case the notes will have both functions. To avoid this, use a different range of notes, or specify a different channel.
+
+</dl>
+
+<p>Note that you can only play patches in the current bank. To play patches in a different bank, you must select the bank first. Banks can also be selected via MIDI.
+
+<p>By default, Whorld responds normally to controller 0 (bank select MSB): data values 0..19 select one of Whorld's twenty banks, and other values are ignored. If you prefer, you can assign a different MIDI message to the bank property, using the <a href="../MIDI/MIDI_Setup.htm">MIDI Setup</a> dialog. Since up to 128 patches can be addressed per bank, the maximum number of MIDI-playable patches in a playlist is 2,560.
+
+</body>

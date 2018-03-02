@@ -1,0 +1,36 @@
+<title>Export</title>
+<body>
+
+<h3>Export</h3>
+
+<p>The export command creates a Windows bitmap (BMP file) from the current image. The command freezes the current frame, and displays a file dialog, allowing you to specify the output file's name and location. The command then displays the Export dialog, which allows you to configure the Export options, as described below. To do an export, use <span class="cmd">File/Export</span> or <span class="key">Ctrl+E</span>.
+
+<p>Still frames should initially be saved as <a href="../Snapshots/Snapshots.htm">snapshots</a>, and exported later, because snapshots are much more compact than bitmaps, and can be <a href="../Master_Controls/Zoom.htm">zoomed</a> and <a href="../Snapshots/Editing_Snapshots.htm">edited</a> without loss of quality.
+
+<dl>
+
+<dt>Use window size
+<dd>If checked, the bitmap will be identical to the current image: it will have exactly the same size, resolution and cropping. The other options are irrelevant in this case, and are therefore disabled.
+
+<dt>Width
+<dd>This allows you to specify the bitmap's width, in pixels. Changing the width causes the image to be either cropped, or scaled, depending on the Resizing option; see below.
+
+<dt>Height
+<dd>This allows you to specify the bitmap's height, in pixels. Changing the height causes the image to be either cropped, or scaled, depending on the Resizing option; see below.
+
+<dt>Resolution
+<dd>This allows you to specify the bitmap's resolution, in DPI (dots per inch). Resolution is the relationship between pixels and inches; changing it affects the bitmap's size in <em>inches</em>, but doesn't affect its size in <em>pixels</em> at all, and therefore doesn't affect its cropping or scaling either. DPI is usually only noticeable when the bitmap is printed or imported into another application. The default resolution (72 DPI) is good for web graphics; for printing, the bitmap should match the printer's resolution, which is typically much higher.
+
+<dt>Resizing
+<dd>This option determines the resizing method. It only has an effect when "Use window size" is unchecked and the specified Width and Height differ from the window size. The methods are as follows:
+
+<p><dl>
+<dt>Crop
+<dd>The image is cropped to the specified size. If the size is bigger than the window, previously hidden portions of the image may become visible; if the size is smaller, portions of the image are cut away or "cropped".
+<dt>Scale to fit
+<dd>The image is scaled up or down to the specified size, without changing the cropping. If the size is bigger than the window, nothing is lost, but if the size is smaller, details may be obscured. The scaling is <em>isotropic</em>, i.e. the image's original ratio of width to height is preserved.
+</dl>
+
+</dl>
+
+</body>

@@ -1,0 +1,12 @@
+<title>Print from bitmap</title>
+<body>
+
+<h3>Print from bitmap</h3>
+
+<p>The print command normally draws directly to the printer's device context; when this option is checked, the print command draws to an intermediate bitmap instead, and then blits (copies) the bitmap to the printer's device context. The option should normally be unchecked, because drawing directly to the printer takes advantage of the printer's resolution, which is usually much better than screen resolution.
+
+<p>The only down side of drawing directly to the printer is that images drawn in <a href="../../Effects/X-Ray.htm">X-Ray</a> mode may have slightly different colors in the printout than they do on the screen. Checking "Print from bitmap" fixes this, but at the cost of using screen resolution, which causes stairstepping (jaggedness) on lines and edges.
+
+
+
+</body>

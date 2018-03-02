@@ -1,0 +1,18 @@
+<title>Thumbnails</title>
+<body>
+
+<h3>Thumbnails</h3>
+
+<p>As of version 1.5, the <a href="../Playlists/Playlist_dialog.htm">playlist dialog</a> can display a preview image for each <a href="../Patches/Patches.htm">patch</a> or <a href="../Video_Overlay/Video_overlay.htm">video</a> in your <a href="../Playlists/Playlists.htm">playlist</a>. These preview images are called <em>thumbnails</em>. To show thumbnails, choose <span class="cmd">View/Thumbnails</span> from the playlist dialog's menus. To hide thumbnails, choose <span class="cmd">View/Details</span>.
+
+<p>The first time you view thumbnails, they have to be created, and depending on the size of your playlist, this can take a while, so a progress dialog is displayed. Once the thumbnails have been created, you can switch back and forth freely between the thumbnail and detail views, without recreating the thumbnails each time. Note that if you add patches or videos to your playlist while in thumbnail view, there may be a pause while the new thumbnails are created.
+
+<p>Thumbnails can be created in a range of sizes. To change the thumbnail size, choose <span class="cmd">View/Thumbnail Size</span> and select a size. If you're currently in thumbnail view, the thumbnails are recreated immediately; otherwise, they're recreated the next time you switch to thumbnail view. To explicitly recreate the thumbnails without changing their size, use <span class="cmd">View/Refresh Thumbnails</span>.
+
+<p>A video thumbnail is created by simply extracting the video's first frame. A patch thumbnail is more complicated: it's created by stepping the patch forward in time until it draws a fixed number of rings. The result is identical to what you would see if you <a href="../Playlists/Playing_patches.htm">played</a> the patch. Note that a patch thumbnail may vary slightly each time it's created, due to the unpredictable nature of the <a href="../Patches/Oscillators.htm">oscillators</a>.
+
+<p>Patch thumbnails are affected by the <a href="../Modes/Patch_mode.htm">patch mode</a>. In Full mode, each patch thumbnail is drawn using the effects and master settings stored in that patch. By contrast, in Geometry mode, all patch thumbnails are drawn using the current effects and master settings. This feature allows you to preview an effect or master setting on all of your patches at once. For example, while in Geometry mode, if you enable <a href="../Effects/Mirror.htm">mirroring</a>, and then recreate the thumbnails, all of the patch thumbnails will be mirrored.
+
+
+
+</body>

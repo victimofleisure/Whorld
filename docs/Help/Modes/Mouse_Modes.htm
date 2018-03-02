@@ -1,0 +1,56 @@
+<title>Mouse Modes</title>
+<body>
+
+<h3>Mouse Modes</h3>
+
+<p>The mouse has the following functions:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>No modifiers</td>
+<td>Drag Origin</td>
+<td>In <a href="../Modes/Origin_Motion.htm">drag mode</a>, the origin (center) of the image follows the mouse. How precisely the origin tracks the mouse is affected by the amount of <a href="../Master_Controls/Damping.htm">damping</a>. Drag mode is enabled via <span class="cmd">Image/Origin/Drag</span> or <span class="key">Shift+D</span>.</td>
+</tr><tr>
+<td>Left button held down</td>
+<td>Zoom</td>
+<td>Vertical motion changes the <a href="../Master_Controls/Zoom.htm">zoom</a>; up zooms in, down zooms out. Horizontal motion is ignored. How precisely the zoom tracks the mouse is affected by the amount of damping.</td>
+</tr><tr>
+<td>Right button held down</td>
+<td>Rotate Hue</td>
+<td>Vertical motion rotates the <a href="../Color/Color_Model.htm">hue</a>; up is clockwise (red to green), down is counterclockwise (red to blue). Horizontal motion is ignored.</td>
+</tr><tr>
+<td>Middle button held down</td>
+<td>Master Speed</td>
+<td>Vertical motion changes the master <a href="../Master_Controls/Speed.htm">speed</a>; up is faster, down is slower. Horizontal motion is ignored.</td>
+</tr>
+<td>Alt key held down</td>
+<td>Rings</td>
+<td>This works in <a href="../Modes/Veejay_Mode.htm">Veejay mode</a> ONLY. Vertical motion changes the maximum number of <a href="../Master_Controls/Rings.htm">rings</a>; up is more, down is less. Horizontal motion is ignored.</td>
+</tr>
+</table>
+
+<p>The wheel has the following functions:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>No modifiers</td>
+<td>Damping</td>
+<td>The wheel sets the amount of <a href="../Master_Controls/Damping.htm">damping</a> for <a href="../Modes/Origin_Motion.htm">origin motion</a> and <a href="../Master_Controls/Zoom.htm">zoom</a>. Moving the wheel up increases damping; moving it down decreases damping. When damping is zero, origin motion and zoom follow mouse motion exactly; as damping increases, tracking becomes less precise, and motion becomes more fluid.</td>
+</tr><tr>
+<td>Shift key held down</td>
+<td>Trail</td>
+<td>The wheel sets the amount of <a href="../Master_Controls/Trail.htm">trail</a> for <a href="../Modes/Origin_Motion.htm">origin motion</a>. Moving the wheel up increases trail; moving it down decreases trail. When trail is zero, the rings stay together; as trail increases, rings further from the origin lag behind, creating a slinky effect.</td>
+</tr>
+<td>Ctrl key held down</td>
+<td>Crossfade Time</td>
+<td>The wheel sets the amount of time the <a href="../Crossfader/Crossfader_dialog.htm">crossfader</a> takes to auto-fade from one patch to another. If the crossfade time is zero when a new patch is played, the image <a href="../Parameters/Parameters.htm">parameters</a> jump from their current values to the new ones; otherwise, the parameters are interpolated. The time isn't absolute: it's a percentage of Patch Seconds in the <a href="../Playlists/Playlist_dialog.htm">playlist dialog</a>.</td>
+</tr>
+</table>
+
+<p>Note that since the middle button is usually also the wheel, both master speed and damping must be adjusted with some care.
+
+<p>To change the master speed, press the wheel, and while keeping it pressed, move the mouse or trackball. Be careful not to spin the wheel, or you might unintentionally change the damping.
+
+<p>To change the damping, gently spin the wheel. Be careful not to press the wheel, or you might unintentionally change the master speed.
+
+</body>

@@ -1,0 +1,20 @@
+<title>Oscillator Override</title>
+<body>
+
+<h3>Oscillator Override</h3>
+
+<p>Each <a href="../Parameters/Parameters.htm">parameter</a> is modulated by its associated <a href="../Patches/Oscillators.htm">oscillator</a>. An oscillator behaves according to its properties (e.g. waveform, amplitude, frequency, pulse width) which it normally obtains from the document, or when <a href="../Modes/View_Mix.htm">View Mix</a> is enabled, from the crossfader mix (see <a href="../Modes/Signal_Flow.htm">Signal Flow</a>). It's also possible to <em>override</em> an oscillator's properties with alternate values, which the oscillator then obeys regardless of what document is loaded, or what <a href="../Patches/Patches.htm">patch</a> is played. Put another way, overriding an oscillator disables its default behavior, allowing you to control the oscillator manually in all situations.
+
+<p>To create or edit oscillator overrides, display the <a href="../Patches/Parameters_dialog.htm">Parameters dialog</a>, and set the <a href="../Patches/Edit_Selection.htm">edit selection</a> to "Master Offsets". The waveform, amplitude, frequency, and pulse width columns now display the override values for each oscillator. Note that an override is only enabled when its <em>frequency</em> is non-zero; if the frequency is zero, changing the other override properties has no effect. This feature allows you to preset an override, by adjusting its waveform, amplitude, or pulse width, but leaving its frequency zero. The override can then be enabled and disabled live, by controlling the override frequency via MIDI. Oscillator overrides and their <a href="../MIDI/MIDI_Setup.htm">MIDI assignments</a> are saved in the <a href="../Playlists/Playlists.htm">playlist</a>.
+
+<p>It's theoretically possible to control all properties of all oscillators via MIDI, but controllers are typically a limited resource. In most cases, you'll want to override selected oscillators, and assign MIDI to their amplitudes and frequencies, or in some cases, only to their frequencies, using preset waveforms and amplitudes. For example, to control <a href="../Parameters/Background_Hue.htm">Background Hue</a> cycling manually via a single MIDI control, follow these steps:
+
+<ol>
+<li>Show the Parameters dialog, and set the edit selection to "Master Offsets".
+<li>In the "Bk Hue" row, set the waveform to "Ramp Up", and the amplitude to 180 (assuming you want the hue to cycle a full 360°), but leave the frequency zero. You may also need to set the <a href="../Parameters/Background_Lightness.htm">Background Lightness</a> master offset to .5 so that the background color isn't always black.
+<li>Show the MIDI Setup dialog, and check the "Advanced" checkbox in the upper-right corner.
+<li>Scroll down to the "Bk Hue Freq" row, and enter the desired MIDI event, channel, and controller number; this can also be accomplished via <a href="../MIDI/Learn_mode.htm">learn mode</a>. Note that the Range defaults to 1, which means the controller varies the override frequency from 0 to 1 Hz. Setting Range to a smaller value gives you finer control, at the expense of a lower maximum frequency.
+<li>Twiddle the controller. You should see the override frequency changing in the Parameters dialog. When the controller is at its minimum position, the override frequency is zero, and the background hue behaves as usual; otherwise, the background hue cycles at a rate proportional to the controller position, regardless of what document or patch is loaded.
+</ol>
+
+</body>

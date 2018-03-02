@@ -1,0 +1,2263 @@
+<html><head><title>Whorld Help</title></head><body>
+<h1>Whorld Help</h1>
+<h2>Contents</h2>
+
+<dl>
+<dt>Getting Started
+<dd><a href="#Introduction">Introduction</a>
+<dd><a href="#License">License</a>
+<dd><a href="#Requirements">Requirements</a>
+<dd><a href="#Installing">Installing</a>
+<dd><a href="#Uninstalling">Uninstalling</a>
+<dd><a href="#Viewing_the_demo">Viewing the demo</a>
+<dt>Parameters
+<dd><a href="#Parameters">Parameters</a>
+<dd><a href="#Ring_Growth">Ring Growth</a>
+<dd><a href="#Ring_Spacing">Ring Spacing</a>
+<dd><a href="#Line_Width">Line Width</a>
+<dd><a href="#Ring_Sides">Ring Sides</a>
+<dd><a href="#Rotate_Speed">Rotate Speed</a>
+<dd><a href="#Aspect_Ratio">Aspect Ratio</a>
+<dd><a href="#Skew_Radius">Skew Radius</a>
+<dd><a href="#Skew_Angle">Skew Angle</a>
+<dd><a href="#Star_Factor">Star Factor</a>
+<dd><a href="#Pinwheel">Pinwheel</a>
+<dd><a href="#Color_Speed">Color Speed</a>
+<dd><a href="#Lightness">Lightness</a>
+<dd><a href="#Saturation">Saturation</a>
+<dd><a href="#Background_Hue">Background Hue</a>
+<dd><a href="#Background_Lightness">Background Lightness</a>
+<dd><a href="#Background_Saturation">Background Saturation</a>
+<dd><a href="#Even_Curve">Even Curve</a>
+<dd><a href="#Odd_Curve">Odd Curve</a>
+<dd><a href="#Even_Shear">Even Shear</a>
+<dd><a href="#Odd_Shear">Odd Shear</a>
+<dd><a href="#Global_Parameters">Global Parameters</a>
+<dt>Patches
+<dd><a href="#Patches">Patches</a>
+<dd><a href="#Parameters_dialog">Parameters dialog</a>
+<dd><a href="#Edit_Selection">Edit Selection</a>
+<dd><a href="#Oscillators">Oscillators</a>
+<dd><a href="#Waveforms">Waveforms</a>
+<dd><a href="#Master_Offsets">Master Offsets</a>
+<dd><a href="#Oscillator_Override">Oscillator Override</a>
+<dd><a href="#Numbers_dialog">Numbers dialog</a>
+<dt>Crossfader
+<dd><a href="#Crossfader_dialog">Crossfader dialog</a>
+<dd><a href="#Interpolation">Interpolation</a>
+<dd><a href="#Random_patches">Random patches</a>
+<dt>Playlists
+<dd><a href="#Playlists">Playlists</a>
+<dd><a href="#Playlist_dialog">Playlist dialog</a>
+<dd><a href="#Editing_playlists">Editing playlists</a>
+<dd><a href="#Assigning_keys">Assigning keys</a>
+<dd><a href="#Playing_patches">Playing patches</a>
+<dd><a href="#Crossfading_patches">Crossfading patches</a>
+<dd><a href="#Autoplay">Autoplay</a>
+<dd><a href="#MIDI_Mapping">MIDI Mapping</a>
+<dd><a href="#Missing_Files">Missing Files</a>
+<dd><a href="#Replace_Files">Replace Files</a>
+<dd><a href="#Thumbnails">Thumbnails</a>
+<dt>Modes
+<dd><a href="#Signal_Flow">Signal Flow</a>
+<dd><a href="#View_Mix">View Mix</a>
+<dd><a href="#Origin_Motion">Origin Motion</a>
+<dd><a href="#Full_Screen">Full Screen</a>
+<dd><a href="#Veejay_Mode">Veejay Mode</a>
+<dd><a href="#Mouse_Modes">Mouse Modes</a>
+<dd><a href="#Dual-Monitor">Dual-Monitor</a>
+<dd><a href="#Demo_Mode">Demo Mode</a>
+<dd><a href="#Pause">Pause</a>
+<dd><a href="#Patch_mode">Patch mode</a>
+<dt>Effects
+<dd><a href="#Mirror">Mirror</a>
+<dd><a href="#Fill">Fill</a>
+<dd><a href="#Outline">Outline</a>
+<dd><a href="#X-Ray">X-Ray</a>
+<dd><a href="#Reverse">Reverse</a>
+<dd><a href="#Convex">Convex</a>
+<dt>Master Controls
+<dd><a href="#Speed">Speed</a>
+<dd><a href="#Zoom">Zoom</a>
+<dd><a href="#Damping">Damping</a>
+<dd><a href="#Trail">Trail</a>
+<dd><a href="#Rings">Rings</a>
+<dd><a href="#Tempo">Tempo</a>
+<dd><a href="#Hue_loop_length">Hue loop length</a>
+<dd><a href="#Canvas_scale">Canvas scale</a>
+<dd><a href="#Copies">Copies</a>
+<dd><a href="#Spread">Spread</a>
+<dt>Color
+<dd><a href="#Color_Model">Color Model</a>
+<dd><a href="#Loop_Hue">Loop Hue</a>
+<dd><a href="#Rotate_Hue">Rotate Hue</a>
+<dd><a href="#Invert_Color">Invert Color</a>
+<dt>Snapshots
+<dd><a href="#Snapshots">Snapshots</a>
+<dd><a href="#Take_Snapshot">Take Snapshot</a>
+<dd><a href="#Load_Snapshot">Load Snapshot</a>
+<dd><a href="#Snapshot_Mode">Snapshot Mode</a>
+<dd><a href="#Slide_Show">Slide Show</a>
+<dd><a href="#Export_All">Export All</a>
+<dd><a href="#Editing_Snapshots">Editing Snapshots</a>
+<dt>Movies
+<dd><a href="#Movies">Movies</a>
+<dd><a href="#Recording_movies">Recording movies</a>
+<dd><a href="#Playing_movies">Playing movies</a>
+<dd><a href="#Exporting_movies">Exporting movies</a>
+<dd><a href="#Movie_Export_dialog">Movie Export dialog</a>
+<dd><a href="#Resizing_movies">Resizing movies</a>
+<dt>Video Overlay
+<dd><a href="#Video_overlay">Video overlay</a>
+<dd><a href="#Playing_videos">Playing videos</a>
+<dd><a href="#Video_cache">Video cache</a>
+<dd><a href="#Video_blending">Video blending</a>
+<dd><a href="#Cycling_videos">Cycling videos</a>
+<dd><a href="#Encoding_videos">Encoding videos</a>
+<dd><a href="#Linked_videos">Linked videos</a>
+<dd><a href="#Video_origin">Video origin</a>
+<dt>MIDI
+<dd><a href="#MIDI_Setup">MIDI Setup</a>
+<dd><a href="#Property_list">Property list</a>
+<dd><a href="#Learn_mode">Learn mode</a>
+<dd><a href="#Auto-assign">Auto-assign</a>
+<dd><a href="#Zero_Controllers">Zero Controllers</a>
+<dt>Options
+<dd><dl>
+<dt>Display
+<dd><a href="#DirectDraw">DirectDraw</a>
+<dd><a href="#Frame_rate">Frame rate</a>
+<dd><a href="#Print_from_bitmap">Print from bitmap</a>
+</dl>
+<dd><dl>
+<dt>Input
+<dd><a href="#Mouse_sensitivity">Mouse sensitivity</a>
+<dd><a href="#Wheel_sensitivity">Wheel sensitivity</a>
+<dd><a href="#Tempo_nudge">Tempo nudge</a>
+</dl>
+<dd><dl>
+<dt>MIDI
+<dd><a href="#MIDI_device">MIDI device</a>
+<dd><a href="#MIDI_sync">MIDI sync</a>
+</dl>
+<dd><dl>
+<dt>Folder
+<dd><a href="#Default_output_folder">Default output folder</a>
+<dd><a href="#Use_default_folder">Use default folder</a>
+</dl>
+<dt>Loose Ends
+<dd><a href="#Selecting_items">Selecting items</a>
+<dd><a href="#Tap_Tempo">Tap Tempo</a>
+<dd><a href="#Export">Export</a>
+<dd><a href="#Panic">Panic</a>
+<dd><a href="#Tearing">Tearing</a>
+<dd><a href="#Performance">Performance</a>
+<dd><a href="#Troubleshooting">Troubleshooting</a>
+<dd><a href="#Main_Shortcuts">Main Shortcuts</a>
+<dd><a href="#Playlist_Shortcuts">Playlist Shortcuts</a>
+</dl>
+
+<h1>Getting Started</h1>
+<a name="Introduction"><h2>Introduction</h2></a>
+
+<p>Whorld is a free, open-source visualizer for sacred geometry. It uses math to create a seamless animation of mesmerizing psychedelic images. You can VJ with it, make unique digital artwork with it, or sit back and watch it like a screensaver.
+
+<p>Whorld's visualization is controlled via <a href="#Parameters">parameters</a> which can be adjusted manually, or modulated by <a href="#Oscillators">oscillators</a>. A given setting of the parameters and their oscillators form a <a href="#Patches">patch</a>. You can use the <a href="#Viewing_the_demo">demo</a> patches, or create your own.
+
+<p>Patches can be grouped together in a <a href="#Playlists">playlist</a>. You can <a href="#Playing_patches">play patches</a> manually, or Whorld can <a href="#Autoplay">autoplay</a> them for you. Whorld also includes a <a href="#Crossfader_dialog">crossfader</a>, which allows you to <a href="#Interpolation">interpolate</a> between two patches.
+
+<p>Whorld is optimized for <a href="#Veejay_Mode">performing</a>. All of its functions can be accessed in full-screen mode, via <a href="#Main_Shortcuts">shortcut keys</a>, <a href="#Mouse_Modes">mouse</a> or trackball, or <a href="#MIDI_Setup">MIDI controllers</a>. Whorld can be synchronized to music, using <a href="#Tap_Tempo">tap tempo</a>, or <a href="#MIDI_sync">MIDI clocks</a>.
+
+<p>Still frames can be captured as <a href="#Snapshots">snapshots</a>, printed, or <a href="#Export">exported</a> as bitmaps. Whorld can also record <a href="#Movies">movies</a>, and export them as AVI files or numbered bitmaps.
+
+<a name="License"><h2>License</h2></a>
+
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
+
+<a name="Requirements"><h2>Requirements</h2></a>
+
+<p>Minimum:
+
+<p>Pentium III 833MHz
+<br>256MB RAM
+<br>3-button mouse
+<br>Windows 2000 SP4
+<br>DirectX 8.1
+<br>640 x 480 / 16-bit color
+
+<p>Recommended:
+
+<p>AMD Athlon 64 4000+ San Diego 1GHz FSB
+<br>Foxconn NF4K8MC-EKRS Socket 939 Micro ATX
+<br>2GB OCZ 184-Pin DDR SDRAM
+<br>ATI Radeon X800XL 256MB GDDR3 PCI Express x16
+<br>Western Digital SE WD2000JD 200GB 7200 RPM Serial ATA150
+<br>ASPIRE X-QPACK-AL/420 MicroATX Case 420W Power Supply
+<br>Microsoft Explorer 1.0 optical trackball
+<br>X-Session MIDI controller
+<br>Windows XP SP2
+<br>DirectX 9
+<br>1024 x 768 / 32-bit color
+
+<a name="Installing"><h2>Installing</h2></a>
+
+<p><b>Installing for the first time:</b>
+
+<p>Whorld is distributed as a .zip file. Unzip the distribution file, using WinZip or an equivalent program, and then double-click on Whorld.msi to launch the installer. The installer is about as simple as an installer can be: just keep hitting "Next."
+
+<p>Note that by default, Whorld is installed for the current user only. This means additional users must manually create desktop and start menu shortcuts to Whorld. If this is inconvenient, you may prefer to install Whorld for all users, using the following procedure:
+
+<ol>
+<li>If Whorld is already installed, <a href="#Uninstalling">uninstall</a> it.
+<li>Unzip the distribution file into a folder, if you haven't already.
+<li>In that folder, double-click AllUsers.bat to launch the installer, and then proceed as usual.
+</ol>
+
+<p>Whorld is optimized for 1024 x 768 resolution, with 32-bit color. At higher resolutions, lines may look too thin, and <a href="#Performance">performance</a> may suffer, especially in <a href="#Full_Screen">full-screen</a> and <a href="#Veejay_Mode">Veejay mode</a>. At lower resolutions, lines may look jagged, though performance may improve. Whorld does not change the display resolution; you must change it yourself, using the Windows Control Panel.
+
+<p><b>Upgrading a previous installation:</b>
+
+<ol>
+<li>Unzip the distribution file to a folder, if you haven't already.
+<li>In that folder, double-click Upgrade.bat to launch the installer.
+<li>In the installer, select the "Repair" option.
+</ol>
+
+<p>Note that double-clicking Whorld.msi won't work: you will get the message "Another version of this product is already installed".
+
+<a name="Uninstalling"><h2>Uninstalling</h2></a>
+
+<p>To uninstall Whorld, use Add/Remove Programs in the Control Panel, or double-click on Whorld.msi and select the "Remove" option.
+
+<a name="Viewing_the_demo"><h2>Viewing the demo</h2></a>
+
+<p>When you run Whorld, you'll see a dialog asking if you want to view the <a href="#Demo_Mode">demo</a>. This dialog can be permanently suppressed by checking the "don't show me this again" checkbox. The demo can be viewed later, by selecting <span class="cmd">View/Demo</span> from the main menu. To stop the demo, select <span class="cmd">View/Demo</span> again.
+
+<p>During the demo, you can experiment with Whorld's effects. For example, try pressing:
+
+<ul>
+<li><span class="key">Backspace</span>, to reverse the direction of <a href="#Ring_Growth">ring growth</a> (outward versus inward).
+<li><span class="key">F5</span>, to enable/disable <a href="#Mirror">mirroring</a>.
+<li><span class="key">F6</span>, to enable/disable <a href="#Fill">fill</a> mode.
+<li><span class="key">F7</span>, to enable/disable <a href="#Outline">outlining</a> (this only works while in fill mode).
+<li><span class="key">F8</span>, to enable/disable <a href="#X-Ray">X-Ray</a> (a type of translucency).
+</ul>
+
+<p>Note that fill and X-Ray may cause the animation to slow down or become jerky; see <a href="#Performance">performance</a>.
+
+
+<h1>Parameters</h1>
+
+<a name="Parameters"><h2>Parameters</h2></a>
+
+<p>A parameter is a numerical value that affects an aspect of the visualization. Parameters can be adjusted manually, via the <a href="#Parameters_dialog">parameters dialog</a>, or via <a href="#MIDI_Setup">MIDI</a>, but they also can be programmed to change automatically, using <a href="#Oscillators">oscillators</a>.
+
+<p>The visualization is based on <em>rings</em>. A ring is a regular polygon (e.g. a triangle, square, or pentagon) with various distortions applied to it. Rings are born, grow away from the center (or shrink towards it), and eventually die.
+
+<p>Note that almost all of the parameters only affect new rings. The only exceptions are <a href="#Ring_Growth">Ring Growth</a>, and the background color parameters. Parameter changes propagate through the image gradually as new rings are born; in this respect Whorld behaves somewhat like a digital delay. To affect all existing rings at once, use the <a href="#Global_Parameters">global parameters</a>.
+
+<a name="Ring_Growth"><h2>Ring Growth</h2></a>
+
+<p>Ring Growth determines how quickly rings expand, in pixels per frame. It also determines the rate at which new rings are born (the birth rate). Ring Growth can be positive, negative, or zero, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>positive</td><td>Rings are born in the center, and grow outward, towards the edges of the <a href="#Canvas_scale">canvas</a>; a ring dies when all of its vertices are outside the canvas.</td>
+</tr><tr>
+<td>negative</td><td>Rings are born at the edges of the canvas, and grow inward, towards the center; a ring dies when its radius reaches zero.</td>
+</tr><tr>
+<td>zero</td><td>Rings don't expand or contract, no new rings are born, and none die.</td>
+</tr>
+</table>
+
+<p>The direction of ring growth can also be <a href="#Reverse">reversed</a> using <span class="cmd">Image/Reverse</span> or the <span class="key">Backspace</span> key.
+
+<a name="Ring_Spacing"><h2>Ring Spacing</h2></a>
+
+<p>Ring Spacing is the amount of space between each ring, in pixels. Ring Spacing can be as big as you like, but it can't be less than one. It's one of several methods for controlling image complexity, and it's often necessary to increase it when using <a href="#Line_Width">wide lines</a> or <a href="#Fill">fill</a>, to avoid <a href="#Performance">performance</a> problems.
+
+<a name="Line_Width"><h2>Line Width</h2></a>
+
+<p>Line Width is the width of each ring, in pixels. It's displayed as a real number, but internally it's rounded to an integer. Note that the default line width of one is a special case: one-pixel-wide lines are typically drawn by hardware and execute <em>much</em> faster than other line widths. Line widths greater than one may cause <a href="#Performance">performance</a> problems. As Line Width is increased, the rings begin to overlap unless <a href="#Ring_Spacing">Ring Spacing</a> is also increased.
+
+<a name="Ring_Sides"><h2>Ring Sides</h2></a>
+
+<p>Ring Sides is the number of sides each ring has. It's displayed as a real number, but internally it's rounded to an integer. It can range from 3 (a triangle) to 50 (an approximation of a circle). Note that large numbers of sides may reduce <a href="#Performance">performance</a>.
+
+<a name="Rotate_Speed"><h2>Rotate Speed</h2></a>
+
+<p>Rotate Speed is the amount each ring rotates per frame, in degrees. Positive is counterclockwise, and negative is clockwise. Pleasing values typically range from &minus;1 to 1; larger values may cause dizziness.
+
+<p><img src="../images/Rotate.gif">
+
+<a name="Aspect_Ratio"><h2>Aspect Ratio</h2></a>
+
+<p>Aspect Ratio stretches the rings horizontally or vertically. Positive values make the rings wider; negative values make the rings taller. At zero, Aspect Ratio has no effect. Aspect Ratio is exponential, and normalized so that at 1, the rings are twice as wide, at 2 they're four times as wide, and at three, they're eight times as wide.
+
+<p><img src="../images/Aspect.gif">
+
+<a name="Skew_Radius"><h2>Skew Radius</h2></a>
+
+<p>Skew Radius is the amount that each ring's origin shifts per frame, in pixels. The direction of the shift is determined by <a href="#Skew_Angle">Skew Angle</a>. In small amounts, skew makes the image appear to have depth, or resemble a tunnel. In large amounts, Skew causes the image to be completely biased to one side of the screen, leaving the remainder of the screen empty.
+
+<p><img src="../images/Skew.gif">
+
+<a name="Skew_Angle"><h2>Skew Angle</h2></a>
+
+<p>Skew Angle is the direction of the per-frame origin shift, in degrees. At zero degrees, the skew direction is due south; at 90 degrees, it's due east. The magnitude of the shift is determined by <a href="#Skew_Radius">Skew Radius</a>.
+
+<p><img src="../images/SkewAngle.gif">
+
+<a name="Star_Factor"><h2>Star Factor</h2></a>
+
+<p>Star Factor causes the sides of a ring to bulge outward, or collapse inward, forming a star shape, as illustrated in the following diagram:
+
+<p><img src="../images/StarFactor.gif">
+
+<p>Star Factor is normalized such that at 1, a hexagon becomes a Star of David, a square becomes a diamond, and a triangle becomes a hexagon. At Star Factor = &minus;1, a triangle becomes the Mercedes symbol. At zero, Star Factor has no effect.
+
+<p>A ring is composed of two alternating sets of vertices, called even and odd. The even vertices are the "real" polygon. The odd vertices are normally hidden, but they become the points of the star when Star Factor is positive, or the inner angles when Star Factor is negative.
+
+<p>The odd vertices collectively form a second polygon, which can be independently rotated; see <a href="#Pinwheel">Pinwheel</a>. Note that when Star Factor has a large negative value, the odd vertices stay visible for a long time, which may reduce <a href="#Performance">performance</a>.
+
+<a name="Pinwheel"><h2>Pinwheel</h2></a>
+
+<p>Pinwheel rotates the points of a star, causing the overall shape to resemble a pinwheel or turbine, as illustrated in the following diagram:
+
+<p><img src="../images/Pinwheel.gif">
+
+<p>Pinwheel is normalized such that at 1, each "tooth" has one of its edges (the "cutting" edge) positioned on a line that passes through the center. At &minus;1, the teeth face clockwise instead of counterclockwise. At zero, Pinwheel has no effect.
+
+<p>Pinwheel is typically used in combination with <a href="#Star_Factor">Star Factor</a>, but it has an effect even when Star Factor is zero. Pinwheel's range is twice the ring's number of sides, i.e. for a six-sided ring, Pinwheel = 6 is the most extreme value, and Pinwheel = 12 is the same as Pinwheel = 0. Extreme values cause the ring to overlap itself in interesting ways, but may also reduce <a href="#Performance">performance</a>.
+
+<a name="Color_Speed"><h2>Color Speed</h2></a>
+
+<p>Color Speed determines how fast the ring color's <a href="#Color_Model">hue</a> cycles around the color wheel, in degrees per frame. The color's <a href="#Lightness">lightness</a> and <a href="#Saturation">saturation</a> are controlled separately; if lightness is 0 or 1, or saturation is 0, hue has no effect. The hue normally cycles a full 360°, but hue cycling can also be limited to a range, using the <a href="#Loop_Hue">Loop Hue</a> command.
+
+<a name="Lightness"><h2>Lightness</h2></a>
+
+<p>This is the <a href="#Color_Model">lightness</a> of the ring color, ranging from 0 (black) to 1 (white). The color's <a href="#Color_Speed">hue</a> and <a href="#Saturation">saturation</a> are controlled separately.
+
+<a name="Saturation"><h2>Saturation</h2></a>
+
+<p>This is the <a href="#Color_Model">saturation</a> of the ring color, ranging from 0 (monochrome) to 1 (full saturation). The color's <a href="#Color_Speed">hue</a> and <a href="#Lightness">lightness</a> are controlled separately.
+
+<a name="Background_Hue"><h2>Background Hue</h2></a>
+
+<p>This is the <a href="#Color_Model">hue</a> of the background color, in degrees. The color's <a href="#Background_Lightness">lightness</a> and <a href="#Background_Saturation">saturation</a> are controlled separately; if lightness is 0 or 1, or saturation is 0, hue has no effect. The background color is also used as the <a href="#Outline">outline</a> color in Fill mode.
+
+<p>Note that hue is implemented differently for rings than for the background: for rings, hue is controlled indirectly via <a href="#Color_Speed">Color Speed</a>, whereas background hue is an absolute setting. As a result, hue cycling for the background color requires an <a href="#Oscillators">oscillator</a>. For 360° cycling, set the waveform to "Ramp Up", the amplitude to 180, and the frequency non-zero.
+
+<a name="Background_Lightness"><h2>Background Lightness</h2></a>
+
+<p>This is the <a href="#Color_Model">lightness</a> of the background color, ranging from 0 (black) to 1 (white). The color's <a href="#Background_Hue">hue</a> and <a href="#Background_Saturation">saturation</a> are controlled separately. The background color is also used as the <a href="#Outline">outline</a> color in Fill mode.
+
+<a name="Background_Saturation"><h2>Background Saturation</h2></a>
+
+<p>This is the <a href="#Color_Model">saturation</a> of the background color, ranging from 0 (monochrome) to 1 (full saturation). The color's <a href="#Background_Hue">hue</a> and <a href="#Background_Saturation">lightness</a> are controlled separately. The background color is also used as the <a href="#Outline">outline</a> color in Fill mode.
+
+<a name="Even_Curve"><h2>Even Curve</h2></a>
+
+<p>This is the curvature at even vertices, i.e. the vertices that are NOT affected by <a href="#Star_Factor">Star Factor</a> and <a href="#Pinwheel">Pinwheel</a>. The curvature at odd vertices is controlled separately, via the <a href="#Odd_Curve">Odd Curve</a> parameter. Curvatures are normalized such that positive values produce simple curves, negative values produce loops or curls, and at zero, there's no curvature. Note that curves require considerably more processing power than straight lines, and may reduce <a href="#Performance">performance</a>.
+
+<p>Each pair of adjacent vertices forms a Bézier curve, with a control point at either end. The control points are constrained such that the vector between a control point and its corresponding vertex is always tangent. The vector's length is the ring's radius multiplied by the appropriate curvature (odd or even). Thus curvature doesn't vary with radius.
+
+<p>The following diagram shows the shapes that result from various combinations of odd and even <em>positive</em> curvature, with Star Factor = 1. An arbitrary curvature of 1/3 is used in all cases, to simplify the illustration.
+
+<p><img src="../images/Bezier-pos.gif">
+
+<p>The following diagram shows the shapes that result from various combinations of odd and even <em>negative</em> curvature.
+
+<p><img src="../images/Bezier-neg.gif">
+
+<a name="Odd_Curve"><h2>Odd Curve</h2></a>
+
+<p>This is the curvature at odd vertices, i.e. the vertices that are affected by <a href="#Star_Factor">Star Factor</a> and <a href="#Pinwheel">Pinwheel</a>. The curvature at even vertices is controlled separately; see the <a href="#Even_Curve">Even Curve</a> parameter for details.
+
+<a name="Even_Shear"><h2>Even Shear</h2></a>
+
+<p>Even Shear makes the curvature at <a href="#Star_Factor">even vertices</a> asymmetrical. Curve asymmetry at odd vertices is controlled separately, via the <a href="#Odd_Shear">Odd Shear</a> parameter. The two curve control points at each vertex are normally contrained to be equidistant from the vertex. Removing this constraint yields two distinct distances, one between the counterclockwise point (A) and the vertex, and the other between the clockwise point (B) and the vertex. Shear changes the ratio of these two distances. Shear is normalized so that at zero, the control points are equidistant as usual, while at &minus;1, the counterclockwise point coincides with the vertex, eliminating curvature on that side. Note that for Even Shear to have any effect, <a href="#Even_Curve">Even Curve</a> must have a nonzero value.
+
+<p><img src="../images/even-shear.gif">
+
+<a name="Odd_Shear"><h2>Odd Shear</h2></a>
+
+<p>Odd Shear makes the curvature at <a href="#Star_Factor">odd vertices</a> asymmetrical. Curve asymmetry at even vertices is controlled separately; see the <a href="#Even_Shear">Even Shear</a> parameter for details. Note that for Odd Shear to have any effect, <a href="#Odd_Curve">Odd Curve</a> must have a nonzero value.
+
+<p><img src="../images/odd-shear.gif">
+
+<a name="Global_Parameters"><h2>Global Parameters</h2></a>
+
+<p>Changing a regular <a href="#Parameters">parameter</a> only affects new rings. A global parameter corresponds to a regular parameter, and has the same effect, except that it operates on <em>all existing rings at once</em>. For example, Global Aspect Ratio is identical to <a href="#Aspect_Ratio">Aspect Ratio</a>, except that it stretches the entire image, not just new rings. The global parameters are accessed in the <a href="#Parameters_dialog">Parameters dialog</a> by selecting <span class="cmd">Edit/Global Params</span>.
+
+<p>A global parameter doesn't override its corresponding regular parameter; rather, it <em>adds</em> to it. Thus global parameters can be combined with regular parameters, e.g. global parameters can modify the behavior of <a href="#Patches">patches</a>. Global parameters aren't saved in patches, but they are saved in <a href="#Playlists">playlists</a>.
+
+<p>Global parameters have their own <a href="#Oscillators">oscillators</a>, which are independent of the regular parameter oscillators. A given parameter can be modulated by both oscillators simultaneously: one affects new rings, while the other affects existing rings.
+
+<p>Regular parameter changes propagate gradually, depending on the rate of <a href="#Ring_Growth">Ring Growth</a>, which causes the output to lag behind the parameter changes. This lag (AKA <em>hysteresis</em>) is essential to Whorld's look, but it has a down side: if you try to control regular parameters via <a href="#MIDI_Setup">MIDI</a>, the controls can feel sluggish because they're not having enough impact. Since global parameters affect the whole image at once, they give a stronger impression of realtime control.
+
+<p>When global parameters are controlled via MIDI, they are affected by <a href="#Damping">damping</a>. This allows you to make a tradeoff between responsiveness and smoothness. It's particularly useful for avoiding jerkiness when controlling global parameters with a noisy MIDI device.
+
+<p>Most of the parameters have global equivalents; the only ones that don't are Ring Growth, Ring Spacing, and the six color parameters. Global hue can already be controlled via <a href="#Mouse_Modes">mouse</a> and MIDI, and the background color is global by definition.
+
+
+<h1>Patches</h1>
+
+<a name="Patches"><h2>Patches</h2></a>
+
+<p>A patch is a particular setting of the <a href="#Parameters">parameters</a> and their <a href="#Oscillators">oscillators</a>. A patch can be saved to a file, and then restored from the file later. To open a patch, use <span class="cmd">File/Open</span>. To save the current patch, use <span class="cmd">File/Save</span> or <span class="cmd">File/Save As</span>.
+
+<p>Patches are edited using the <a href="#Parameters_dialog">parameters dialog</a>. Whorld has various buffers in which patches can be edited. The parameters dialog operates on one of these buffers at a time; see <a href="#Edit_Selection">edit selection</a>.
+
+<p>In addition to the parameters and their oscillators, a patch also contains other settings, which may or may not be restored, depending on the <a href="#Patch_mode">patch mode</a>.
+
+<a name="Parameters_dialog"><h2>Parameters dialog</h2></a>
+
+<p>This dialog allows you to edit the <a href="#Parameters">parameters</a> and their <a href="#Oscillators">oscillators</a>. It typically operates on the document, but it can also operate on the crossfader inputs or mix, or the master offsets; see <a href="#Edit_Selection">edit selection</a>. To show or hide the dialog, use <span class="cmd">View/Parameters</span> or <span class="key">Shift+P</span>. The dialog consists of a two-dimensional table, containing one row for each parameter. The columns are described below.
+
+<dl>
+
+<dt>Value Slider
+<dd>This slider allows you to quickly change the parameter, but it also limits the parameter to a preset range. To enter values outside that range, use the value edit box instead (see below).
+
+<dt>Value
+<dd>This edit box is useful for entering specific parameter values, or values that are beyond the range of the value slider.
+
+<dt>Waveform
+<dd>This drop-list allows you to specify the type of <a href="#Waveforms">waveform</a> that the parameter's oscillator uses.
+
+<dt>Amplitude
+<dd>This edit box allows you to specify the amplitude of the parameter's oscillator. Both amplitude and frequency must be non-zero for the oscillator to have any effect.
+
+<dt>Frequency
+<dd>This edit box allows you to specify the frequency of the parameter's oscillator, in Hertz. Negative values are not permitted. Both amplitude and frequency must be non-zero for the oscillator to have any effect.
+
+<dt>Pulse Width
+<dd>When the waveform is "Pulse", this edit box allows you to specify the pulse width, ranging from 0 to 1. At .5, the result is identical to a square wave.
+
+</dl>
+
+<a name="Edit_Selection"><h2>Edit Selection</h2></a>
+
+<p>Whorld has various <em>buffers</em> in which patches can be edited. The edit selection determines which one of these buffers the <a href="#Parameters_dialog">parameters dialog</a> operates on. To change the edit selection, use the Edit menu, or the parameters dialog's system menu (left-click the icon in the dialog's upper-left corner). The choices are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Document</td><td>The patch that the File menu opens and saves, and the name of which appears in the main window's caption.</td>
+</tr><tr>
+<td>Crossfader A</td><td>The crossfader's input patch 'A'; can be loaded, edited, and saved via the <a href="#Crossfader_dialog">crossfader dialog</a>.</td>
+</tr><tr>
+<td>Crossfader B</td><td>The crossfader's input patch 'B'; can be loaded, edited, and saved via the crossfader dialog.</td>
+</tr><tr>
+<td>Crossfader Mix</td><td>The crossfader's output patch; can be edited and saved, but note that edits are overwritten without warning if the crossfader position or inputs change.</td>
+</tr><tr>
+<td>Master Offsets</td><td>This pseudo-patch contains <a href="#Master_Offsets">offsets</a> which are added to the parameters from the document or crossfader mix; for a schematic, see <a href="#Signal_Flow">Signal Flow</a>. It also includes an optional <a href="#Oscillator_Override">oscillator override</a> for each parameter.</td>
+</tr><tr>
+<td>Global Params</td><td>This pseudo-patch contains the <a href="#Global_Parameters">global parameters</a>, which affect all existing rings, unlike regular parameters, which only affect new rings.</td>
+</tr>
+</table>
+
+<p>The animation is always controlled by either the document, or the crossfader mix; the <a href="#View_Mix">View Mix</a> setting determines which one. Edits made via the parameters dialog may or may not affect the animation, depending on the combination of View Mix and edit selection, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th colspan=2 rowspan=2>Do parameters dialog edits affect the animation?</th><th colspan=2>View</th>
+</tr><tr>
+<th>Document</th><th>Mix</th>
+</tr><tr>
+<th rowspan=6>Edit</th><th>Document</th><td>Yes</td><td>No</td>
+</tr><tr>
+<th>Crossfader A</th><td>No</td><td>Maybe</td>
+</tr><tr>
+<th>Crossfader B</th><td>No</td><td>Maybe</td>
+</tr><tr>
+<th>Crossfader Mix</th><td>No</td><td>Yes</td>
+</tr><tr>
+<th>Master Offsets</th><td>Yes</td><td>Yes</td>
+</tr><tr>
+<th>Global Params</th><td>Yes</td><td>Yes</td>
+</tr>
+</table>
+
+<p>For normal patch editing, the edit selection should be "Document", and View Mix should be off, so you can see the effect of your edits. If some cases you may want to edit the crossfader inputs or mix. More likely you'll want to edit the master offsets.
+
+<a name="Oscillators"><h2>Oscillators</h2></a>
+
+<p>Each <a href="#Parameters">parameter</a> has an oscillator (modulator) associated with it. The oscillator generates a repeating <a href="#Waveforms">waveform</a> (e.g. a sine wave), which is then used to <em>modulate</em> (change) the corresponding parameter's value. Oscillator waveforms are <em>normalized</em>, such that they always range from &minus;1 to 1. An oscillator has the following properties:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Waveform</td>
+<td>The type of waveform the oscillator generates: Triangle, Sine, Ramp Up, Ramp Down, Square, Pulse, or Random.</td>
+</tr><tr>
+<td>Amplitude</td>
+<td>The <em>width</em> of the modulation. The oscillator's waveform, which ranges from &minus;1 to 1, is <em>scaled</em> (multiplied) by Amplitude before being added to its parameter.</td>
+</tr><tr>
+<td>Frequency</td>
+<td>The rate at which the oscillator's waveform is repeated, in Hertz (cycles per second). The frequency must be greater than zero, otherwise the oscillator has no effect.</td>
+</tr><tr>
+<td>Pulse Width</td>
+<td>When the oscillator's waveform is "Pulse", this value sets the pulse wave's <em>duty cycle</em> (ratio of low to high), ranging from 0 to 1. At .5, the result is identical to a square wave. For other waveforms, Pulse Width has no effect.</td>
+</tr>
+</table>
+
+<p>In algebraic terms, an oscillator's behavior is:
+<br>Result = Parameter + (Waveform &times; Amplitude).
+
+<p>Note that when the amplitude is zero, the parameter is unchanged.
+
+<p>Since oscillators always swing both positive and negative, in some cases it may be necessary to offset a parameter to achieve the desired effect. For example, to make <a href="#Ring_Sides">Ring Sides</a> vary between 3 and 7, you would need to set Ring Sides to 5, and its oscillator's amplitude to 2:
+
+<p>5 + (&minus;1 &times; 2) = 3
+<br>5 + (1 &times; 2) = 7
+
+<p>While programming oscillators, it may be helpful to view the <a href="#Numbers_dialog">numbers dialog</a>, because it displays the modulated values of the parameters.
+
+<a name="Waveforms"><h2>Waveforms</h2></a>
+
+<p><img src="../images/Waveforms.gif">
+
+<a name="Master_Offsets"><h2>Master Offsets</h2></a>
+
+<p>Each <a href="#Parameters">parameter</a> has a <em>master offset</em> associated with it. The master offset is <em>added</em> to its corresponding parameter, and shifts it by some amount, which can be positive, negative, or zero. If the parameter is being modulated by an <a href="#Oscillators">oscillator</a>, the master offset shifts the modulated value.
+
+<p>Master offsets are applied after all other processing, just before the frame is drawn, and they affect the animation at all times, regardless of what <a href="#Patches">patch</a> is loaded, and regardless of whether you're <a href="#View_Mix">viewing</a> the document or the mix. For a schematic, see <a href="#Signal_Flow">Signal Flow</a>.
+
+<p>The master offsets can be edited via the <a href="#Parameters_dialog">parameters dialog</a>; to do this, set the <a href="#Edit_Selection">edit selection</a> to "Master Offsets". The master offsets can also be changed via MIDI: when a controller is <a href="#MIDI_Setup">assigned</a> to a parameter, it actually modifies the parameter's master offset. To zero all of the master offsets at once, use <span class="cmd">Edit/Zero Controllers</span> or <span class="key">Shift+Z</span>.
+
+<p>Master offsets are saved as part of the <a href="#Playlists">playlist</a>. If any master offsets are non-zero while you're editing a patch, the patch may not look the same when it's inserted into a different playlist. To avoid confusion, keep master offsets zero while editing patches. To save the current mix as a new patch, including the master offsets, use <span class="cmd">File/Save Mix</span> or <span class="key">Shift+S</span>.
+
+<a name="Oscillator_Override"><h2>Oscillator Override</h2></a>
+
+<p>Each <a href="#Parameters">parameter</a> is modulated by its associated <a href="#Oscillators">oscillator</a>. An oscillator behaves according to its properties (e.g. waveform, amplitude, frequency, pulse width) which it normally obtains from the document, or when <a href="#View_Mix">View Mix</a> is enabled, from the crossfader mix (see <a href="#Signal_Flow">Signal Flow</a>). It's also possible to <em>override</em> an oscillator's properties with alternate values, which the oscillator then obeys regardless of what document is loaded, or what <a href="#Patches">patch</a> is played. Put another way, overriding an oscillator disables its default behavior, allowing you to control the oscillator manually in all situations.
+
+<p>To create or edit oscillator overrides, display the <a href="#Parameters_dialog">Parameters dialog</a>, and set the <a href="#Edit_Selection">edit selection</a> to "Master Offsets". The waveform, amplitude, frequency, and pulse width columns now display the override values for each oscillator. Note that an override is only enabled when its <em>frequency</em> is non-zero; if the frequency is zero, changing the other override properties has no effect. This feature allows you to preset an override, by adjusting its waveform, amplitude, or pulse width, but leaving its frequency zero. The override can then be enabled and disabled live, by controlling the override frequency via MIDI. Oscillator overrides and their <a href="#MIDI_Setup">MIDI assignments</a> are saved in the <a href="#Playlists">playlist</a>.
+
+<p>It's theoretically possible to control all properties of all oscillators via MIDI, but controllers are typically a limited resource. In most cases, you'll want to override selected oscillators, and assign MIDI to their amplitudes and frequencies, or in some cases, only to their frequencies, using preset waveforms and amplitudes. For example, to control <a href="#Background_Hue">Background Hue</a> cycling manually via a single MIDI control, follow these steps:
+
+<ol>
+<li>Show the Parameters dialog, and set the edit selection to "Master Offsets".
+<li>In the "Bk Hue" row, set the waveform to "Ramp Up", and the amplitude to 180 (assuming you want the hue to cycle a full 360°), but leave the frequency zero. You may also need to set the <a href="#Background_Lightness">Background Lightness</a> master offset to .5 so that the background color isn't always black.
+<li>Show the MIDI Setup dialog, and check the "Advanced" checkbox in the upper-right corner.
+<li>Scroll down to the "Bk Hue Freq" row, and enter the desired MIDI event, channel, and controller number; this can also be accomplished via <a href="#Learn_mode">learn mode</a>. Note that the Range defaults to 1, which means the controller varies the override frequency from 0 to 1 Hz. Setting Range to a smaller value gives you finer control, at the expense of a lower maximum frequency.
+<li>Twiddle the controller. You should see the override frequency changing in the Parameters dialog. When the controller is at its minimum position, the override frequency is zero, and the background hue behaves as usual; otherwise, the background hue cycles at a rate proportional to the controller position, regardless of what document or patch is loaded.
+</ol>
+
+<a name="Numbers_dialog"><h2>Numbers dialog</h2></a>
+
+<p>This dialog continuously displays the current values of the <a href="#Parameters">parameters</a>, as well as the current hue, origin, and ring count. The parameters are captured just before they're passed to the rendering engine, so the displayed values include any modulations via <a href="#Oscillators">oscillators</a>, and also take into account the <a href="#Master_Offsets">master offsets</a> and master <a href="#Speed">speed</a>. To show or hide the dialog, use <span class="cmd">View/Numbers</span>, or <span class="key">Shift+N</span>.
+
+
+<h1>Crossfader</h1>
+
+<a name="Crossfader_dialog"><h2>Crossfader dialog</h2></a>
+
+<p>The crossfader allows you to <a href="#Interpolation">interpolate</a> between two input <a href="#Patches">patches</a>, called 'A' and 'B'. The result is a new patch, called the crossfader <em>mix</em>, which varies between 'A' and 'B', depending on the position of the crossfader. The position can be adjusted manually, or automated, so that it moves by itself. Note that the crossfader has no effect on the animation unless <a href="#View_Mix">View Mix</a> is enabled. To show or hide the crossfader dialog, use <span class="cmd">View/Crossfader</span>, or <span class="key">Shift+X</span>.
+
+<dl>
+
+<dt>Position
+<dd>This is the current position of the crossfader. It ranges from 0 to 1, where 0 is all 'A', 1 is all 'B', and .5 is an equal mix. The position can be set by entering a number in the edit box, by moving the slider, or via MIDI. Note that the position can't be set during an auto-fade; see below.
+
+<dt>Seconds
+<dd>This is the auto-fade length; it specifies how long the crossfader thumb takes to move from one end of its range to the other, in seconds.
+
+<dt>Play
+<dd>This button starts an automated fade. The crossfader thumb moves by itself, until it reaches end-of-travel (unless Loop is pressed), or you press Stop. The auto-fade length (see above) determines how quickly it moves. Which direction it moves depends on its current position, and whether you've moved it manually since you last pressed Stop, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>At end-of-travel?</th><th>Moved since Stop?</th><th>Result</th></tr>
+<tr><td>Yes</td><td>N/A</td><td>Moves towards opposite end.</td></tr>
+<tr><td>No</td><td>Yes</td><td>Moves from left to right.</td></tr>
+<tr><td>No</td><td>No</td><td>Moves in same direction it was moving before.</td></tr>
+</table>
+
+<p><dt>Stop
+<dd>This button stops an automated fade.
+
+<dt>Loop
+<dd>An automated fade normally stops when the fader reaches end-of-travel. When this button is pressed, the fader continues to move back and forth between 'A' and 'B' until you press Stop.
+
+<dt>Name
+<dd>This pair of drop-lists allows you to select a patch for either input. Each list contains three special selections, followed by the patches from the current bank of your <a href="#Playlists">playlist</a>. The special selections are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>Document</td><td>Loads the patch currently being edited.</td></tr>
+<tr><td>Crossfader A/B</td><td>Loads the other input's patch.</td></tr>
+<tr><td>Crossfader Mix</td><td>Loads the current crossfader mix.</td></tr>
+</table>
+
+<p><dt>Open
+<dd>This pair of buttons allows you to load either input from a file.
+
+<dt>Save
+<dd>This pair of buttons allows you save either input to a file.
+
+<dt>Edit A/B/Mix
+<dd>These buttons set the <a href="#Edit_Selection">edit selection</a> to input 'A', input 'B', or the crossfader mix, and also show the <a href="#Parameters">parameters</a> dialog if it's not already visible. Selecting "Mix" allows you to watch the parameters and oscillator settings change as the crossfader moves. It's also possible to edit the mix, but note that moving the crossfader or changing either input overwrites your edits without warning. It's safer to save the mix to a file, and then open the file for editing; see Save Mix below.
+
+<dt>View Mix
+<dd>This button duplicates the <a href="#View_Mix">View Mix</a> setting; when pressed, Whorld's image is controlled by the crossfader, otherwise it's controlled by the document.
+
+<dt>Save Mix
+<dd>This button allows you to save the current mix to a file. Note that the resulting patch does not include the <a href="#Master_Offsets">master offsets</a>, and may not look the same when reloaded unless all master offsets are zero. To include the master offsets, use <span class="cmd">File/Save Mix</span> instead.
+
+<dt>Waveform
+<dd>This sets the type of <a href="#Waveforms">waveform</a> that's used to control automated fading. For normal behavior, select "Triangle".
+
+</dl>
+
+<a name="Interpolation"><h2>Interpolation</h2></a>
+
+<p>Interpolation is a type of mixing, but it's different from audio or video mixing: it's similar to "tweening" in animation, which is shorthand for "generating in-between values." In Whorld, the <a href="#Crossfader_dialog">crossfader</a> is used to interpolate between two <a href="#Patches">patches</a>. The interpolation affects the <a href="#Parameters">parameters</a> and their <a href="#Oscillators">oscillators</a>, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Variable</th><th>Interpolation</th></tr>
+<tr><td>Parameter</td><td>Linear</td></tr>
+<tr><td>Oscillator Waveform</td><td>Switches halfway</td></tr>
+<tr><td>Oscillator Amplitude</td><td>Linear</td></tr>
+<tr><td>Oscillator Frequency</td><td>Linear</td></tr>
+<tr><td>Oscillator Pulse Width</td><td>Linear</td></tr>
+</table>
+
+<p>Each variable has a value in patch 'A', and a corresponding value in patch 'B'. If the two values are the same, crossfading has no effect on that variable. Otherwise, moving the crossfader from left to right changes the variable continuously from its 'A' value to its 'B' value, such that the variable is halfway between its 'A' and 'B' values when the crossfader is in middle. This is <em>linear</em> interpolation, and it's used for all variables except the <a href="#Waveforms">waveforms</a>. The waveforms don't change continuously: they switch from their 'A' value to their 'B' value when the crossfader reaches the middle.
+
+<p>For example, if <a href="#Ring_Spacing">Ring Spacing</a> is 5 in patch A, and 10 in patch B, the output Ring Spacing will be 7.5 when the crossfader is in the middle.
+
+<a name="Random_patches"><h2>Random patches</h2></a>
+
+<p>The crossfader can be used to generate random patches. Inputs 'A' and 'B' are <em>hybridized</em>, creating a new patch with a random mix of attributes from both inputs. The result is output to the crossfader mix. Note that the result will not be visible unless <a href="#View_Mix">View Mix</a> is enabled. To generate a random patch, use <span class="cmd">Edit/Random Patch</span> or <span class="key">F10</span>. To save the patch, use <span class="cmd">File/Save Mix</span> or <span class="key">Shift+S</span>. Until the patch is saved, be careful not to change the crossfader position, otherwise the patch will be overwritten.
+
+<p>The process affects the <a href="#Parameters">parameters</a> and their <a href="#Oscillators">oscillators</a>, in a manner similar to <a href="#Interpolation">interpolation</a>. Each variable has a value in patch 'A', and a corresponding value in patch 'B'. If the two values are the same, that variable is unaffected. Otherwise, the variable's output value is a random number somewhere between the two input values. In effect, only the <em>differences</em> between the two inputs are randomized, which means that the more similar the inputs are, the less random the results will be.
+
+
+<h1>Playlists</h1>
+
+<a name="Playlists"><h2>Playlists</h2></a>
+
+<p>A playlist is a list of <a href="#Patches">patches</a>. As of version 1.5, a playlist may also contain <a href="#Video_overlay">videos</a>. Playlists are created and edited via the <a href="#Playlist_dialog">playlist dialog</a>. To open a playlist, use <span class="cmd">File/Playlist/Open</span>; to save it, use <span class="cmd">File/Playlist/Save</span>. Playlists can also be opened and saved from within the playlist dialog, which has its own menus.
+
+<p>You can <a href="#Playing_patches">play patches</a> from the playlist manually, via the keyboard or <a href="#MIDI_Mapping">MIDI</a>, or Whorld can <a href="#Autoplay">autoplay</a> the patches, like a jukebox. The transitions can be made gradual, using automated <a href="#Crossfading_patches">crossfades</a>.
+
+<p>Patches can be assigned shortcut keys, which allow them to be played via the keyboard in <a href="#Veejay_Mode">Veejay mode</a>. Patches can also be organized into <em>banks</em>. A playlist has twenty banks, and each bank can hold an unlimited number of patches.
+
+<p>A playlist doesn't actually store patches; instead, it stores <em>links</em> to patches. Consequently, when you modify a patch, any playlists that include that patch get the new version automatically. If patches are moved or renamed, broken links can occur; see <a href="#Missing_Files">missing files</a>.
+
+<p>Playlists also store other data, including the effects, master dialog settings, and <a href="#MIDI_Setup">MIDI setup</a>. In general, all non-patch settings are stored in the playlist, except for the options, which are stored in the registry.
+
+<a name="Playlist_dialog"><h2>Playlist dialog</h2></a>
+
+<p>This dialog allows you to create and edit <a href="#Playlists">playlists</a>, play <a href="#Patches">patches</a>, assign keys to patches, and control <a href="#Autoplay">autoplay</a>. To show or hide the dialog, use <span class="cmd">View/Playlist</span> or <span class="key">Shift+L</span>. The dialog has its own menus, which differ from the main window's menus, e.g. the File menu opens and saves playlists instead of patches. The dialog's controls are as follows:
+
+<dl>
+
+<dt>Playlist
+<dd>This is the list of patches in the current bank. To play a patch, double-click its name in the list. The list can be edited, using cut and paste or dragging; for details, see <a href="#Editing_playlists">editing playlists</a>.
+
+<dt>Bank
+<dd>This drop-list allows you to select a bank. Banks that contain patches can also be selected via the numeric keys, but to select an <em>empty</em> bank, you must use the drop-list.
+
+<dt>Assign key
+<dd>This hotkey control allows you to assign a shortcut key to a patch; for details, see <a href="#Assigning_keys">assigning keys</a>.
+
+<dt>Shuffle
+<dd>This button affects autoplay mode. When it's pressed, the patches are played in random order; otherwise, they're played sequentially.
+
+<dt>Play
+<dd>This button enables autoplay mode. When it's pressed, Whorld plays the patches automatically, like a jukebox. The order depends on the Shuffle setting (see above). The duration of each patch is determined by Patch seconds (see below).
+
+<dt>Patch seconds
+<dd>This edit box affects autoplay mode: it sets the duration of each patch, i.e. the interval between patch changes, in seconds. It also sets the range of the Crossfade seconds slider (see below).
+
+<dt>Crossfade seconds
+<dd>These controls allow you to specify the playlist's crossfade time, in seconds. When the time is non-zero, each patch change starts an automated <a href="#Crossfading_patches">crossfade</a> to the new patch.
+
+</dl>
+
+<a name="Editing_playlists"><h2>Editing playlists</h2></a>
+
+<p><a href="#Playlists">Playlists</a> are created and edited using the <a href="#Playlist_dialog">playlist dialog</a>. The playlist dialog has its own menus, which differ from the main window's menus. This topic refers to the playlist dialog's menus, and their <a href="#Playlist_Shortcuts">shortcuts</a>.
+
+<p>To insert <a href="#Patches">patches</a> into a playlist, use <span class="cmd">File/Insert Patches</span>, or press <span class="key">Insert</span>. A file dialog is displayed, allowing you <a href="#Selecting_items">select</a> the patches. Press "Open" to insert the patches; they're inserted before the list's current position. To use the context menu instead, right-click the insert position, and choose <span class="cmd">Insert Patches</span>. Patches can also be inserted by dragging them onto the playlist from Windows Explorer.
+
+<p>The playlist dialog has clipboard support, and the standard editing commands (copy, cut, paste, delete) behave as usual. For example, to copy patches to a different bank:
+
+<ol>
+<li>Select the desired patches.
+<li>Copy them to the clipboard, via <span class="cmd">Edit/Copy</span> or <span class="key">Ctrl+C</span>.
+<li>Use the Bank drop-list to select the destination bank.
+<li>Paste the patches, via <span class="cmd">Edit/Paste</span> or <span class="key">Ctrl+V</span>.
+</ol>
+
+<p>To use the context menu instead, select the desired patches, right-click one of them, choose <span class="cmd">Copy</span>, select the destination bank, right-click the insert position, and choose <span class="cmd">Paste</span>.
+
+<p>Patches can also be moved around within the list by dragging them. To move multiple patches at once, select them, and then drag the entire selection.
+
+<a name="Assigning_keys"><h2>Assigning keys</h2></a>
+
+<p>Before you can <a href="#Playing_patches">play patches</a> from the keyboard, you must first assign keys to them, using the <a href="#Playlist_dialog">playlist dialog</a>. You can assign keys individually, or let Whorld make the assignments for you. Each bank of patches has its own key assignments, but within a given bank, a key can only be assigned to one patch at a time.
+
+<p>To let Whorld make the assignments, choose <span class="cmd">Edit/Auto-Assign Keys</span> from the playlist dialog's menus. This assigns keys A..Z to the first 26 patches, in QWERTY order.
+
+<p>Individual assignments are made using one of two methods: the "Assign key" hotkey control, or the <span class="key">Shift</span> key. To use the hotkey control, do the following:
+
+<p><ol>
+<li>Select the desired patch in the playlist, by left-clicking it.
+<li>Left-click the hotkey control.
+<li>Press the key you want to assign to the patch. Only keys A..Z are accepted. If the key is already assigned to another patch in the current bank, a warning dialog is displayed.
+<li>Press <span class="key">Enter</span> or <span class="key">Tab</span> to complete the assignment.
+</ol>
+
+<p>The <span class="key">Shift</span> key method is considerably easier: select the desired patch in the playlist, and while holding down the <span class="key">Shift</span> key, press the key you want to assign. Again, only keys A..Z are accepted.
+
+<p>To remove one or more key assignments, first select the patches, and then choose <span class="cmd">Edit/Remove Key</span> from the playlist dialog's menus, or press <span class="key">Backspace</span>. You can also do this via the context menu: select one or more patches, right-click one of them, and then choose <span class="cmd">Remove Key</span>.
+
+<a name="Playing_patches"><h2>Playing patches</h2></a>
+
+<p>The main reason it's useful to group <a href="#Patches">patches</a> together in <a href="#Playlists">playlists</a> is because this allows you to easily switch from one patch to another. The changes can be manual, or <a href="#Autoplay">automated</a>; in either case, you're <em>playing patches</em>.
+
+<p>Patches can be played manually in various ways. One way is by double-clicking them in the <a href="#Playlist_dialog">playlist dialog</a>, but this requires the dialog to be visible. In <a href="#Veejay_Mode">Veejay mode</a>, patches are played via the keyboard, or <a href="#MIDI_Mapping">MIDI</a>.
+
+<p>To play patches via the keyboard, you must first <a href="#Assigning_keys">assign keys</a> to them. The assignments are stored as part of the playlist. Only the keys A..Z can be assigned to patches.
+
+<p>Patches can be organized into <em>banks</em>. A playlist has twenty banks, and they can be selected via the keyboard's numeric keys: 1..9 select the first nine banks, and 0 selects the tenth bank. The upper ten banks are selected in the same way, but while holding down the <span class="key">Shift</span> key. The keys A..Z can be assigned to different patches in each bank, so the maximum number of patches that can be played via the keyboard is 520.
+
+<p>When playing a patch in a different bank, always select the bank <em>first</em>, and then the patch. For example, if you're currently in bank 1, and you want to play patch F in bank 2, press '2', and then 'F', not the other way around.
+
+<p>Patches that work well together should be placed in the same bank, to minimize the need for bank-switching. Note that to avoid confusion, empty banks can't be selected via the numeric keys; they can only be selected via the playlist dialog.
+
+<a name="Crossfading_patches"><h2>Crossfading patches</h2></a>
+
+<p>When <a href="#Patches">patches</a> are played from a <a href="#Playlists">playlist</a>, the transitions can be made gradual, using automated crossfades; this works whether the patches are played manually, or via <a href="#Autoplay">autoplay</a>.
+
+<p>Playing a patch causes it to be loaded into one of the <a href="#Crossfader_dialog">crossfader</a> inputs. Typically the crossfader is stopped on one input or the other, in which case the new patch is loaded into the <em>opposite</em> input. If the crossfade time is non-zero, the crossfader auto-fades to the new patch, otherwise it simply jumps to the new patch.
+
+<p>If an auto-fade is already in progress when the patch is played, the current mix is copied to one of the inputs, and crossfader is moved to that input; then the new patch is copied to the other input, and a new auto-fade begins. This keeps the transition smooth, even though the first auto-fade was aborted.
+
+<p>The crossfade time can be set in the <a href="#Playlist_dialog">playlist dialog</a>, using either a slider or an edit box. It can also be set via the <a href="#Mouse_Modes">mouse</a> (Ctrl+wheel), or <a href="#MIDI_Setup">MIDI</a>. The unit varies, depending on the method used, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Method</th><th>Unit</th>
+</tr><tr>
+<td>slider or mouse</td><td>fraction of Patch seconds</td>
+</tr><tr>
+<td>edit box or MIDI</td><td>absolute time, in seconds</td>
+</tr>
+</table>
+
+<p>Patch seconds is the interval between patch changes in autoplay; it has its own edit box in the playlist dialog, and can also be set via MIDI. Note that setting the crossfade time via any of the above methods won't affect an auto-fade that's already in progress; the new time affects the <em>next</em> auto-fade.
+
+<p>It's possible to make the crossfade time longer than Patch seconds, and this has a curious effect in autoplay: each patch change occurs while the previous auto-fade is still in progress, so the mix accrues and becomes a synthesis of many patches. To demonstrate this, set Patch seconds to 5 and Crossfade seconds to 20.
+
+<a name="Autoplay"><h2>Autoplay</h2></a>
+
+<p>Whorld can play <a href="#Patches">patches</a> from a <a href="#Playlists">playlist</a> automatically, like a jukebox; this is <em>autoplay</em> mode. Autoplay reduces the need for user interaction; it's how the <a href="#Demo_Mode">demo</a> works. Note that autoplay can only play patches in the current bank. Autoplay can be configured, as follows:
+
+<ul>
+
+<li>To enable or disable autoplay mode, use <span class="cmd">View/Autoplay</span> or <span class="key">Ctrl+A</span>; you can also do this via the play button in the <a href="#Playlist_dialog">playlist dialog</a>, or via MIDI.
+
+<li>To select sequential versus random play, use the Shuffle button in the playlist dialog.
+
+<li>To set the interval between patch changes, use the playlist dialog's Patch seconds edit box; you can also set this via MIDI.
+
+<li>To make the transitions instantaneous or gradual, set the crossfade time. This can be done in various ways; see <a href="#Crossfading_patches">crossfading patches</a>.
+
+</ul>
+
+<a name="MIDI_Mapping"><h2>MIDI Mapping</h2></a>
+
+<p>This dialog lets you <em>map</em> MIDI messages to your <a href="#Playlists">playlist</a>, so that you can play its <a href="#Patches">patches</a> via MIDI. To show this dialog, choose <span class="cmd">Edit/MIDI Mapping</span> from the <a href="#Playlist_dialog">playlist dialog</a>'s menus. Two mapping schemes are supported: one uses program change messages, and the other uses a range of notes. Use the dialog's radio buttons to choose a scheme, as follows:
+
+<dl>
+
+<dt>None
+<dd>Select this option to disable playing patches via MIDI.
+
+<dt>Program changes
+<dd>Select this option to play patches via MIDI program change messages. Use the Channel edit box to specify which channel you're sending the messages on. The First and Last edit boxes are ignored. The program change messages are sequentially mapped to the current bank's patches: program 0 plays the first patch, program 1 plays the second patch, and so forth.
+
+<dt>Range of notes
+<dd>Select this option to play patches via a range of MIDI notes. Use the Channel edit box to specify which channel you're sending the notes on, and the First and Last edit boxes to specify the range of notes. The notes are sequentially mapped to the current bank's patches: the first note plays the first patch, the second note plays the second patch, and so forth. It's possible to choose notes that are also assigned to properties in the <a href="#MIDI_Setup">MIDI setup</a> dialog, in which case the notes will have both functions. To avoid this, use a different range of notes, or specify a different channel.
+
+</dl>
+
+<p>Note that you can only play patches in the current bank. To play patches in a different bank, you must select the bank first. Banks can also be selected via MIDI.
+
+<p>By default, Whorld responds normally to controller 0 (bank select MSB): data values 0..19 select one of Whorld's twenty banks, and other values are ignored. If you prefer, you can assign a different MIDI message to the bank property, using the <a href="#MIDI_Setup">MIDI Setup</a> dialog. Since up to 128 patches can be addressed per bank, the maximum number of MIDI-playable patches in a playlist is 2,560.
+
+<a name="Missing_Files"><h2>Missing Files</h2></a>
+
+<p>A <a href="#Playlists">playlist</a> contains <em>links</em> to patches. If a playlist's patches are moved or renamed, broken links can occur. Broken links must be repaired before the playlist can be opened. If you try to open a playlist with broken links, Whorld displays the Missing Files dialog, which gives you the following options:
+
+<dl>
+
+<dt>Search & Proceed
+<dd>Searches ALL folders of ALL hard disks for the missing patches. This could take a long time, so only use this option when you have no idea where the missing patches are. If you know where they are, even approximately, it's much faster to use the "Open Dialog" option instead. When the search is complete, the playlist is opened. Patches that aren't found are removed from the playlist; see the warning below.
+
+<dt>Proceed
+<dd>Opens the playlist immediately, regardless of broken links. The missing patches are removed from the playlist; see the warning below.
+
+<dt>Open Dialog
+<dd>Displays the <a href="#Replace_Files">Replace Files</a> dialog, which lists the names of the missing patches, and allows you to browse for them individually, or search for them in specific folders. If you want more control over the repair process, or if you know where the missing patches are, even approximately, use this option instead of "Search & Proceed".
+
+<dt>Cancel
+<dd>Cancels opening the playlist.
+
+</dl>
+
+<p>Warning: In all of the above cases except "Cancel", it's possible to open the playlist with patches still missing. If you save the playlist in this situation, the missing patches are <em>permanently deleted</em> from the playlist. To avoid doing this accidentally, save the playlist under a new name (using <span class="cmd">File/Playlist/Save As</span>) before proceeding.
+
+<a name="Replace_Files"><h2>Replace Files</h2></a>
+
+<p>If "Open Dialog" is selected in the <a href="#Missing_Files">Missing Files</a> dialog, the Replace Files dialog is displayed. It lists the name and current status of each missing patch, and gives you the following options:
+
+<dl>
+
+<dt>Browse
+<dd>Allows broken links to be repaired individually. This is useful if a patch has been renamed rather than moved. To repair a link, select it in the list (left-click its name), and press Browse. A file dialog is displayed. Locate the patch, select it, and press Open. The link's status is updated from "Missing" to "Replaced".
+
+<dt>Search Folder
+<dd>Allows you to search for missing patches in a specific folder. The search is recursive, i.e. subfolders of the specified folder are also searched. Use this option when you know where the missing patches are, even approximately. When you press the button, a folder dialog is displayed; select a folder, and press "OK" to begin searching. As links are repaired, their status changes from "Missing" to "Replaced". The search can be repeated in different folders, until all the missing patches have been found.
+
+<dt>Search All
+<dd>Searches for missing patches in ALL folders of ALL hard disks. This can take a long time, so you should only do this if you have no idea where the missing patches are.
+
+<dt>OK
+<dd>Ends the dialog and opens the playlist. Patches that are still missing are removed from the playlist; see the warning below.
+
+<dt>Cancel
+<dd>Ends the dialog and cancels opening the playlist.
+
+</dl>
+
+<p>Warning: If patches are still missing when you press "OK", they are removed from the playlist. If you save the playlist in this situation, the missing patches are <em>permanently deleted</em> from the playlist. To avoid doing this accidentally, save the playlist under a new name (using <span class="cmd">File/Playlist/Save As</span>) before proceeding.
+
+<a name="Thumbnails"><h2>Thumbnails</h2></a>
+
+<p>As of version 1.5, the <a href="#Playlist_dialog">playlist dialog</a> can display a preview image for each <a href="#Patches">patch</a> or <a href="#Video_overlay">video</a> in your <a href="#Playlists">playlist</a>. These preview images are called <em>thumbnails</em>. To show thumbnails, choose <span class="cmd">View/Thumbnails</span> from the playlist dialog's menus. To hide thumbnails, choose <span class="cmd">View/Details</span>.
+
+<p>The first time you view thumbnails, they have to be created, and depending on the size of your playlist, this can take a while, so a progress dialog is displayed. Once the thumbnails have been created, you can switch back and forth freely between the thumbnail and detail views, without recreating the thumbnails each time. Note that if you add patches or videos to your playlist while in thumbnail view, there may be a pause while the new thumbnails are created.
+
+<p>Thumbnails can be created in a range of sizes. To change the thumbnail size, choose <span class="cmd">View/Thumbnail Size</span> and select a size. If you're currently in thumbnail view, the thumbnails are recreated immediately; otherwise, they're recreated the next time you switch to thumbnail view. To explicitly recreate the thumbnails without changing their size, use <span class="cmd">View/Refresh Thumbnails</span>.
+
+<p>A video thumbnail is created by simply extracting the video's first frame. A patch thumbnail is more complicated: it's created by stepping the patch forward in time until it draws a fixed number of rings. The result is identical to what you would see if you <a href="#Playing_patches">played</a> the patch. Note that a patch thumbnail may vary slightly each time it's created, due to the unpredictable nature of the <a href="#Oscillators">oscillators</a>.
+
+<p>Patch thumbnails are affected by the <a href="#Patch_mode">patch mode</a>. In Full mode, each patch thumbnail is drawn using the effects and master settings stored in that patch. By contrast, in Geometry mode, all patch thumbnails are drawn using the current effects and master settings. This feature allows you to preview an effect or master setting on all of your patches at once. For example, while in Geometry mode, if you enable <a href="#Mirror">mirroring</a>, and then recreate the thumbnails, all of the patch thumbnails will be mirrored.
+
+
+<h1>Modes</h1>
+
+<a name="Signal_Flow"><h2>Signal Flow</h2></a>
+
+<img src="../images/SignalFlow.gif">
+
+<a name="View_Mix"><h2>View Mix</h2></a>
+
+<p>This setting determines whether the animation is controlled by the document, or the crossfader. When View Mix is off, the animation is controlled by the document. When View Mix is on, the animation is controlled by the <a href="#Crossfader_dialog">crossfader</a>. To toggle this setting, use <span class="cmd">View/Mix</span> or <span class="key">Ctrl+M</span>.
+
+<p>Edits made via the <a href="#Parameters_dialog">parameters dialog</a> may or may not affect the animation, depending on the combination of View Mix and <a href="#Edit_Selection">edit selection</a>. If you're editing the document, View Mix should be off, so you can see the effect of your edits. If you're <a href="#Playing_patches">playing patches</a> from a <a href="#Playlists">playlist</a>, View Mix should be on, because the playlist sends its output to the crossfader; see <a href="#Signal_Flow">Signal Flow</a>.
+
+<p>Note that playing a patch from a playlist automatically turns View Mix on. If you're editing a patch and the image isn't changing accordingly, it's probably because you turned View Mix on without realizing it.
+
+<a name="Origin_Motion"><h2>Origin Motion</h2></a>
+
+<p>The origin is the center of the Whorld image. It's the point from which the rings emanate, or in <a href="#Reverse">Reverse</a>, the point towards which they converge. The origin can move, and the types of motion are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>None</td>
+<td>The origin stays put.</td>
+</tr><tr>
+<td>Drag</td>
+<td>The origin follows the mouse.</td>
+</tr><tr>
+<td>Random</td>
+<td>The origin jumps to random locations.</td>
+</tr></table>
+
+<p>In Random mode, the jumps occurs at evenly spaced intervals, and the time between jumps is determined by the <a href="#Tempo">tempo</a>. The tempo can be entered manually, via the Master dialog's tempo slider, or by tapping the <span class="key">Tab</span> key along with the beat (see <a href="#Tap_Tempo">tap tempo</a>). The tempo can also be synchronized to <a href="#MIDI_sync">MIDI clocks</a>.
+
+<p>Origin motion can be enabled via <span class="cmd">Image/Origin</span> or the toolbar, using the commands listed below. In <a href="#Veejay_Mode">Veejay mode</a>, <span class="key">F1</span> toggles between drag and random.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Center</td>
+<td>Shift+C</td>
+<td>Stops the origin and centers it within the window.</td>
+</tr><tr>
+<td>Drag</td>
+<td>Shift+D</td>
+<td>Enables drag, or if it's already enabled, disables it.</td>
+</tr><tr>
+<td>Random</td>
+<td>Shift+R</td>
+<td>Enables random, or if it's already enabled, disables it.</td>
+</tr></table>
+
+<p>Origin motion is affected by <a href="#Damping">damping</a>. Damping controls how precisely the origin tracks new positions, whether drag-generated or random. When damping is zero, the origin tracks precisely. As damping increases, the origin lags behind new positions, and catches up gradually, slowing down as it gets closer.
+
+<p>Origin motion is also affected by <a href="#Trail">trail</a>. Trail determines whether the rings stay together, or spread themselves out. When trail is zero, the rings stay together; as trail increases, rings further from the origin lag behind, creating a slinky effect. When trail is at maximum, rings don't move from their birth positions.
+
+<a name="Full_Screen"><h2>Full Screen</h2></a>
+
+<p>In full-screen mode, the window is maximized, and the frame, menus and toolbars are hidden, so that the Whorld image fills the entire screen. Whorld's dialogs remain visible however, so it's possible to edit a patch or playlist in full-screen mode. Note that full-screen differs from <a href="#Veejay_Mode">Veejay mode</a>, which is similar but optimized for live performances.
+
+<p>To enable/disable full-screen mode, use <span class="cmd">Window/Full Screen</span> or <span class="key">F11</span>.
+
+<a name="Veejay_Mode"><h2>Veejay Mode</h2></a>
+
+<p>Veejay mode is intended for live performances. It's similar to <a href="#Full_Screen">full-screen</a> (again, the Whorld image fills the entire screen) but with an important difference: no other windows of any kind are allowed. Veejay mode "locks out" (disables) any feature or key that could cause Whorld, another application, or Windows itself to display a dialog, menu, or other window. Even the standard Windows task-switching keys are disabled, except <span class="key">Ctrl+Alt+Delete</span>. This prevents accidental disruptions, e.g. showing the desktop, exiting the application, etc.
+
+<p>Veejay mode also eliminates <a href="#Tearing">tearing</a>, provided DirectDraw and Exclusive mode are enabled in the <a href="#DirectDraw">DirectDraw</a> options.
+
+<p>To enter Veejay mode, use <span class="cmd">Window/Veejay</span> or <span class="key">Ctrl+F11</span>. Note that the ONLY way to exit Veejay mode is by pressing <span class="key">Ctrl+F11</span>. In a new installation, entering Veejay mode causes a warning dialog to appear. To permanently disable this warning, check the "don't show me this again" checkbox.
+
+<p>The following commands are disabled in Veejay mode:
+
+<p>File/New
+<br>File/Open
+<br>File/Save
+<br>File/Save As
+<br>File/Print
+<br>File/Print Preview
+<br>File/Print Setup
+<br>File/Export Bitmap
+<br>File/Load Snapshot
+<br>File/Movie/Play
+<br>File/Movie/Export
+<br>File/Exit
+<br>View/Parms
+<br>View/Numbers
+<br>View/Crossfader
+<br>View/Playlist
+<br>View/Master
+<br>View/Options
+<br>View/Midi Setup
+<br>Window/Full Screen
+<br>Window/Detach
+
+<p>The following commands, which normally display a file dialog, use the <a href="#Default_output_folder">default output folder</a> instead:
+
+<p>File/Save Mix
+<br>File/Take Snapshot
+<br>File/Movie/Record
+
+<a name="Mouse_Modes"><h2>Mouse Modes</h2></a>
+
+<p>The mouse has the following functions:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>No modifiers</td>
+<td>Drag Origin</td>
+<td>In <a href="#Origin_Motion">drag mode</a>, the origin (center) of the image follows the mouse. How precisely the origin tracks the mouse is affected by the amount of <a href="#Damping">damping</a>. Drag mode is enabled via <span class="cmd">Image/Origin/Drag</span> or <span class="key">Shift+D</span>.</td>
+</tr><tr>
+<td>Left button held down</td>
+<td>Zoom</td>
+<td>Vertical motion changes the <a href="#Zoom">zoom</a>; up zooms in, down zooms out. Horizontal motion is ignored. How precisely the zoom tracks the mouse is affected by the amount of damping.</td>
+</tr><tr>
+<td>Right button held down</td>
+<td>Rotate Hue</td>
+<td>Vertical motion rotates the <a href="#Color_Model">hue</a>; up is clockwise (red to green), down is counterclockwise (red to blue). Horizontal motion is ignored.</td>
+</tr><tr>
+<td>Middle button held down</td>
+<td>Master Speed</td>
+<td>Vertical motion changes the master <a href="#Speed">speed</a>; up is faster, down is slower. Horizontal motion is ignored.</td>
+</tr>
+<td>Alt key held down</td>
+<td>Rings</td>
+<td>This works in <a href="#Veejay_Mode">Veejay mode</a> ONLY. Vertical motion changes the maximum number of <a href="#Rings">rings</a>; up is more, down is less. Horizontal motion is ignored.</td>
+</tr>
+</table>
+
+<p>The wheel has the following functions:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>No modifiers</td>
+<td>Damping</td>
+<td>The wheel sets the amount of <a href="#Damping">damping</a> for <a href="#Origin_Motion">origin motion</a> and <a href="#Zoom">zoom</a>. Moving the wheel up increases damping; moving it down decreases damping. When damping is zero, origin motion and zoom follow mouse motion exactly; as damping increases, tracking becomes less precise, and motion becomes more fluid.</td>
+</tr><tr>
+<td>Shift key held down</td>
+<td>Trail</td>
+<td>The wheel sets the amount of <a href="#Trail">trail</a> for <a href="#Origin_Motion">origin motion</a>. Moving the wheel up increases trail; moving it down decreases trail. When trail is zero, the rings stay together; as trail increases, rings further from the origin lag behind, creating a slinky effect.</td>
+</tr>
+<td>Ctrl key held down</td>
+<td>Crossfade Time</td>
+<td>The wheel sets the amount of time the <a href="#Crossfader_dialog">crossfader</a> takes to auto-fade from one patch to another. If the crossfade time is zero when a new patch is played, the image <a href="#Parameters">parameters</a> jump from their current values to the new ones; otherwise, the parameters are interpolated. The time isn't absolute: it's a percentage of Patch Seconds in the <a href="#Playlist_dialog">playlist dialog</a>.</td>
+</tr>
+</table>
+
+<p>Note that since the middle button is usually also the wheel, both master speed and damping must be adjusted with some care.
+
+<p>To change the master speed, press the wheel, and while keeping it pressed, move the mouse or trackball. Be careful not to spin the wheel, or you might unintentionally change the damping.
+
+<p>To change the damping, gently spin the wheel. Be careful not to press the wheel, or you might unintentionally change the master speed.
+
+<a name="Dual-Monitor"><h2>Dual-Monitor</h2></a>
+
+<p>The animation is normally displayed in Whorld's main window, but in dual-monitor mode, a secondary window, called a <em>detached view</em>, is created for the animation. The detached view can be displayed on a different monitor than the main window. This allows you interact with Whorld's GUI (graphical user interface) on one monitor, while viewing the animation full-screen on another. Note that this feature may not work under Windows 2000.
+
+<p>To run Whorld dual-monitor:
+<ol>
+<li>Extend the Windows desktop onto the secondary monitor. The procedure for doing this depends on the type of graphics card you have; see below.
+<li>Select <span class="cmd">Window/Detach</span>.
+<li>Drag the detached view onto the secondary monitor.
+<li>Select <span class="cmd">Window/Full Screen</span> or press <span class="key">F11</span>.
+</ol>
+
+<p>To exit dual-monitor mode, press <span class="key">F11</span> to exit full-screen, and then close the detached view, or select <span class="cmd">Window/Detach</span> again.
+
+<p>Here's how to extend the Windows desktop with an ATI Radeon X800XL. Other graphics cards will have a similar procedure.
+
+<ol>
+<li>Connect the secondary monitor, turn it on, and power on the PC.
+<li>Run ATI's Catalyst Control Center, and select "Displays Manager".
+<li>Look for a monitor icon in the box under "Attached displays currently disabled". If it isn't there, something's wrong.
+<li>Drag the monitor icon into the empty gray box above it, and to the right of the box containing the main monitor's icon. A pop-up menu should be displayed. Select the menu's last item, "Extend Main onto CRT".
+<li>When asked if you want to keep the changes, select 'Yes'.
+</ol>
+
+<a name="Demo_Mode"><h2>Demo Mode</h2></a>
+
+<p>In demo mode, Whorld loads a <a href="#Playlists">playlist</a> called "demo.whl" from the program folder. This playlist includes <a href="#Patches">patches</a> that demonstrate some of Whorld's capabilities. There's nothing magical about the demo playlist except its name: it's just another playlist, and you're free to modify it, but don't rename it or move it to a different folder. To enable or disable demo mode, select <span class="cmd">View/Demo</span>. While watching the demo, you can experiment with some of Whorld's effects; see <a href="#Viewing_the_demo">Viewing the demo</a>.
+
+<a name="Pause"><h2>Pause</h2></a>
+
+<p>Pause freeze-frames the animation. To pause, select <span class="cmd">Window/Pause</span> or press <span class="key">Space</span>. To resume animating, select <span class="cmd">Window/Pause</span> or press <span class="key">Space</span> again.
+
+<p>While paused, no rings are born or die, the <a href="#Crossfader_dialog">crossfader</a> and <a href="#Oscillators">oscillators</a> are frozen, and editing <a href="#Parameters">parameters</a> has no effect. The features that <em>do</em> work while paused are listed below. Note that these restrictions also apply to <a href="#Snapshot_Mode">Snapshot Mode</a>, which is an extension of pause.
+
+<ul>
+<li>The origin can be repositioned, using <a href="#Origin_Motion">Drag Origin</a> mode.
+<li>The <a href="#Mirror">mirror</a> effect can be turned on or off.
+<li>The <a href="#Fill">fill</a>, <a href="#Outline">outline</a>, and <a href="#X-Ray">X-ray</a> effects can be <em>inverted</em>; note that these effects can only be toggled for the whole image at once, not on a ring-by-ring basis.
+<li>The <a href="#Zoom">zoom</a> can be adjusted, via the Zoom slider in the Master dialog, or MIDI; note that zooming via the mouse is NOT supported.
+<li>The image colors can be adjusted via <a href="#Rotate_Hue">Rotate Hue</a> or <a href="#Invert_Color">Invert Color</a>. The hue can also be rotated in smaller increments via MIDI; note that hue rotation via the mouse is NOT supported.
+</ul>
+
+<a name="Patch_mode"><h2>Patch mode</h2></a>
+
+<p>The patch mode determines what settings are affected when a <a href="#Patches">patch</a> is <a href="#Playing_patches">played</a>. The available modes are as follows:
+
+<dl>
+
+<dt>Full
+<dd>In this mode, all settings are affected, so that the patch appears exactly as it did when you saved it. This is the default mode. To select Full mode, use <span class="cmd">Edit/Patch Mode/Full</span> or <span class="key">Shift+F</span>. For a complete list of settings that are stored in a patch, see the table below.
+
+<dt>Geometry
+<dd>In this mode, only the <a href="#Parameters">parameters</a> and their <a href="#Oscillators">oscillators</a> are affected. This mode is useful for performing, and particularly when <a href="#Crossfading_patches">crossfading</a>, because it allows you to alter the geometry without disturbing your effects and master controls. To select Geometry mode, use <span class="cmd">Edit/Patch Mode/Geometry</span> or <span class="key">Shift+G</span>.
+
+</dl>
+
+<p>Full mode is recommended for beginners, and for editing patches, but it may not always be what you want. For example, if you're controlling the effects manually during a performance, you might not want your patches to modify the effects. Ask yourself this: if <a href="#Mirror">mirroring</a> is on, and I play a patch that doesn't use mirroring, should mirroring automatically turn off? If the answer is yes, use Full mode, otherwise use Geometry mode.
+
+<p>The patch mode can be changed live via keyboard or MIDI, so another option is to switch back and forth, e.g. you could use Geometry mode for jamming, and Full mode for dramatic changes. Playing a patch in Full mode puts all the settings in a known state, which can be helpful if you get confused while using Geometry mode. The patch mode is saved in the <a href="#Playlists">playlist</a>.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Group</th><th>Settings</th><th>Affected in</th></tr>
+<tr><td>Geometry</td><td><a href="#Parameters">Parameters</a>, <a href="#Oscillators">Oscillators</a></td><td>All modes</td></tr>
+<tr><td>Master Controls</td><td><a href="#Speed">Speed</a>, <a href="#Zoom">Zoom</a>, <a href="#Damping">Damping</a>, <a href="#Trail">Trail</a>, <a href="#Rings">Rings</a>, <a href="#Tempo">Tempo</a>, <a href="#Hue_loop_length">Hue Loop Length</a>, <a href="#Canvas_scale">Canvas Scale</a></td><td>Full mode only</td></tr>
+<tr><td>Effects</td><td><a href="#Origin_Motion">Origin</a>, Draw Mode (<a href="#Fill">Fill</a>/<a href="#Outline">Outline</a>/<a href="#X-Ray">X-Ray</a>), <a href="#Origin_Motion">Origin Motion</a>, <a href="#Color_Model">Hue</a>, <a href="#Mirror">Mirror</a>, <a href="#Reverse">Reverse</a>, <a href="#Convex">Convex</a>, <a href="#Invert_Color">Invert Color</a>, <a href="#Loop_Hue">Loop Hue</a>, <a href="#Pause">Pause</a>, <a href="#Zoom">Zoom Type</a></td><td>Full mode only</td></tr>
+</table>
+
+
+<h1>Effects</h1>
+
+<a name="Mirror"><h2>Mirror</h2></a>
+
+<p>This effect causes the output window to be divided equally into four rectangles or <em>quadrants</em>. Only the upper-left quadrant is drawn to in this mode; the other three quadrants are mirror images of the upper-left, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>upper left</td><td>unmodified</td>
+</tr><tr>
+<td>upper right</td><td>upper left, flipped horizontally</td>
+</tr><tr>
+<td>lower left</td><td>upper left, flipped vertically</td>
+</tr><tr>
+<td>lower right</td><td>upper left, flipped horizontally and vertically</td>
+</tr>
+</table>
+
+<p>The result is similar to a kaleidoscope. Note that since <a href="#Origin_Motion">origin motion</a> still ranges over the entire <a href="#Canvas_scale">canvas</a>, it's possible to hide some or all of the Whorld image, by placing the origin in any quadrant other than the upper-left. Pleasing results can often be obtained by moving the origin along the edges of the upper-left quadrant, especially when <a href="#Damping">damping</a> is used.
+
+<p>To enable/disable mirroring, use <span class="cmd">Image/Mirror</span> or <span class="key">F5</span>.
+
+<p>Mirroring <a href="#Performance">performance</a> depends almost entirely on the capabilities of your graphics card. Most 2000/XP-era PCs should be able to handle it acceptably, but if not, try upgrading your graphics card first before upgrading anything else. Mirroring may also be affected by the <a href="#DirectDraw">DirectDraw</a> options.
+
+<a name="Fill"><h2>Fill</h2></a>
+
+<p>This effect causes rings to appear as filled areas instead of lines. For each ring, the area bounded by it and the previous ring is filled, using the same color that would have been used to draw the line. A ring can be both filled and drawn as a line; see <a href="#Outline">Outline</a>.
+
+<p>To enable/disable fill for new rings only, use <span class="cmd">Image/Fill</span> or <span class="key">F6</span>. Since existing rings are unaffected, the change occurs gradually. To enable/disable fill for both new and existing rings, use <span class="cmd">Image/Invert/Fill</span> or <span class="key">Shift+F6</span>.
+
+<p>Fill increases graphics overhead and may reduce <a href="#Performance">performance</a>.
+
+<a name="Outline"><h2>Outline</h2></a>
+
+<p>This effect causes <a href="#Fill">filled</a> rings to be outlined (i.e. drawn as lines), using the background color. Rings that aren't filled are unaffected.
+
+<p>Generally, filled rings tend to look gaseous without outlining, and faceted with it. Note that without outlining, neighboring filled rings of the same color are indistinguishable, though this isn't necessarily a problem.
+
+<p>To enable/disable outlining for new rings only, use <span class="cmd">Image/Outline</span> or <span class="key">F7</span>. Since existing rings are unaffected, the change occurs gradually. To enable/disable outlining for both new and existing rings, use <span class="cmd">Image/Invert/Outline</span> or <span class="key">Shift+F7</span>.
+
+<p>Outline increases graphics overhead and may reduce <a href="#Performance">performance</a>.
+
+<a name="X-Ray"><h2>X-Ray</h2></a>
+
+<p>This effect causes rings to appear translucent, by drawing them in a special mode. Normally when an image is drawn, the corresponding pixels of video memory are simply overwritten; whatever image they previously contained is lost. In X-Ray mode, the pixels are modified, instead of being overwritten: the new image is superimposed onto the background, so that the background has transformed colors, but remains visible.
+
+<p>To enable/disable X-Ray for new rings only, use <span class="cmd">Image/X-Ray</span> or <span class="key">F8</span>. Since existing rings are unaffected, the change occurs gradually. To enable/disable outlining for both new and existing rings, use <span class="cmd">Image/Invert/X-Ray</span> or <span class="key">Shift+F8</span>.
+
+<p>The X-Ray effect depends entirely on your graphics card's support for XOR operations (eXclusive OR is an operation in boolean math). Note that X-Ray requires the video memory to be read as well as written, and can therefore greatly increase graphics overhead, particularly when combined with <a href="#Fill">fill</a>, <a href="#Outline">outline</a>, and <a href="#Line_Width">wide lines</a>; see <a href="#Performance">performance</a>. Using X-Ray with fill but without <a href="#Mirror">mirroring</a> can make the application unresponsive. If this occurs, try pressing <a href="#Panic">Panic</a> (<span class="key">Esc</span>). In this specific case it may help to locate the back buffer in system memory, rather than video memory; see the <a href="#DirectDraw">DirectDraw</a> options.
+
+<a name="Reverse"><h2>Reverse</h2></a>
+
+<p>This effect reverses the direction of ring growth. If the rings were expanding, they immediately begin contracting at the same speed, and vice versa. A similar effect can be achieved by changing the sign of the <a href="#Ring_Growth">Ring Growth</a> parameter, but the Reverse command is much more convenient.
+
+<p>Reverse is handled separately from the Ring Growth parameter, and does not alter it; they combine to determine ring behavior, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Ring Growth</th><th>Reverse</th><th>result</th>
+</tr><tr>
+<td>positive</td><td>no</td><td>expansion</td>
+</tr><tr>
+<td>positive</td><td>yes</td><td>contraction</td>
+</tr><tr>
+<td>negative</td><td>no</td><td>contraction</td>
+</tr><tr>
+<td>negative</td><td>yes</td><td>expansion</td>
+</tr><tr>
+<td>zero</td><td>N/A</td><td>frozen</td>
+</tr>
+</table>
+
+<a name="Convex"><h2>Convex</h2></a>
+
+<p>This effect reverses the order in which rings are drawn. By default, rings are drawn in ascending order by size, i.e. the smallest ring is drawn first. When Convex is enabled, the smallest ring is drawn <em>last</em>. This makes little difference if the rings are drawn as lines, but if the rings are <a href="#Fill">filled</a>, it typically causes the resulting image to appear convex instead of concave (more like a worm and less like a tunnel).
+
+<p>In 3D terms, Convex is a change of <em>perspective</em>: it moves the observer behind the image. When the rings are seen from the opposite side, they overlap differently, which reverses the illusion of depth.
+
+<p>Convex is especially useful when filled rings are moved with <a href="#Trail">trail</a>. Trail causes the outer rings to lag behind the inner ones, so that the rings spread out as they move. If the image is concave, the inner rings are often hidden, which can make the trail hard to see. Convex makes the trail more obvious, by keeping the inner rings visible.
+
+
+<h1>Master Controls</h1>
+
+<a name="Speed"><h2>Speed</h2></a>
+
+<p>This setting controls the speed of the entire animation. The value is a percentage of normal speed, ranging from 5 (1/20 of normal) to 2000 (20 times normal). The default setting is 100 (normal). Note that at the lowest speed, the animation still moves, though very slowly; to freeze-frame it, use <a href="#Pause">Pause</a>.
+
+<p>Speed is implemented as a scaling factor. The following items are scaled (multiplied) by it: <a href="#Ring_Growth">Ring Growth</a>, <a href="#Color_Speed">Color Speed</a>, and the <a href="#Oscillators">oscillator</a> frequencies for all <a href="#Parameters">parameters</a>.
+
+<p>As speed is increased, the animation may appear jerky, because objects are moving further per frame. Jerkiness may also indicate <a href="#Performance">performance</a> problems. Jerkiness can sometimes be improved by increasing <a href="#Frame_rate">Frame Rate</a>. Note that increasing the frame rate also speeds up the animation. To compensate for this, decrease the master speed proportionally.
+
+<p>Speed can be changed via the Master dialog or MIDI, or by moving the <a href="#Mouse_Modes">mouse</a> vertically while holding down the middle button.
+
+<a name="Zoom"><h2>Zoom</h2></a>
+
+<p>This setting controls the magnification at which the image is displayed. The value is a percentage of normal zoom, ranging from 10 (1/10 of normal) to 1000 (10 times normal). The default setting is 100 (normal).
+
+<p>Zoom is affected by <a href="#Damping">damping</a>. As damping increases, zoom becomes more fluid, but less precise. With too little damping, zoom feels jerky; with too much, it reacts slowly and tends to overshoot the target.
+
+<p>Zoom scales the <a href="#Canvas_scale">canvas</a> as well as the image, and therefore also affects <a href="#Origin_Motion">origin motion</a>. Origin dragging is limited to either the zoomed canvas or the window, whichever is bigger.
+
+<p>Note that zooming in may reduce <a href="#Performance">performance</a>, particularly when <a href="#Fill">fill</a> or <a href="#Line_Width">wide lines</a> are used. The performance hit is roughly proportional to the amount of zoom, so it may be possible to manage the problem by zooming in cautiously, and backing off if the animation starts to slow down.
+
+<p>Zoom can be changed via the Master dialog or MIDI, or by moving the <a href="#Mouse_Modes">mouse</a> vertically while holding down the left button.
+
+<p>Two types of zoom are available: origin zoom, and window-centered zoom, as described below. To toggle between them, use <span class="cmd">Window/Zoom Center</span> (<span class="key">Shift+W</span>).
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Zoom Type</th><th>Behavior</th></tr>
+<tr><td>Origin zoom</td><td>Zooms into or out of the current ring origin. This is the default.</td></tr>
+<tr><td>Window-centered zoom</td><td>Zooms into or out of the center of the window. This is useful for magnifying an arbitrary portion of the image: drag the image until the portion of interest is in the center of the window, and then zoom. It's also useful in <a href="#Mirror">mirror</a> mode, because it allows you to zoom without altering the reflections.</td></tr>
+</table>
+
+<a name="Damping"><h2>Damping</h2></a>
+
+<p>Damping affects <a href="#Origin_Motion">origin motion</a> and <a href="#Zoom">zoom</a>, as well as <a href="#Global_Parameters">global parameters</a>: it makes them more fluid, but less precise. Damping acts like a low-pass filter: it reduces the high-frequency components (jerkiness) of motions, making them smoother. Damping ranges from 0 (none) to nearly 100 (maximum). Note that when damping is set to its maximum value, the origin and zoom respond to changes very slowly, and may appear to be stuck.
+
+<p>Damping can be changed via the Master dialog, MIDI, or the <a href="#Mouse_Modes">mouse wheel</a>. It can be also be changed via <span class="cmd">Image/Damping/More</span> (<span class="key">Up Arrow</span>) and <span class="cmd">Image/Damping/Less</span> (<span class="key">Down Arrow</span>); the arrow shortcuts are handy if the mouse has no wheel.
+
+<a name="Trail"><h2>Trail</h2></a>
+
+<p>This setting determines whether <a href="#Origin_Motion">origin motion</a> keeps the rings together, or spreads them out. Trail ranges from 0 (none) to 100 (maximum). When trail is zero, the rings stay together; as trail increases, rings further from the origin lag behind, creating a slinky effect. When trail is at maximum, rings don't move from their birth positions. In short, trail controls how long it takes for the rings to recenter themselves around a new origin.
+
+<p>Trail is essential for simulating elastic motion, e.g. jellyfish, worms, etc. The best results are achieved by combining trail with <a href="#Damping">damping</a>, and limiting the number of rings, via the <a href="#Rings">rings</a> setting. Random origin motion works well, because the pauses give the rings a chance to catch up periodically, instead of remaining spread out all the time. If the rings are <a href="#Fill">filled</a>, it may be more effective to draw them in <a href="#Convex">convex</a> mode, so that the innermost rings are always visible.
+
+<p>Trail can be changed via the Master dialog, MIDI, or by moving the <a href="#Mouse_Modes">mouse wheel</a> while holding down the <span class="key">Shift</span> key.
+
+<a name="Rings"><h2>Rings</h2></a>
+
+<p>This setting limits the number of rings to a specific value, ranging from 0 to 999. A value of 1000 disables the limiting, and the value is displayed as "MAX" to indicate this. The default value is "MAX".
+
+<p>The number of rings is also limited by the <a href="#Canvas_scale">canvas size</a>. Setting Rings to "MAX" allows rings to die "naturally", i.e. when their all vertices are off-canvas. Setting Rings below "MAX" can cause rings to die before their time.
+
+<p>Limiting the number of rings is essential for solving <a href="#Performance">performance</a> problems, but it's also interesting as a special effect, because it provides a means of simplifying the composition.
+
+<p>The ring limit can be changed via the Master dialog, via MIDI, or in <a href="#Veejay_Mode">Veejay mode</a> ONLY, by moving the <a href="#Mouse_Modes">mouse</a> vertically while holding down the <span class="key">Alt</span> key.
+
+<a name="Tempo"><h2>Tempo</h2></a>
+
+<p>This setting controls the tempo, in beats per minute (BPM). When <a href="#Origin_Motion">origin motion</a> is set to Random, the tempo determines how frequently the origin jumps to a new position. If origin motion isn't set to Random, tempo has no effect on the origin. As of version 1.5, the tempo also controls the rate of <a href="#Cycling_videos">video cycling</a>.
+
+<p>The origin jumps can be synchronized to music by adjusting the tempo appropriately. This is particularly effective when the animation is <a href="#Mirror">mirrored</a>. It's also interesting to smooth the jumps, using <a href="#Damping">damping</a>.
+
+<p>The tempo is typically synchronized manually, via <a href="#Tap_Tempo">tap tempo</a>, though it can also be synchronized to <a href="#MIDI_sync">MIDI clocks</a>. The Master dialog's tempo controls aren't useful for synchronization, but they do allow a specific tempo to be entered directly.
+
+<a name="Hue_loop_length"><h2>Hue loop length</h2></a>
+
+<p>The image color normally cycles around the entire <a href="#Color_Model">hue</a> wheel, at the speed and direction dictated by the <a href="#Color_Speed">Color Speed</a> parameter. In <a href="#Loop_Hue">Loop Hue</a> mode, cycling is limited to a <em>subset</em> of the hue wheel; hue loop length is the <em>size</em> of the subset, in degrees. Loop Hue must be enabled for hue loop length to have any effect.
+
+<p>If the loop length is zero, Loop Hue makes the image monochromatic: all rings will have the same hue, though they may differ in lightness or saturation. With a small length (e.g. 30°), Loop Hue makes the image nearly monochromatic, but still allows rings to be distinguished from one another by hue.
+
+<p>Hue loop length can be changed via the Master dialog, or MIDI.
+
+<a name="Canvas_scale"><h2>Canvas scale</h2></a>
+
+<p>The <em>canvas</em> is the rectangular area within which rings can exist. A ring normally grows outward from the origin, and when it gets big enough so that all of its vertices are outside the canvas, it dies (i.e. it's deleted from the ring list). In <a href="#Reverse">reverse</a>, a ring grows inward from the edges of the canvas, and dies when its radius reaches zero.
+
+<p>Canvas Scale is the size of the canvas, expressed as a percentage of the current window size. It ranges from 100 to 300. The default value (140) ensures that in almost all cases, rings will die (or be born, in reverse) entirely off-screen. At 100, the canvas is the same size as the window, in which case ring deaths (or births) may be visible.
+
+<p><img src="../images/CanvasScale.gif">
+
+<p>Canvas scale also interacts with <a href="#Zoom">zoom</a> to determine how far outside the window the origin can be <a href="#Origin_Motion">dragged</a>. Origin dragging is limited to either the zoomed canvas or the window, whichever is bigger. If both canvas scale and zoom are 100%, origin dragging is limited to the window.
+
+<p>Canvas scale and window size both affect <a href="#Performance">performance</a>, because the bigger they are, the more rings can exist at once. Performance can be improved by reducing canvas scale, the window size, or both. The number of rings can also be limited explicitly, via the master <a href="#Rings">Rings</a> setting.
+
+<p>Canvas scale can be changed via the Master dialog, or MIDI.
+
+<a name="Copies"><h2>Copies</h2></a>
+
+<p>This setting, combined with the <a href="#Spread">Spread</a> setting, allows you to draw multiple groups of rings at once. Copies is the number of groups to draw, and Spread is their distance from the <a href="#Origin_Motion">origin</a>, in pixels. The groups are evenly spaced along a circular path around the origin: e.g. if Copies is 5, the groups will form a pentagon, centered on the origin, with a radius of Spread.
+
+<p>The resulting effect is different from <a href="#Mirror">mirroring</a>: the groups may interleave, and usually aren't identical. As new rings are born, each group takes a turn to receive a ring, in round-robin fashion, similar to dealing cards. The groups usually have subtle differences from each other, because in a typical <a href="#Patches">patch</a>, the ring <a href="#Parameters">parameters</a> are gradually changing as the rings are dealt.
+
+<p>The amount of interleaving depends on how far apart the groups are spread, and the <a href="#Rings">ring limit</a>. Using <a href="#Trail">Trail</a> with multiple groups of rings and a low ring limit results in an effect somewhat like a swarm of bees, or airplanes flying in formation. If the number of copies is large, the effect will be perceived as a circular origin motion rather than distinct groups.
+
+<p>Note that as the number of copies increases, the distance between rings within each group also increases proportionally. This occurs because the same number of rings that would normally form a single group are now being divided among multiple groups. If this is a problem, you can compensate for it by decreasing <a href="#Ring_Spacing">Ring Spacing</a>.
+
+<p>Also note that large Spread values can cause new rings to die immediately as soon as they're born. This is probably a bug, but you can work around it by increasing <a href="#Canvas_scale">Canvas Scale</a>, or by decreasing Spread.
+
+<a name="Spread"><h2>Spread</h2></a>
+
+<p>This setting, combined with the <a href="#Copies">Copies</a> setting, allows you to draw multiple groups of rings at once. Copies is the number of groups to draw, and Spread is their distance from the <a href="#Origin_Motion">origin</a>, in pixels. See Copies for details.
+
+
+<h1>Color</h1>
+
+<a name="Color_Model"><h2>Color Model</h2></a>
+
+<p>Whorld uses the HLS color model, which stands for Hue, Lightness, Saturation. HLS organizes the visible spectrum into a double cone, with the two cones joined at their bases and pointing north and south respectively. Black is at the tip of the south cone; white is at the tip of the north cone. The vertical axis is lightness; distance from the center is saturation; angle is hue.
+
+<p><img src="../images/HLS.gif">
+
+<p>The model can be viewed in cross-section as a series of discs which increase in diameter until they reach the middle, and then decrease again. Each disc corresponds to a level of lightness. At each level, fully saturated colors occur on the rim of the corresponding disc. Movement within the color model can be summarized as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Hue change</td><td>Moving clockwise or counterclockwise, while maintaining a constant radius.</td>
+</tr><tr>
+<td>Saturation change</td><td>Moving towards or away from the center, while maintaining a constant angle.</td>
+</tr><tr>
+<td>Lightness change</td><td>Moving to a higher or lower disc.</td>
+</tr>
+</table>
+
+<p>The center of any disc is a pure gray; if a straight line is drawn from black to white, through the center of the model, all pure grays lie along this line. The middle disc contains the largest number of colors, and the pure primaries and secondaries occur on the rim of the middle disc, at 60° intervals.
+
+<p>The values are normalized as follows: lightness ranges from 0 (black) to 1 (white), with middle gray at .5; saturation ranges from 0 (monochrome) to 1 (full saturation); hue ranges from 0 to 360, with red at 0°, yellow at 60°, green at 120°, etc. Note that at saturation = 0, hue is irrelevant, and at lightness = 0 or lightness = 1, both saturation AND hue are irrelevant.
+
+<a name="Loop_Hue"><h2>Loop Hue</h2></a>
+
+<p>The image color normally cycles around the entire <a href="#Color_Model">hue</a> wheel, at the speed and direction dictated by the <a href="#Color_Speed">Color Speed</a> parameter. In Loop Hue mode, cycling is limited to a <em>subset</em> of the hue wheel. The <em>size</em> of the subset is determined by <a href="#Hue_loop_length">Hue Loop Length</a>. Loop Hue affects new rings only; existing rings are unaffected.
+
+<p>Enabling Loop Hue causes the hue to immediately reverse direction: the current hue becomes one end of the loop, and the loop length determines the other end. For example, suppose the hue is currently 240° (blue), Color Speed is positive (clockwise), and the loop length is 60°. In this case, enabling Loop Hue causes the hue to cycle counterclockwise until it reaches 180° (cyan), at which point it reverses direction again and heads back towards blue.
+
+<p>A hue loop can be moved around the hue wheel, using the <a href="#Mouse_Modes">mouse</a> or the <a href="#Rotate_Hue">Rotate Hue</a> command. Manual hue changes are more dramatic when cycling is limited; 360° cycling tends to upstage them.
+
+<a name="Rotate_Hue"><h2>Rotate Hue</h2></a>
+
+<p>This command rotates the <a href="#Color_Model">hues</a> of both new and existing rings by 90°. The <a href="#Background_Hue">background color</a> is not affected. The rotation is cumulative, so after four repetitions you're back where you started. Only hues are affected, not lightness or saturation. The effect is more dramatic when hue cycling is limited; see <a href="#Loop_Hue">Loop Hue</a>.
+
+<p>Hues can be changed gradually via MIDI, or by moving the <a href="#Mouse_Modes">mouse</a> vertically while holding down the right button.
+
+<a name="Invert_Color"><h2>Invert Color</h2></a>
+
+<p>While this mode is enabled, the colors of both new and existing rings are inverted. The <a href="#Background_Hue">background color</a> is not affected. Inversion is <em>not</em> the same as rotating the hue 180° (e.g. by doing two <a href="#Rotate_Hue">Rotate Hue</a> commands), because it's done in RGB space, and therefore flips the lightness as well as the hue. Note that in Invert Color mode, the direction of the <a href="#Lightness">Lightness</a> parameter is reversed: increasing it makes the image darker.
+
+
+<h1>Snapshots</h1>
+
+<a name="Snapshots"><h2>Snapshots</h2></a>
+
+<p>A <em>snapshot</em> is a file that captures a still frame of the animation, so that it can be restored later exactly as it was, with no loss of information. Snapshots are captured using <a href="#Take_Snapshot">Take Snapshot</a>, and restored using <a href="#Load_Snapshot">Load Snapshot</a>.
+
+<p>Snapshots are <em>vector-based</em>: they store ring data, rather than pixels. This makes them much more compact than <a href="#Export">bitmaps</a>, and <em>resolution-independent</em>, i.e. a snapshot can be <a href="#Zoom">zoomed</a> without becoming pixelated.
+
+<p>Still frames should always be saved as snapshots, rather than bitmaps, because snapshots are non-lossy, save space, and are much more flexible. Snapshots can be printed, viewed as a <a href="#Slide_Show">slide show</a>, or <a href="#Export_All">exported</a> as bitmaps. Snapshots can also be <a href="#Editing_Snapshots">edited</a> to some extent. They can't be opened by other applications, but you can't have everything.
+
+<p>Still not convinced? Suppose you capture some frames by exporting bitmaps. They look fine on the screen, but when you print them, they're too small, and enlarging them makes them pixelated. You can't redo the exports, because the original frames are gone. If you had captured them as snapshots, you could restore and re-export them.
+
+<a name="Take_Snapshot"><h2>Take Snapshot</h2></a>
+
+<p>This command captures the current image as a <a href="#Snapshots">snapshot</a>. To take a snapshot, use <span class="cmd">File/Take Snapshot</span> or <span class="key">Ctrl+T</span>. The command freezes the current frame, and displays a file dialog, allowing you to specify the output file's name and location.
+
+<p>Note that in <a href="#Veejay_Mode">Veejay mode</a>, the file dialog is not displayed; in this case the snapshot is created in the <a href="#Default_output_folder">default output folder</a>, and its name is generated automatically. If the <a href="#Use_default_folder">Use default folder</a> option is set to "Always", taking a snapshot <em>never</em> displays a file dialog.
+
+<a name="Load_Snapshot"><h2>Load Snapshot</h2></a>
+
+<p>This command restores one or more <a href="#Snapshots">snapshots</a> that were previously captured using the <a href="#Take_Snapshot">Take Snapshot</a> command. To load snapshots, use <span class="cmd">File/Load Snapshot</span> or <span class="key">Ctrl+L</span>. The command displays a special file dialog that allows <a href="#Selecting_items">multiple files</a> to be selected, and also allows snapshots to be <em>previewed</em>.
+
+<p>To preview the snapshots, check the "Preview" box in the lower-left corner of the file dialog, and select the files one at a time; note that preview doesn't work with multiple selections.
+
+<p>To load the snapshots, press "Open" in the file dialog. Loading snapshots causes Whorld to enter <a href="#Snapshot_Mode">Snapshot Mode</a>, which allows the snapshots to be viewed, printed, exported, etc.
+
+<a name="Snapshot_Mode"><h2>Snapshot Mode</h2></a>
+
+<p>In this mode, the window displays the current <a href="#Snapshots">snapshot</a>, instead of the usual animation. The animation is frozen, and doesn't resume until you exit snapshot mode. Snapshot mode is an extension of <a href="#Pause">pause</a>, and has the same restrictions. To enter snapshot mode, <a href="#Load_Snapshot">load</a> one or more snapshots; to exit snapshot mode and resume animating, select <em>Window/Pause</em>, or press <span class="key">Space</span>.
+
+<p>While in snapshot mode, Whorld displays a Snapshot menu, between the File and Edit menus. This menu allows you to access commands that are only meaningful in snapshot mode:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Command</th><th>Shortcut</th><th>Action</th></tr>
+<tr><td>Previous</td><td>Page Up</td><td>Go to previous snapshot</td></tr>
+<tr><td>Next</td><td>Page Down</td><td>Go to next snapshot</td></tr>
+<tr><td>First</td><td>Home</td><td>Go to first snapshot</td></tr>
+<tr><td>Last</td><td>End</td><td>Go to last snapshot</td></tr>
+<tr><td>Slide Show</td><td>(none)</td><td>Display a <a href="#Slide_Show">slide show</a> of the snapshots</td></tr>
+<tr><td>Export All</td><td>(none)</td><td><a href="#Export_All">Export</a> the snapshots as bitmaps</td></tr>
+</table>
+
+<a name="Slide_Show"><h2>Slide Show</h2></a>
+
+<p>To display <a href="#Snapshots">Snapshots</a> as a slide show, first <a href="#Load_Snapshot">load</a> them, and then select <span class="cmd">Snapshot/Slide Show</span>. Whorld displays the Slide Show dialog. Configure its options as desired (see below), and press "OK" to start the show. After the show begins, it can be canceled by pressing any key, or left-clicking in the window.
+
+<dl>
+
+<dt>Seconds per slide
+<dd>This sets how long each snapshot will be displayed for, in seconds.
+
+<dt>Loop
+<dd>If checked, the show loops until you end it, by pressing any key, or left-clicking in the window. Otherwise, the show ends after the last snapshot is displayed.
+
+<dt>Full screen
+<dd>If checked, the show is displayed full-screen; otherwise, the existing window size is used.
+
+</dl>
+
+<a name="Export_All"><h2>Export All</h2></a>
+
+<p>To open <a href="#Snapshots">snapshots</a> in other applications, you must first <em>export</em> them as bitmaps. It's possible to export them one at a time using <span class="cmd">File/Export</span>, but for large numbers of snapshots this becomes tedious. Export All allows you to export multiple snapshots at once, using the same settings for all of them.
+
+<p>To export multiple snapshots, first <a href="#Load_Snapshot">load</a> them, and then select <span class="cmd">Snapshot/Export All</span>. Whorld displays a folder dialog, allowing you to choose a destination for the bitmaps. After you select a folder and press "OK", the <a href="#Export">Export dialog</a> is displayed; configure the options as desired, and press "OK" to begin the export.
+
+<a name="Editing_Snapshots"><h2>Editing Snapshots</h2></a>
+
+<p>A <a href="#Snapshots">snapshot</a> can be edited to a limited extent, e.g. by changing its origin, effects, zoom, and colors, though rings can't be added or deleted. To edit a snapshot, you must first <a href="#Load_Snapshot">load</a> it. After editing it, save your changes by <a href="#Take_Snapshot">taking</a> another snapshot. Note that you will <em>not</em> be prompted to save your changes, so to avoid confusion, only edit one snapshot at a time. For a complete list of the edits that can be performed on a snapshot, see <a href="#Pause">Pause</a>.
+
+
+<h1>Movies</h1>
+
+<a name="Movies"><h2>Movies</h2></a>
+
+<p>A <em>movie</em> is a file containing a sequence of frames from Whorld's animation. After a movie has been <a href="#Recording_movies">recorded</a>, it can be <a href="#Playing_movies">played</a> in Whorld, but to use it in another application, it must be <a href="#Exporting_movies">exported</a> first.
+
+<p>Movie frames are stored in a <em>non-lossy</em> format, so that the animation can be restored later exactly as it was, with no loss of information. Movies are implemented using <a href="#Snapshots">snapshots</a>, so they're <em>vector-based</em>, rather than pixel-based.
+
+<p>Movie files can be quite large. Typical data rates range from 0.5 to 3.0 MB per second, which means a 1-hour recording can require anywhere from 1.5 to 10 GB. In practice, movies are often at the low end of this range. A movie stores the ring data for each frame, which means a movie's size is proportional to the average number of <a href="#Rings">rings</a>. Various factors can affect the number of rings; see <a href="#Performance">performance</a>.
+
+<a name="Recording_movies"><h2>Recording movies</h2></a>
+
+<p>To record a <a href="#Movies">movie</a>, use <span class="cmd">File/Movie/Record</span> or <span class="key">Ctrl+R</span>. The command displays a file dialog, allowing you to specify the output file's name and location. Press "Save" to begin recording.
+
+<p>Note that in <a href="#Veejay_Mode">Veejay mode</a>, the file dialog is not displayed; in this case the movie is created in the <a href="#Default_output_folder">default output folder</a>, and its name is generated automatically. If the <a href="#Use_default_folder">Use default folder</a> option is set to "Always", recording a movie <em>never</em> displays a file dialog.
+
+<p>The movie is recorded at the current <a href="#Frame_rate">Frame Rate</a>. The frame rate defaults to 25, which is fine for PAL, but not for NTSC. If you intend to encode the movie for an NTSC medium (e.g. NTSC DVD), you should change the frame rate to 30, otherwise the encoding may distort the movie, or speed it up.
+
+<p>A movie includes a frame size, which is set to the window size when you start recording. If you start recording before switching to <a href="#Full_Screen">full-screen</a> or <a href="#Veejay_Mode">Veejay mode</a>, the frame size will be incorrect. The movie can be <a href="#Resizing_movies">resized</a> later, but to avoid this step, go full-screen first, and then start recording.
+
+<p>The keyboard Scroll Lock LED blinks periodically while you're recording a movie. This allows you to verify that you're actually recording, even when Whorld is full-screen. Note that the blinking may not work on USB keyboards.
+
+<p>To stop recording, select <span class="cmd">File/Movie/Record</span> or press <span class="key">Ctrl+R</span> again. The animation may pause briefly when you stop recording.
+
+<a name="Playing_movies"><h2>Playing movies</h2></a>
+
+<p>To play a <a href="#Movies">movie</a>, use <span class="cmd">File/Movie/Play</span>. The command displays a file dialog, allowing you to browse for the movie. Press "Open" to begin playback.
+
+<p>During playback, the Movie Player dialog is displayed. This dialog includes the standard transport buttons (Play, Pause, Stop, and Loop), and a position slider. To skip around in the movie, left-click in the position slider, or drag its thumb.
+
+<p>The dialog also allows you to select a range of frames. Buttons are provided for marking the range's in and out points, and for jumping to the start or end of the range. If a frame range exists while the player is looping, the selected frames are repeated. The frame range is also passed to the export dialog (see below).
+
+<p>The Save button brings up the <a href="#Movie_Export_dialog">Movie Export dialog</a>. Note that if a frame range exists, it's passed to the export dialog, so that by default, only the selected frames are exported. This allows you to select an export range visually in the player, instead of entering it numerically in the export dialog.
+
+<p>The dialog also includes a Take Snapshot button, which exports the current frame as a <a href="#Snapshots">snapshot</a>.
+
+<p>The dialog's minimize and maximize buttons have special meanings, as follows. Minimize hides the dialog; to show it again, left-click on the window, or press any key. Maximize causes the main window (not the dialog) to become full-screen, and also hides the dialog; to exit full-screen mode, press any key.
+
+<p>To exit playback mode, close the Movie Player dialog, or press <span class="key">Esc</span>. The normal animation resumes.
+
+<a name="Exporting_movies"><h2>Exporting movies</h2></a>
+
+<p><a href="#Movies">Movies</a> must be <em>exported</em> before they can used by other applications. A movie can be exported as a compressed or uncompressed AVI file, or as a numbered sequence of bitmaps.
+
+<p>To export a movie, use <span class="cmd">File/Movie/Export</span>. The command displays a series of dialogs, as shown below.
+
+<ol>
+
+<li>Open Movie: This file dialog allows you to browse for the movie. Select the movie to be exported and press "Open" to continue.
+
+<li>Save As: This file dialog allows you to specify the name and location of the output file. Select an output file and press "Save" to continue. Note that when you're exporting numbered bitmaps, you still must specify a name and location here; the name is ignored.
+
+<li>Movie Export: This dialog allows you to configure the <a href="#Movie_Export_dialog">export options</a>. Set the options as desired and press "OK" to continue.
+
+<li>Video Compression: This dialog allows you to choose and configure a compressor. Various options will be available, depending on what codecs you have installed. If you're using external encoding software, uncompressed video typically gives the best results. To export uncompressed video, select "Full Frames (Uncompressed). Otherwise, the best choice is usually "Microsoft Windows Media Video". To configure the compressor, press the "Configure" button. Press "OK" to begin the export. The export may take a while, so a progress bar with a cancel button is displayed.
+
+</ol>
+
+<a name="Movie_Export_dialog"><h2>Movie Export dialog</h2></a>
+
+<dl>
+
+<dt>Input size
+<dd>This is the original frame size of the recorded movie. If this size isn't correct, it can be repaired; see <a href="#Resizing_movies">resizing movies</a>.
+
+<dt>Output size
+<dd>This is the output frame size. The standard options are 320 x 240 and 640 x 480. To specify a different size, select "Custom". The frames are either cropped or scaled, depending on the Resizing option (see below).
+
+<dt>Width
+<dd>This is the width of the output frame in pixels. It's only enabled when the Output size is "Custom".
+
+<dt>Height
+<dd>This is the height of the output frame in pixels. It's is only enabled when the Output size is "Custom".
+
+<dt>Resizing
+<dd>This option determines the resizing method. The methods are as follows:
+
+<p><dl>
+
+<dt>Crop
+<dd>The frames are cropped to the output size. If the output size is bigger than the input size, previously hidden portions of the frames may become visible; if the output size is smaller, portions of the frames are cut away or "cropped".
+<dt>Scale to fit
+<dd>The frames are scaled up or down to the output size, without changing the cropping. If the output size is bigger than the input size, nothing is lost, but if the output size is smaller, details may be obscured. The scaling is <em>isotropic</em>, i.e. the original ratio of width to height is preserved.
+</dl><br>
+
+<dt>Input frame rate
+<dd>This is the <a href="#Frame_rate">frame rate</a> at which the movie was originally recorded. It can't be changed.
+
+<dt>Output frame rate
+<dd>This is the frame rate of the output file. It should normally be the same as the input frame rate. Setting it to a different value causes the output file to appear speeded up or slowed down. In effect you're lying to whatever software plays the file, by telling it the movie was recorded at a different frame rate than it actually was. Note that as of version 1.6, the output frame rate can be fractional, so for NTSC you can specify 29.97 instead of 30.
+
+<dt>Input length
+<dd>This is the original length of the recorded movie. It can't be changed.
+
+<dt>Output length
+<dd>This is the length of the output movie. It reflects changes to the output frame rate and the frame range.
+
+<dt>Frame range
+<dd>If this is set to "All", the entire movie is exported. If it's set to "Subset", only the range defined by First frame and Last frame is exported.
+
+<dt>Export bitmaps
+<dd>If checked, the export creates a numbered sequence of bitmaps instead of an AVI file. The bitmaps are created in the same folder that the AVI file would have been created in.
+
+<dt>Display output frames
+<dd>If checked, the output frames are displayed in the main window as they're being exported. The export may run faster if this option is unchecked.
+
+</dl>
+
+<a name="Resizing_movies"><h2>Resizing movies</h2></a>
+
+<p><a href="#Movies">Movies</a> include a <em>frame size</em>, which is the width and height of each frame, in pixels. Frame size doesn't affect <a href="#Playing_movies">playback</a>, but it can affect <a href="#Exporting_movies">exporting</a>: it's needed to calculate the scaling factor when you export a movie with the "Scale to fit" option. Typically you're exporting to a smaller format, and you want the original frames scaled down so they fit. If the frame size is incorrect, frames may be cropped unintentionally.
+
+<p>The frame size is set to the window size when you start <a href="#Recording_movies">recording</a>. If you start recording before switching to <a href="#Full_Screen">full-screen</a> or <a href="#Veejay_Mode">Veejay mode</a>, the frame size will be incorrect.
+
+<p>To correct the frame size, use <span class="cmd">File/Movie/Resize</span>. The command displays a file dialog, allowing you to browse for the movie. After you press "Open", the Resize Movie dialog is displayed. Enter the correct width and height, and press "OK" to save your change.
+
+
+<h1>Video Overlay</h1>
+
+<a name="Video_overlay"><h2>Video overlay</h2></a>
+
+<p>As of version 1.5, a video clip can be overlaid onto the animation, using various types of <a href="#Video_blending">blending</a>. Videos are handled in much the same way as <a href="#Patches">patches</a>, and must be inserted into a <a href="#Playlists">playlist</a> beforehand, using the <a href="#Playlist_dialog">playlist dialog</a>. Videos can be <a href="#Playing_videos">played</a> via shortcut keys or MIDI, or automatically <a href="#Cycling_videos">cycled</a> in sync with the master <a href="#Tempo">tempo</a>. The most recently played videos are <a href="#Video_cache">cached</a> for easy access.
+
+<p>Note that only AVI files are supported; other video formats, including MPEG, Quicktime, Windows Media, etc. are NOT supported. The appropriate codec(s) must be installed on your PC, and other restrictions may apply; see <a href="#Encoding_videos">encoding</a>. The free, open-source XVID codec is recommended.
+
+<a name="Playing_videos"><h2>Playing videos</h2></a>
+
+<p>Before videos can be played, they must be inserted into a <a href="#Playlists">playlist</a>, in the same manner as <a href="#Patches">patches</a>, via the <a href="#Playlist_dialog">playlist dialog</a>. Patches and videos are interchangeable in terms of playlist <a href="#Editing_playlists">editing</a>, and can be mixed freely within the same playlist bank. Playing videos is similar to <a href="#Playing_patches">playing patches</a>, except that the crossfader isn't affected. Videos can have keys <a href="#Assigning_keys">assigned</a> to them, or MIDI messages <a href="#MIDI_Mapping">mapped</a> to them. Videos can also be played from within the playlist dialog, by simply double-clicking them.
+
+<p>Videos are always looped; once a video is played, it continues looping until a different video is played, or video is disabled via <span class="cmd">Image/Video/Select/None</span>, the numeric keypad's decimal (Del) key, or the Video Select <a href="#Property_list">MIDI property</a>.
+
+<p>The most recently played videos are <a href="#Video_cache">cached</a> for easy access. When a video is played, if it's found in the cache, it normally plays from wherever it last stopped, rather than from the beginning. This feature allows you to step through several videos at once, either by manually alternating between them, or automatically <a href="#Cycling_videos">cycling</a> them. If you prefer your videos to always play from the beginning, you can enable auto-rewind, using <span class="cmd">Image/Video/Auto-Rewind</span> or <span class="key">Shift+Home</span>. To explicitly rewind the currently playing video, use <span class="cmd">Image/Video/Rewind</span> or <span class="key">Home</span>.
+
+<a name="Video_cache"><h2>Video cache</h2></a>
+
+<p>The ten most recently played videos are cached, and can be selected via <span class="cmd">Image/Video/Select</span>, keys 0..9 on the numeric keypad, or the Video Select <a href="#Property_list">MIDI property</a>. This provides you with a dynamic "working set" of videos that can be accessed easily, without having to remember where they are in your playlist. The cache is kept in ascending order by age, i.e. Num0 is always the most recently played video, Num1 is the second most recently played video, and so on.
+
+<p>Note that a distinction is made between <em>selecting</em> cached videos, and <em>playing</em> videos, which may or may not be already cached. Cached videos are selected as described above; videos are <a href="#Playing_videos">played</a> via the playlist dialog, assigned keys, or MIDI mapping. Selecting a cached video doesn't affect the cache order, whereas playing a video changes the order as follows:
+
+<ul>
+<li>If the video isn't cached yet, it becomes Num0, the previously cached videos move up a key, and if the cache was full, the tenth video gets bumped.
+<li>If the video is already cached, it moves to Num0, and videos that were below it move up a key, but nobody gets bumped.
+</ul>
+
+<p>The following diagram illustrates both cases, using names to represent the videos. Bold indicates the currently playing video.
+
+<p><table border=0 cellpadding=5 cellspacing=0>
+<tr>
+<td>Initial cache state:</td>
+<td>After playing "karl":</td>
+<td>After playing "fred":</td>
+</tr>
+<tr><td align=center>
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>7<br>cody</td><td>8<br>burt</td><td>9<br>adam</td></tr>
+<tr><td>4<br>fred</td><td>5<br>eddy</td><td>6<br>doug</td></tr>
+<tr><td>1<br>ivan</td><td>2<br>hank</td><td>3<br>greg</td></tr>
+<tr><td colspan=2>0<br><b>jack</b></td><td>&nbsp;</td></tr>
+</table>
+</td><td align=center>
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>7<br>doug</td><td>8<br>cody</td><td>9<br>burt</td></tr>
+<tr><td>4<br>greg</td><td>5<br>fred</td><td>6<br>eddy</td></tr>
+<tr><td>1<br>jack</td><td>2<br>ivan</td><td>3<br>hank</td></tr>
+<tr><td colspan=2>0<br><b>karl</b></td><td>&nbsp;</td></tr>
+</table>
+</td><td align=center>
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>7<br>doug</td><td>8<br>cody</td><td>9<br>burt</td></tr>
+<tr><td>4<br>hank</td><td>5<br>greg</td><td>6<br>eddy</td></tr>
+<tr><td>1<br>karl</td><td>2<br>jack</td><td>3<br>ivan</td></tr>
+<tr><td colspan=2>0<br><b>fred</b></td><td>&nbsp;</td></tr>
+</table>
+</td></tr>
+</table>
+
+<p>The following table associates cached videos with keys and MIDI. Note that a value of 127 disables video. If this is undesirable, set the range of the Video Select MIDI property to 4.99 instead of 5.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Key</th><th>MIDI</th><th>Video</th>
+<tr><td>Num0</td><td>0..12</td><td>0</td></tr>
+<tr><td>Num1</td><td>13..25</td><td>1</td></tr>
+<tr><td>Num2</td><td>26..38</td><td>2</td></tr>
+<tr><td>Num3</td><td>39..51</td><td>3</td></tr>
+<tr><td>Num4</td><td>52..63</td><td>4</td></tr>
+<tr><td>Num5</td><td>64..76</td><td>5</td></tr>
+<tr><td>Num6</td><td>77..89</td><td>6</td></tr>
+<tr><td>Num7</td><td>90..101</td><td>7</td></tr>
+<tr><td>Num8</td><td>102..114</td><td>8</td></tr>
+<tr><td>Num9</td><td>115..126</td><td>9</td></tr>
+<tr><td>Num.</td><td>127</td><td>None</td></tr>
+</table>
+
+<a name="Video_blending"><h2>Video blending</h2></a>
+
+<p>The video is blended with the animation, such that both the video and the animation are partially visible. The available blending modes are listed in the table below. Each blending mode corresponds to a Windows GDI Raster Operation (ROP). A raster operation is a boolean operator (OR, AND, XOR) optionally combined with an inversion of the source (the video) or the destination (the animation).
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Key</th><th>MIDI</th><th>Blending</th><th>Description</th><th>ROP code</th><th>Common name</th></tr>
+<tr><td>Ctrl+Num0</td><td>0..12</td><td>~Src & Dst</td><td>AND inverted source with destination</td><td>DSna</td><td>&nbsp;</td></tr>
+<tr><td>Ctrl+Num1</td><td>13..25</td><td>~Src | Dst</td><td>OR inverted source with destination</td><td>DSno</td><td>MERGEPAINT</td></tr>
+<tr><td>Ctrl+Num2</td><td>26..38</td><td>Src & ~Dst</td><td>AND source with inverted destination</td><td>SDna</td><td>SRCERASE</td></tr>
+<tr><td>Ctrl+Num3</td><td>39..51</td><td>Src & ~Dst</td><td>OR source with inverted destination</td><td>SDno</td><td>&nbsp;</td></tr>
+<tr><td>Ctrl+Num4</td><td>52..63</td><td>Src & Dst</td><td>AND source with destination</td><td>DSa</td><td>SRCAND</td></tr>
+<tr><td>Ctrl+Num5</td><td>64..76</td><td>Src | Dst</td><td>OR source with destination</td><td>DSo</td><td>SRCPAINT</td></tr>
+<tr><td>Ctrl+Num6</td><td>77..89</td><td>Src ^ Dst</td><td>XOR source with destination</td><td>DSx</td><td>SRCINVERT</td></tr>
+<tr><td>Ctrl+Num7</td><td>90..101</td><td>~(Src & Dst)</td><td>AND source with destination, invert result</td><td>DSan</td><td>&nbsp;</td></tr>
+<tr><td>Ctrl+Num8</td><td>102..114</td><td>~(Src | Dst)</td><td>OR source with destination, invert result</td><td>DSon</td><td>NOTSRCERASE</td></tr>
+<tr><td>Ctrl+Num9</td><td>115..127</td><td>~(Src ^ Dst)</td><td>XOR source with destination, invert result</td><td>DSxn</td><td>&nbsp;</td></tr>
+</table>
+
+<p>The XOR modes alter the colors drastically, giving a psychedelic effect. The other modes don't alter the colors as much, but they're also more sensitive to very dark or very light inputs. SRCPAINT is similar to transparency, and causes the least amount of color distortion. SRCAND is similar to luma-keying: the video is only visible in non-black portions of the animation. The default blending mode is SRCINVERT.
+
+<p>The blending mode can be changed via <span class="cmd">Image/Video/Blending</span>, or by pressing a number on the numeric keypad while holding down the <span class="key">Ctrl</span> key, or via MIDI. Changing the blending mode is a dramatic effect, but caution is advised since extreme changes in brightness may result. Note that the MIDI values given above assume that the Video Blending <a href="#Property_list">MIDI property</a> has its default range (five).
+
+<a name="Cycling_videos"><h2>Cycling videos</h2></a>
+
+<p>Whorld can automatically step through the <a href="#Video_cache">cached videos</a>, while synchronizing the transitions with the master <a href="#Tempo">tempo</a>. This feature is called video <em>cycling</em>. The cycling continues sequentially until the last video is reached, and then begins again with the first video. The order and contents of the cache can be changed during cycling, simply by <a href="#Playing_videos">playing videos</a>. To enable or disable video cycling, use <span class="cmd">Image/Video/Cycle</span> or <span class="key">Ctrl+J</span>.
+
+<p>By default, the cycle includes all cached videos, but it's also possible to limit cycling to the N most recent videos, where N is the cycle length. To specify a cycle length, use <span class="cmd">Image/Video/Cycle Length</span>, or press a number on the numeric keypad while holding down the <span class="key">Alt</span> key, or use the Video Cycle Length <a href="#Property_list">MIDI property</a>.
+
+<p>The cycle always starts with video 0, i.e. the video that corresponds to the <span class="key">Num0</span> key. For example, if a cycle length of four is specifed, the cycle will consist of videos 0, 1, 2, and 3. Note that if the cache isn't full, the cycle may be shorter than the specified length, because empty cache slots are skipped. The following table associates cycle lengths with keys and MIDI.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Key</th><th>MIDI</th><th>Cycle length</th>
+<tr><td>Alt+Num1</td><td>0..12</td><td>most recent 1 videos</td></tr>
+<tr><td>Alt+Num2</td><td>13..25</td><td>most recent 2 videos</td></tr>
+<tr><td>Alt+Num3</td><td>26..38</td><td>most recent 3 videos</td></tr>
+<tr><td>Alt+Num4</td><td>39..51</td><td>most recent 4 videos</td></tr>
+<tr><td>Alt+Num5</td><td>52..63</td><td>most recent 5 videos</td></tr>
+<tr><td>Alt+Num6</td><td>64..76</td><td>most recent 6 videos</td></tr>
+<tr><td>Alt+Num7</td><td>77..89</td><td>most recent 7 videos</td></tr>
+<tr><td>Alt+Num8</td><td>90..101</td><td>most recent 8 videos</td></tr>
+<tr><td>Alt+Num9</td><td>102..114</td><td>most recent 9 videos</td></tr>
+<tr><td>Alt+Num0</td><td>115..127</td><td>all videos</td></tr>
+</table>
+
+<a name="Encoding_videos"><h2>Encoding videos</h2></a>
+
+<p>Videos must be AVI files with 16-bit, 24-bit or 32-bit color depth; 8-bit files are not supported. For optimal performance, the videos should have the same color depth as your display mode, i.e. if your display is configured for 24-bit color, your videos should also have 24-bit color. It's also recommended to use a standard frame size, e.g. 320 x 240 or 640 x 480.
+
+<p>The frame rates of the videos are ignored. Videos are always displayed at Whorld's <a href="#Frame_rate">frame rate</a>; frames are never dropped or added. If the videos have different frame rates than Whorld's, they will play faster or slower than expected. To avoid this, encode at Whorld's frame rate, or change Whorld's frame rate to match the videos.
+
+<p>Since Whorld doesn't support audio, the videos needn't contain audio streams. Eliminating audio can reduce the size of your videos by as much as 20%, and may substantially improve performance. If you're ripping from DVD to VOBs, and then using VirtualDubMod to export AVI files from the VOBs, it's easier to eliminate audio during ripping; e.g. in DVD Decrypter, use IFO mode, enable Stream Processing, and uncheck the audio stream(s).
+
+<p>You'll need to experiment to determine an optimal bit rate, since this depends on various factors including your hardware, which codec you use, and how you set the codec. Excessive bit rates will cause jerky animation, particularly if the CPU is already overloaded due to <a href="#Performance">other factors</a>. Good results were achieved on the <a href="#Requirements">recommended hardware</a> by encoding at 640 x 480, 24-bit color, and 25 FPS, using XVID 1.1.0 with the default settings. The source material was DVD VOBs with the audio removed, as described above. The output AVIs had bit rates in the range of 100 to 500 kbps.
+
+<p>Most codecs use temporal compression, i.e. they only store the differences between consecutive frames, and this can cause problems, particularly with <a href="#Linked_videos">linked videos</a>. Performance may be improved by avoiding temporal compression, either by making every frame a key frame, or by using a codec that doesn't do temporal compression, e.g. MJPEG. Note however that this is a trade-off, since the resulting video files may be considerably larger. Playing video without temporal compression typically requires less CPU power, but more disk bandwidth.
+
+<a name="Linked_videos"><h2>Linked videos</h2></a>
+
+<p>The video overlay is captured in <a href="#Snapshots">snapshots</a>, but instead of embedding the video frame in the snapshot, the snapshot contains an external link to the video file. This saves a substantial amount of disk space, but it also means that in order to <a href="#Load_Snapshot">load</a> or <a href="#Export">export</a> the snapshot, the video file must exist at the correct location on your disk. If the video is not found, a <a href="#Missing_Files">missing files</a> dialog is displayed.
+
+<p>The video overlay is also captured in recorded <a href="#Movies">movies</a>, again via external links to the video files. If you move, rename or delete the linked videos, attempting to <a href="#Playing_movies">play</a> or <a href="#Exporting_movies">export</a> the movie causes a <a href="#Missing_Files">missing files</a> dialog to be displayed.
+
+<p>Note that depending on how you encode your video, you may experience delays when playing back a recorded movie that contains video links. The delays only affect playback within Whorld: if you export the movie, the delays will NOT appear in the exported AVI file. The delays are likely to be worse with long video clips, and typically occur in the following situations:
+
+<ul>
+<li>If you started recording while a video was playing.
+<li>If during the recording, you played videos that were cached before the recording started, and the Auto-Rewind option was off.
+<li>If you play back the recorded movie from any position other than the beginning.
+</ul>
+
+<p>The delays occur because codecs often exhibit very slow seeking to any position other than the start of the video. The slow seeking is a side effect of temporal compression. You may be able to avoid the delays by <a href="#Encoding_videos">encoding</a> your video without temporal compression.
+
+<a name="Video_origin"><h2>Video origin</h2></a>
+
+<p>The <a href="#Video_overlay">video overlay</a> has its own origin, which is independent of the <a href="#Origin_Motion">drawing origin</a>. The video origin only has an effect when the output is <a href="#Mirror">mirrored</a>. In mirror mode, only a quarter of the video frame is used. The video origin allows you to continuously change which portion of the video is used as the mirror source. By default the video origin is (0, 0), i.e. the upper-left quadrant of the video.
+
+<p>To change the video origin manually, move the mouse while holding down the <span class="key">Shift</span> key. The video origin can also be automated, so that it makes random jumps in sync with the <a href="#Tempo">tempo</a>; to enable or disable random jumps, use <span class="cmd">Image/Video/Random Origin</span>, or <span class="key">Ctrl+Shift+R</span>. Note that in either case, video origin motion is affected by <a href="#Damping">Damping</a>.
+
+
+<h1>MIDI</h1>
+
+<a name="MIDI_Setup"><h2>MIDI Setup</h2></a>
+
+<p>This dialog allows you to assign MIDI messages to Whorld's properties. To show or hide the dialog, use <span class="cmd">View/MIDI Setup</span> or <span class="key">Shift+I</span>. The dialog consists of a two-dimensional table, called the <a href="#Property_list">property list</a>. Assignments can be made by editing the property list, or via <a href="#Learn_mode">Learn mode</a> or <a href="#Auto-assign">Auto-assign</a>. Note that you must select a <a href="#MIDI_device">MIDI device</a> before MIDI will work.
+
+<p>Each row in the property list displays information about the MIDI message that's assigned to the corresponding property, including the message's range, type, channel, and controller/note number. This information can be edited, and the edits take effect immediately.
+
+<p>For example, to assign controller 1 on channel 12 to <a href="#Ring_Spacing">Ring Spacing</a>, go to the appropriate row, change the event type to "CTRL", the channel to 12, and the controller to 1. Twiddling the controller should now affect both the ring spacing and the number in the "Value" column.
+
+<p>If nothing happens, open the Options dialog and check your <a href="#MIDI_device">MIDI device</a> selection. Also check your cables and connections. If necessary, use a different application to verify that your PC is receiving MIDI messages.
+
+<p>Note that a given MIDI message can only be assigned to one property at a time. If you assign a message that's already assigned to another property, the other property loses its assignment, and its event type is set to "OFF" to indicate this.
+
+<p>MIDI assignments are saved as part of the <a href="#Playlists">playlist</a>. If you already have a playlist with the desired MIDI setup, you can copy the setup into the current playlist, by choosing <span class="cmd">File/Import MIDI Setup</span> from the <a href="#Playlist_dialog">playlist dialog</a>'s menus.
+
+<a name="Property_list"><h2>Property list</h2></a>
+
+<p>Whorld has various properties to which MIDI messages can be <a href="#MIDI_Setup">assigned</a>. The <em>property list</em> is a two-dimensional table that shows the current assignments, and allows you to edit them. Each row in the table displays information about the MIDI message that's assigned to the corresponding property. The columns are described below.
+
+<dl>
+
+<dt>Range
+<dd>This determines how much effect a MIDI message has on its property. Signed MIDI values are mapped to the specified range, such that &minus;63 corresponds to the range's first value, +64 corresponds to the range's second value, and 0 corresponds to the midpoint between them.
+
+<p>Range lets you make a trade-off between the <em>precision</em> and <em>magnitude</em> of a MIDI control: making the range smaller allows finer adjustments, but reduces the control's overall effect. The range's first value can be greater than the second, in which case the control's effect is inverted.
+
+<p>Whorld's properties can be divided into four groups, as shown below:
+
+<p><dl>
+<dt>Parameters
+<dd>When a MIDI control is assigned to a <a href="#Parameters">parameter</a>, it controls that parameter's <a href="#Master_Offsets">Master Offset</a>, which is <em>added</em> to the parameter's current value.
+
+<dt>Other continuous values
+<dd>These are properties such as <a href="#Zoom">Zoom</a>, which aren't parameters, but are also <em>continuous</em>, i.e. they can have many values. Unlike parameters, these properties don't have master offsets: when you move the MIDI control, you're directly setting the property, not adding an offset to it.
+
+<dt>Switches
+<dd>These are <em>boolean</em> properties, i.e. properties that are either "on" or "off", such as <a href="#Mirror">Mirror</a>. The Range for these properties should always be 0..1 for normal operation, or 1..0 for inverted operation. Other values may give incorrect results.
+
+<dt>Oscillator properties
+<dd>These properties allow you to control the <a href="#Oscillator_Override">oscillator override</a> for each parameter, as well as the <a href="#Global_Parameters">global</a> oscillators. Note that the oscillator properties are normally <em>hidden</em>. To assign MIDI messages to these properties, you must first check the "Advanced" checkbox in the MIDI setup dialog's upper-right corner. The default ranges are listed below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Property</th><th>Range</th><th>Comment</th></tr>
+<tr><td>Waveform</td><td>0..8</td><td>Distributes <a href="#Waveforms">waveforms</a> evenly along controller's sweep.
+<tr><td>Amplitude</td><td>?</td><td>Range depends on the parameter.</td></tr>
+<tr><td>Frequency</td><td>0..1</td><td>Oscillator frequency in Hertz.</td></tr>
+<tr><td>Pulse Width</td><td>0..1</td><td>Fractional duty cycle; ignored unless waveform is "Pulse".</td></tr>
+</table>
+
+</dl>
+
+<p><dt>Event
+<dd>This is the type of MIDI message assigned to the property. The possible values are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>OFF</td><td>No message is assigned to the property.</td></tr>
+<tr><td>CTRL</td><td>A continuous controller message is assigned to the property; the controller edit box specifies the controller number.</td></tr>
+<tr><td>NOTE</td><td>A note is assigned to the property. In this case the controller edit box displays and understands MIDI note numbers, e.g. F#4. Pressing the note <em>toggles</em> the property, i.e. flips it back and forth between +Range and &minus;Range. Releasing the note has no effect. Notes are useful for controlling switches (see above).
+<tr><td>PITCH</td><td>The pitch bend message is assigned to the property. In this case the controller edit box is ignored.</td></tr>
+</table>
+
+<p><dt>Channel
+<dd>This is the channel on which the property's MIDI message is expected to arrive, ranging from 1 to 16.
+
+<dt>Controller
+<dd>For controller messages, this is the controller number, from 0 to 127; note that controllers above 120 are normally reserved for channel mode messages. For note messages, this is the note number, from C0 to G10. For pitch bend messages, this value is ignored.
+
+<dt>Value
+<dd>This is the actual data byte from the property's most recently received message, which can be helpful when debugging MIDI problems. It's displayed as a read-only signed value from &minus;64 to +63.
+
+</dl>
+
+<a name="Learn_mode"><h2>Learn mode</h2></a>
+
+<p>Assigning MIDI messages via <a href="#MIDI_Setup">editing</a> requires you to know which messages your device sends, and on which channels. Whorld can also "learn" the MIDI assignments, in which case you don't need to worry about those details. To use "learn" mode, do the following:
+
+<ol>
+<li>Check the "Learn" box in the upper-left corner of the <a href="#MIDI_Setup">MIDI Setup</a> dialog.
+<li>Left-click an edit box of the property you want to control; it doesn't matter which edit box, so long as the edit cursor is somewhere in that row.
+<li>On your MIDI device, twiddle the control that you want to assign to that property. To assign a note to the property, press and release the note. The property's message type, channel, and controller number should "snap" to the correct value. Be careful not to accidentally touch controls or notes that you've already assigned to other properties, otherwise those assignments will have to be redone.
+<li>Repeat steps 2 and 3 for each property you want to control.
+<li>Uncheck the "Learn" box.
+</ol>
+
+<a name="Auto-assign"><h2>Auto-assign</h2></a>
+
+<p>This dialog allows you to assign MIDI messages to multiple properties at once, as opposed to editing the properties one by one in the <a href="#MIDI_Setup">MIDI Setup</a> dialog. This can save time in situations where the device sends a contiguous range of messages, and you want to assign them to a contiguous group of properties. To take advantage of this feature, you have to know which messages your device sends; otherwise, use <a href="#Learn_mode">Learn mode</a> instead.
+
+<p>For example, suppose your device sends controllers 20 through 35 on channel 1, and you want to assign them to the <a href="#Parameters">parameters</a>. The assignments can be made as follows:
+
+<ol>
+<li>In the MIDI Setup dialog, press the "Auto-Assign" button.
+<li>Under Properties, select "Range"; then set the First combo box to "Ring Growth", and the Last combo box to "Bk Saturation".
+<li>Under Event, select "Controller".
+<li>Set Channel to 1; its Range checkbox should be <em>unchecked</em>.
+<li>Set Controller to 20; its Range checkbox should be <em>checked</em>.
+<li>Press "OK" to make the assignments.
+</ol>
+
+<p>If the device sends a single controller on a range of channels, e.g. controller 20 on channels 1 through 16, the procedure is identical, except that the two Range checkboxes must be reversed.
+
+<dl>
+
+<dt>Range
+<dd>Use these controls to specify which properties should have messages assigned to them. Select "All" to assign to all properties; otherwise, select "Range", and use the First and Last combo boxes to specify the range.
+
+<dt>Event
+<dd>Use this control to specify the type of message to assign to the selected properties: "Controller" to assign continuous controllers, or "Note" to assign notes. To remove existing assignments, select "Off".
+
+<dt>Channel
+<dd>Use these controls to specify which channel(s) to assign to the selected properties. If the Range checkbox is checked, a sequential range of channels is assigned, starting from the specified channel; otherwise the specified channel is assigned to all of the selected properties.
+
+<dt>Controller
+<dd>Use these controls to specify which controller/note number(s) to assign to the selected properties. If the Range checkbox is checked, a sequential range of numbers is assigned, starting from the specified number; otherwise the specified number is assigned to all of the selected properties. If Event is set to "Note", the edit box displays and understands MIDI note numbers, e.g. F#4.
+
+<dt>Set channel only
+<dd>If this box is checked, only the channels are assigned; message type and controller/note number are not affected. This option is useful for moving an existing MIDI setup to a different channel.
+
+</dl>
+
+<a name="Zero_Controllers"><h2>Zero Controllers</h2></a>
+
+<p>This command resets the <a href="#Master_Offsets">Master Offsets</a> to zero, thereby eliminating their influence on the <a href="#Parameters">parameters</a>, and returning the animation to its "natural" state. The change may be drastic, depending on how far from zero the master offsets are at the time. To execute the command, use <span class="cmd">Edit/Zero Controllers</span> or <span class="key">Shift+Z</span>. Note that <a href="#Panic">Panic</a> also resets the master offsets, along with other critical settings.
+
+<p>If the offsets were being manipulated via <a href="#MIDI_Setup">MIDI controllers</a>, the positions of the knobs (or sliders, or whatever) are no longer meaningful. To fix this, move the controls to their default positions. These moves may disrupt the animation unless you power off or disconnect the MIDI device before making them.
+
+<p>In addition, any <a href="#Oscillator_Override">oscillator override</a> properties that have been changed via MIDI are reset.  In typical configurations, this effectively disables all oscillator overrides.
+
+
+<h1>Options</h1>
+
+<h2>Display</h2>
+
+<a name="DirectDraw"><h3>DirectDraw</h3></a>
+
+<p>Windows includes two systems for drawing 2D graphics: GDI and DirectDraw. Whorld can use either, but DirectDraw is more hardware-oriented and typically gives much better performance than GDI. The following options allow you to control Whorld's usage of DirectDraw.
+
+<dl>
+
+<dt>Use DirectDraw
+<dd>If checked, Whorld uses DirectDraw, otherwise it uses GDI and ignores the other DirectDraw settings. This option should be checked unless DirectDraw causes problems. Note that if you change this option, you must restart Whorld for the change to take effect.
+
+<dt>Mirror to back buffer
+<dd>If checked, Whorld <a href="#Mirror">mirrors</a> to an intermediate back buffer, and then blits the resulting image to the front buffer; otherwise it mirrors directly to the front buffer. Mirroring directly to the front buffer is slightly faster, but allows the mirror quadrants to become misaligned. This option should be checked unless mirroring causes problems.
+
+<dt>Allow Exclusive mode
+<dd>If checked, Whorld uses DirectDraw's Exclusive mode in the following situations: in <a href="#Veejay_Mode">Veejay mode</a>, in full-screen <a href="#Dual-Monitor">dual-monitor</a> configuration, and when playing back a Whorld <a href="#Movies">movie</a> full-screen. Exclusive mode is more efficient and eliminates <a href="#Tearing">tearing</a>, so this option should be checked unless Exclusive mode causes problems.
+<dt>Back buffer location
+
+<dd>Frames are drawn in off-screen memory (the "back buffer") and then copied to the screen (the "front buffer"). The back buffer can be located in either video or system memory. You can force Whorld to always use one or the other, but it's usually best to let it choose the optimal location, by leaving this option set to "Auto". Selecting "System" should always be safe, but may reduce performance. Selecting "Video" may interfere with mirrored and <a href="#X-Ray">X-ray</a> modes, because they require the back buffer to be read as well as written; reading from video memory is typically very slow.
+
+</dl>
+
+<a name="Frame_rate"><h3>Frame rate</h3></a>
+
+<p>This is the number of frames generated per second, ranging from 24 to 60. Higher frame rates theoretically result in smoother animation, but only if the computer can handle the increased CPU and graphics load. On an underpowered machine, increasing the frame rate may have no effect, or may even make the animation less smooth, particularly if expensive effects (e.g. fill, X-ray) are used. Whorld never drops (omits) frames, but it can get behind, in which case the actual frame rate can be considerably lower than the desired rate. If it gets too far behind, it may become unresponsive; see <a href="#Performance">performance</a>.
+
+<p>Note that the frame rate selected here has an important side-effect: it's also used as the frame rate for recorded <a href="#Movies">movies</a>. The default frame rate (25) is ideal in countries that use PAL (e.g. Europe), but may be inconvenient in countries that use NTSC (e.g. USA, Japan). Since NTSC runs at approximately 30 FPS, a movie recorded at 25 FPS, and then output to an NTSC medium (e.g. NTSC DVD) will speed up by 20%. Frame-rate conversion is possible but typically causes unacceptable artifacts. Setting the frame rate to 30 eliminates the speed-up for NTSC, but also requires 20% more CPU and graphics power.
+
+<p>Note that increasing the frame rate also speeds up the animation. To compensate for this, decrease the master <a href="#Speed">speed</a> proportionally.
+
+<a name="Print_from_bitmap"><h3>Print from bitmap</h3></a>
+
+<p>The print command normally draws directly to the printer's device context; when this option is checked, the print command draws to an intermediate bitmap instead, and then blits (copies) the bitmap to the printer's device context. The option should normally be unchecked, because drawing directly to the printer takes advantage of the printer's resolution, which is usually much better than screen resolution.
+
+<p>The only down side of drawing directly to the printer is that images drawn in <a href="#X-Ray">X-Ray</a> mode may have slightly different colors in the printout than they do on the screen. Checking "Print from bitmap" fixes this, but at the cost of using screen resolution, which causes stairstepping (jaggedness) on lines and edges.
+
+
+<h2>Input</h2>
+
+<a name="Mouse_sensitivity"><h3>Mouse sensitivity</h3></a>
+
+<p>This setting changes the sensitivity of the pointing device to horizontal and vertical motion. The larger the value, the more effect motion has. The value is a percentage of normal sensitivity, ranging from 25 (a quarter as sensitive) to 400 (four times as sensitive). The default setting is 100 (normal). Note that this setting only affects Whorld, as opposed to the system mouse settings in the Control Panel, which affect all applications.
+
+<a name="Wheel_sensitivity"><h3>Wheel sensitivity</h3></a>
+
+<p>This setting changes the sensitivity of the pointing device's wheel. The larger the value, the more effect motion has. The value is a percentage of normal sensitivity, ranging from 25 (a quarter as sensitive) to 400 (four times as sensitive). The default setting is 100 (normal). Note that this setting only affects Whorld, as opposed to the system mouse settings in the Control Panel, which affect all applications.
+
+<a name="Tempo_nudge"><h3>Tempo nudge</h3></a>
+
+<p>This setting is the percentage that the nudge tempo commands increase or decrease the <a href="#Tempo">tempo</a> by. The nudge tempo commands are <em>Image/Tempo/Nudge Up</em> (<span class="key">+</span> key) and <em>Image/Tempo/Nudge Down</em> (<span class="key">-</span> key). The setting ranges from 0.1% to 0.9%.
+
+<p>For example, if Tempo Nudge is set to 0.25% (the default) and the tempo is 120, pressing the <span class="key">+</span> key once makes the tempo 120.3 (120 &times; 1.0025 = 120.3).
+
+<p>Tempo nudge is a trade-off (precision versus speed) and a matter of taste. If it's too small, you won't be able to adjust the tempo quickly enough. If it's too big, you won't be able to get close enough to the desired tempo.
+
+
+<h2>MIDI</h2>
+
+<a name="MIDI_device"><h3>MIDI device</h3></a>
+
+<p>This option allows you to select a MIDI device. The list of devices varies, depending on what MIDI hardware is installed. If your PC doesn't have a MIDI device, the only option is "No MIDI input", which disables Whorld's MIDI support.
+
+<p>The default value is "No MIDI input", which means that in order to use MIDI, you must select a MIDI device at least once. Typically, you'll also need to assign specific MIDI messages to Whorld's functions, using the <a href="#MIDI_Setup">MIDI Setup</a> dialog.
+
+<p>If you're using a USB MIDI interface, always connect it to the PC <em>before</em> launching Whorld. If you launch Whorld while the interface is disconnected, your device selection will be lost, and connecting the interface won't make it appear in the device list: you must first exit Whorld, and then connect the interface, re-launch Whorld, and reselect the device.
+
+<a name="MIDI_sync"><h3>MIDI sync</h3></a>
+
+<p>When this option is checked, Whorld synchronizes the <a href="#Tempo">tempo</a> to MIDI clocks. Unlike <a href="#Tap_Tempo">manual synchronization</a>, MIDI sync doesn't drift, even if the tempo changes. Note that tempo has no visible effect unless <a href="#Origin_Motion">origin motion</a> is set to Random.
+
+<p>The PC must be connected to a device that sends MIDI clocks for this option to work. While MIDI sync is checked, the origin will not jump unless Whorld is receiving MIDI clocks. Not all MIDI devices send clocks. If necessary, use a different application to verify that the PC is receiving MIDI clocks.
+
+<p>In MIDI sync mode, the usual methods of setting the tempo (Master dialog's tempo controls, <span class="key">Tab</span> key, tempo nudge keys) have no effect. Other tempo functions have subtly different meanings, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Name</th>
+<th>Key</th>
+<th>Function</th>
+</tr><tr>
+<td>Tap</td>
+<td>Tab</td>
+<td>No effect: tempo set by MIDI.</td>
+</tr><tr>
+<td>Nudge Up</td>
+<td>+</td>
+<td>No effect: tempo set by MIDI.</td>
+</tr><tr>
+<td>Nudge Down</td>
+<td>-</td>
+<td>No effect: tempo set by MIDI.</td>
+</tr><tr>
+<td>Resync</td>
+<td>Enter</td>
+<td>Restarts the tempo loop.</td>
+</tr><tr>
+<td>Double</td>
+<td>]</td>
+<td>Doubles the meter.</td>
+</tr><tr>
+<td>Half</td>
+<td>[</td>
+<td>Halves the meter.</td>
+</tr>
+</table>
+
+<p>MIDI sync mode introduces the concept of <em>meter</em>, which governs the relationship between the MIDI tempo, and how often the origin jumps. Tempo is measured in beats per minute (BPM). When the meter is 1/4, the origin jumps once per beat, e.g. at 120 BPM, the origin jumps 120 times a minute, or twice per second. The meter is changed via the <span class="key">[</span> and <span class="key">]</span> keys. The available meters are listed below. Note that in MIDI sync mode, the status bar displays the meter instead of the tempo.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Meter</th><th>Jumps</th><th>BPM</th>
+</tr><tr>
+<td>4/1</td><td>every sixteen beats</td><td>/ 16</td>
+</tr><tr>
+<td>2/1</td><td>every eight beats</td><td>/ 8</td>
+</tr><tr>
+<td>1/1</td><td>every four beats</td><td>/ 4</td>
+</tr><tr>
+<td>1/2</td><td>every other beat</td><td>/ 2</td>
+</tr><tr>
+<td>1/4</td><td>every beat</td><td>&times; 1</td>
+</tr><tr>
+<td>1/8</td><td>twice per beat</td><td>&times; 2</td>
+</tr><tr>
+<td>1/16</td><td>four times per beat</td><td>&times; 4</td>
+</tr>
+</table>
+
+
+<h2>Folder</h2>
+
+<a name="Default_output_folder"><h3>Default output folder</h3></a>
+
+<p>In <a href="#Veejay_Mode">Veejay mode</a>, dialogs aren't permitted, and as a result, certain commands that create output files behave differently. These commands normally display a file dialog, which prompts the user for the name and location of the output file, but in Veejay mode, the output file is <em>silently</em> created in the default output folder, using a filename that's synthesized from the date and time. The commands that behave this way are:
+
+<p>File/Save Mix
+<br>File/Take Snapshot
+<br>File/Movie/Record
+
+<p>This setting allows you to change the location of the default output folder. The default location is a subfolder called "Whorld" in "My Documents". The full path of the default location varies, but it typically has the form:
+
+<p>C:\Documents and Settings\foo\My Documents\Whorld
+
+<p>where foo is a substitute for the current username. The default location has advantages: since it's within your profile, you're guaranteed to have access to it, and it's also guaranteed to be a unique location for each user. If you change the location, make sure you have access to whatever folder you specify. Note that if you specify an invalid folder, or one that you don't have access to, you may not see any error messages, because Veejay mode doesn't allow dialogs.
+
+<p>It's possible to make these commands <em>always</em> create their output files silently; see <a href="#Use_default_folder">Use default folder</a>.
+
+<a name="Use_default_folder"><h3>Use default folder</h3></a>
+
+<p>In <a href="#Veejay_Mode">Veejay mode</a>, certain commands create their output files silently in the <a href="#Default_output_folder">default output folder</a>, instead of displaying file dialogs. You may find it more convenient for these commands to <em>never</em> display file dialogs; if so, change the "Use default folder" option from "In VJ mode" to "Always". Selecting "Always" is a trade-off: you can create files quickly without stopping the animation each time, but the files won't have meaningful names, unless you go back and rename them later.
+
+
+
+<h1>Loose Ends</h1>
+
+<a name="Selecting_items"><h2>Selecting items</h2></a>
+
+<p>Some of Whorld's dialogs allow multiple items to be selected at once. The interface is common to all Windows applications, but it's described here anyway.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Single item</td><td>Left-click it.</td>
+</tr><tr>
+<td>Contiguous group</td><td>Left-click the first item, and then Shift+left-click the last item. Shift+left-click can also expand or trim an existing selection.</td>
+</tr><tr>
+<td>Non-contiguous group</td><td>Ctrl+left-click each item. To remove a item from the selection, Ctrl+left-click it again.</td>
+</tr><tr>
+<td>All items</td><td>Left-click any item, and press <span class="key">Ctrl+A</span>.</td>
+</tr>
+</table>
+
+<a name="Tap_Tempo"><h2>Tap Tempo</h2></a>
+
+<p>Tap tempo is a method of manually synchronizing Whorld's <a href="#Tempo">tempo</a> to music, by tapping a special key along with the beat. This initial synchronization typically has to be corrected, by <em>nudging</em> the tempo up or down slightly. The tap tempo functions are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Name</th>
+<th>Key</th>
+<th>Function</th>
+</tr><tr>
+<td>Tap</td>
+<td>Tab</td>
+<td>Sets the tempo when tapped repeatedly in rhythm.</td>
+</tr><tr>
+<td>Nudge Up</td>
+<td>+</td>
+<td>Increases the tempo by the <a href="#Tempo_nudge">tempo nudge</a> percentage.</td>
+</tr><tr>
+<td>Nudge Down</td>
+<td>-</td>
+<td>Decreases the tempo by the <a href="#Tempo_nudge">tempo nudge</a> percentage.</td>
+</tr><tr>
+<td>Resync</td>
+<td>Enter</td>
+<td>Restarts the tempo loop, without changing the tempo.</td>
+</tr><tr>
+<td>Double</td>
+<td>]</td>
+<td>Doubles the tempo.</td>
+</tr><tr>
+<td>Half</td>
+<td>[</td>
+<td>Halves the tempo.</td>
+</tr>
+</table>
+
+<p>The tempo can be entered simply by tapping the <span class="key">Tab</span> key twice: Whorld measures the elapsed time between the taps, and sets the tempo accordingly. Note that tempo has no visible effect unless <a href="#Origin_Motion">origin motion</a> is set to Random.
+
+<p>More accurate results can be achieved by increasing the number of taps. Each additional tap provides another elapsed time measurement, or <em>sample</em>. The tempo is calculated by <em>averaging</em> the samples, but only so long as they stay within 10% of the average. If a sample is off by more than 10%, the history is flushed, and averaging starts over again from that sample.
+
+<p>You can tap on any evenly-spaced subdivision of the music, not only the main beat. You may prefer to tap on longer subdivisions (e.g. half notes, whole notes, every other measure) so the origin doesn't jump as often.
+
+<p>After tapping the tempo, watch the origin, to see if its jumps are in sync with the music. It's is easier to see when <a href="#Damping">damping</a> is low. If they seem out of sync, try tapping the <span class="key">Enter</span> key once, right on the beat, or slightly ahead of it. This shifts the jumps onto the beat, but doesn't change the tempo. The sync should improve, at least temporarily. If it stays good for a while, you're done.
+
+<p>Otherwise, when the sync starts to drift, try to determine which <em>way</em> it's drifting. If the jumps are falling behind, the tempo is too slow, so nudge it up. If they're getting ahead, the tempo is too fast, so nudge it down. Be careful not to overcompensate. If you're way off, it may be easier to start over, by tapping the tempo again. It's beat-matching, and it takes some practice.
+
+<p>Without <a href="#MIDI_sync">MIDI sync</a>, drift is unavoidable; the question is just how quickly it gets big enough to bother you. Assuming the music has a fixed tempo, you shouldn't have to resync more than once or twice a minute. If you do, either the DJ has his thumb on the record, or you haven't got the tempo right. It may help to play with the <a href="#Tempo_nudge">tempo nudge</a> percentage.
+
+<a name="Export"><h2>Export</h2></a>
+
+<p>The export command creates a Windows bitmap (BMP file) from the current image. The command freezes the current frame, and displays a file dialog, allowing you to specify the output file's name and location. The command then displays the Export dialog, which allows you to configure the Export options, as described below. To do an export, use <span class="cmd">File/Export</span> or <span class="key">Ctrl+E</span>.
+
+<p>Still frames should initially be saved as <a href="#Snapshots">snapshots</a>, and exported later, because snapshots are much more compact than bitmaps, and can be <a href="#Zoom">zoomed</a> and <a href="#Editing_Snapshots">edited</a> without loss of quality.
+
+<dl>
+
+<dt>Use window size
+<dd>If checked, the bitmap will be identical to the current image: it will have exactly the same size, resolution and cropping. The other options are irrelevant in this case, and are therefore disabled.
+
+<dt>Width
+<dd>This allows you to specify the bitmap's width, in pixels. Changing the width causes the image to be either cropped, or scaled, depending on the Resizing option; see below.
+
+<dt>Height
+<dd>This allows you to specify the bitmap's height, in pixels. Changing the height causes the image to be either cropped, or scaled, depending on the Resizing option; see below.
+
+<dt>Resolution
+<dd>This allows you to specify the bitmap's resolution, in DPI (dots per inch). Resolution is the relationship between pixels and inches; changing it affects the bitmap's size in <em>inches</em>, but doesn't affect its size in <em>pixels</em> at all, and therefore doesn't affect its cropping or scaling either. DPI is usually only noticeable when the bitmap is printed or imported into another application. The default resolution (72 DPI) is good for web graphics; for printing, the bitmap should match the printer's resolution, which is typically much higher.
+
+<dt>Resizing
+<dd>This option determines the resizing method. It only has an effect when "Use window size" is unchecked and the specified Width and Height differ from the window size. The methods are as follows:
+
+<p><dl>
+<dt>Crop
+<dd>The image is cropped to the specified size. If the size is bigger than the window, previously hidden portions of the image may become visible; if the size is smaller, portions of the image are cut away or "cropped".
+<dt>Scale to fit
+<dd>The image is scaled up or down to the specified size, without changing the cropping. If the size is bigger than the window, nothing is lost, but if the size is smaller, details may be obscured. The scaling is <em>isotropic</em>, i.e. the image's original ratio of width to height is preserved.
+</dl>
+
+</dl>
+
+<a name="Panic"><h2>Panic</h2></a>
+
+<p>This command restores critical settings to reasonable values. The affected settings all have the potential to cause confusion or degrade <a href="#Performance">performance</a>. Panic can rescue you from a variety of problems, but the transition can be a bit jarring. To execute this command, use <em>Window/Panic</em> or press <span class="key">Esc</span>.
+
+<p>Panic takes the following actions:
+<ul>
+<li>All rings are deleted, clearing the screen.
+<li><a href="#Pause">Pause</a> is disabled (i.e. animation is unpaused).
+<li><a href="#Fill">Fill</a>, <a href="#Outline">outline</a> and <a href="#X-Ray">X-ray</a> are disabled.
+<li><a href="#Invert_Color">Invert color</a> and <a href="#Reverse">Reverse</a> modes are disabled.
+<li><a href="#Speed">Speed</a>, <a href="#Zoom">Zoom</a>, <a href="#Damping">Damping</a>, <a href="#Trail">Trail</a>, and <a href="#Rings">Rings</a> are reset.
+<li>All <a href="#Master_Offsets">master offsets</a> are zeroed.
+<li>Random <a href="#Origin_Motion">origin motion</a> is disabled and the origin is centered.
+<li>Any <a href="#Oscillator_Override">oscillator override</a> properties that have been changed via MIDI are reset.
+</ul>
+
+<p>Panic also exits from <a href="#Full_Screen">full-screen</a>, but <em>not</em> from <a href="#Veejay_Mode">Veejay mode</a>.
+
+<p>Note that if you're using a MIDI controller, after pressing Panic, the positions of your knobs (or sliders, or whatever) are no longer meaningful. To fix this, move the knobs to their default positions, and then <a href="#Zero_Controllers">Zero Controllers</a>, or press Panic again.
+
+<a name="Tearing"><h2>Tearing</h2></a>
+
+<p>Tearing is a distracting visual artifact. It typically looks like horizontal lines running up and down the image. Tearing occurs if the display is refreshed while the CPU is in the middle of writing a new frame to the graphics hardware. At that moment, both the old and new frames are partially visible, and if they differ (as is likely), the eye perceives a discontinuity (a tear) in the image.
+
+<p>Tearing can be prevented by using <a href="#Veejay_Mode">Veejay mode</a> to make the image full-screen; this causes Whorld to use DirectDraw's Exclusive mode, which synchronizes access to the graphics hardware. Note that both DirectDraw and Exclusive mode must be enabled; see <a href="#DirectDraw">DirectDraw</a> options. In normal windowed and full-screen modes, tearing is unavoidable.
+
+<a name="Performance"><h2>Performance</h2></a>
+
+<p>Performance problems typically manifest themselves as a slowing-down or jerkiness of the animation, with visible pauses between frames. In extreme cases, the user interface may become unresponsive. Should this occur during a performance, pressing <a href="#Panic">Panic</a> will usually resolve the situation.
+
+<p>The best solution is a more powerful computer. Whorld is graphics-bound, which means that upgrading the graphics card will probably make more difference than adding memory or upgrading the CPU. On the other hand, a cutting-edge graphics card may not perform optimally (or at all) without upgrades to other components, so it might be easier to start from scratch. The <a href="#Requirements">recommended system</a> cost approximately $1300 in Q3 2005, not including the trackball and MIDI controller. It's a medium-duty gamer-style system, and it manages to avoid slowdowns in almost all cases, even while recording a movie.
+
+<p>Note that the recommended system is housed in a SFF (Small Form-Factor) Micro-ATX case, not a laptop. This has obvious disadvantages (it's not as portable as a laptop, and there's no built-in screen or keyboard/mouse) but at the time of this writing, there are no PC laptops powerful enough to run Whorld optimally, and even if there were, they would be absurdly expensive. For the moment, if you want Whorld to run smoothly in all modes, be prepared to lug a SFF machine to your gigs. It weighs about 20 pounds and fits in a gym bag.
+
+<p>The other performance solutions can be divided into two categories: less rings, and less effects.
+
+<p>Less rings means keeping the ring count low, and there are various ways to achieve this. The most direct method is the master <a href="#Rings">Rings</a> setting. This allows you to place an absolute limit on the number of rings. The downside is that you may drastically simplify the composition, though this could be a plus in some cases.
+
+<p>Decreasing the <a href="#Canvas_scale">canvas size</a> also helps keep the ring count low. The downside is that at values below 140%, rings may die (or be born) on-screen. Also there will be less hidden stuff to see when you zoom all the way out.
+
+<p>Increasing <a href="#Ring_Spacing">Ring Spacing</a> is another way to reduce the ring count. The downside is that the composition becomes more spread-out and sparse.
+
+<p>The ring count can also be reduced by decreasing the window size and/or the screen resolution. For VJs, decreasing the window size isn't an option, because performing is always done full-screen. However, lowering the screen resolution to 1024x768 or less makes good sense. At higher resolutions, 1-pixel-wide lines start to look too thin anyway, and increasing the line width above 1 pixel is a major performance hit (see below). In addition, the native resolution of most projectors is currently 1024x768 or less, so drawing at higher resolutions is wasted work.
+
+<p>Less effects means being careful about any of the following: <a href="#Fill">Fill</a> mode, <a href="#Outline">Outline</a> mode, <a href="#X-Ray">X-Ray</a> mode, <a href="#Line_Width">Line Widths</a> greater than one, and <a href="#Zoom">zooming in</a>. All of these caused increased graphics overhead, and in combination they can be deadly. X-Ray is by far the worst offender. Using X-Ray with wide lines, fill and outline can bring even the mighty Radeon X800XL to its knees. To use all of these effects at once, you may have to give up something else, e.g. limit the number of rings, increase the ring spacing, zoom out, etc.
+
+<p>Extreme negative <a href="#Star_Factor">Star Factor</a> can also create performance problems, because it causes some of a ring's vertices to remain visible for much longer than others. Since a ring is only deleted when <em>all</em> of its vertices are off-canvas, extreme negative Star Factor prolongs the ring's life, thereby increasing the average ring count.
+
+<a name="Troubleshooting"><h2>Troubleshooting</h2></a>
+
+<dl>
+
+<dt>Horizontal lines are running up and down the image.
+<dd>This is <a href="#Tearing">tearing</a>. The only solution is to use <a href="#Veejay_Mode">Veejay mode</a>; ordinary full-screen mode won't fix it.
+
+<dt>The image flickers on a laptop or flat-panel display.
+<dd>Try using <a href="#Veejay_Mode">Veejay mode</a>. If that doesn't help, turn off any fluorescent lights, and try changing the <a href="#Frame_rate">Frame Rate</a>. To isolate the problem, hook up an external monitor (a CRT, not a flat-panel) and see if the flicker goes away.
+
+<dt>Whorld is non-responsive.
+<dd>Try pressing <a href="#Panic">Panic</a> (<span class="key">Esc</span>). If that works, it's a <a href="#Performance">performance</a> problem; get a better computer, or avoid using features that cause trouble. Otherwise, it could be a bug.
+
+<dt>The animation slows down, or gets jerky or stuck.
+<dd>See above.
+
+<dt>The origin moves slowly, or gets stuck.
+<dd>If the animation is OK, most likely <a href="#Damping">Damping</a> is set too high. If the animation is also slow or stuck, see above.
+
+<dt>The image is frozen.
+<dd>You might be in <a href="#Pause">Pause</a>: try pressing <span class="key">Space</span>. Also <a href="#Speed">Master Speed</a> or <a href="#Ring_Growth">Ring Growth</a> could be zero, otherwise it could be a <a href="#Performance">performance</a> problem.
+
+<dt>Editing parameters doesn't affect the image.
+<dd>You're probably viewing the crossfader mix instead of the document; see <a href="#View_Mix">View Mix</a>. It also could be you're inadvertently editing something other than the document; see <a href="#Edit_Selection">Edit Selection</a>.
+
+<dt>The cursor disappeared.
+<dd>This is normal behavior in <a href="#Origin_Motion">Drag Origin</a> mode. Press <span class="key">Shift+D</span> or <span class="key">Esc</span> to make it reappear.
+
+<dt>The origin is jumping around by itself.
+<dd>You're in <a href="#Origin_Motion">Random Origin</a> mode. Use <span class="cmd">Image/Origin/Random</span> (<span class="key">Shift+R</span>) to stop it.
+
+<dt>Whorld is switching to different patches by itself.
+<dd>You're in <a href="#Autoplay">Autoplay</a> mode, or possibly <a href="#Demo_Mode">Demo Mode</a>.
+
+<dt>The colors aren't cycling anymore.
+<dd>You've created a <a href="#Loop_Hue">hue loop</a>; use <span class="cmd">Image/Loop Hue</span> (<span class="key">F2</span>) to clear it.
+
+<dt>Increasing Lightness makes the image darker.
+<dd>You're in <a href="#Invert_Color">Invert Color</a> mode; use <span class="cmd">Image/Invert/Color</span> (<span class="key">F4</span>) to reset it.
+
+<dt>The rings are contracting, but Ring Growth is positive.
+<dd>You're in <a href="#Reverse">Reverse</a> mode; use <span class="cmd">Image/Reverse</span> (<span class="key">Backspace</span>) to switch direction.
+
+<dt>My MIDI controller is connected, but nothing's happening.
+<dd>You must select your MIDI device, via the <a href="#MIDI_device">MIDI device</a> setting in the Options dialog. Also you must assign properties to your controllers; see <a href="#MIDI_Setup">MIDI setup</a>.
+
+<dt>The scroll lock LED is flashing.
+<dd>This indicates that you're recording a <a href="#Movies">movie</a>. Use <span class="cmd">File/Movie/Record</span> or <span class="key">Ctrl+R</span> to stop. If it was unintentional, you might want to delete the movie, because movies can be very large.
+
+<dt>I lost some changes I made to my playlist.
+<dd>The main menu's <span class="cmd">File/Save</span> (<span class="key">Ctrl+S</span>) saves the current patch, not the current <a href="#Playlists">playlist</a>. To save the playlist, use <span class="cmd">File/Playlist/Save</span>, or <span class="cmd">File/Save</span> from the playlist dialog's menus.
+
+<dt>I saved some files and now I can't find them.
+<dd>They could be in the <a href="#Default_output_folder">default output folder</a>.
+
+<dt>I get a DirectDraw error.
+<dd>Make sure you have DirectX 8.1 or higher installed; you can check this by running dxdiag from the Windows Run prompt. In Display Properties (Control Panel/Display), select Settings, Advanced, Troubleshooting, and make sure the hardware acceleration slider is set to "Full". Also make sure you're using High color (16-bit) or True color (32-bit). If it's an older PC, try upgrading the graphics card.
+
+<dt>I have some problem that's not addressed above.
+<dd>Try viewing the <a href="#Demo_Mode">demo</a>; if that works, there could be something wrong with one of your patches, or your playlist. Otherwise, try resetting all options: open the Options dialog (<span class="cmd">View/Options</span> or <span class="key">Shift+O</span>), press the "Reset All" button, and then exit Whorld and restart it.
+
+</dl>
+
+<a name="Main_Shortcuts"><h2>Main Shortcuts</h2></a>
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>+</td><td>Tempo Nudge Up</td><td>Increase tempo by nudge percentage</td></tr>
+<tr><td>-</td><td>Tempo Nudge Down</td><td>Decrease tempo by nudge percentage</td></tr>
+<tr><td>=</td><td>Tempo Nudge Up</td><td>Increase tempo by nudge percentage</td></tr>
+<tr><td>Ctrl+A</td><td>Autoplay</td><td>Play the current playlist</td></tr>
+<tr><td>Ctrl+C</td><td>Copy</td><td>Copy the selection and put it on the Clipboard</td></tr>
+<tr><td>Shift+C</td><td>Center Origin</td><td>Center origin within window</td></tr>
+<tr><td>Shift+D</td><td>Drag Origin</td><td>Enable origin dragging</td></tr>
+<tr><td>Ctrl+E</td><td>Export Bitmap</td><td>Export the current image to a bitmap file</td></tr>
+<tr><td>Ctrl+Shift+E</td><td>Export All</td><td>Export all snapshots</td></tr>
+<tr><td>Shift+F</td><td>Patch Full</td><td>Loading a patch affects all settings</td></tr>
+<tr><td>Shift+G</td><td>Patch Geometry</td><td>Loading a patch affects geometry only</td></tr>
+<tr><td>Shift+I</td><td>MIDI Setup</td><td>Show or hide the MIDI setup dialog</td></tr>
+<tr><td>Ctrl+J</td><td>Cycle Video</td><td>Cycle video clips in sync with tempo</td></tr>
+<tr><td>Ctrl+L</td><td>Load Snapshot</td><td>Restore one or more captured images</td></tr>
+<tr><td>Shift+L</td><td>Playlist</td><td>Show or hide the playlist dialog</td></tr>
+<tr><td>Ctrl+M</td><td>View Mix</td><td>View crossfader mix</td></tr>
+<tr><td>Shift+M</td><td>Master Speed</td><td>Show or hide the master speed dialog</td></tr>
+<tr><td>Ctrl+N</td><td>New</td><td>Create a new patch</td></tr>
+<tr><td>Shift+N</td><td>Numbers</td><td>Show or hide the numbers dialog</td></tr>
+<tr><td>Ctrl+Shift+N</td><td>Playlist New</td><td>Create a new playlist</td></tr>
+<tr><td>Ctrl+O</td><td>Open</td><td>Open an existing document</td></tr>
+<tr><td>Shift+O</td><td>Options</td><td>Show the options dialog</td></tr>
+<tr><td>Ctrl+Shift+O</td><td>Playlist Open</td><td>Open an existing playlist</td></tr>
+<tr><td>Ctrl+P</td><td>Print</td><td>Print the current image</td></tr>
+<tr><td>Shift+P</td><td>Parameters</td><td>Show or hide the parameters dialog</td></tr>
+<tr><td>Ctrl+R</td><td>Record Movie</td><td>Record a movie</td></tr>
+<tr><td>Shift+R</td><td>Random Origin</td><td>Enable random origin</td></tr>
+<tr><td>Ctrl+Shift+R</td><td>Video Random Origin</td><td>Randomize video origin when mirrored</td></tr>
+<tr><td>Ctrl+S</td><td>Save</td><td>Save the current patch</td></tr>
+<tr><td>Shift+S</td><td>Make Patch</td><td>Save the current mix as a new patch</td></tr>
+<tr><td>Ctrl+Shift+S</td><td>Playlist Save</td><td>Save the current playlist</td></tr>
+<tr><td>Ctrl+T</td><td>Take Snapshot</td><td>Capture the current image</td></tr>
+<tr><td>Ctrl+V</td><td>Paste</td><td>Insert Clipboard contents</td></tr>
+<tr><td>Shift+V</td><td>Print Preview</td><td>Display full pages</td></tr>
+<tr><td>Backspace</td><td>Reverse</td><td>Grow rings inward</td></tr>
+<tr><td>Alt+Backspace</td><td>Undo</td><td>Undo the last action</td></tr>
+<tr><td>Shift+Backspace</td><td>Step Backward</td><td>Step rings backward</td></tr>
+<tr><td>Num Del</td><td>Video Off</td><td>Disable video</td></tr>
+<tr><td>Delete</td><td>Clear</td><td>Clear window</td></tr>
+<tr><td>Shift+Delete</td><td>Cut</td><td>Cut the selection and put it on the Clipboard</td></tr>
+<tr><td>Down</td><td>Less Damping</td><td>Decrease damping</td></tr>
+<tr><td>Ctrl+Down</td><td>Shorter Crossfade</td><td>Decrease crossfade time</td></tr>
+<tr><td>End</td><td>Last</td><td>Go to last item</td></tr>
+<tr><td>Esc</td><td>Panic</td><td>Restore default settings</td></tr>
+<tr><td>F1</td><td>Help</td><td>List Help topics</td></tr>
+<tr><td>F10</td><td>Random Patch</td><td>Generate a random patch from crossfader inputs</td></tr>
+<tr><td>F11</td><td>Full Screen</td><td>Toggle full screen mode</td></tr>
+<tr><td>Ctrl+F11</td><td>Veejay</td><td>Toggle live performance mode</td></tr>
+<tr><td>F12</td><td>Auto Fade</td><td>Start/stop automated crossfade</td></tr>
+<tr><td>Shift+F12</td><td>Loop</td><td>Enable/disable looping of automated crossfade</td></tr>
+<tr><td>F2</td><td>Loop Hue</td><td>Limit hue cycling</td></tr>
+<tr><td>F3</td><td>Rotate Hue</td><td>Rotate hue 90 degrees</td></tr>
+<tr><td>F4</td><td>Invert Color</td><td>Invert color</td></tr>
+<tr><td>F5</td><td>Mirror</td><td>Mirror image</td></tr>
+<tr><td>F6</td><td>Fill</td><td>Fill area between rings</td></tr>
+<tr><td>Shift+F6</td><td>Invert Fill</td><td>Toggle fill for all rings</td></tr>
+<tr><td>F7</td><td>Outline</td><td>Outline filled rings</td></tr>
+<tr><td>Shift+F7</td><td>Invert Outline</td><td>Toggle outline for all rings</td></tr>
+<tr><td>F8</td><td>X-Ray</td><td>Draw rings with XOR pen</td></tr>
+<tr><td>Shift+F8</td><td>Invert X-Ray</td><td>Toggle XOR pen for all rings</td></tr>
+<tr><td>F9</td><td>Random Phase</td><td>Randomize modulator phases</td></tr>
+<tr><td>Home</td><td>First</td><td>Go to first item</td></tr>
+<tr><td>Shift+Home</td><td>Rewind Video</td><td>Automatically rewind clips before playing them</td></tr>
+<tr><td>Ctrl+Insert</td><td>Copy</td><td>Copy the selection and put it on the Clipboard</td></tr>
+<tr><td>Shift+Insert</td><td>Paste</td><td>Insert Clipboard contents</td></tr>
+<tr><td>Left</td><td>Next Patch A</td><td>Load playlist's next patch into crossfader input A</td></tr>
+<tr><td>Page Down</td><td>Next</td><td>Go to next item</td></tr>
+<tr><td>Num 0</td><td>Clip 0</td><td>Select video clip 0</td></tr>
+<tr><td>Ctrl+Num 0</td><td>ROP DSna</td><td>AND inverted source with destination</td></tr>
+<tr><td>Alt+Num 0</td><td>Cycle 10</td><td>Cycle most recent 10 video clips</td></tr>
+<tr><td>Num 1</td><td>Clip 1</td><td>Select video clip 1</td></tr>
+<tr><td>Ctrl+Num 1</td><td>ROP DSno</td><td>OR inverted source with destination</td></tr>
+<tr><td>Alt+Num 1</td><td>Cycle 1</td><td>Cycle most recent 1 video clips</td></tr>
+<tr><td>Num 2</td><td>Clip 2</td><td>Select video clip 2</td></tr>
+<tr><td>Ctrl+Num 2</td><td>ROP SDna</td><td>AND source with inverted destination</td></tr>
+<tr><td>Alt+Num 2</td><td>Cycle 2</td><td>Cycle most recent 2 video clips</td></tr>
+<tr><td>Num 3</td><td>Clip 3</td><td>Select video clip 3</td></tr>
+<tr><td>Ctrl+Num 3</td><td>ROP SDno</td><td>OR source with inverted destination</td></tr>
+<tr><td>Alt+Num 3</td><td>Cycle 3</td><td>Cycle most recent 3 video clips</td></tr>
+<tr><td>Num 4</td><td>Clip 4</td><td>Select video clip 4</td></tr>
+<tr><td>Ctrl+Num 4</td><td>ROP DSa</td><td>AND source with destination</td></tr>
+<tr><td>Alt+Num 4</td><td>Cycle 4</td><td>Cycle most recent 4 video clips</td></tr>
+<tr><td>Num 5</td><td>Clip 5</td><td>Select video clip 5</td></tr>
+<tr><td>Ctrl+Num 5</td><td>ROP DSo</td><td>OR source with destination</td></tr>
+<tr><td>Alt+Num 5</td><td>Cycle 5</td><td>Cycle most recent 5 video clips</td></tr>
+<tr><td>Num 6</td><td>Clip 6</td><td>Select video clip 6</td></tr>
+<tr><td>Ctrl+Num 6</td><td>ROP DSx</td><td>XOR source with destination</td></tr>
+<tr><td>Alt+Num 6</td><td>Cycle 6</td><td>Cycle most recent 6 video clips</td></tr>
+<tr><td>Num 7</td><td>Clip 7</td><td>Select video clip 7</td></tr>
+<tr><td>Ctrl+Num 7</td><td>ROP DSan</td><td>AND source with destination, invert result</td></tr>
+<tr><td>Alt+Num 7</td><td>Cycle 7</td><td>Cycle most recent 7 video clips</td></tr>
+<tr><td>Num 8</td><td>Clip 8</td><td>Select video clip 8</td></tr>
+<tr><td>Ctrl+Num 8</td><td>ROP DSon</td><td>OR source with destination, invert result</td></tr>
+<tr><td>Alt+Num 8</td><td>Cycle 8</td><td>Cycle most recent 8 video clips</td></tr>
+<tr><td>Num 9</td><td>Clip 9</td><td>Select video clip 9</td></tr>
+<tr><td>Ctrl+Num 9</td><td>ROP DSxn</td><td>XOR source with destination, invert result</td></tr>
+<tr><td>Alt+Num 9</td><td>Cycle 9</td><td>Cycle most recent 9 video clips</td></tr>
+<tr><td>Page Up</td><td>Previous</td><td>Go to previous item</td></tr>
+<tr><td>Enter</td><td>Tempo Resync</td><td>Resynchronize tempo</td></tr>
+<tr><td>Shift+Enter</td><td>Step Forward</td><td>Step rings forward</td></tr>
+<tr><td>Right</td><td>Next Patch B</td><td>Load playlist's next patch into crossfader input B</td></tr>
+<tr><td>Space</td><td>Pause</td><td>Freeze current frame</td></tr>
+<tr><td>Shift+Space</td><td>Step</td><td>Step forward one frame at a time</td></tr>
+<tr><td>Up</td><td>More Damping</td><td>Increase damping</td></tr>
+<tr><td>Ctrl+Up</td><td>Longer Crossfade</td><td>Increase crossfade time</td></tr>
+<tr><td>Shift+W</td><td>Window Zoom</td><td>Enable window-centered zoom</td></tr>
+<tr><td>Ctrl+X</td><td>Cut</td><td>Cut the selection and put it on the Clipboard</td></tr>
+<tr><td>Shift+X</td><td>Crossfader</td><td>Show or hide the crossfader dialog</td></tr>
+<tr><td>Ctrl+Z</td><td>Undo</td><td>Undo the last action</td></tr>
+<tr><td>Shift+Z</td><td>Zero Controllers</td><td>Reset all MIDI controllers to zero</td></tr>
+<tr><td>[</td><td>Tempo Half</td><td>Divide current tempo by two</td></tr>
+<tr><td>\</td><td>Convex</td><td>Draw rings in descending size order</td></tr>
+<tr><td>]</td><td>Tempo Double</td><td>Multiply current tempo by two</td></tr>
+<tr><td>_</td><td>Tempo Nudge Down</td><td>Decrease tempo by nudge percentage</td></tr>
+</table>
+
+<a name="Playlist_Shortcuts"><h2>Playlist Shortcuts</h2></a>
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>Ctrl+A</td><td>Select All</td><td>Select the entire playlist</td></tr>
+<tr><td>Ctrl+C</td><td>Copy</td><td>Copy the selection and put it on the Clipboard</td></tr>
+<tr><td>Ctrl+N</td><td>Playlist New</td><td>Create a new playlist</td></tr>
+<tr><td>Ctrl+O</td><td>Playlist Open</td><td>Open an existing playlist</td></tr>
+<tr><td>Ctrl+S</td><td>Playlist Save</td><td>Save the current playlist</td></tr>
+<tr><td>Ctrl+V</td><td>Paste</td><td>Insert Clipboard contents</td></tr>
+<tr><td>Delete</td><td>Delete</td><td>Delete the current selection</td></tr>
+<tr><td>Insert</td><td>Insert Patch</td><td>Insert one or more patches into the playlist</td></tr>
+<tr><td>Ctrl+X</td><td>Cut</td><td>Cut the selection and put it on the Clipboard</td></tr>
+</table>
+
+</body></html>

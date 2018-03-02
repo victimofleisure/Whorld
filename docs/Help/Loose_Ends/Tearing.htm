@@ -1,0 +1,10 @@
+<title>Tearing</title>
+<body>
+
+<h3>Tearing</h3>
+
+<p>Tearing is a distracting visual artifact. It typically looks like horizontal lines running up and down the image. Tearing occurs if the display is refreshed while the CPU is in the middle of writing a new frame to the graphics hardware. At that moment, both the old and new frames are partially visible, and if they differ (as is likely), the eye perceives a discontinuity (a tear) in the image.
+
+<p>Tearing can be prevented by using <a href="../Modes/Veejay_Mode.htm">Veejay mode</a> to make the image full-screen; this causes Whorld to use DirectDraw's Exclusive mode, which synchronizes access to the graphics hardware. Note that both DirectDraw and Exclusive mode must be enabled; see <a href="../Options/Display/DirectDraw.htm">DirectDraw</a> options. In normal windowed and full-screen modes, tearing is unavoidable.
+
+</body>

@@ -1,0 +1,21 @@
+<title>Interpolation</title>
+<body>
+
+<h3>Interpolation</h3>
+
+<p>Interpolation is a type of mixing, but it's different from audio or video mixing: it's similar to "tweening" in animation, which is shorthand for "generating in-between values." In Whorld, the <a href="../Crossfader/Crossfader_dialog.htm">crossfader</a> is used to interpolate between two <a href="../Patches/Patches.htm">patches</a>. The interpolation affects the <a href="../Parameters/Parameters.htm">parameters</a> and their <a href="../Patches/Oscillators.htm">oscillators</a>, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Variable</th><th>Interpolation</th></tr>
+<tr><td>Parameter</td><td>Linear</td></tr>
+<tr><td>Oscillator Waveform</td><td>Switches halfway</td></tr>
+<tr><td>Oscillator Amplitude</td><td>Linear</td></tr>
+<tr><td>Oscillator Frequency</td><td>Linear</td></tr>
+<tr><td>Oscillator Pulse Width</td><td>Linear</td></tr>
+</table>
+
+<p>Each variable has a value in patch 'A', and a corresponding value in patch 'B'. If the two values are the same, crossfading has no effect on that variable. Otherwise, moving the crossfader from left to right changes the variable continuously from its 'A' value to its 'B' value, such that the variable is halfway between its 'A' and 'B' values when the crossfader is in middle. This is <em>linear</em> interpolation, and it's used for all variables except the <a href="../Patches/Waveforms.htm">waveforms</a>. The waveforms don't change continuously: they switch from their 'A' value to their 'B' value when the crossfader reaches the middle.
+
+<p>For example, if <a href="../Parameters/Ring_Spacing.htm">Ring Spacing</a> is 5 in patch A, and 10 in patch B, the output Ring Spacing will be 7.5 when the crossfader is in the middle.
+
+</body>

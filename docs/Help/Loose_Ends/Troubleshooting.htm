@@ -1,0 +1,67 @@
+<title>Troubleshooting</title>
+<body>
+
+<h3>Troubleshooting</h3>
+
+<dl>
+
+<dt>Horizontal lines are running up and down the image.
+<dd>This is <a href="../Loose_Ends/Tearing.htm">tearing</a>. The only solution is to use <a href="../Modes/Veejay_Mode.htm">Veejay mode</a>; ordinary full-screen mode won't fix it.
+
+<dt>The image flickers on a laptop or flat-panel display.
+<dd>Try using <a href="../Modes/Veejay_Mode.htm">Veejay mode</a>. If that doesn't help, turn off any fluorescent lights, and try changing the <a href="../Options/Display/Frame_rate.htm">Frame Rate</a>. To isolate the problem, hook up an external monitor (a CRT, not a flat-panel) and see if the flicker goes away.
+
+<dt>Whorld is non-responsive.
+<dd>Try pressing <a href="../Loose_Ends/Panic.htm">Panic</a> (<span class="key">Esc</span>). If that works, it's a <a href="../Loose_Ends/Performance.htm">performance</a> problem; get a better computer, or avoid using features that cause trouble. Otherwise, it could be a bug.
+
+<dt>The animation slows down, or gets jerky or stuck.
+<dd>See above.
+
+<dt>The origin moves slowly, or gets stuck.
+<dd>If the animation is OK, most likely <a href="../Master_Controls/Damping.htm">Damping</a> is set too high. If the animation is also slow or stuck, see above.
+
+<dt>The image is frozen.
+<dd>You might be in <a href="../Modes/Pause.htm">Pause</a>: try pressing <span class="key">Space</span>. Also <a href="../Master_Controls/Speed.htm">Master Speed</a> or <a href="../Parameters/Ring_Growth.htm">Ring Growth</a> could be zero, otherwise it could be a <a href="../Loose_Ends/Performance.htm">performance</a> problem.
+
+<dt>Editing parameters doesn't affect the image.
+<dd>You're probably viewing the crossfader mix instead of the document; see <a href="../Modes/View_Mix.htm">View Mix</a>. It also could be you're inadvertently editing something other than the document; see <a href="../Patches/Edit_Selection.htm">Edit Selection</a>.
+
+<dt>The cursor disappeared.
+<dd>This is normal behavior in <a href="../Modes/Origin_Motion.htm">Drag Origin</a> mode. Press <span class="key">Shift+D</span> or <span class="key">Esc</span> to make it reappear.
+
+<dt>The origin is jumping around by itself.
+<dd>You're in <a href="../Modes/Origin_Motion.htm">Random Origin</a> mode. Use <span class="cmd">Image/Origin/Random</span> (<span class="key">Shift+R</span>) to stop it.
+
+<dt>Whorld is switching to different patches by itself.
+<dd>You're in <a href="../Playlists/Autoplay.htm">Autoplay</a> mode, or possibly <a href="../Modes/Demo_Mode.htm">Demo Mode</a>.
+
+<dt>The colors aren't cycling anymore.
+<dd>You've created a <a href="../Color/Loop_Hue.htm">hue loop</a>; use <span class="cmd">Image/Loop Hue</span> (<span class="key">F2</span>) to clear it.
+
+<dt>Increasing Lightness makes the image darker.
+<dd>You're in <a href="../Color/Invert_Color.htm">Invert Color</a> mode; use <span class="cmd">Image/Invert/Color</span> (<span class="key">F4</span>) to reset it.
+
+<dt>The rings are contracting, but Ring Growth is positive.
+<dd>You're in <a href="../Effects/Reverse.htm">Reverse</a> mode; use <span class="cmd">Image/Reverse</span> (<span class="key">Backspace</span>) to switch direction.
+
+<dt>My MIDI controller is connected, but nothing's happening.
+<dd>You must select your MIDI device, via the <a href="../Options/MIDI/MIDI_device.htm">MIDI device</a> setting in the Options dialog. Also you must assign properties to your controllers; see <a href="../MIDI/MIDI_Setup.htm">MIDI setup</a>.
+
+<dt>The scroll lock LED is flashing.
+<dd>This indicates that you're recording a <a href="../Movies/Movies.htm">movie</a>. Use <span class="cmd">File/Movie/Record</span> or <span class="key">Ctrl+R</span> to stop. If it was unintentional, you might want to delete the movie, because movies can be very large.
+
+<dt>I lost some changes I made to my playlist.
+<dd>The main menu's <span class="cmd">File/Save</span> (<span class="key">Ctrl+S</span>) saves the current patch, not the current <a href="../Playlists/Playlists.htm">playlist</a>. To save the playlist, use <span class="cmd">File/Playlist/Save</span>, or <span class="cmd">File/Save</span> from the playlist dialog's menus.
+
+<dt>I saved some files and now I can't find them.
+<dd>They could be in the <a href="../Options/Folder/Default_output_folder.htm">default output folder</a>.
+
+<dt>I get a DirectDraw error.
+<dd>Make sure you have DirectX 8.1 or higher installed; you can check this by running dxdiag from the Windows Run prompt. In Display Properties (Control Panel/Display), select Settings, Advanced, Troubleshooting, and make sure the hardware acceleration slider is set to "Full". Also make sure you're using High color (16-bit) or True color (32-bit). If it's an older PC, try upgrading the graphics card.
+
+<dt>I have some problem that's not addressed above.
+<dd>Try viewing the <a href="../Modes/Demo_Mode.htm">demo</a>; if that works, there could be something wrong with one of your patches, or your playlist. Otherwise, try resetting all options: open the Options dialog (<span class="cmd">View/Options</span> or <span class="key">Shift+O</span>), press the "Reset All" button, and then exit Whorld and restart it.
+
+</dl>
+
+</body>

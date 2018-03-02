@@ -1,0 +1,26 @@
+<title>Color Model</title>
+<body>
+
+<h3>Color Model</h3>
+
+<p>Whorld uses the HLS color model, which stands for Hue, Lightness, Saturation. HLS organizes the visible spectrum into a double cone, with the two cones joined at their bases and pointing north and south respectively. Black is at the tip of the south cone; white is at the tip of the north cone. The vertical axis is lightness; distance from the center is saturation; angle is hue.
+
+<p><img src="../images/HLS.gif">
+
+<p>The model can be viewed in cross-section as a series of discs which increase in diameter until they reach the middle, and then decrease again. Each disc corresponds to a level of lightness. At each level, fully saturated colors occur on the rim of the corresponding disc. Movement within the color model can be summarized as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Hue change</td><td>Moving clockwise or counterclockwise, while maintaining a constant radius.</td>
+</tr><tr>
+<td>Saturation change</td><td>Moving towards or away from the center, while maintaining a constant angle.</td>
+</tr><tr>
+<td>Lightness change</td><td>Moving to a higher or lower disc.</td>
+</tr>
+</table>
+
+<p>The center of any disc is a pure gray; if a straight line is drawn from black to white, through the center of the model, all pure grays lie along this line. The middle disc contains the largest number of colors, and the pure primaries and secondaries occur on the rim of the middle disc, at 60° intervals.
+
+<p>The values are normalized as follows: lightness ranges from 0 (black) to 1 (white), with middle gray at .5; saturation ranges from 0 (monochrome) to 1 (full saturation); hue ranges from 0 to 360, with red at 0°, yellow at 60°, green at 120°, etc. Note that at saturation = 0, hue is irrelevant, and at lightness = 0 or lightness = 1, both saturation AND hue are irrelevant.
+
+</body>

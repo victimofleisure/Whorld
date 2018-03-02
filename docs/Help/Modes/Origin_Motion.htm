@@ -1,0 +1,43 @@
+<title>Origin Motion</title>
+<body>
+
+<h3>Origin Motion</h3>
+
+<p>The origin is the center of the Whorld image. It's the point from which the rings emanate, or in <a href="../Effects/Reverse.htm">Reverse</a>, the point towards which they converge. The origin can move, and the types of motion are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>None</td>
+<td>The origin stays put.</td>
+</tr><tr>
+<td>Drag</td>
+<td>The origin follows the mouse.</td>
+</tr><tr>
+<td>Random</td>
+<td>The origin jumps to random locations.</td>
+</tr></table>
+
+<p>In Random mode, the jumps occurs at evenly spaced intervals, and the time between jumps is determined by the <a href="../Master_Controls/Tempo.htm">tempo</a>. The tempo can be entered manually, via the Master dialog's tempo slider, or by tapping the <span class="key">Tab</span> key along with the beat (see <a href="../Loose_Ends/Tap_Tempo.htm">tap tempo</a>). The tempo can also be synchronized to <a href="../Options/MIDI/MIDI_sync.htm">MIDI clocks</a>.
+
+<p>Origin motion can be enabled via <span class="cmd">Image/Origin</span> or the toolbar, using the commands listed below. In <a href="../Modes/Veejay_Mode.htm">Veejay mode</a>, <span class="key">F1</span> toggles between drag and random.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Center</td>
+<td>Shift+C</td>
+<td>Stops the origin and centers it within the window.</td>
+</tr><tr>
+<td>Drag</td>
+<td>Shift+D</td>
+<td>Enables drag, or if it's already enabled, disables it.</td>
+</tr><tr>
+<td>Random</td>
+<td>Shift+R</td>
+<td>Enables random, or if it's already enabled, disables it.</td>
+</tr></table>
+
+<p>Origin motion is affected by <a href="../Master_Controls/Damping.htm">damping</a>. Damping controls how precisely the origin tracks new positions, whether drag-generated or random. When damping is zero, the origin tracks precisely. As damping increases, the origin lags behind new positions, and catches up gradually, slowing down as it gets closer.
+
+<p>Origin motion is also affected by <a href="../Master_Controls/Trail.htm">trail</a>. Trail determines whether the rings stay together, or spread themselves out. When trail is zero, the rings stay together; as trail increases, rings further from the origin lag behind, creating a slinky effect. When trail is at maximum, rings don't move from their birth positions.
+
+</body>

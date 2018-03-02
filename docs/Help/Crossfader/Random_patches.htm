@@ -1,0 +1,12 @@
+<title>Random patches</title>
+<body>
+
+<h3>Random patches</h3>
+
+<p>The crossfader can be used to generate random patches. Inputs 'A' and 'B' are <em>hybridized</em>, creating a new patch with a random mix of attributes from both inputs. The result is output to the crossfader mix. Note that the result will not be visible unless <a href="../Modes/View_Mix.htm">View Mix</a> is enabled. To generate a random patch, use <span class="cmd">Edit/Random Patch</span> or <span class="key">F10</span>. To save the patch, use <span class="cmd">File/Save Mix</span> or <span class="key">Shift+S</span>. Until the patch is saved, be careful not to change the crossfader position, otherwise the patch will be overwritten.
+
+<p>The process affects the <a href="../Parameters/Parameters.htm">parameters</a> and their <a href="../Patches/Oscillators.htm">oscillators</a>, in a manner similar to <a href="../Crossfader/Interpolation.htm">interpolation</a>. Each variable has a value in patch 'A', and a corresponding value in patch 'B'. If the two values are the same, that variable is unaffected. Otherwise, the variable's output value is a random number somewhere between the two input values. In effect, only the <em>differences</em> between the two inputs are randomized, which means that the more similar the inputs are, the less random the results will be.
+
+
+
+</body>

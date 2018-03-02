@@ -1,0 +1,54 @@
+<title>Movie Export dialog</title>
+<body>
+
+<h3>Movie Export dialog</h3>
+
+<dl>
+
+<dt>Input size
+<dd>This is the original frame size of the recorded movie. If this size isn't correct, it can be repaired; see <a href="../Movies/Resizing_movies.htm">resizing movies</a>.
+
+<dt>Output size
+<dd>This is the output frame size. The standard options are 320 x 240 and 640 x 480. To specify a different size, select "Custom". The frames are either cropped or scaled, depending on the Resizing option (see below).
+
+<dt>Width
+<dd>This is the width of the output frame in pixels. It's only enabled when the Output size is "Custom".
+
+<dt>Height
+<dd>This is the height of the output frame in pixels. It's is only enabled when the Output size is "Custom".
+
+<dt>Resizing
+<dd>This option determines the resizing method. The methods are as follows:
+
+<p><dl>
+
+<dt>Crop
+<dd>The frames are cropped to the output size. If the output size is bigger than the input size, previously hidden portions of the frames may become visible; if the output size is smaller, portions of the frames are cut away or "cropped".
+<dt>Scale to fit
+<dd>The frames are scaled up or down to the output size, without changing the cropping. If the output size is bigger than the input size, nothing is lost, but if the output size is smaller, details may be obscured. The scaling is <em>isotropic</em>, i.e. the original ratio of width to height is preserved.
+</dl><br>
+
+<dt>Input frame rate
+<dd>This is the <a href="../Options/Display/Frame_rate.htm">frame rate</a> at which the movie was originally recorded. It can't be changed.
+
+<dt>Output frame rate
+<dd>This is the frame rate of the output file. It should normally be the same as the input frame rate. Setting it to a different value causes the output file to appear speeded up or slowed down. In effect you're lying to whatever software plays the file, by telling it the movie was recorded at a different frame rate than it actually was. Note that as of version 1.6, the output frame rate can be fractional, so for NTSC you can specify 29.97 instead of 30.
+
+<dt>Input length
+<dd>This is the original length of the recorded movie. It can't be changed.
+
+<dt>Output length
+<dd>This is the length of the output movie. It reflects changes to the output frame rate and the frame range.
+
+<dt>Frame range
+<dd>If this is set to "All", the entire movie is exported. If it's set to "Subset", only the range defined by First frame and Last frame is exported.
+
+<dt>Export bitmaps
+<dd>If checked, the export creates a numbered sequence of bitmaps instead of an AVI file. The bitmaps are created in the same folder that the AVI file would have been created in.
+
+<dt>Display output frames
+<dd>If checked, the output frames are displayed in the main window as they're being exported. The export may run faster if this option is unchecked.
+
+</dl>
+
+</body>

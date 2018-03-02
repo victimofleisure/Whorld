@@ -1,0 +1,14 @@
+<title>Master Offsets</title>
+<body>
+
+<h3>Master Offsets</h3>
+
+<p>Each <a href="../Parameters/Parameters.htm">parameter</a> has a <em>master offset</em> associated with it. The master offset is <em>added</em> to its corresponding parameter, and shifts it by some amount, which can be positive, negative, or zero. If the parameter is being modulated by an <a href="../Patches/Oscillators.htm">oscillator</a>, the master offset shifts the modulated value.
+
+<p>Master offsets are applied after all other processing, just before the frame is drawn, and they affect the animation at all times, regardless of what <a href="../Patches/Patches.htm">patch</a> is loaded, and regardless of whether you're <a href="../Modes/View_Mix.htm">viewing</a> the document or the mix. For a schematic, see <a href="../Modes/Signal_Flow.htm">Signal Flow</a>.
+
+<p>The master offsets can be edited via the <a href="../Patches/Parameters_dialog.htm">parameters dialog</a>; to do this, set the <a href="../Patches/Edit_Selection.htm">edit selection</a> to "Master Offsets". The master offsets can also be changed via MIDI: when a controller is <a href="../MIDI/MIDI_Setup.htm">assigned</a> to a parameter, it actually modifies the parameter's master offset. To zero all of the master offsets at once, use <span class="cmd">Edit/Zero Controllers</span> or <span class="key">Shift+Z</span>.
+
+<p>Master offsets are saved as part of the <a href="../Playlists/Playlists.htm">playlist</a>. If any master offsets are non-zero while you're editing a patch, the patch may not look the same when it's inserted into a different playlist. To avoid confusion, keep master offsets zero while editing patches. To save the current mix as a new patch, including the master offsets, use <span class="cmd">File/Save Mix</span> or <span class="key">Shift+S</span>.
+
+</body>

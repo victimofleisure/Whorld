@@ -1,0 +1,12 @@
+<title>X-Ray</title>
+<body>
+
+<h3>X-Ray</h3>
+
+<p>This effect causes rings to appear translucent, by drawing them in a special mode. Normally when an image is drawn, the corresponding pixels of video memory are simply overwritten; whatever image they previously contained is lost. In X-Ray mode, the pixels are modified, instead of being overwritten: the new image is superimposed onto the background, so that the background has transformed colors, but remains visible.
+
+<p>To enable/disable X-Ray for new rings only, use <span class="cmd">Image/X-Ray</span> or <span class="key">F8</span>. Since existing rings are unaffected, the change occurs gradually. To enable/disable outlining for both new and existing rings, use <span class="cmd">Image/Invert/X-Ray</span> or <span class="key">Shift+F8</span>.
+
+<p>The X-Ray effect depends entirely on your graphics card's support for XOR operations (eXclusive OR is an operation in boolean math). Note that X-Ray requires the video memory to be read as well as written, and can therefore greatly increase graphics overhead, particularly when combined with <a href="../Effects/Fill.htm">fill</a>, <a href="../Effects/Outline.htm">outline</a>, and <a href="../Parameters/Line_Width.htm">wide lines</a>; see <a href="../Loose_Ends/Performance.htm">performance</a>. Using X-Ray with fill but without <a href="../Effects/Mirror.htm">mirroring</a> can make the application unresponsive. If this occurs, try pressing <a href="../Loose_Ends/Panic.htm">Panic</a> (<span class="key">Esc</span>). In this specific case it may help to locate the back buffer in system memory, rather than video memory; see the <a href="../Options/Display/DirectDraw.htm">DirectDraw</a> options.
+
+</body>

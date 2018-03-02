@@ -1,0 +1,16 @@
+<title>Encoding videos</title>
+<body>
+
+<h3>Encoding videos</h3>
+
+<p>Videos must be AVI files with 16-bit, 24-bit or 32-bit color depth; 8-bit files are not supported. For optimal performance, the videos should have the same color depth as your display mode, i.e. if your display is configured for 24-bit color, your videos should also have 24-bit color. It's also recommended to use a standard frame size, e.g. 320 x 240 or 640 x 480.
+
+<p>The frame rates of the videos are ignored. Videos are always displayed at Whorld's <a href="../Options/Display/Frame_rate.htm">frame rate</a>; frames are never dropped or added. If the videos have different frame rates than Whorld's, they will play faster or slower than expected. To avoid this, encode at Whorld's frame rate, or change Whorld's frame rate to match the videos.
+
+<p>Since Whorld doesn't support audio, the videos needn't contain audio streams. Eliminating audio can reduce the size of your videos by as much as 20%, and may substantially improve performance. If you're ripping from DVD to VOBs, and then using VirtualDubMod to export AVI files from the VOBs, it's easier to eliminate audio during ripping; e.g. in DVD Decrypter, use IFO mode, enable Stream Processing, and uncheck the audio stream(s).
+
+<p>You'll need to experiment to determine an optimal bit rate, since this depends on various factors including your hardware, which codec you use, and how you set the codec. Excessive bit rates will cause jerky animation, particularly if the CPU is already overloaded due to <a href="../Loose_Ends/Performance.htm">other factors</a>. Good results were achieved on the <a href="../Getting_Started/Requirements.htm">recommended hardware</a> by encoding at 640 x 480, 24-bit color, and 25 FPS, using XVID 1.1.0 with the default settings. The source material was DVD VOBs with the audio removed, as described above. The output AVIs had bit rates in the range of 100 to 500 kbps.
+
+<p>Most codecs use temporal compression, i.e. they only store the differences between consecutive frames, and this can cause problems, particularly with <a href="../Video_Overlay/Linked_videos.htm">linked videos</a>. Performance may be improved by avoiding temporal compression, either by making every frame a key frame, or by using a codec that doesn't do temporal compression, e.g. MJPEG. Note however that this is a trade-off, since the resulting video files may be considerably larger. Playing video without temporal compression typically requires less CPU power, but more disk bandwidth.
+
+</body>

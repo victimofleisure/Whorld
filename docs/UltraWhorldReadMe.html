@@ -1,0 +1,303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>UltraWhorld Freeframe ReadMe</title>
+<meta content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<link href="./style.css" rel=stylesheet title=default type=text/css>
+</head>
+<body>
+<div class=menu>
+<a href="./index.html"><img src="./images/whorld-icon-32x32.gif" width="32" height="32" alt="icon"></a>
+<div class=title>Whorld</div><p>
+<div class=menuitem0 title="Overview"><a href="./index.html">Home</a></div>
+<div class=menuitem0 title="Movies"><a href="./movies.html">Movies</a></div>
+<div class=menuitem0 title="Gallery"><a href="./gallery/trail.html">Gallery</a></div>
+<div class=menuitem0 title="Screenshots"><a href="./screenshots.html">Screenshots</a></div>
+<div class=menuitem0 title="Features"><a href="./features.html">Features</a></div>
+<div class=menuitem0 title="Download"><a href="./download.html">Download</a></div>
+<div class=menuitem0 title="Documentation"><a href="./helpframe.html">Documentation</a></div>
+<div class=menuitem0 title="Development"><a href="./development.html">Development</a></div>
+<div class=menuitem0 title="Forums"><a href="./forums.html">Forums</a></div>
+<div class=menuitem0 title="Links"><a href="./links.html">Links</a></div>
+<div class=menuitem0 title="Contact"><a href="./contact.html">Contact</a></div><br>
+<div class=images><br><a href="http://sourceforge.net/donate/index.php?group_id=147011"><img src="./images/project-support.jpg" width="88" height="32" border="0" alt="Support This Project"></a></div>
+<div class=images><br><a href="http://sourceforge.net/"><img src="./images/sflogo.png" width="88" height="31" alt="SourceForge Logo"></a></div>
+</div>
+<div id=body>
+<!--  content goes HERE  -->
+
+<h2>UltraWhorld Freeframe Plugin</h2>
+
+<p>UltraWhorld is an enhanced version of the original Whorld Freeframe
+plugin (<a href="WhorldFFReadMe.html">WhorldFF</a>).  
+The main enhancement is that UltraWhorld exposes
+nearly all of the Whorld application's parameters and switches.  This
+allows you to run Whorld from within your favorite VJ application, 
+without sacrificing the Whorld application's extensive real-time 
+controls; in short, the best of both Whorlds.  :) 
+
+<p>UltraWhorld has an unusually large number of Freeframe parameters. 
+Unfortunately some VJ softwares limit the number of parameters a
+Freeframe plugin can expose.  UltraWhorld is most useful with VJ softwares
+that don't limit Freeframe parameters, e.g. 
+<a href="http://ffrend.sourceforge.net">FFRend</a>.
+
+<h3>Installation</h3>
+
+<p>Start by <a href="download.html">downloading the plugin</a>.
+
+<p>Most softwares reserve a special folder for freeframe plugins.  If your
+software does this, simply copy UltraWhorld.dll to the special folder.
+Be sure to do this BEFORE launching your software, since it probably 
+only checks for plugins during startup.  Otherwise, consult your 
+software's documentation.
+
+<p>IMPORTANT: In addition to installing the plugin, you may also want to
+install some Whorld patches.  Use the following procedure:
+
+<ol>
+<li>Find your "My Documents" folder.  If you're unfamiliar with Windows,
+there are various ways to do this.  One reliable way is to go to the
+Start menu, select "Documents", and then select "My Documents".
+<li>In your "My Documents" folder, create a subfolder called WhorldFF.
+The subfolder name must be spelled correctly.  The subfolder's path
+should look something like this (assuming you're the Administrator):
+
+<p>C:\Documents and Settings\Administrator\My Documents\WhorldFF
+
+<li>Copy the patches from this distribution into the WhorldFF
+subfolder.
+</ol>
+
+<h3>Uninstalling</h3>
+
+<p>Just delete UltraWhorld.dll and the Whorld patches, and that's all
+there is to it.
+
+<h3>Playlist Support</h3>
+
+<p>UltraWhorld features the ability to load a Whorld playlist (.whl),
+unlike the original WhorldFF plugin which only loads patches.  There
+are two methods for loading a playlist in UltraWhorld: 
+
+<ol>
+
+<li>Create a special initialization file in "My Documents\WhorldFF" 
+which directs the plugin to your playlist.  The file is plain text, 
+so you can create it using Notepad or any other text editor.  The 
+file MUST be called "UltraWhorld.ini", and it should contain a single 
+line, consisting of the word "Playlist", followed by an equals sign, 
+followed by the absolute path to the desired playlist, like this: 
+
+<p>Playlist=C:\Whatever\MyPlaylist.whl 
+
+<p>Replace C:\Whatever\YourPlaylist.whl with an absolute path to the
+desired playlist.  Do NOT enclose the path in quotes.  It's OK if it
+contains embedded spaces.  
+
+<p>***OR*** 
+
+<li>Copy your playlist to the "My Documents\WhorldFF" folder and then
+rename it to "UltraWhorld.whl".  With this method, the playlist MUST be 
+called "UltraWhorld.whl", otherwise the plugin won't find it.
+
+</ol>
+
+<p>NOTE that first method (.ini file) is preferable, because of a problem
+with the way the Whorld application stores paths in playlists.  If you
+choose to use the second method, you should check UltraWhorld.whl for
+broken links, by opening it in the Whorld application.  If Whorld finds
+broken links, it will give you an opportunity to repair them.  Be sure
+the save the playlist afterwards.  
+
+<p>If UltraWhorld doesn't find a Whorld playlist via one of the above
+methods, it defaults to WhorldFF's behavior, i.e.  it looks for patches
+in the folder "My Documents\WhorldFF" and loads them in alphabetical
+order.  Note that in this case there will only be one bank.  
+
+<h3>Parameters - Notes</h3>
+
+<p>Some of UltraWhorld's parameters are switches, rather than continuous
+controls.  There are two types of switches, boolean and event
+(momentary).  According to the Freeframe specification, 
+
+<dl>
+<dt>boolean
+<dd>0.0 defined as false and anything else defined as true.
+<dt>event
+<dd>Similar to boolean but for a momentary push button style 
+trigger.  1.0 is set momentarily to trigger the event.  
+</dl>
+
+<p>An example of an event is Rotate Hue (90 degrees).  The way it works is
+that the event is triggered when the parameter transitions to the value
+1.0 (from any other value).  To trigger the event twice in a row, set
+the parameter to 1.0, set it to any other value, and then set it to 1.0
+again.  
+
+<p>The last parameter (Save Patch) is a momentary switch which saves the
+current settings as a new Whorld patch.  The resulting patch is saved to
+the folder "My Documents\WhorldFF\Saved".  The filename is synthesized
+from the current date and time.  This feature is handy if you develop a
+cool setting in UltraWhorld and want to use it in the Whorld 
+application too.  
+
+<p>Finally, note that the X and Y position parameters don't do anything
+unless Origin Motion is set to "Drag".  The Origin Motion parameter
+works as follows: 
+
+<dl>
+<dt>0.0 to 1/3
+<dd>Origin is parked: X/Y position parameters do nothing.
+<dt>1/3 to 2/3
+<dd>Origin can be dragged, using X/Y position parameters.
+<dt>2/3 to 1.0
+<dd>Origin makes random jumps, at frequency set by Tempo.
+</dl>
+
+<h3>Parameters - Reference</h3>
+
+<ol>
+
+<p>Master Settings
+
+<li><a href="Help/Playlists/Playing_patches.htm">Bank</a> - Selects a bank in a Whorld playlist.
+<li><a href="Help/Patches/Patches.htm">Patch</a> - Selects a patch from the WhorldFF folder or a Whorld playlist bank.
+<li><a href="Help/Master_Controls/Speed.htm">Speed</a> - Master speed; 0 = min, .5 = nominal, 1 = max.
+<li><a href="Help/Master_Controls/Zoom.htm">Zoom</a> - Magnification; 0 = min, .5 = nominal, 1 = max.
+<li><a href="Help/Color/Color_Model.htm">Hue</a> - Shifts the hues in the entire image; 0 to 360 degrees.
+<li><a href="Help/Master_Controls/Damping.htm">Damping</a> - Applied to origin motion and zoom; 0 = none, 1 = max.
+<li><a href="Help/Master_Controls/Speed.htm">Trail</a> - Slinky effect applied to origin motion; 0 = none, 1 = max.
+<li><a href="Help/Master_Controls/Rings.htm">Rings</a> - Maximum number of rings; 0 = none, 1 = unlimited.
+<li><a href="Help/Master_Controls/Tempo.htm">Tempo</a> - If origin motion is "Random", the jump rate: 0 to 250 BPM.
+<li><a href="Help/Master_Controls/Hue_loop_length.htm">Hue Loop Length</a> - If "Loop Hue" is enabled, loop size in degrees.
+<li><a href="Help/Master_Controls/Canvas_scale.htm">Canvas Scale</a> - Scale of drawing area; 0 = 100%, 1 = 300%.
+<li><a href="Help/Master_Controls/Copies.htm">Copies</a> - Number of copies; 0 = 1, 1 = 20.
+<li><a href="Help/Master_Controls/Spread.htm">Spread</a> - Distance of copies from the origin; 0 to 600 pixels.
+<li><a href="Help/Modes/Origin_Motion.htm">X Position</a> - If origin motion is "Drag", the origin X-coordinate.
+<li><a href="Help/Modes/Origin_Motion.htm">Y Position</a> - If origin motion is "Drag", the origin Y-coordinate.
+
+<p>Geometry <a href="Help/Parameters/Parameters.htm">Parameters</a>
+
+<p>The geometry parameters (Ring Growth, Ring Spacing, etc.) are 
+<a href="Help/Patches/Master_Offsets.htm">Master
+Offsets</a> which are ADDED to the corresponding value from the current
+patch.  Values less than .5 have a negative effect, values greater than
+.5 have a positive effect, and at .5, the parameter is unaffected.  If
+the parameter is being modulated by an oscillator, the master offset 
+shifts the modulated value.
+
+<li><a href="Help/Parameters/Ring_Growth.htm">Ring Growth</a> - How fast rings expand; 0 = max reverse, 1 = max forward.
+<li><a href="Help/Parameters/Ring_Spacing.htm">Ring Spacing</a> - Space between each ring; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Line_Width.htm">Line Width</a> - Width of each ring; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Ring_Sides.htm">Poly Sides</a> - Number of sides each ring has; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Rotate_Speed.htm">Rotate Speed</a> - Amount each ring rotates per frame; 0 = max clockwise, 1 = max counter-clockwise.
+<li><a href="Help/Parameters/Aspect_Ratio.htm">Aspect Ratio</a> - Stretches the rings horizontally or vertically; 0 = max vertical, 1 = max horizontal.
+<li><a href="Help/Parameters/Skew_Radius.htm">Skew Radius</a> - Amount each ring's origin shifts per frame; 0 = max negative, 1 = max positive.
+<li><a href="Help/Parameters/Skew_Angle.htm">Skew Angle</a> - Direction of the per-frame origin shift; 0 = max clockwise, 1 = max counter-clockwise.
+<li><a href="Help/Parameters/Star_Factor.htm">Star Factor</a> - Causes sides of a ring to bulge outward, or collapse inward; 0 = max inward, 1 = max outward.
+<li><a href="Help/Parameters/Pinwheel.htm">Pinwheel</a> - Rotates the points of a star; 0 = max clockwise, 1 = max counter-clockwise.
+<li><a href="Help/Parameters/Color_Speed.htm">Color Speed</a> - How fast the ring hue cycles around the color wheel; 0 = max clockwise, 1 = max counter-clockwise.
+<li><a href="Help/Parameters/Lightness.htm">Lightness</a> - Lightness of the ring color; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Saturation.htm">Saturation</a> - Saturation of the ring color; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Background_Hue.htm">Bk Hue</a> - Background color's hue; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Background_Lightness.htm">Bk Lightness</a> - Background color's lightness; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Background_Saturation.htm">Bk Saturation</a> - Background color's saturation; 0 = min, 1 = max.
+<li><a href="Help/Parameters/Even_Curve.htm">Even Curve</a> - Curvature at even vertices; 0 = max negative, 1 = max positive.
+<li><a href="Help/Parameters/Odd_Curve.htm">Odd Curve</a> - Curvature at odd vertices; 0 = max negative, 1 = max positive.
+
+<p>Miscellaneous Switches
+
+<li><a href="Help/Modes/Patch_mode.htm">Patch Mode</a> (boolean) - If true, patch selection affects geometry parameters only.
+<li><a href="Help/Modes/Origin_Motion.htm">Center Origin</a> (event) - Centers the origin.
+<li><a href="Help/Modes/Origin_Motion.htm">Origin Motion</a> - Selects type of origin motion; 0 = none (park), .5 = drag, 1 = random.
+<li><a href="Help/Color/Loop_Hue.htm">Loop Hue</a> (boolean) - If true, limits hue cycling to a subset of the color wheel.
+<li><a href="Help/Color/Rotate_Hue.htm">Rotate Hue</a> (event) - Rotates hues of both new and existing rings by 90 degrees.
+<li><a href="Help/Color/Invert_Color.htm">Invert Color</a> (boolean) - If true, all colors are inverted.
+<li><a href="Help/Effects/Mirror.htm">Mirror</a> (boolean) - If true, output is quad-mirrored.
+<li><a href="Help/Effects/Fill.htm">Fill</a> (boolean) - If true, rings are filled.
+<li><a href="Help/Effects/Outline.htm">Outline</a> (boolean) - If true, filled rings are outlined in background color.
+<li><a href="Help/Effects/X-Ray.htm">X-Ray</a> (boolean) - If true, rings are drawn in XOR mode.
+<li><a href="Help/Patches/Oscillators.htm">Random Phase</a> (event) - Randomizes modulator phases.
+<li><a href="Help/Effects/Reverse.htm">Reverse</a> (boolean) - If true, rings collapse inward instead of expanding outward.
+<li><a href="Help/Effects/Convex.htm">Convex</a> (boolean) - If true, rings form a convex shape instead of concave one.
+<li><a href="Help/Master_Controls/Rings.htm">Clear</a> (event) - Clears the screen by deleting all rings.
+<li><a href="Help/Master_Controls/Zoom.htm">Zoom Center</a> (boolean) - If true, zooming is relative to center of screen rather than drawing origin.
+<li><a href="Help/Patches/Patches.htm">Save Patch</a> (event) - Saves the current settings as a Whorld patch in "My Documents\WhorldFF\Saved".
+
+<p>More parameters:
+
+<li><a href="Help/Parameters/Even_Shear.htm">Even Shear</a> - Curve asymmetry at even vertices; Even Curve must be nonzero.
+<li><a href="Help/Parameters/Odd_Shear.htm">Odd Shear</a> - Curve asymmetry at odd vertices; Odd Curve must be nonzero.
+
+<p><a href="Help/Parameters/Global_Parameters.htm">Global parameters</a> (they affect all existing rings, not just new ones):
+
+<li>Glob Line Width - Global version of <a href="Help/Parameters/Line_Width.htm">Line Width</a>.
+<li>Glob Poly Sides - Global version of <a href="Help/Parameters/Ring_Sides.htm">Poly Sides</a>.
+<li>Glob Rotation - Global rotation.
+<li>Glob Aspct Ratio - Global version of <a href="Help/Parameters/Aspect_Ratio.htm">Aspect Ratio</a>.
+<li>Glob Skew Radius - Global version of <a href="Help/Parameters/Skew_Radius.htm">Skew Radius</a>.
+<li>Glob Skew Angle - Global version of <a href="Help/Parameters/Skew_Angle.htm">Skew Angle</a>.
+<li>Glob Star Factor - Global version of <a href="Help/Parameters/Star_Factor.htm">Star Factor</a>.
+<li>Glob Pinwheel - Global version of <a href="Help/Parameters/Pinwheel.htm">Pinwheel</a>.
+<li>Glob Even Curve - Global version of <a href="Help/Parameters/Even_Curve.htm">Even Curve</a>.
+<li>Glob Odd Curve - Global version of <a href="Help/Parameters/Odd_Curve.htm">Odd Curve</a>.
+<li>Glob Even Shear - Global version of <a href="Help/Parameters/Even_Shear.htm">Even Shear</a>.
+<li>Glob Odd Shear - Global version of <a href="Help/Parameters/Odd_Shear.htm">Odd Shear</a>.
+
+</ol>
+
+<h3>Getting Help</h3>
+
+<p>If you're able to run the plugin, but the patch slider doesn't do
+anything, it's because the plugin didn't find any patches.  The most
+likely reason is that you put them in the wrong folder.  Remember,
+there's a unique "My Documents" folder for each user.  The plugin looks
+in the CURRENT USER's "My Documents\WhorldFF", and nowhere else.  
+
+<p>Some patches may cause performance problems, e.g.  the frame rate may
+drop, or your software may become unresponsive.  If this occurs, here
+are some things to try: 
+
+<ol>
+<li>Use a more powerful gamer-style PC.
+<li>Use a lower-resolution video mode.
+<li>Lower the Rings parameter.
+<li>Figure out which patches cause trouble, and don't use them.
+<li>Edit the patches to reduce their performance requirements.  
+</ol>
+
+<p>It may help to read the <a href="Help/Loose_Ends/Performance.htm">Performance</a> chapter in Whorld's documentation.
+Briefly, any of the following can cause problems: wide lines, fill mode,
+outline mode, x-ray mode, B zier curves, excessive poly sides, extreme
+star factor, or excessive ring count.  The easiest solution is usually
+to reduce the Ring count, either directly via the Rings master control,
+or indirectly by increasing the Ring Spacing parameter.  
+
+<p>For more information, see <a href="http://whorld.org">http://whorld.org</a>
+
+<h3>Known Bugs</h3>
+
+<p>When you change patches, the other parameters (Speed, Zoom, etc.) don't
+snap to the new patch's values.  Sorry!  
+
+<h3>License</h3>
+
+<p>This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.  This program is distributed in the hope that
+it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+the GNU General Public License for more details.  You should have
+received a copy of the GNU General Public License along with this
+program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA 02111 USA.  
+
+<p>Kopyleft 2007 Chris Korda, All Rites Reversed.  
+
+<!--  content stops HERE  -->
+</div>
+</body>
+</html>

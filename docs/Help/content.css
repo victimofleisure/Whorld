@@ -1,0 +1,27 @@
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 80%
+}
+table {
+	font-size: 100%	/* fixes IE5 tables don't inherit font size bug */
+}
+img {
+	border-bottom-width: 0px;
+	border-left-width: 0px;
+	border-right-width: 0px;
+	border-top-width: 0px;
+	text-align: center;
+	vertical-align: middle
+}
+h1 {
+	text-align: center
+}
+.title {
+	font-size: larger;
+	font-weight: bold
+}
+.cmd {
+	font-style: italic
+}
+.key {
+	font-family: courier
+}

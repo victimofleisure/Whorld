@@ -1,0 +1,20 @@
+<title>Ring Growth</title>
+<body>
+
+<h3>Ring Growth</h3>
+
+<p>Ring Growth determines how quickly rings expand, in pixels per frame. It also determines the rate at which new rings are born (the birth rate). Ring Growth can be positive, negative, or zero, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>positive</td><td>Rings are born in the center, and grow outward, towards the edges of the <a href="../Master_Controls/Canvas_scale.htm">canvas</a>; a ring dies when all of its vertices are outside the canvas.</td>
+</tr><tr>
+<td>negative</td><td>Rings are born at the edges of the canvas, and grow inward, towards the center; a ring dies when its radius reaches zero.</td>
+</tr><tr>
+<td>zero</td><td>Rings don't expand or contract, no new rings are born, and none die.</td>
+</tr>
+</table>
+
+<p>The direction of ring growth can also be <a href="../Effects/Reverse.htm">reversed</a> using <span class="cmd">Image/Reverse</span> or the <span class="key">Backspace</span> key.
+
+</body>

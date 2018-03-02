@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Whorld - Release Notes</title>
+<meta content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<link href="./style.css" rel=stylesheet title=default type=text/css>
+</head>
+<body>
+<div class=menu>
+<a href="./index.html"><img src="./images/whorld-icon-32x32.gif" width="32" height="32" alt="icon"></a>
+<div class=title>Whorld</div><p>
+<div class=menuitem0 title="Overview"><a href="./index.html">Home</a></div>
+<div class=menuitem0 title="Movies"><a href="./movies.html">Movies</a></div>
+<div class=menuitem0 title="Gallery"><a href="./gallery/trail.html">Gallery</a></div>
+<div class=menuitem0 title="Screenshots"><a href="./screenshots.html">Screenshots</a></div>
+<div class=menuitem0 title="Features"><a href="./features.html">Features</a></div>
+<div class=menuitem0 title="Download"><a href="./download.html">Download</a></div>
+<div class=menuitem0 title="Documentation"><a href="./helpframe.html">Documentation</a></div>
+<div class=menuitem0 title="Development"><a href="./development.html">Development</a></div>
+<div class=menuitem0 title="Forums"><a href="./forums.html">Forums</a></div>
+<div class=menuitem0 title="Links"><a href="./links.html">Links</a></div>
+<div class=menuitem0 title="Contact"><a href="./contact.html">Contact</a></div><br>
+<div class=images><br><a href="http://sourceforge.net/donate/index.php?group_id=147011"><img src="./images/project-support.jpg" width="88" height="32" border="0" alt="Support This Project"></a></div>
+<div class=images><br><a href="http://sourceforge.net/"><img src="./images/sflogo.png" width="88" height="31" alt="SourceForge Logo"></a></div>
+</div>
+<div id=body>
+<!--  content goes HERE  -->
+
+<h1>Release Notes</h1>
+
+<p>If you're looking for the Freeframe plugin release notes, they're <a href="#freeframe">here</a>.
+
+<h2>Whorld application</h2>
+
+<h3>1.7.06</h3>
+
+Whorld 1.7.06 adds global parameters which affect all rings at once. This version also adds two new Bézier curve parameters, and fixes some important bugs.
+
+<ol>
+<li>In previous versions, changing a geometry parameter (e.g. Star Factor) only affected new rings. This behavior was essential for creating interesting patches, but it wasn't good for live control, because it introduced a long delay between changing a parameter and seeing any significant change in the output. Most of the geometry parameters now have a global version which affects all existing rings at once. The global parameters are accessed in the Parameters dialog (View/Parameters) by selecting Edit/Global Params.
+
+<li>In previous versions, Bézier curves were always symmetrical. This version adds two new geometry parameters, called Even Shear and Odd Shear, which allow you to create asymmetrical Bézier curves. The two curve points at each vertex are normally equidistant from the vertex; Shear varies the ratio of these two distances. Even Shear affects even vertices, while Odd Shear affects odd ones. Note that Even Shear does nothing if Even Curve is zero, and Odd Shear does nothing if Odd Curve is zero.
+
+<li>In previous versions, the Movie Export's codec setting was not saved, which meant the codec had to be reselected (and possibly reconfigured) for every export. Fixed.
+
+<li>The default MIDI setup has been changed to make it more user-friendly.
+
+<li>In previous versions, the Range column in the MIDI setup dialog consisted of only one value. The Range column now consists of two values: low and high.
+
+<li>In dual-monitor exclusive mode, the cursor was still visible along the edges of the secondary monitor. The cursor is now completely hidden.
+
+<li>In previous versions, moving the origin via MIDI hid the cursor, which was a serious problem in dual-monitor mode. Fixed.
+
+<li>In previous versions, Bézier curves could be unstable due to round-off error, particularly when Star Factor was negative and Pinwheel was non-zero. Fixed.
+
+<li>Panic (Window/Panic or Esc) now clears the screen.
+
+<li>In previous versions, if Ring Spacing was large, clearing the screen could cause the output to remain blank for an extended period. Clearing the screen now creates a new ring immediately.
+
+<li>The actual frame rate is now shown in the status bar.
+
+<li>In previous versions, if items were being dragged within the Playlist dialog, pressing Esc would close the dialog instead of canceling the drag. Fixed. 
+
+<li>In previous versions, left- or right-clicking on a dialog's caption bar would temporarily freeze the output. Fixed for all modeless dialogs, but not for modal ones.
+
+<li>In previous versions, if Whorld was unmirrored and in Exclusive mode, the back buffer would always be located in video memory, even if "Back buffer location" in Options/Display was set to "Use System Memory". This made it difficult to avoid performance problems with the X-Ray effect, because X-Ray reads from the back buffer and reading from video memory is extremely slow. Whorld now respects the "Use System Memory" setting in all cases.
+
+<li>In previous versions, if a modeless dialog had focus, most of the keyboard shortcuts didn't work. This was particularly a problem in dual-monitor mode. Keyboard shortcuts that use alphanumeric or function keys now work regardless of whether a modeless dialog has focus. Shortcuts that use other keys, such as Tab, Arrows, Backspace, etc. still require the main window to have focus.
+</ol>
+
+<h3>1.6.06</h3>
+
+<p>Whorld 1.6.06 adds some interesting new features, including the ability to draw multiple Whorlds at once, and also fixes some fairly serious bugs, including an off-by-one frame error in recording, and a memory leak in the video overlay.
+
+<ol>
+<li>This version adds two new master settings, Copies and Spread, which allow you to draw multiple Whorlds at once. Copies is the number of Whorlds to draw (ranging from 1 to 20), and Spread is their distance from the origin, as a radius in pixels.
+
+<li>When mirroring is enabled, the video overlay's origin can now be controlled independently of the drawing origin. To change the video origin manually, hold down Shift while moving the mouse. To enable random jumps of the video origin, use Image/Video/Random Origin or Ctrl+Shift+R. In both cases damping applies.
+
+<li>A command-line flag (/VJ) was added to allow the application to be started in VJ mode. It only works if the command line also specifies a playlist, snapshot, or movie file to open, e.g. "whorld /vj foo.whl".
+
+<li>The Record dialog now allows the output frame rate to be fractional.
+
+<li>The thumbnails shown in the Playlist dialog can now be exported for use in other software. This feature was added to support an experimental video clip browser (called WhorldRC) which runs on a separate PC and communicates clip selections to the Whorld PC via MIDI.
+
+<li>In previous versions, the drawing in a recorded movie was unintentionally shifted in time by one frame. This meant that if video overlay was used, the synchronization between geometry and video would be off by one frame in the recording. This same bug also caused other off-by-one frame errors, e.g. in the movie player's position control. The bug is fixed.
+
+<li>In previous versions, closing a video failed to free its associated DirectDraw surface. This resulted in a potentially serious memory leak, particularly if many videos were opened and closed, or the video frame size was large. This is fixed.
+</ol>
+
+<h3>1.5.12</h3>
+
+<p>This release adds the ability to blend a video clip with the animation. It also adds a thumbnail view to the Playlist dialog, and fixes a bug that occurs when curved rings are skewed.
+
+<ol>
+
+<li>The application now supports video overlay, which allows a video clip to be blended with the animation. Note that only AVI files are supported. Various blending methods are available, including the boolean operations AND, OR, and XOR. Videos are handled in much the same way as patches. Videos must be inserted into a playlist beforehand, using the Playlist dialog, and can then be played via shortcut keys or MIDI. The most recently used videos are cached, and can be selected using the numeric keypad, or automatically cycled in sync with the master tempo.
+
+<li>In order to accomodate videos, the number of banks in a playlist has been increased from ten to twenty. The upper ten banks are accessed by pressing keys 0..9 while holding down the Shift key.
+
+<li>The Playlist dialog now supports a thumbnail view, allowing both patches and videos to be organized visually instead of by name. The thumbnails are available in a range of sizes.
+
+<li>In previous versions, if the Skew parameter was combined with B&eacute;zier curves, the rings would be unexpectedly distorted. The curve points were being calculated using the unskewed origin, which caused the curvature to differ at each vertex. Since the asymmetry was proportional to the amount of skew, large skew values would give the rings a squashed appearance. This is fixed; the Skew parameter now behaves as expected. Note that this fix potentially changes the behavior of existing patches that combine skew with curves.
+
+<li>The Master dialog is now horizontally resizable.
+
+</ol>
+
+<h3>1.4.05</h3>
+
+<p>This release makes it easier to export selected frames of a recorded movie, and fixes some minor bugs.
+
+<ol>
+
+<li>In previous versions, to export a subset of a movie, it was necessary to enter the frame range numerically in the movie export dialog. The movie player now allows you to select a frame range, and also provides a Save button that brings up the export dialog and passes it the frame range. This allows you to select the export range visually in the player, instead of entering it numerically.
+
+<li>In previous versions, entering a frame rate of zero in the movie export dialog would crash the application. Admittedly it was an unlikely case, but it's fixed anyway.
+
+<li>The panic command has been extended: in addition to its previous effects, it now also disables random origin motion, disables reverse mode, and sets master speed to a default value.
+
+</ol>
+
+<h3>1.4.04</h3>
+
+<p>This release is a bug fix; its purpose is to fix a problem with Convex mode, which was added in version 1.3.
+
+<ol>
+<li>Enabling Convex mode with filled rings caused two color-related problems: a) all the colors were shifted by one ring, and b) the innermost filled ring and its interior were the same color. Both problems are fixed.
+</ol>
+
+<h3>1.4.03</h3>
+
+<p>This release is a bug fix; its purpose is to fix a problem with the B&eacute;zier curves, which were added in the previous version.
+
+<ol>
+<li>In the previous version, if one ring had a non-zero curvature, all of the rings were drawn as curves, regardless of whether they needed to be or not. This all-or-nothing implementation had the potential to cause serious performance problems during patch changes. For example, if you switched from a patch that didn't use curves to one that did, suddenly all the existing rings would be drawn as curves. Their appearance wouldn't change, but they would consume vastly more processing power. If the ring count was large, the frame rate could drop, or the application could seize up. The new version avoids this situation, by making the curve decision per ring, instead of per frame.
+</ol>
+
+<h3>1.4.02</h3>
+
+<p>This release is an enhancement; its main purpose is to add B&eacute;zier curves. It also enhances the patch file format, so that a patch includes all effects and master controls.
+
+<ul>
+<dl>
+
+<dt>1. B&eacute;zier curves
+<dd>Two new geometry parameters were added: Even Curve, and Odd Curve. They control the curvature at the ring's even and odd vertices respectively. Curvatures are normalized such that positive values produce simple curves, negative values produce loops or curls, and at zero, there's no curvature. Note that curves require considerably more processing power than straight lines, and may reduce performance. For details, see <a href="temp/bezier-points.html">Generating B&eacute;zier curve control points for regular stars</a>. Examples of the curves in action can be seen <a href="gallery/bezier.html">here</a>.
+
+<dt>2. Enhanced patches
+<dd>In previous versions, when a patch was played, it might not appear exactly as it did when it was saved, because most effects and master controls weren't included in the patch. By default, playing a patch only affected the geometry (i.e. the parameters and their oscillators), though if "Parameters and Effects" was selected in "Options/General/Read From Patch", certain other settings were also affected.
+
+<p>This issue has been addressed by enhancing the patch file format to include all effects and master controls. In addition, the Options dialog's "Read From Patch" control has been superceded by a new mode, called "Patch Mode". Patch mode is accessed via the Edit menu, and has two settings, "Full" and "Geometry".
+
+<dl>
+
+<dt>Full mode
+<dd>Playing a patch causes all effects and master controls to "snap" to the values they had when the patch was saved. This is appropriate for beginners and for editing patches, so it's the default behavior.
+
+<dt>Geometry mode
+<dd>Playing a patch only affects the parameters and their oscillators. This is useful for live performances, and particularly for crossfading between patches. It's identical to the behavior of previous versions when "Read From Patch" was set to "Parameters Only".
+
+</dl>
+
+<p>Patch mode is saved in the playlist. It can also be changed live, using keyboard shortcuts or MIDI. For playlists created with previous versions of Whorld, patch mode defaults to "Geometry".
+
+<p>This change also makes it possible to create more diverse patches for the new WhorldFF freeframe plugin. Freeframe's architecture severely limits user interaction, so the only way to adjust most of Whorld's effects and master controls is by specifying them in the patches.
+
+<dt>3. Options dialog's "General" page removed
+<dd>The Canvas Scale and Hue Loop Length sliders have been moved from the Options dialog to the Master dialog. They are now master controls, and are therefore saved in the playlist rather than in the registry. The Options dialog's "General" page is no longer needed, and has been removed.
+
+</dl>
+</ul>
+<h3>1.3.07</h3>
+
+<p>This release is a bug fix; its purpose is to fix two bugs, one in Zoom, and one in the detached view.
+
+<ol>
+<li>In version 1.3.06, a bug was introduced which causes rings to be deleted unexpectedly if zoom is increased by a large amount all at once. This can occur with the Zoom slider, or with the mouse or MIDI if damping is set to zero. This is fixed.
+<li>In all previous versions, if the view is detached, and the document is modified, closing the detached view displays a file save dialog, as if the entire application was being closed. Canceling this dialog results in an orphaned unpainted window, which may subsequently cause the application to crash. This is fixed.
+</ol>
+
+<h3>1.3.06</h3>
+
+<p>This release is an enhancement; its main purpose is to add the Trail feature. Other new features include the Convex effect, window-centered zoom, and a new oscillator waveform (Random Ramp). This release also includes several bug fixes, mostly related to zoom.
+
+<ul><dl>
+
+<dt>1. Trail
+<dd>In previous versions, the origin was global, so when it was moved (via dragging or random jumps) the rings always stayed together. Each ring now has its own origin, allowing origin motion to propagate through the rings gradually, so that the rings spread out as they move. This is particularly useful for emulating elastic motion, e.g. jellyfish. When trail is zero, the rings stay together; as trail increases, rings further from the origin lag behind, creating a slinky effect. When trail is at maximum, rings don't move from their birth positions.
+
+<dt>2. Convex
+<dd>In previous versions, the rings were always drawn in ascending order by size, i.e. the smallest ring was drawn first. The Convex effect reverses the drawing order, so that the smallest ring is drawn last. This makes little difference if the rings are drawn as lines, but if the rings are filled, it typically causes the resulting image to appear convex instead of concave. Convex is especially useful when filled rings are moved with Trail, because it makes the trail more obvious, by keeping the inner rings visible.
+
+<dt>3. Window-centered zoom
+<dd>Zoom now operates in two distinct modes: ring origin, and window-centered. Both modes existed in previous versions, but they behaved inconsistently and weren't user-selectable. Ring origin mode (the default) zooms into or out of the current ring origin. Window-centered mode zooms into or out of the center of the window. Window-centered zoom lets you to magnify an arbitrary portion of the image, by dragging the image until the portion of interest is in the center of the window, and then zooming. It's also useful in mirror mode, because it zooms without altering the reflections.
+
+<dt>4. Random Ramp oscillator waveform
+<dd>The Random waveform included in previous versions is the "sample and hold" type: it generates a new random sample at the start of each oscillator period, and holds it until the next period. The Random Ramp waveform is similar, except that instead of holding each sample constant, it linearly interpolates between the new sample and the previous one. This is useful for generating continuous random change.
+
+<dt>5. Fixed zoom "boomerang" in mirror mode
+<dd>In previous versions, zooming with mirror and drag enabled caused the origin to boomerang, i.e. the origin moved relative to the center of the window, but then returned to its previous position, either immediately or gradually, depending on damping. In effect, zooming while mirrored resulted in broken ring origin zoom if the origin was in motion, and window-centered zoom if the origin was stopped. This is fixed: the type of zoom is now an explicit setting (see above) and is no longer affected by mirroring.
+
+<dt>6. Fixed origin limitation when zoomed out
+<dd>In previous versions, zooming all the way out limited the origin to a rectangle in the center of the window, for both drag and random origin motion. This is no longer the case. Origin dragging is now limited to the zoomed canvas or the window, whichever is bigger, and random origins are limited to the window. 
+
+<dt>7. Fixed settings not saved in playlist
+<dd>In previous versions, the hue, loop hue, invert color, and pause settings weren't saved in the playlist. This is fixed.
+
+<dt>8. Fixed veejay mode stopping random origin
+<dd>In previous versions, disabling veejay mode would always park the origin. Now the origin is only parked if it was in drag mode, i.e. if the origin motion is random, entering or exiting veejay mode doesn't disturb it.
+
+</dl></ul>
+
+<h3>1.2.02</h3>
+
+<p>This release is an enhancement; its purpose is to allow the oscillators to be controlled live via MIDI. The changes are as follows:
+
+<ol>
+<li>In previous versions, a MIDI message could be assigned to a parameter's master offset, but not to its oscillator properties. Consequently, when the edit selection was set to "Master Offsets", the oscillator properties in the Parameters dialog were disabled. Version 1.2.02 enables them, thereby allowing "oscillator override". An overridden oscillator obeys the override properties, instead of the properties from the document or crossfader mix. Note that override is only enabled when the override frequency is non-zero; if the frequency is zero, adjusting the other override properties has no effect. The oscillator override properties can be assigned MIDI messages in the usual way, via the MIDI setup dialog. NOTE however that you must first check the "Advanced" checkbox in the MIDI setup dialog's upper-right corner, because the new MIDI properties are hidden by default.
+</ol>
+
+<h3>1.1.01</h3>
+
+<p>This is a maintenance release; its main purpose is to eliminate the movie export's 2 GB limit. The changes are as follows:
+
+<ol>
+<li>In previous versions, the movie export was unable to create AVI files larger than 2 GB. This was a serious limitation when exporting uncompressed video, and the only workaround was to export BMPs instead.  The new version eliminates the 2 GB limit, by using DirectShow instead the obsolete VfW API.
+
+<li>In previous versions, the movie player and movie export dialogs showed times in mm:ss format, except for the export's frame range, which was shown in frames.  Both dialogs now show all times in mm:ss:ff format.
+
+<li>The movie player now has an "Open" button, and also supports opening movies by dragging them onto the player from Windows Explorer.
+
+<li>In previous versions, the master dialog's Speed, Zoom, Damping, and Rings edit boxes were read-only.  All of these values can now be edited.
+</ol>
+
+<h3>1.0.91</h3>
+
+<p>This is the initial release.
+
+<p>For a more comprehensive list of changes, see the <a href="development.html">revision history</a>.
+
+<a name="freeframe">
+
+<h2>Whorld Freeframe plugin</h2>
+
+<h3>1.3.00</h3>
+
+<p>This release makes the plugin compatible with version 1.7 of the Whorld application. It adds two new Bézier curve parameters, and fixes a bug that made curves unstable in certain cases; see the application release notes for details.
+
+<h3>1.2.00</h3>
+
+<p>This is a maintenance release: it adds support for 16-bit bit color and two new master settings, and fixes a bug which could cause the output to appear upside-down.
+
+<ol>
+<li>The plugin now supports 16-bit color.
+
+<li>This version supports two new master settings which were added in version 1.6 of the Whorld application. The settings are Copies and Spread, and they allow you to draw multiple Whorlds at once. Copies is the number of Whorlds to draw (ranging from 1 to 20), and Spread is their distance from the origin, as a radius in pixels.
+
+<li>In previous versions, the frame was flipped vertically. This was correct behavior for some hosts, but not for others. The plugins now get the orientation from the host, which passes it in via the VideoInfoStruct.
+</ol>
+
+<h3>1.1.04</h3>
+
+<p>This is a maintenance release; it fixes a bug that definitely causes Visual Jockey Gold to crash when the plugin is loaded. The bug may also cause problems in other hosts.
+
+<ol>
+<li>In all previous versions, the deInstantiate function wasn't actually deinstantiating the plugin. This nasty behavior was caused by a simple coding error: the function was clearing the instance pointer before deleting it, instead of the other way around.
+</ol>
+
+<h3>1.1.03</h3>
+
+<p>This is a maintenance release; it fixes a bug that occurs when curved rings are skewed. This bug was also fixed in version 1.5.12 of the Whorld application.
+
+<ol>
+<li>In previous versions, if the Skew parameter was combined with Bézier curves, the rings would be unexpectedly distorted. The curve points were being calculated using the unskewed origin, which caused the curvature to differ at each vertex. Since the asymmetry was proportional to the amount of skew, large skew values would give the rings a squashed appearance. This is fixed; the Skew parameter now behaves as expected. Note that this fix potentially changes the behavior of existing patches that combine skew with curves.
+</ol>
+
+<h3>1.1.01</h3>
+
+<p>This is the initial release.
+
+<!--  content stops HERE  -->
+</div>
+</body>
+</html>

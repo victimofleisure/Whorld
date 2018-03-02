@@ -1,0 +1,3603 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Whorld Issues</title>
+<meta content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<link href="./style.css" rel=stylesheet title=default type=text/css>
+</head>
+<body>
+<div class=menu>
+<a href="./index.html"><img src="./images/whorld-icon-32x32.gif" width="32" height="32" alt="icon"></a>
+<div class=title>Whorld</div><p>
+<div class=menuitem0 title="Overview"><a href="./index.html">Home</a></div>
+<div class=menuitem0 title="Movies"><a href="./movies.html">Movies</a></div>
+<div class=menuitem0 title="Gallery"><a href="./gallery/trail.html">Gallery</a></div>
+<div class=menuitem0 title="Screenshots"><a href="./screenshots.html">Screenshots</a></div>
+<div class=menuitem0 title="Features"><a href="./features.html">Features</a></div>
+<div class=menuitem0 title="Download"><a href="./download.html">Download</a></div>
+<div class=menuitem0 title="Documentation"><a href="./helpframe.html">Documentation</a></div>
+<div class=menuitem0 title="Development"><a href="./development.html">Development</a></div>
+<div class=menuitem0 title="Forums"><a href="./forums.html">Forums</a></div>
+<div class=menuitem0 title="Links"><a href="./links.html">Links</a></div>
+<div class=menuitem0 title="Contact"><a href="./contact.html">Contact</a></div><br>
+<div class=images><br><a href="http://sourceforge.net/donate/index.php?group_id=147011"><img src="./images/project-support.jpg" width="88" height="32" border="0" alt="Support This Project"></a></div>
+<div class=images><br><a href="http://sourceforge.net/"><img src="./images/sflogo.png" width="88" height="31" alt="SourceForge Logo"></a></div>
+</div>
+<div id=body>
+<!--  content goes HERE  -->
+<TABLE BORDER=1 CELLPADDING=2 CELLSPACING=0>
+<TR VALIGN=TOP>
+<TD>open</TD>
+<TD>close</TD>
+<TD>type</TD>
+<TD>description</TD>
+<TD>rev</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>04/30/05</TD>
+<TD>done</TD>
+<TD>add lightness and saturation controls</TD>
+<TD>1.0.21</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>04/30/05</TD>
+<TD>done</TD>
+<TD>add printer support</TD>
+<TD>1.0.21</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>04/30/05</TD>
+<TD>done</TD>
+<TD>add variable background color</TD>
+<TD>1.0.21</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>04/30/05</TD>
+<TD>done</TD>
+<TD>changing frequency should not affect phase</TD>
+<TD>1.0.21</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/05/05</TD>
+<TD>done</TD>
+<TD>in crossfader, implement non-looped fade</TD>
+<TD>1.0.22</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/05/05</TD>
+<TD>done</TD>
+<TD>in crossfader, play must set osc phase from fader pos</TD>
+<TD>1.0.22</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/05/05</TD>
+<TD>done</TD>
+<TD>in crossfader, separate edit from view</TD>
+<TD>1.0.22</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/07/05</TD>
+<TD>done</TD>
+<TD>add bitmap export</TD>
+<TD>1.0.23</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/05</TD>
+<TD>05/09/05</TD>
+<TD>done</TD>
+<TD>in crossfader, edit buttons should show params dialog</TD>
+<TD>1.0.24</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/07/05</TD>
+<TD>05/09/05</TD>
+<TD>done</TD>
+<TD>paint after pause causes center hole; pause must undo last ring step</TD>
+<TD>1.0.24</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/11/05</TD>
+<TD>done</TD>
+<TD>use DirectDraw</TD>
+<TD>1.0.25</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/11/05</TD>
+<TD>05/11/05</TD>
+<TD>done</TD>
+<TD>for printing, draw to memory DC and blit, else lines are too thin</TD>
+<TD>1.0.26</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/11/05</TD>
+<TD>05/11/05</TD>
+<TD>done</TD>
+<TD>move GDI back buffer to its own object</TD>
+<TD>1.0.26</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/10/05</TD>
+<TD>05/12/05</TD>
+<TD>done</TD>
+<TD>adapt for DirectX 7</TD>
+<TD>1.0.26</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/16/05</TD>
+<TD>done</TD>
+<TD>can't drag and drop shapshot files</TD>
+<TD>1.0.27</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/16/05</TD>
+<TD>done</TD>
+<TD>seed random number generator</TD>
+<TD>1.0.27</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/10/05</TD>
+<TD>05/16/05</TD>
+<TD>done</TD>
+<TD>allow order of parms dlg rows and view params to differ</TD>
+<TD>1.0.27</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/10/05</TD>
+<TD>05/16/05</TD>
+<TD>done</TD>
+<TD>switching from non-maximized to full screen and exiting breaks full screen on next run</TD>
+<TD>1.0.27</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/13/05</TD>
+<TD>05/16/05</TD>
+<TD>done</TD>
+<TD>opening a new document doesn't update parms dialog's title</TD>
+<TD>1.0.27</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/17/05</TD>
+<TD>done</TD>
+<TD>add pulse width column to parms dialog</TD>
+<TD>1.0.28</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/10/05</TD>
+<TD>05/17/05</TD>
+<TD>done</TD>
+<TD>parms dlg is too big, make it a scrollable view</TD>
+<TD>1.0.28</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/15/05</TD>
+<TD>05/18/05</TD>
+<TD>done</TD>
+<TD>add command to generate random patches from crossfader inputs</TD>
+<TD>1.0.29</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/15/05</TD>
+<TD>05/18/05</TD>
+<TD>done</TD>
+<TD>add command to randomize phase of LFOs</TD>
+<TD>1.0.29</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/15/05</TD>
+<TD>05/18/05</TD>
+<TD>done</TD>
+<TD>add pinwheel parameter</TD>
+<TD>1.0.29</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>05/19/05</TD>
+<TD>done</TD>
+<TD>in parms dialog, tab at end of row should go to next row; shift+tab is reverse case</TD>
+<TD>1.0.29</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/19/05</TD>
+<TD>05/20/05</TD>
+<TD>done</TD>
+<TD>add ring fill and outline</TD>
+<TD>1.0.30</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/19/05</TD>
+<TD>05/20/05</TD>
+<TD>done</TD>
+<TD>zero window width or height crashes DirectDraw</TD>
+<TD>1.0.30</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/21/05</TD>
+<TD>05/22/05</TD>
+<TD>done</TD>
+<TD>doc info shouldn't live in CrossDlg</TD>
+<TD>1.0.31</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/21/05</TD>
+<TD>05/25/05</TD>
+<TD>done</TD>
+<TD>add splitter window for multiple views</TD>
+<TD>1.0.32</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/22/05</TD>
+<TD>05/26/05</TD>
+<TD>done</TD>
+<TD>add set origin via context menu</TD>
+<TD>1.0.33</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/26/05</TD>
+<TD>05/26/05</TD>
+<TD>done</TD>
+<TD>dropping a file in split mode must set active pane first</TD>
+<TD>1.0.33</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/26/05</TD>
+<TD>05/26/05</TD>
+<TD>done</TD>
+<TD>fill mode and origin should be saved in document</TD>
+<TD>1.0.33</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/27/05</TD>
+<TD>05/28/05</TD>
+<TD>done</TD>
+<TD>save as doesn't change parms dialog title</TD>
+<TD>1.0.33</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/31/05</TD>
+<TD>06/01/05</TD>
+<TD>done</TD>
+<TD>if 2 panes, splitter isn't centered: switch rows and cols in centering line</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/31/05</TD>
+<TD>06/01/05</TD>
+<TD>done</TD>
+<TD>next/prev pane keys broken; in SetActivePane, if pWnd is NULL, must call GetPane</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/15/05</TD>
+<TD>06/02/05</TD>
+<TD>done</TD>
+<TD>add a playlist dialog that loads a list of patches and crossfades between them</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/26/05</TD>
+<TD>06/02/05</TD>
+<TD>done</TD>
+<TD>in playlist fade, modulators unused in source but active in dest should have random phase</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/30/05</TD>
+<TD>06/02/05</TD>
+<TD>done</TD>
+<TD>in split mode, need a way to center splitter, and set all pane origins to split point</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/30/05</TD>
+<TD>06/02/05</TD>
+<TD>done</TD>
+<TD>should be able to exit and reenter split mode without saving documents</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/31/05</TD>
+<TD>06/02/05</TD>
+<TD>done</TD>
+<TD>accidental cascading ring deletion is an essential feature; make it explicit</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/31/05</TD>
+<TD>06/02/05</TD>
+<TD>done</TD>
+<TD>in split mode, switching panes after editing a parameter can cause loss of edit</TD>
+<TD>1.0.34</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/03/05</TD>
+<TD>06/07/05</TD>
+<TD>done</TD>
+<TD>add mirror mode; should work in both single and split frame</TD>
+<TD>1.0.35</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/06/05</TD>
+<TD>06/08/05</TD>
+<TD>done</TD>
+<TD>add print support for mirror mode; can't stretch blit to printer DC, use DIB instead</TD>
+<TD>1.0.35</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/06/05</TD>
+<TD>06/08/05</TD>
+<TD>done</TD>
+<TD>in split, drag all should move origins relative to their original positions</TD>
+<TD>1.0.35</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/07/05</TD>
+<TD>06/08/05</TD>
+<TD>done</TD>
+<TD>add sync panes to split window menu, with check</TD>
+<TD>1.0.35</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/30/05</TD>
+<TD>06/09/05</TD>
+<TD>done</TD>
+<TD>need a simple way to make split pane color schemes differ; add rotate hue</TD>
+<TD>1.0.36</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/09/05</TD>
+<TD>06/09/05</TD>
+<TD>done</TD>
+<TD>add toolbar</TD>
+<TD>1.0.36</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/09/05</TD>
+<TD>06/10/05</TD>
+<TD>done</TD>
+<TD>add list control and shortcut keys to playlist</TD>
+<TD>1.0.37</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/09/05</TD>
+<TD>06/10/05</TD>
+<TD>done</TD>
+<TD>create dialogs in frame OnCreate</TD>
+<TD>1.0.37</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/11/05</TD>
+<TD>06/16/05</TD>
+<TD>done</TD>
+<TD>add toolbar button for take snapshot</TD>
+<TD>1.0.38</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/15/05</TD>
+<TD>06/16/05</TD>
+<TD>done</TD>
+<TD>add missing files dialog to playlist</TD>
+<TD>1.0.38</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/06/05</TD>
+<TD>06/20/05</TD>
+<TD>done</TD>
+<TD>add x-ray fill mode, using XOR pen</TD>
+<TD>1.0.39</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/19/05</TD>
+<TD>06/20/05</TD>
+<TD>done</TD>
+<TD>in non-outlined fill mode, draw directly to printer's DC</TD>
+<TD>1.0.39</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>06/20/05</TD>
+<TD>done</TD>
+<TD>DC brush color doesn't affect FillRect on some printers; erase with ExtTextOut, faster too</TD>
+<TD>1.0.39</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>06/20/05</TD>
+<TD>done</TD>
+<TD>mirror toolbar button and shortcut don't work while paused; SetMirror must invalidate</TD>
+<TD>1.0.39</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>06/20/05</TD>
+<TD>done</TD>
+<TD>snapshots must preserve mirror origin, else new window size drastically changes image</TD>
+<TD>1.0.39</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/20/05</TD>
+<TD>06/22/05</TD>
+<TD>done</TD>
+<TD>add options dialog with DirectDraw checkbox, video vs system memory selector</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/06/05</TD>
+<TD>06/22/05</TD>
+<TD>done</TD>
+<TD>expose canvas size; options dialog</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/10/05</TD>
+<TD>06/23/05</TD>
+<TD>done</TD>
+<TD>add master speed dialog; rename parms MasterSpeed to RingGrowth</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/23/05</TD>
+<TD>06/23/05</TD>
+<TD>done</TD>
+<TD>add status bar</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/25/05</TD>
+<TD>06/25/05</TD>
+<TD>done</TD>
+<TD>disable timer while iconic</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/10/05</TD>
+<TD>06/26/05</TD>
+<TD>done</TD>
+<TD>toolbar buttons don't get updated when CPU is saturated; due to IsIdleMessage override</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/25/05</TD>
+<TD>06/27/05</TD>
+<TD>done</TD>
+<TD>add drag reordering to playlist; make it reusable</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>06/28/05</TD>
+<TD>done</TD>
+<TD>origin, fill mode, mirror etc are saved in patch but not restored; make this optional</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/25/05</TD>
+<TD>06/28/05</TD>
+<TD>done</TD>
+<TD>add command line open for snapshot files</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/27/05</TD>
+<TD>06/28/05</TD>
+<TD>done</TD>
+<TD>export should allow a size to be specified instead of always using the window size</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/28/05</TD>
+<TD>06/29/05</TD>
+<TD>done</TD>
+<TD>add ranges for master speed</TD>
+<TD>1.0.40</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/28/05</TD>
+<TD>06/29/05</TD>
+<TD>done</TD>
+<TD>mirroring to front buffer causes noticeable misalignment; add precise mirror option</TD>
+<TD>1.0.41</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>07/01/05</TD>
+<TD>done</TD>
+<TD>add snapshot preview, using enhanced file dialog</TD>
+<TD>1.0.42</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/29/05</TD>
+<TD>07/04/05</TD>
+<TD>done</TD>
+<TD>add palette cycle limiting, aka hue looping or hue lock</TD>
+<TD>1.0.42</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/04/05</TD>
+<TD>07/04/05</TD>
+<TD>done</TD>
+<TD>loading a snapshot should save view parms and pause; unpause should restore view</TD>
+<TD>1.0.42</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/04/05</TD>
+<TD>07/06/05</TD>
+<TD>done</TD>
+<TD>add origin motion damping</TD>
+<TD>1.0.43</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/06/05</TD>
+<TD>07/06/05</TD>
+<TD>done</TD>
+<TD>add hue wheel sensitivity and hue loop length</TD>
+<TD>1.0.43</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>07/07/05</TD>
+<TD>done</TD>
+<TD>load multiple snapshots, view using page up/down</TD>
+<TD>1.0.43</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>07/07/05</TD>
+<TD>done</TD>
+<TD>print multiple snapshots at once</TD>
+<TD>1.0.43</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>07/07/05</TD>
+<TD>done</TD>
+<TD>add shell open for playlist</TD>
+<TD>1.0.43</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/02/05</TD>
+<TD>07/07/05</TD>
+<TD>done</TD>
+<TD>changing display settings causes unpainted view; recreate surface in OnDisplayChange</TD>
+<TD>1.0.43</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/02/05</TD>
+<TD>07/07/05</TD>
+<TD>done</TD>
+<TD>lowering display resolution can cause invisible off-screen modeless dialogs</TD>
+<TD>1.0.43</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/07/05</TD>
+<TD>07/08/05</TD>
+<TD>done</TD>
+<TD>add master zoom</TD>
+<TD>1.0.44</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>07/09/05</TD>
+<TD>done</TD>
+<TD>export multiple snapshots at once</TD>
+<TD>1.0.44</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>07/09/05</TD>
+<TD>done</TD>
+<TD>snapshot slide show</TD>
+<TD>1.0.44</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/09/05</TD>
+<TD>07/10/05</TD>
+<TD>done</TD>
+<TD>back buffer location needs auto option: system memory if mirrored, else video memory</TD>
+<TD>1.0.44</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/09/05</TD>
+<TD>07/10/05</TD>
+<TD>done</TD>
+<TD>export should have a stretch to fit option; adjusts zoom to match current cropping</TD>
+<TD>1.0.44</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/11/05</TD>
+<TD>07/11/05</TD>
+<TD>done</TD>
+<TD>in multi-page print job, only first page prints; OnPrint must undo DC mapping changes</TD>
+<TD>1.0.45</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/11/05</TD>
+<TD>07/11/05</TD>
+<TD>done</TD>
+<TD>in multi-page print job, some pages are corrupted; don't repaint screen during job</TD>
+<TD>1.0.45</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/11/05</TD>
+<TD>07/11/05</TD>
+<TD>done</TD>
+<TD>in snapshot mode, closing print preview resets caption to doc title; use delayed restore</TD>
+<TD>1.0.45</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/10/05</TD>
+<TD>07/13/05</TD>
+<TD>done</TD>
+<TD>add origin automation and damping</TD>
+<TD>1.0.46</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/14/05</TD>
+<TD>07/14/05</TD>
+<TD>done</TD>
+<TD>add tap tempo</TD>
+<TD>1.0.47</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/10/05</TD>
+<TD>07/15/05</TD>
+<TD>done</TD>
+<TD>derive parms dialog from row dialog with header control</TD>
+<TD>1.0.48</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/12/05</TD>
+<TD>07/15/05</TD>
+<TD>done</TD>
+<TD>remove split frame; too much overhead and not so useful</TD>
+<TD>1.0.48</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/14/05</TD>
+<TD>07/16/05</TD>
+<TD>done</TD>
+<TD>add timer thread for tempo clock</TD>
+<TD>1.0.49</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/17/05</TD>
+<TD>07/17/05</TD>
+<TD>done</TD>
+<TD>add averaging for tap tempo</TD>
+<TD>1.0.50</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/29/05</TD>
+<TD>07/18/05</TD>
+<TD>done</TD>
+<TD>need mouse deltas for controlling master speed, zoom, etc.; use DirectInput</TD>
+<TD>1.0.51</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/17/05</TD>
+<TD>07/18/05</TD>
+<TD>done</TD>
+<TD>measure tempo taps from a higher-priority thread for improved accuracy</TD>
+<TD>1.0.51</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/14/05</TD>
+<TD>07/19/05</TD>
+<TD>done</TD>
+<TD>add detach command; transplant view to an auxiliary frame to allow dual-monitor</TD>
+<TD>1.0.51</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/19/05</TD>
+<TD>07/20/05</TD>
+<TD>done</TD>
+<TD>mouse wheel doesn't work when detached view has focus</TD>
+<TD>1.0.51</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/20/05</TD>
+<TD>07/21/05</TD>
+<TD>done</TD>
+<TD>deactivating app must cancel input modes, else they get stuck</TD>
+<TD>1.0.52</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/21/05</TD>
+<TD>07/21/05</TD>
+<TD>done</TD>
+<TD>playlist shortcut keys stopped working at Z after slide show; try using invisible style</TD>
+<TD>1.0.52</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/21/05</TD>
+<TD>07/21/05</TD>
+<TD>done</TD>
+<TD>row dialog scroll bars don't show if window pos not set; CreateRows must reposition bars</TD>
+<TD>1.0.52</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/21/05</TD>
+<TD>07/21/05</TD>
+<TD>done</TD>
+<TD>row dialog shows trashed header if window pos not set, view must override CalcWindowRect</TD>
+<TD>1.0.52</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/04/05</TD>
+<TD>07/22/05</TD>
+<TD>done</TD>
+<TD>add per-ring line width parameter; optimize to reduce GDI overhead</TD>
+<TD>1.0.53</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/20/05</TD>
+<TD>07/23/05</TD>
+<TD>done</TD>
+<TD>for master dlg, need a log slider that can be linked to a buddy edit control</TD>
+<TD>1.0.54</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/10/05</TD>
+<TD>07/24/05</TD>
+<TD>done</TD>
+<TD>export in scale to fit mode should scale line width</TD>
+<TD>1.0.54</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/10/05</TD>
+<TD>07/24/05</TD>
+<TD>done</TD>
+<TD>print should draw to device in line modes; don't use DC pen, it doesn't scale</TD>
+<TD>1.0.54</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/24/05</TD>
+<TD>07/26/05</TD>
+<TD>done</TD>
+<TD>add print from bitmap option; trades resolution for color fidelity in XOR mode</TD>
+<TD>1.0.55</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>07/27/05</TD>
+<TD>done</TD>
+<TD>playlist file should contain playlist attributes and master settings</TD>
+<TD>1.0.56</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/18/05</TD>
+<TD>07/27/05</TD>
+<TD>done</TD>
+<TD>in drag origin mode, dragging damping also moves origin</TD>
+<TD>1.0.56</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/26/05</TD>
+<TD>07/27/05</TD>
+<TD>done</TD>
+<TD>damping becomes negative when slider is at 100</TD>
+<TD>1.0.56</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>07/29/05</TD>
+<TD>done</TD>
+<TD>playlist hot keys should be assignable</TD>
+<TD>1.0.57</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/28/05</TD>
+<TD>07/30/05</TD>
+<TD>done</TD>
+<TD>tempo nudge must resync</TD>
+<TD>1.0.58</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/29/05</TD>
+<TD>07/30/05</TD>
+<TD>done</TD>
+<TD>make playlist resizable</TD>
+<TD>1.0.58</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/29/05</TD>
+<TD>07/30/05</TD>
+<TD>done</TD>
+<TD>options dialog should have a reset all button</TD>
+<TD>1.0.58</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/29/05</TD>
+<TD>07/30/05</TD>
+<TD>done</TD>
+<TD>tempo nudge must be a percentage, else sensitivity varies with tempo</TD>
+<TD>1.0.58</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>08/01/05</TD>
+<TD>done</TD>
+<TD>add VJ performance mode that locks out all screen-based UI</TD>
+<TD>1.0.59</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/12/05</TD>
+<TD>08/01/05</TD>
+<TD>done</TD>
+<TD>store demo path in registry</TD>
+<TD>1.0.59</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/31/05</TD>
+<TD>08/01/05</TD>
+<TD>done</TD>
+<TD>tempo clock must run all the time to avoid sync loss</TD>
+<TD>1.0.59</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/09/05</TD>
+<TD>08/02/05</TD>
+<TD>done</TD>
+<TD>in drag origin mode, zooming causes mirror origin shift</TD>
+<TD>1.0.60</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/02/05</TD>
+<TD>08/02/05</TD>
+<TD>done</TD>
+<TD>add license text and URL to about box</TD>
+<TD>1.0.60</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/02/05</TD>
+<TD>08/02/05</TD>
+<TD>done</TD>
+<TD>add state icons to playlist</TD>
+<TD>1.0.60</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/28/05</TD>
+<TD>08/03/05</TD>
+<TD>done</TD>
+<TD>in random mode, unmodified mouse should should zoom</TD>
+<TD>1.0.60</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/03/05</TD>
+<TD>done</TD>
+<TD>use shift-wheel instead of right-drag for damping; three-thumb range, sens = .025</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/30/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>negative master speed should make rings grow inward; reverse mode, backspace key</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/02/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>add status bar indicators for drag and hue loop</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>add invert command to image menu (shift+I)</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>default patch should have same number of sides as icon: change icon to pentagon</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>hotkeys should trigger patches while playlist has focus; reverse column order</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>in playlist, pressing Shift-Tab in hotkey control assigns key to current selection, NG</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>need tempo multiplier; powers of two only is fine, use up/down arrows</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>playlist File/New not clearing modified flag</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>playlist Insert should be called Import? Insert Patches is better</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>playlist needs auto-assign command that assigns keys to list in QWERTY order</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>playlist needs commands for select all (Ctrl+A) and clear hotkey (Backspace)</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/04/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>shift+ctrl mouse should rotate hue</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/04/05</TD>
+<TD>08/04/05</TD>
+<TD>done</TD>
+<TD>when drag origin is damped, pressing shift or ctrl shouldn't stop origin motion</TD>
+<TD>1.0.61</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/18/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>Alt key causes modal state with loss of input focus; disable it in VJ mode</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>can't drag patches onto playlist dialog</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>DirInput must emulate windows mouse acceleration behavior</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>onset of damping is too slow; increase log base from 10 to 20</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>playlist item drag doesn't support vertical scrolling</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/04/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>hue change via mouse is too sensitive; must account for different normalized range</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/04/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>limit tempo multiplier to +/- three steps; reset position on tap?</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/04/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>should be able to move origin off-screen; drag should be independent of windows cursor</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>in drag mode, if window is resized to zero height, origin gets stuck; divide by zero</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>in drag mode, origin shifts when entering full-screen or VJ mode</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>in drag mode, pausing or unpausing causes origin shift</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>playlist dialog should be able to open a selected patch for parameter editing</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>replace files dialog hard-codes default extension and doesn't use string resources</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>08/05/05</TD>
+<TD>done</TD>
+<TD>when entering VJ mode, if an origin motion isn't already set, it should default to drag</TD>
+<TD>1.0.62</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>08/06/05</TD>
+<TD>done</TD>
+<TD>exiting and reentering VJ mode allows windows keys to work; forgot to clear hook</TD>
+<TD>1.0.63</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>08/06/05</TD>
+<TD>done</TD>
+<TD>make hue loop right-click instead of middle-click</TD>
+<TD>1.0.63</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>08/06/05</TD>
+<TD>done</TD>
+<TD>mouse button hue loop doesn't work if origin motion is off</TD>
+<TD>1.0.63</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>08/06/05</TD>
+<TD>done</TD>
+<TD>opening a playlist should jump to patch that was current when playlist was saved</TD>
+<TD>1.0.63</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>08/06/05</TD>
+<TD>done</TD>
+<TD>remove hue wheel, dedicate wheel to damping</TD>
+<TD>1.0.63</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/06/05</TD>
+<TD>08/10/05</TD>
+<TD>done</TD>
+<TD>draw mode change is too abrupt; make it a ring property, to allow gradual transitions</TD>
+<TD>1.0.64</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/10/05</TD>
+<TD>done</TD>
+<TD>add damping for zoom</TD>
+<TD>1.0.64</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/09/05</TD>
+<TD>08/11/05</TD>
+<TD>done</TD>
+<TD>in reverse, fill doesn't always fill innermost ring; add ring list dialog to debug it</TD>
+<TD>1.0.64</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/11/05</TD>
+<TD>08/11/05</TD>
+<TD>done</TD>
+<TD>use fast round in all cases</TD>
+<TD>1.0.64</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/10/05</TD>
+<TD>08/12/05</TD>
+<TD>done</TD>
+<TD>MIDI control of view parameters: addition works fine</TD>
+<TD>1.0.65</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>08/12/05</TD>
+<TD>done</TD>
+<TD>remove color options page, move hue loop length to general page</TD>
+<TD>1.0.65</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/08/05</TD>
+<TD>08/12/05</TD>
+<TD>done</TD>
+<TD>changing draw mode causes display glitch; view's SetDrawMode shouldn't invalidate</TD>
+<TD>1.0.65</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/12/05</TD>
+<TD>08/12/05</TD>
+<TD>done</TD>
+<TD>add invert fill, invert outline, invert x-ray</TD>
+<TD>1.0.65</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/13/05</TD>
+<TD>done</TD>
+<TD>add MIDI setup dialog; derive from row dialog</TD>
+<TD>1.0.65</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/13/05</TD>
+<TD>done</TD>
+<TD>save MIDI setup in playlist</TD>
+<TD>1.0.65</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/16/05</TD>
+<TD>done</TD>
+<TD>assignment of MIDI to parameters should have a learn mode, e.g. Reason</TD>
+<TD>1.0.66</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/15/05</TD>
+<TD>08/16/05</TD>
+<TD>done</TD>
+<TD>exporting snapshot with use window size unchecked crashes</TD>
+<TD>1.0.66</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/15/05</TD>
+<TD>08/16/05</TD>
+<TD>done</TD>
+<TD>inserting items into playlist doesn't work first time and causes crash on exit</TD>
+<TD>1.0.66</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/15/05</TD>
+<TD>08/16/05</TD>
+<TD>done</TD>
+<TD>loading snapshot while in full screen mode crashes</TD>
+<TD>1.0.66</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>08/17/05</TD>
+<TD>done</TD>
+<TD>it's too easy to choose full screen instead of VJ mode; make VJ Ctrl+F11</TD>
+<TD>1.0.66</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/12/05</TD>
+<TD>08/17/05</TD>
+<TD>done</TD>
+<TD>function keys should do something in VJ mode: duplicate image commands</TD>
+<TD>1.0.66</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/08/05</TD>
+<TD>08/18/05</TD>
+<TD>done</TD>
+<TD>playlist should support MIDI program change</TD>
+<TD>1.0.67</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/17/05</TD>
+<TD>08/18/05</TD>
+<TD>done</TD>
+<TD>don't update bars while full screen; update them when full screen ends</TD>
+<TD>1.0.67</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/17/05</TD>
+<TD>08/18/05</TD>
+<TD>done</TD>
+<TD>each track read costs nearly 1ms; in VJ mode, playlist should cache tracks</TD>
+<TD>1.0.67</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/17/05</TD>
+<TD>08/18/05</TD>
+<TD>done</TD>
+<TD>mouse wheel triggers update UI; add it to OnIdle exclude</TD>
+<TD>1.0.67</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>08/21/05</TD>
+<TD>done</TD>
+<TD>ctrl+wheel should set crossfader time</TD>
+<TD>1.0.68</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/19/05</TD>
+<TD>08/21/05</TD>
+<TD>done</TD>
+<TD>in playlist, Alt+F doesn't work if F was assigned to a patch, likewise for E</TD>
+<TD>1.0.68</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/21/05</TD>
+<TD>08/21/05</TD>
+<TD>done</TD>
+<TD>add playlist popup to file menu</TD>
+<TD>1.0.68</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/21/05</TD>
+<TD>08/21/05</TD>
+<TD>done</TD>
+<TD>in crossfader, clamp secs and position positive; in playlist, clamp secs positive</TD>
+<TD>1.0.68</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/21/05</TD>
+<TD>08/21/05</TD>
+<TD>done</TD>
+<TD>in midi setup, zero controllers causes all values to display as -64</TD>
+<TD>1.0.68</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/01/05</TD>
+<TD>08/27/05</TD>
+<TD>done</TD>
+<TD>at high speeds, rings clump together; move oscillators into view, add fractional ticks</TD>
+<TD>1.0.69</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>08/27/05</TD>
+<TD>done</TD>
+<TD>when crossfading, don't interpolate waveform; switch at midpoint instead</TD>
+<TD>1.0.69</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/01/05</TD>
+<TD>08/28/05</TD>
+<TD>done</TD>
+<TD>add license to all source files</TD>
+<TD>1.0.69</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/01/05</TD>
+<TD>08/28/05</TD>
+<TD>done</TD>
+<TD>crossfader's open buttons should prompt for save after open dialog, not before</TD>
+<TD>1.0.69</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/27/05</TD>
+<TD>08/28/05</TD>
+<TD>done</TD>
+<TD>changing master speed causes glitching; suppressing interpolation helps somewhat</TD>
+<TD>1.0.69</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/27/05</TD>
+<TD>08/28/05</TD>
+<TD>done</TD>
+<TD>suppress interpolation on non-crossfaded patch changes to avoid glitching</TD>
+<TD>1.0.69</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>08/29/05</TD>
+<TD>done</TD>
+<TD>if oscillator waveform is random, sweeping frequency fools phase test, causing glitches</TD>
+<TD>1.0.69</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/01/05</TD>
+<TD>08/29/05</TD>
+<TD>done</TD>
+<TD>add hooks for HTML help</TD>
+<TD>1.0.70</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/28/05</TD>
+<TD>08/30/05</TD>
+<TD>done</TD>
+<TD>add movie recorder that writes a series of snapshots from timer hook</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/28/05</TD>
+<TD>08/30/05</TD>
+<TD>done</TD>
+<TD>frame rate should be variable from 24 to 60, via Options/Display</TD>
+<TD>1.0.70</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/28/05</TD>
+<TD>08/31/05</TD>
+<TD>done</TD>
+<TD>add movie export that converts a snapshot movie to an AVI file</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/28/05</TD>
+<TD>08/31/05</TD>
+<TD>done</TD>
+<TD>add movie player for viewing snapshot movies</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/29/05</TD>
+<TD>08/31/05</TD>
+<TD>done</TD>
+<TD>if slideshow dialog is outside main frame, it doesn't erase itself correctly</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/30/05</TD>
+<TD>08/31/05</TD>
+<TD>done</TD>
+<TD>movie player should allow seeking; snap movie needs a frame index</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/04/05</TD>
+<TD>09/01/05</TD>
+<TD>done</TD>
+<TD>laptop w/o mouse has no wheel; need alternate way to set damping and crossfade time</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>09/02/05</TD>
+<TD>done</TD>
+<TD>GDI mirroring doesn't line up correctly; mirror to an intermediate buffer</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/01/05</TD>
+<TD>09/02/05</TD>
+<TD>done</TD>
+<TD>add movie to shell open types</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/01/05</TD>
+<TD>09/02/05</TD>
+<TD>done</TD>
+<TD>linking to AVI DLL causes mysterious crashes; move movie export to its own process</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/02/05</TD>
+<TD>09/02/05</TD>
+<TD>done</TD>
+<TD>if movie player or slide show is hidden and a button has focus, space can disable left-click</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/02/05</TD>
+<TD>09/02/05</TD>
+<TD>done</TD>
+<TD>shell open broke because m_pMainWnd is null during CMainFrame::OnCreate; set it to this</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/30/05</TD>
+<TD>09/03/05</TD>
+<TD>done</TD>
+<TD>add movie export options dialog; frame size, frame rate, crop/stretch</TD>
+<TD>1.0.71</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/12/05</TD>
+<TD>09/04/05</TD>
+<TD>done</TD>
+<TD>MIDI control of non-view parameters, e.g. mirror, fill, crossfader, etc.</TD>
+<TD>1.0.72</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/04/05</TD>
+<TD>09/04/05</TD>
+<TD>done</TD>
+<TD>playlist file/new doesn't set defaults for master, crossfader, MIDI setup, etc.</TD>
+<TD>1.0.72</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/04/05</TD>
+<TD>09/05/05</TD>
+<TD>done</TD>
+<TD>move edit and view selections into frame</TD>
+<TD>1.0.73</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/29/05</TD>
+<TD>09/06/05</TD>
+<TD>done</TD>
+<TD>add selection to parameters dialog for master offsets</TD>
+<TD>1.0.73</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/05/05</TD>
+<TD>09/06/05</TD>
+<TD>done</TD>
+<TD>disabling windows keys doesn't work in XP; use low-level hook or DirectInput but not both</TD>
+<TD>1.0.73</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/05/05</TD>
+<TD>09/06/05</TD>
+<TD>done</TD>
+<TD>playlist FadeTo doesn't update parms dialog</TD>
+<TD>1.0.73</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/06/05</TD>
+<TD>09/07/05</TD>
+<TD>done</TD>
+<TD>app crashes creating parms dialog, in CalcWindowRect; verify dynamic downcast</TD>
+<TD>1.0.73</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/07/05</TD>
+<TD>09/07/05</TD>
+<TD>done</TD>
+<TD>put movie export back in app</TD>
+<TD>1.0.73</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/01/05</TD>
+<TD>09/08/05</TD>
+<TD>done</TD>
+<TD>more comments, esp. for member data</TD>
+<TD>1.0.73</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>09/09/05</TD>
+<TD>done</TD>
+<TD>VJ mode needs warning dialog, with don't show this again checkbox</TD>
+<TD>1.0.74</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/08/05</TD>
+<TD>09/09/05</TD>
+<TD>done</TD>
+<TD>app needs welcome dialog, with view demo yes/no and don't show this again checkbox</TD>
+<TD>1.0.74</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/08/05</TD>
+<TD>09/09/05</TD>
+<TD>done</TD>
+<TD>main menu's playlist submenu needs recent file list</TD>
+<TD>1.0.74</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/08/05</TD>
+<TD>09/09/05</TD>
+<TD>done</TD>
+<TD>playlist dialog's file menu needs recent file list; kick idle not sent to modeless dialogs</TD>
+<TD>1.0.74</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/09/05</TD>
+<TD>09/10/05</TD>
+<TD>done</TD>
+<TD>movie player should be able to save a snapshot</TD>
+<TD>1.0.74</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/09/05</TD>
+<TD>09/10/05</TD>
+<TD>done</TD>
+<TD>panic should reset draw mode for all rings</TD>
+<TD>1.0.74</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/11/05</TD>
+<TD>09/11/05</TD>
+<TD>done</TD>
+<TD>record shouldn't clear screen</TD>
+<TD>1.0.74</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/09/05</TD>
+<TD>09/12/05</TD>
+<TD>done</TD>
+<TD>add MIDI controllers for effects: mirror, draw mode, etc.</TD>
+<TD>1.0.75</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/12/05</TD>
+<TD>09/12/05</TD>
+<TD>done</TD>
+<TD>tab order is incorrect in parms and midi setup dialogs</TD>
+<TD>1.0.75</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/01/05</TD>
+<TD>09/15/05</TD>
+<TD>done</TD>
+<TD>optional auto-generation of snapshot names</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/31/05</TD>
+<TD>09/15/05</TD>
+<TD>done</TD>
+<TD>annoying windows icon in resizeable dialogs (parms, playlist); use tool window style</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/11/05</TD>
+<TD>09/15/05</TD>
+<TD>done</TD>
+<TD>take snapshot and record movie should work in VJ mode: auto-assign filename</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/15/05</TD>
+<TD>09/15/05</TD>
+<TD>done</TD>
+<TD>fix playlist shortcuts</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/14/05</TD>
+<TD>09/17/05</TD>
+<TD>done</TD>
+<TD>add MIDI sync for tempo</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/17/05</TD>
+<TD>09/20/05</TD>
+<TD>done</TD>
+<TD>tab order is incorrect general options dialog</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/18/05</TD>
+<TD>09/20/05</TD>
+<TD>done</TD>
+<TD>in movie export, add output frame rate, output frame range, export bitmaps</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/20/05</TD>
+<TD>09/20/05</TD>
+<TD>done</TD>
+<TD>add MIDI controls for rotate hue 90 degrees, random phase, pause, clear screen</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/22/05</TD>
+<TD>09/22/05</TD>
+<TD>done</TD>
+<TD>in movie export, if uncompressed, check 2 GB limit</TD>
+<TD>1.0.76</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/22/05</TD>
+<TD>09/27/05</TD>
+<TD>done</TD>
+<TD>in movie export, source size for scaling should be input frame size, not window size</TD>
+<TD>1.0.77</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/22/05</TD>
+<TD>09/27/05</TD>
+<TD>done</TD>
+<TD>in movie play/export and snapshot mode, don't clamp origin, else mirroring may change</TD>
+<TD>1.0.77</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/22/05</TD>
+<TD>09/27/05</TD>
+<TD>done</TD>
+<TD>loading snapshot or movie uses current zoom; zoom must be saved in snaphot</TD>
+<TD>1.0.77</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/22/05</TD>
+<TD>09/27/05</TD>
+<TD>done</TD>
+<TD>need a way to correct an existing movie's frame size; add resize movie dialog</TD>
+<TD>1.0.77</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/01/05</TD>
+<TD>done</TD>
+<TD>in snapshot dtor, deleting view backup causes access to non-existent view</TD>
+<TD>1.0.78</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/01/05</TD>
+<TD>10/02/05</TD>
+<TD>done</TD>
+<TD>should be able to change edit selection from within parms dialog; use system menu</TD>
+<TD>1.0.78</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/11/05</TD>
+<TD>10/02/05</TD>
+<TD>done</TD>
+<TD>save current settings as a new patch, including master offsets</TD>
+<TD>1.0.78</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/02/05</TD>
+<TD>done</TD>
+<TD>can't edit mix in parms dialog; OnParamUpdate is clobbering changes</TD>
+<TD>1.0.78</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/02/05</TD>
+<TD>10/02/05</TD>
+<TD>done</TD>
+<TD>opening a patch in crossfader dialog doesn't update parms dialog</TD>
+<TD>1.0.78</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/02/05</TD>
+<TD>10/02/05</TD>
+<TD>done</TD>
+<TD>playlist dialog should have file option that imports MIDI setup from a playlist</TD>
+<TD>1.0.78</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/04/05</TD>
+<TD>done</TD>
+<TD>add MIDI note support; note on alternates between property's extremes</TD>
+<TD>1.0.79</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/04/05</TD>
+<TD>10/04/05</TD>
+<TD>done</TD>
+<TD>add MIDI auto-assign dialog</TD>
+<TD>1.0.79</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/05/05</TD>
+<TD>done</TD>
+<TD>add MIDI pitch bend support</TD>
+<TD>1.0.79</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/05/05</TD>
+<TD>done</TD>
+<TD>add playlist MIDI mapping dialog: map patches to program changes or range of notes</TD>
+<TD>1.0.79</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/06/05</TD>
+<TD>10/05/05</TD>
+<TD>done</TD>
+<TD>playlist MRU file list: Save As must be added, and failed Open must be removed</TD>
+<TD>1.0.79</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/06/05</TD>
+<TD>10/06/05</TD>
+<TD>done</TD>
+<TD>make playlist MIDI line tab-delimited</TD>
+<TD>1.0.80</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/06/05</TD>
+<TD>10/07/05</TD>
+<TD>done</TD>
+<TD>load the playlist's next patch into crossfader input A or B, without changing fader pos</TD>
+<TD>1.0.80</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/07/05</TD>
+<TD>10/07/05</TD>
+<TD>done</TD>
+<TD>make random patch generation work in VJ mode</TD>
+<TD>1.0.80</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/08/05</TD>
+<TD>10/08/05</TD>
+<TD>done</TD>
+<TD>alpha keys should not select patches while Shift is pressed</TD>
+<TD>1.0.80</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/08/05</TD>
+<TD>10/08/05</TD>
+<TD>done</TD>
+<TD>when writing playlist, if patch is in same folder, store filename only (relative link)</TD>
+<TD>1.0.80</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/10/05</TD>
+<TD>10/12/05</TD>
+<TD>done</TD>
+<TD>crossfader's filename controls should have drop-down lists of playlist patches</TD>
+<TD>1.0.81</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/10/05</TD>
+<TD>10/12/05</TD>
+<TD>done</TD>
+<TD>if crossfader seconds is zero, pressing play causes thumb to get stuck in the center</TD>
+<TD>1.0.81</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/09/05</TD>
+<TD>10/13/05</TD>
+<TD>done</TD>
+<TD>hue loop slips when color speed modulation and master speed are high</TD>
+<TD>1.0.81</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/14/05</TD>
+<TD>done</TD>
+<TD>image sometimes tears; must page-flip instead of blitting, implement exclusive mode</TD>
+<TD>1.0.82</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/13/05</TD>
+<TD>10/14/05</TD>
+<TD>done</TD>
+<TD>app crashes if certain keys (e.g. page up) are entered in playlist dialog's hotkey control</TD>
+<TD>1.0.82</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/13/05</TD>
+<TD>10/14/05</TD>
+<TD>done</TD>
+<TD>while playlist dialog has focus, Ctrl + non-accelerator alpha key switches patch</TD>
+<TD>1.0.82</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/14/05</TD>
+<TD>10/14/05</TD>
+<TD>done</TD>
+<TD>if paused when entering VJ mode, don't set drag mode or origin gets trashed</TD>
+<TD>1.0.82</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/14/05</TD>
+<TD>10/14/05</TD>
+<TD>done</TD>
+<TD>random patch deserves a function key; give it F12</TD>
+<TD>1.0.82</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/14/05</TD>
+<TD>10/14/05</TD>
+<TD>done</TD>
+<TD>random patch glitches; flush view history</TD>
+<TD>1.0.82</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/14/05</TD>
+<TD>10/14/05</TD>
+<TD>done</TD>
+<TD>switching to exclusive mode for less than 1.5 seconds causes spurious timer messages</TD>
+<TD>1.0.82</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>flash keyboard's scroll lock LED during movie recording; use overlapped I/O</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/11/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>zoom via MIDI should be damped, except when paused</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/11/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>mouse zoom, speed, and hue don't work in dual monitor mode</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/15/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>add MIDI controllers for origin X and Y, with damping</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/15/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>in parms dialog, master offsets aren't displayed correctly after exiting VJ mode</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/15/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>MIDI assign should reset previous mapping's event only, not its channel or controller</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/17/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>if multiple movies are recorded, all but first are garbage; Open must zero frame count</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/17/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>LFO frequency tweening cause glitching; don't interpolate frequency in timer hook</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/17/05</TD>
+<TD>10/17/05</TD>
+<TD>done</TD>
+<TD>pressing mouse buttons while paused in drag mode causes origin to jump</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/18/05</TD>
+<TD>10/18/05</TD>
+<TD>done</TD>
+<TD>ring growth LFO causes banding; view's timer hook must compute ring growth up front</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/18/05</TD>
+<TD>10/18/05</TD>
+<TD>done</TD>
+<TD>snapshots taken while in reverse have holes; update rings before drawing them, not after</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/27/05</TD>
+<TD>10/19/05</TD>
+<TD>done</TD>
+<TD>changing master speed causes glitching; don't flush history or interpolate frequency</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/17/05</TD>
+<TD>10/19/05</TD>
+<TD>done</TD>
+<TD>entering and exiting exclusive mode doesn't restore maximized state</TD>
+<TD>1.0.83</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/08/05</TD>
+<TD>10/20/05</TD>
+<TD>done</TD>
+<TD>not enough assignable keys for patches; use number keys for bank switching</TD>
+<TD>1.0.84</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/20/05</TD>
+<TD>10/20/05</TD>
+<TD>done</TD>
+<TD>movies have extra rings; in OnTimer, record frame before view's timer hook</TD>
+<TD>1.0.84</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/01/05</TD>
+<TD>10/23/05</TD>
+<TD>done</TD>
+<TD>repeated hue rotation causes banding due to round-off errors; add HLS color to ring</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/23/05</TD>
+<TD>done</TD>
+<TD>playlist dialog should support copy/cut/paste</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/11/05</TD>
+<TD>10/24/05</TD>
+<TD>done</TD>
+<TD>for acceleration on 2nd monitor, must create DD exclusive with monitor's GUID</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/11/05</TD>
+<TD>10/24/05</TD>
+<TD>done</TD>
+<TD>in dual-monitor mode, panic shouldn't disable full screen mode</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/23/05</TD>
+<TD>10/24/05</TD>
+<TD>done</TD>
+<TD>if using GDI instead of DirectDraw, veejay mode doesn't go full screen</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>10/25/05</TD>
+<TD>done</TD>
+<TD>if movie frames have invalid format, player locks up; OnTimer must catch exceptions</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/25/05</TD>
+<TD>10/25/05</TD>
+<TD>done</TD>
+<TD>exclude non-essential ring data (deltas, HLS) from movie file to save space</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/25/05</TD>
+<TD>10/25/05</TD>
+<TD>done</TD>
+<TD>movie player's save command should pause playback during file dialog</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/25/05</TD>
+<TD>10/25/05</TD>
+<TD>done</TD>
+<TD>selecting multiple snapshots with preview checked can cause file error</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/25/05</TD>
+<TD>10/26/05</TD>
+<TD>done</TD>
+<TD>in playlist, remove key should operate on entire selection</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/25/05</TD>
+<TD>10/26/05</TD>
+<TD>done</TD>
+<TD>movie player tears in full screen; should have option to use exclusive mode</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/26/05</TD>
+<TD>10/26/05</TD>
+<TD>done</TD>
+<TD>if view is detached, movie player full-screen gets stuck in exclusive mode</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/26/05</TD>
+<TD>10/26/05</TD>
+<TD>done</TD>
+<TD>in playlist, paste inserts items in reverse order</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/10/05</TD>
+<TD>10/27/05</TD>
+<TD>done</TD>
+<TD>add MIDI properties for patch seconds, crossfader play, and crossfader loop</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/26/05</TD>
+<TD>10/27/05</TD>
+<TD>done</TD>
+<TD>in FadeTo, if in-between pos, copy mix to source; in RandomPatch, center pos</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/27/05</TD>
+<TD>10/27/05</TD>
+<TD>done</TD>
+<TD>in crossfader dialog, if resuming previous auto-fade, don't set phase</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/12/05</TD>
+<TD>10/29/05</TD>
+<TD>done</TD>
+<TD>crossfader dialog's name combos show blank drop list when playlist is empty</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/28/05</TD>
+<TD>10/29/05</TD>
+<TD>done</TD>
+<TD>can't send document to crossfader; include Document and A/B/Mix in name combos</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/28/05</TD>
+<TD>10/29/05</TD>
+<TD>done</TD>
+<TD>in playlist's FadeTo, set view mix doesn't work; must use frame's SetViewSel</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/28/05</TD>
+<TD>10/29/05</TD>
+<TD>done</TD>
+<TD>playlist's Edit Parameters command is too confusing, remove it for now</TD>
+<TD>1.0.85</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/31/05</TD>
+<TD>11/02/05</TD>
+<TD>done</TD>
+<TD>auto-fade is too useful to be Ctrl+F; give it F12 and move Random Patch to F10</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/31/05</TD>
+<TD>11/02/05</TD>
+<TD>done</TD>
+<TD>in playlist dialog, dialog shortcuts should work when list control doesn't have focus</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/31/05</TD>
+<TD>11/02/05</TD>
+<TD>done</TD>
+<TD>in snapshot menu's export all, progress bar is behind by one</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/31/05</TD>
+<TD>11/02/05</TD>
+<TD>done</TD>
+<TD>playlist dialog's insert command inserts patches in reverse order</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/31/05</TD>
+<TD>11/02/05</TD>
+<TD>done</TD>
+<TD>switching view mix on/off causes glitches; flush view history first</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/01/05</TD>
+<TD>11/02/05</TD>
+<TD>done</TD>
+<TD>exiting print preview via caption bar's X button causes save prompts</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/31/05</TD>
+<TD>11/03/05</TD>
+<TD>done</TD>
+<TD>if a patch is moved or renamed after playlist is opened, selecting it fails silently</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/31/05</TD>
+<TD>11/03/05</TD>
+<TD>done</TD>
+<TD>if maximized app goes full-screen to veejay and back to full-screen, a border appears</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/01/05</TD>
+<TD>11/03/05</TD>
+<TD>done</TD>
+<TD>in playlist dialog, if no control has focus, Alt menu keys don't work</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/03/05</TD>
+<TD>11/03/05</TD>
+<TD>done</TD>
+<TD>if modeless dialog is closed and reopened, current control is lost; derive from CToolDlg</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/03/05</TD>
+<TD>11/03/05</TD>
+<TD>done</TD>
+<TD>if none of a dialog's controls have focus, minimizing and restoring app hides dialog</TD>
+<TD>1.0.86</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/07/05</TD>
+<TD>11/08/05</TD>
+<TD>done</TD>
+<TD>default snapshot folder should be in MyDocuments</TD>
+<TD>1.0.87</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/08/05</TD>
+<TD>11/09/05</TD>
+<TD>done</TD>
+<TD>file dialogs for export and take snapshot should have default filename if available</TD>
+<TD>1.0.87</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/29/05</TD>
+<TD>11/11/05</TD>
+<TD>done</TD>
+<TD>should be able to limit number of rings, for effect and to improve performance</TD>
+<TD>1.0.88</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/11/05</TD>
+<TD>11/11/05</TD>
+<TD>done</TD>
+<TD>add menu item for crossfader loop on/off; shortcut is Shift+F12</TD>
+<TD>1.0.88</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>11/11/05</TD>
+<TD>11/11/05</TD>
+<TD>done</TD>
+<TD>must disable Alt key in full-screen mode</TD>
+<TD>1.0.88</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/08/05</TD>
+<TD>12/11/05</TD>
+<TD>done</TD>
+<TD>FadeTo shouldn't reset crossfader's loop or waveform attributes</TD>
+<TD>1.0.89</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/08/05</TD>
+<TD>12/20/05</TD>
+<TD>done</TD>
+<TD>during unlooped auto-fade, if time becomes too small, complete fade and stop</TD>
+<TD>1.0.89</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/21/05</TD>
+<TD>12/21/05</TD>
+<TD>done</TD>
+<TD>allow hue loop length to be changed via MIDI</TD>
+<TD>1.0.89</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/21/05</TD>
+<TD>12/21/05</TD>
+<TD>done</TD>
+<TD>changing hue loop length causes hue to jump needlessly</TD>
+<TD>1.0.89</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/21/05</TD>
+<TD>12/22/05</TD>
+<TD>done</TD>
+<TD>if main is hogging CPU, Help/About makes app modal but dialog isn't shown</TD>
+<TD>1.0.90</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/22/05</TD>
+<TD>12/22/05</TD>
+<TD>done</TD>
+<TD>if mirror is twiddled via continuous controller, animation jerks; make invalidate optional</TD>
+<TD>1.0.90</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/22/05</TD>
+<TD>12/22/05</TD>
+<TD>done</TD>
+<TD>options reset all doesn't reset default output folder</TD>
+<TD>1.0.90</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/10/06</TD>
+<TD>01/11/06</TD>
+<TD>done</TD>
+<TD>if DirectDraw fails, offer GDI option</TD>
+<TD>1.0.91</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/01/05</TD>
+<TD>01/14/06</TD>
+<TD>done</TD>
+<TD>write documentation</TD>
+<TD>1.0.91</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/22/05</TD>
+<TD>02/04/06</TD>
+<TD>done</TD>
+<TD>in movie export, eliminate 2 GB limit; create AVI via DirectShow instead of VfW</TD>
+<TD>1.1.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/24/06</TD>
+<TD>02/10/06</TD>
+<TD>done</TD>
+<TD>all movie times and frame ranges should be in mm:ss.ff format</TD>
+<TD>1.1.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/24/06</TD>
+<TD>02/10/06</TD>
+<TD>done</TD>
+<TD>in movie player, add open file button and accept files via drag/drop</TD>
+<TD>1.1.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/10/06</TD>
+<TD>02/10/06</TD>
+<TD>done</TD>
+<TD>in master dialog, make all edit controls allow editing</TD>
+<TD>1.1.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/10/05</TD>
+<TD>02/16/06</TD>
+<TD>done</TD>
+<TD>add oscillator override and make all LFO properties MIDI-assignable</TD>
+<TD>1.2.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/16/06</TD>
+<TD>02/19/06</TD>
+<TD>done</TD>
+<TD>in CCtrlResize::AddControlList, fix loop test</TD>
+<TD>1.2.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/16/06</TD>
+<TD>02/19/06</TD>
+<TD>done</TD>
+<TD>save master offsets in playlist, so oscillator overrides can be preset</TD>
+<TD>1.2.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>02/23/06</TD>
+<TD>done</TD>
+<TD>make playlist dialog's editable list control into a reusable base class</TD>
+<TD>1.2.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/23/06</TD>
+<TD>02/23/06</TD>
+<TD>done</TD>
+<TD>in drag list control, fix sloppy autoscroll boundary tests</TD>
+<TD>1.2.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/08/06</TD>
+<TD>03/08/06</TD>
+<TD>done</TD>
+<TD>in oscillator override via MIDI, waveform must be clamped</TD>
+<TD>1.2.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/12/05</TD>
+<TD>03/10/06</TD>
+<TD>done</TD>
+<TD>origin motion should be able to make a trail of rings; high value but major impact</TD>
+<TD>1.3.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/14/06</TD>
+<TD>03/10/06</TD>
+<TD>done</TD>
+<TD>in fill mode, allow solid to be convex instead of concave; draw rings in reverse</TD>
+<TD>1.3.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/07/06</TD>
+<TD>03/15/06</TD>
+<TD>done</TD>
+<TD>can't drag origin while paused, due to trail revision; add SetGlobalOrigin</TD>
+<TD>1.3.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/15/06</TD>
+<TD>03/15/06</TD>
+<TD>done</TD>
+<TD>add random ramp waveform; linearly interpolate between random samples</TD>
+<TD>1.3.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/23/06</TD>
+<TD>03/23/06</TD>
+<TD>done</TD>
+<TD>hue, loop hue, invert color, and pause should be saved in playlist</TD>
+<TD>1.3.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/23/06</TD>
+<TD>03/24/06</TD>
+<TD>done</TD>
+<TD>disabling veejay should only park origin if it's in drag mode</TD>
+<TD>1.3.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/23/06</TD>
+<TD>03/28/06</TD>
+<TD>done</TD>
+<TD>origin shouldn't be limited to middle of screen when zoomed out</TD>
+<TD>1.3.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/23/06</TD>
+<TD>03/28/06</TD>
+<TD>done</TD>
+<TD>enabling drag after resizing frame causes origin skip; adjust target in OnSize</TD>
+<TD>1.3.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/23/06</TD>
+<TD>03/28/06</TD>
+<TD>done</TD>
+<TD>trail breaks ring-origin zoom: make mirror origin space unreversed and zoomed</TD>
+<TD>1.3.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/23/06</TD>
+<TD>03/28/06</TD>
+<TD>done</TD>
+<TD>make zoom type independent of origin motion; add Window/Zoom Center</TD>
+<TD>1.3.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/23/06</TD>
+<TD>03/28/06</TD>
+<TD>done</TD>
+<TD>zooming with mirror and drag enabled causes origin to boomerang, since 1.0</TD>
+<TD>1.3.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/08/06</TD>
+<TD>04/09/06</TD>
+<TD>done</TD>
+<TD>panic should reset trail</TD>
+<TD>1.3.06</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/09/06</TD>
+<TD>04/12/06</TD>
+<TD>done</TD>
+<TD>opening a playlist can take a while; display hourglass</TD>
+<TD>1.3.07</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/11/06</TD>
+<TD>04/12/06</TD>
+<TD>done</TD>
+<TD>closing detached view can show file save dialog; remove aux view from doc</TD>
+<TD>1.3.07</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/12/06</TD>
+<TD>04/12/06</TD>
+<TD>done</TD>
+<TD>increasing Zoom mistakenly deletes rings; set m_st.Zoom before calling SetWndSize</TD>
+<TD>1.3.07</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/03/05</TD>
+<TD>04/13/06</TD>
+<TD>done</TD>
+<TD>add Bézier curves</TD>
+<TD>1.4.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/21/05</TD>
+<TD>04/18/06</TD>
+<TD>done</TD>
+<TD>hue loop length and canvas scale should be master settings, not options</TD>
+<TD>1.4.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/14/06</TD>
+<TD>04/18/06</TD>
+<TD>done</TD>
+<TD>save mix doesn't save mirror, drawmode or origin</TD>
+<TD>1.4.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/16/06</TD>
+<TD>04/18/06</TD>
+<TD>done</TD>
+<TD>save master and main settings in patch, add patch mode</TD>
+<TD>1.4.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/16/06</TD>
+<TD>04/22/06</TD>
+<TD>done</TD>
+<TD>make a FreeFrame plug-in; big project, similar to making a screensaver</TD>
+<TD>1.4.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/23/06</TD>
+<TD>04/24/06</TD>
+<TD>done</TD>
+<TD>add MIDI controls for canvas scale and patch mode</TD>
+<TD>1.4.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/27/06</TD>
+<TD>04/27/06</TD>
+<TD>done</TD>
+<TD>inverting fill gives unexpected results; update PrevSides in all cases</TD>
+<TD>1.4.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/27/06</TD>
+<TD>04/27/06</TD>
+<TD>done</TD>
+<TD>in view, replace memmove calls with inline assembler</TD>
+<TD>1.4.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/27/06</TD>
+<TD>04/27/06</TD>
+<TD>done</TD>
+<TD>make curve decision per ring instead of per frame</TD>
+<TD>1.4.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/27/06</TD>
+<TD>04/29/06</TD>
+<TD>done</TD>
+<TD>in filled convex mode, colors are shifted by one, so center is same color as 1st ring</TD>
+<TD>1.4.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/29/06</TD>
+<TD>04/29/06</TD>
+<TD>done</TD>
+<TD>in Draw, replace CRect calls with inlines and only calculate iorg if making curves</TD>
+<TD>1.4.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/04/06</TD>
+<TD>05/04/06</TD>
+<TD>done</TD>
+<TD>playlist paste causes duplicate icons; bump current patch after inserting below it</TD>
+<TD>1.4.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/04/06</TD>
+<TD>05/04/06</TD>
+<TD>done</TD>
+<TD>in movie export dialog, changing frame rate doesn't update length and range</TD>
+<TD>1.4.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/04/06</TD>
+<TD>05/04/06</TD>
+<TD>done</TD>
+<TD>in movie export dialog, entering a frame rate of zero causes a divide by zero</TD>
+<TD>1.4.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/04/06</TD>
+<TD>05/04/06</TD>
+<TD>done</TD>
+<TD>panic now centers origin, disables reverse, and sets default master speed</TD>
+<TD>1.4.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/04/06</TD>
+<TD>05/04/06</TD>
+<TD>done</TD>
+<TD>add range selection to movie player; save button should export</TD>
+<TD>1.4.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/28/06</TD>
+<TD>05/05/06</TD>
+<TD>done</TD>
+<TD>add video overlay and extend playlist to accept video files</TD>
+<TD>1.5.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>05/05/06</TD>
+<TD>done</TD>
+<TD>add 10 extra banks, selectable via shift + number</TD>
+<TD>1.5.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>05/06/06</TD>
+<TD>done</TD>
+<TD>video overlay doesn't appear in bitmap exports; move overlay into Draw</TD>
+<TD>1.5.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>05/06/06</TD>
+<TD>done</TD>
+<TD>switching clips can cause a dropped frame; move video open into timer hook</TD>
+<TD>1.5.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>05/06/06</TD>
+<TD>done</TD>
+<TD>add command to turn video off</TD>
+<TD>1.5.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>05/06/06</TD>
+<TD>done</TD>
+<TD>video overlay's raster operation should be variable</TD>
+<TD>1.5.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>05/06/06</TD>
+<TD>done</TD>
+<TD>cache the most recently used video clips on the numeric keypad, in MRU order</TD>
+<TD>1.5.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/07/06</TD>
+<TD>05/09/06</TD>
+<TD>done</TD>
+<TD>optionally cycle most recent N video clips in sync with tempo</TD>
+<TD>1.5.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/07/06</TD>
+<TD>05/13/06</TD>
+<TD>done</TD>
+<TD>select videos via remote control app running on 2nd PC, communicating via MIDI</TD>
+<TD>1.5.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/15/06</TD>
+<TD>05/16/06</TD>
+<TD>done</TD>
+<TD>when videos are cycling, defer list updates until the next transition</TD>
+<TD>1.5.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/15/06</TD>
+<TD>05/19/06</TD>
+<TD>done</TD>
+<TD>panic now disables video cycling</TD>
+<TD>1.5.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/19/06</TD>
+<TD>05/22/06</TD>
+<TD>done</TD>
+<TD>save video list object's state in playlist</TD>
+<TD>1.5.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/30/06</TD>
+<TD>05/30/06</TD>
+<TD>done</TD>
+<TD>playlist dlg still allowing duplicate icons; test for inserting below must be <=</TD>
+<TD>1.5.06</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/19/06</TD>
+<TD>06/02/06</TD>
+<TD>done</TD>
+<TD>add MIDI properties for video select, blending, and cycling</TD>
+<TD>1.5.07</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/01/06</TD>
+<TD>06/02/06</TD>
+<TD>done</TD>
+<TD>allow videos to be opened via File/Open, shell, and drag/drop</TD>
+<TD>1.5.07</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/20/06</TD>
+<TD>06/03/06</TD>
+<TD>done</TD>
+<TD>add thumbnail view to playlist dialog; support video and patches</TD>
+<TD>1.5.08</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/13/06</TD>
+<TD>06/05/06</TD>
+<TD>done</TD>
+<TD>if window background color isn't white, playlist icons show white edges</TD>
+<TD>1.5.08</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/03/06</TD>
+<TD>06/05/06</TD>
+<TD>done</TD>
+<TD>in playlist dialog, add a command to update thumbnails</TD>
+<TD>1.5.08</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/03/06</TD>
+<TD>06/05/06</TD>
+<TD>done</TD>
+<TD>add option to automatically rewind video clips before playing them</TD>
+<TD>1.5.08</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/05/06</TD>
+<TD>06/05/06</TD>
+<TD>done</TD>
+<TD>playlist dialog's context menu should have a play command</TD>
+<TD>1.5.08</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>06/07/06</TD>
+<TD>done</TD>
+<TD>video overlay isn't captured in snapshots or snapshot movies</TD>
+<TD>1.5.09</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/09/06</TD>
+<TD>06/09/06</TD>
+<TD>done</TD>
+<TD>main frame's non-wizard message map contains duplicate entries; since 1.0.82</TD>
+<TD>1.5.09</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/08/06</TD>
+<TD>06/12/06</TD>
+<TD>done</TD>
+<TD>in open snapshot dialog, if preview triggers missing files dialog, UI hangs</TD>
+<TD>1.5.11</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/17/06</TD>
+<TD>06/17/06</TD>
+<TD>done</TD>
+<TD>closing app while recording causes unreadable movie file; introduced in 1.5</TD>
+<TD>1.5.11</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/19/06</TD>
+<TD>06/19/06</TD>
+<TD>done</TD>
+<TD>skew distorts curved rings; for symmetry, MakeCurves must use skewed origin</TD>
+<TD>1.5.11</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/21/06</TD>
+<TD>06/21/06</TD>
+<TD>done</TD>
+<TD>make master dialog resizable</TD>
+<TD>1.5.12</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/23/06</TD>
+<TD>06/23/06</TD>
+<TD>done</TD>
+<TD>if a snapshot is loaded and has a bad format, timer is left stopped</TD>
+<TD>1.5.12</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/28/06</TD>
+<TD>06/24/06</TD>
+<TD>done</TD>
+<TD>create illusion of multiple whorlds via initial skew; add Copies and Spread</TD>
+<TD>1.6.00</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/22/06</TD>
+<TD>06/26/06</TD>
+<TD>done</TD>
+<TD>add thumbnail export for remote video browser</TD>
+<TD>1.6.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/08/06</TD>
+<TD>06/29/06</TD>
+<TD>done</TD>
+<TD>allow video origin to be changed in mirror mode, via drag, random jump, and MIDI</TD>
+<TD>1.6.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/21/05</TD>
+<TD>07/24/06</TD>
+<TD>done</TD>
+<TD>add command line flag to start in VJ mode</TD>
+<TD>1.6.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/15/06</TD>
+<TD>09/15/06</TD>
+<TD>done</TD>
+<TD>CVideo shows first frame twice; also occurs in recorded movies</TD>
+<TD>1.6.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/13/06</TD>
+<TD>09/16/06</TD>
+<TD>done</TD>
+<TD>in CNumEdit, notify aux before parent, so master dlg needn't use PostMessage</TD>
+<TD>1.6.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/15/06</TD>
+<TD>09/16/06</TD>
+<TD>done</TD>
+<TD>in movie player, slider is off by one frame during playback</TD>
+<TD>1.6.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/15/06</TD>
+<TD>09/16/06</TD>
+<TD>done</TD>
+<TD>in movie player, looped rewind plays first frame twice</TD>
+<TD>1.6.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/17/06</TD>
+<TD>09/17/06</TD>
+<TD>done</TD>
+<TD>BmpToAvi.ax shouldn't self-register, else uninstalling Whorld breaks FFRend</TD>
+<TD>1.6.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/29/06</TD>
+<TD>10/02/06</TD>
+<TD>done</TD>
+<TD>in movie export dialog, allow fractional output frame rate</TD>
+<TD>1.6.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/15/06</TD>
+<TD>12/10/07</TD>
+<TD>done</TD>
+<TD>add a parameter for initial rotation, as distinct from rotate speed</TD>
+<TD>1.7.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/01/07</TD>
+<TD>12/10/07</TD>
+<TD>done</TD>
+<TD>add global geometry parameters that affect all rings at once</TD>
+<TD>1.7.01</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>12/21/07</TD>
+<TD>done</TD>
+<TD>in dual-monitor full-screen mode, main frame should be full-screen too</TD>
+<TD>1.7.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/01/07</TD>
+<TD>01/13/08</TD>
+<TD>done</TD>
+<TD>let paired curve control vectors at each vertex have different lengths; odd/even shear</TD>
+<TD>1.7.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/01/07</TD>
+<TD>01/15/08</TD>
+<TD>done</TD>
+<TD>moving origin via MIDI causes cursor to disappear; don't enter drag origin mode</TD>
+<TD>1.7.02</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/09/06</TD>
+<TD>01/22/08</TD>
+<TD>done</TD>
+<TD>in CMainFrame's MIDI callback, IsWindowVisible call could be unsafe</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/19/08</TD>
+<TD>01/22/08</TD>
+<TD>done</TD>
+<TD>in MIDI setup, tabbing skips event combo; fix row dialog's tab order</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/22/08</TD>
+<TD>01/22/08</TD>
+<TD>done</TD>
+<TD>while learning MIDI, if message is already assigned, previous target is affected</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/05/06</TD>
+<TD>01/23/08</TD>
+<TD>done</TD>
+<TD>in MIDI setup dialog, left-clicking property name should move cursor to that row</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/01/07</TD>
+<TD>01/23/08</TD>
+<TD>done</TD>
+<TD>MIDI learn mode should highlight row that's being learned</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/01/07</TD>
+<TD>01/23/08</TD>
+<TD>done</TD>
+<TD>in MIDI setup dialog, range should consist of two numbers: start and end</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/01/07</TD>
+<TD>01/24/08</TD>
+<TD>done</TD>
+<TD>curves jitter when star factor is negative; compute curve points from real vertices</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/01/07</TD>
+<TD>01/25/08</TD>
+<TD>done</TD>
+<TD>autofade (F12) glitches when crossfade time is zero; should flush history</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/24/08</TD>
+<TD>01/25/08</TD>
+<TD>done</TD>
+<TD>if ring spacing is big, after clearing screen, screen stays empty for a while</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/24/08</TD>
+<TD>01/25/08</TD>
+<TD>done</TD>
+<TD>panic should clear screen, in case current rings are overloading CPU</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/11/06</TD>
+<TD>01/27/08</TD>
+<TD>done</TD>
+<TD>movie export should remember codec settings</TD>
+<TD>1.7.03</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/28/08</TD>
+<TD>01/28/08</TD>
+<TD>done</TD>
+<TD>support Unicode</TD>
+<TD>1.7.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/28/08</TD>
+<TD>01/29/08</TD>
+<TD>done</TD>
+<TD>increase compiler warning level to W4</TD>
+<TD>1.7.04</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/23/06</TD>
+<TD>01/30/08</TD>
+<TD>done</TD>
+<TD>in unmirrored exclusive mode, can't force back buffer to be in system memory</TD>
+<TD>1.7.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/20/06</TD>
+<TD>01/30/08</TD>
+<TD>done</TD>
+<TD>in playlist dialog, while dragging, escape key should abort drag</TD>
+<TD>1.7.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/10/08</TD>
+<TD>01/30/08</TD>
+<TD>done</TD>
+<TD>status bar should show actual frame rate</TD>
+<TD>1.7.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/30/08</TD>
+<TD>01/30/08</TD>
+<TD>done</TD>
+<TD>if a modeless dialog has focus, keyboard accelerators don't work; allow safe ones</TD>
+<TD>1.7.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/18/05</TD>
+<TD>01/31/08</TD>
+<TD>done</TD>
+<TD>clicking in non-client area of any window freezes display; partial victory</TD>
+<TD>1.7.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/31/08</TD>
+<TD>01/31/08</TD>
+<TD>done</TD>
+<TD>in Print Preview, if zoomed in, scroll bars don't work; OnParentNotify was capturing</TD>
+<TD>1.7.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/06/08</TD>
+<TD>02/06/08</TD>
+<TD>done</TD>
+<TD>increase frame rate range from 24..60 to 1..200</TD>
+<TD>1.7.05</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/29/08</TD>
+<TD>03/31/08</TD>
+<TD>done</TD>
+<TD>redo default MIDI setup to be all on channel one (JM)</TD>
+<TD>1.7.06</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/30/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>opening a playlist doesn't restore crossfader state correctly</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/10/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>print and print preview should center image on page</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/28/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>ring fade-out effect: alpha blit each ring, and make alpha decrease with radius</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/06/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add lissajous origin motion</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/29/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>make cascading delete optional</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>undo for parameter editing; major hassle, low priority</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/14/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>position and size of random origin's bounding rectangle should be adjustable</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>MIDI setup should have presets for common gear; create as empty playlists</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>tempo multiplier could be a separate state instead of affecting tempo directly</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>try controlling app with a joystick</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/06/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>try various mice and trackballs to determine optimal mouse sensitivity</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/12/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>in parms dialog, shift+click should restore default value, not center thumb</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>make a screensaver; requires a totally different architecture</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>in playlist dialog's bank droplist, pressing 1 selects bank 10, and 0 doesn't work</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/08/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>while window is being resized, display view size in status bar message; see notes</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/11/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add movie edit dialog; selection slider, save/delete selection, insert movie</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/17/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>status bar should have an indicator for presence of MIDI clocks</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/20/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add option to specify LFO frequencies as fractions of tempo instead of in Hz</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/20/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>change default frame rate to 30 for NTSC: look for problems with existing patches</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/20/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>more things should sync to tempo, e.g. random phase, random patch, etc.</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/25/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>can't select a specific number of sides without scrolling though intermediate values</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>automatically sync tempo to audio signal; open-source beat detection DLL?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>can't use mouse to change zoom or hue while paused</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>cull rings by clipping against display rect; might prevent lock-up when zooming in</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>demo mode doesn't have enough variety; it should use effects, zoom, etc.</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/03/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add odd shift parameter; shift odd vertices, compensate for radius and center</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/08/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add dynamic patch memory; numeric keys, Ctrl+ to store, Shift+ to recall?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/10/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>assign mouse modes to properties dynamically, via mouse modes dialog</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/10/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>load specific patch into crossfader input A or B; use Alt keys as modifiers in VJ mode?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/27/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>adjusting crossfader via UI or MIDI should stop auto-fade?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/08/05</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>allow crossfade time to change during auto-fade?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/04/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add safe mode that limits number of rings if idle time drops to zero</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/07/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>tap tempo doesn't appear in menus or shortcut key list</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/11/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>movie player should set main frame caption to movie title; same for movie export?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/13/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>snapshot thumbnails in explorer via shell extension; need original window size?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/13/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>notes can be mapped to the playlist AND assigned to a property; prevent this</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/16/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>zoom changes a snapshot if it has line widths > 1, especially if it's also mirrored</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/08/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>should be able to change background color of a snapshot</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/10/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>in movie export dialog, should be able to set frame range visually, via slider</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/18/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>try adding feedback; save previous frame and blend with current frame</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/22/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>should be able to change hue of subsequent rings without affecting existing ones</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>03/28/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>allow multiple whorlds at once; extra views could draw to main view's device context</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/18/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>MIDI setup should use combo boxes for channel and controller (JM)</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/24/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>app should optionally open most recent playlist, or demo playlist if none (JM)</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/24/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>crossfader should have Select A/B and Load Next/Prev instead of Load Next A/B (JM)</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/24/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>crossfader needs a manual mode in which selecting a patch doesn't autofade (JM)</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>video overlay should have speed control via MIDI; scratching or at least slow-motion</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/05/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>bitmap export should work in veejay mode</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/10/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add bidirectional loop option to movie export: play forward and then in reverse</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/20/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>mirror quadrants shouldn't always have to be the same size</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/03/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add video capture; major research project</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/03/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>in playlist dialog, add option to hide all controls except list</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/05/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>in playlist dialog, ctrl+wheel should scroll through banks</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/19/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>aspect ratio distorts curved rings; hard to avoid, maybe it's a good thing?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/28/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>load next patch A/B doesn't work with video clips</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/28/06</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add separate folders for patches, playlists, videos, snapshots, movies</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/01/07</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>overhaul UI to use control bars instead of modeless dialogs</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>12/12/07</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>numbers dialog doesn't include global parameters; make it optional?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/25/08</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add metafile export</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/27/08</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>when Copies > 1, fill behaves unexpectedly because rings aren't concentric</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/27/08</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>copies and spread should affect existing rings</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>01/31/08</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>drag mode should hide cursor only while it's within view?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/02/08</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add global hue, lightness, saturation; move RotateHue into main loop?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/08/08</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>frame rate change requires compensating Ring Growth and Color Speed; automate?</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/08/08</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>should be able to restore ring state from patch, esp if ring growth was zero</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/21/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>changing timer frequency shouldn't affect animation speed, but it does</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>06/20/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>color speed should be compensated for growth rate; would affect existing patches</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/02/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>starting task manager or changing display settings often hangs app (DirectDraw only)</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/10/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>if print draws directly to printer DC in XOR mode, colors don't always match screen</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/14/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>when tempo is low, dragging tempo slider fails; long delay before tempo changes</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/19/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>can't print from detached view</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/12/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>sometimes app won't receive MIDI; receiving MIDI with Reason fixes it (one PC only)</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/15/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>show/hide dialog shortcuts don't work in playlist; shift is reserved for key assignment</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>add rotation for the entire scene, including X/Y shift; too expensive</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/17/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>if middle button is pressed while navigating a main menu, master speed changes</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/18/05</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>crossfading between patches with different ring growth LFOs causes glitching</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/11/06</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>if view is detached and overlaps toolbar, pressing a toolbar button enables zooming</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/13/06</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>move origin/zoom damping into view? Only makes things more complicated</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>04/27/06</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>reversing direction in fill mode causes an unfilled ring</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/07/06</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>add command to clear video history; too dangerous</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>05/18/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>tried DirectDraw scaling for giant pixels; unsupported in GDI, also complicates mirror</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/01/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>record all performance input for movie-making; recording snapshots instead</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>07/06/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>tried adding perspective; reduces detail and moiré effects, disappointing</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/03/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>tried damping on master speed; too twitchy and unpredictable</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>08/05/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>in non-VJ mode, holding down left button should drag origin: too annoying</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/09/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>investigate bevel and miter joins; they're more complicated and they look terrible</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>09/11/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>in mirror mode, offset random origin's bounding rectangle by -.25; not enough variety</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>10/07/05</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>in mix mode, file/save should map to save mix, not save document; too confusing</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TD>02/02/08</TD>
+<TD>&nbsp;</TD>
+<TD>sack</TD>
+<TD>TimerHook needlessly updates rings it's about to delete; fix benched slightly worse</TD>
+<TD>&nbsp;</TD>
+</TR>
+</TABLE><!--  content stops HERE  -->
+</div>
+</body>
+</html>

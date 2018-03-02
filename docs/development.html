@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Whorld - Development</title>
+<meta content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<link href="./style.css" rel=stylesheet title=default type=text/css>
+</head>
+<body>
+<div class=menu>
+<a href="./index.html"><img src="./images/whorld-icon-32x32.gif" width="32" height="32" alt="icon"></a>
+<div class=title>Whorld</div><p>
+<div class=menuitem0 title="Overview"><a href="./index.html">Home</a></div>
+<div class=menuitem0 title="Movies"><a href="./movies.html">Movies</a></div>
+<div class=menuitem0 title="Gallery"><a href="./gallery/trail.html">Gallery</a></div>
+<div class=menuitem0 title="Screenshots"><a href="./screenshots.html">Screenshots</a></div>
+<div class=menuitem0 title="Features"><a href="./features.html">Features</a></div>
+<div class=menuitem0 title="Download"><a href="./download.html">Download</a></div>
+<div class=menuitem0 title="Documentation"><a href="./helpframe.html">Documentation</a></div>
+<div class=menuitem0 title="Development"><b>Development</b></div>
+<div class=menuitem0 title="Forums"><a href="./forums.html">Forums</a></div>
+<div class=menuitem0 title="Links"><a href="./links.html">Links</a></div>
+<div class=menuitem0 title="Contact"><a href="./contact.html">Contact</a></div><br>
+<div class=images><br><a href="http://sourceforge.net/donate/index.php?group_id=147011"><img src="./images/project-support.jpg" width="88" height="32" border="0" alt="Support This Project"></a></div>
+<div class=images><br><a href="http://sourceforge.net/"><img src="./images/sflogo.png" width="88" height="31" alt="SourceForge Logo"></a></div>
+</div>
+<div id=body>
+<!--  content goes HERE  -->
+
+<h1>Development</h1>
+
+<h3>Compiling</h3>
+
+<p>Whorld is designed to be an MFC VC++ 6.0 project.  It may or may not compile correctly in other versions of MFC, or in .NET. You'll need the following files from the 
+<a href="http://www.zoneprog.com/directx/dxsdk.php">DirectX 8.1 SDK</a>:
+
+<p>ddraw.h
+<br>ddrawex.h
+<br>ddraw.lib
+<br>dxguid.lib
+<br>dshow.h (and all of its dependencies)
+<br>strmbase.lib
+<br>quartz.lib
+
+<p>Note that Whorld may not be compatible with later versions of the SDK.
+
+<p>You'll also need the following files from 
+<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp">HTML help</a>:
+
+<p>htmlhelp.h
+<br>htmlhelp.lib
+
+<h3>Revision History</h3>
+
+<p>The revision history is a spreadsheet containing all past, current, and future issues with Whorld.  The issues are ordered by category, close date, and open date.  The categories are as follows:
+
+<p>
+<table border="0" cellpadding="0" cellspacing="0">
+<colgroup>
+<col width=75>
+</colgroup>
+<tr>
+<td>bug</td>
+<td>outstanding problem, to be fixed ASAP</td>
+</tr>
+<tr>
+<td>done</td>
+<td>resolved problem or completed enhancement</td>
+</tr>
+<tr>
+<td>hold</td>
+<td>proposed enhancement that's being deferred</td>
+</tr>
+<tr>
+<td>punt</td>
+<td>outstanding problem that's being deferred</td>
+</tr>
+<tr>
+<td>sack</td>
+<td>enhancement that was tried and abandoned</td>
+</tr>
+<tr>
+<td>todo</td>
+<td>enhancement to be included in the next version</td>
+</tr>
+</table>
+
+<ul>
+<li><a href="issues.html">Whorld issues (HTML table)</a>
+<li><a href="issues.txt">Whorld issues (tab-delimited text file)</a>
+</ul>
+
+<h3>Blog</h3>
+
+<p><a href="http://whorld.blogspot.com/">Whorld development notes</a>
+
+<a name="horizon">
+<h3>On the Horizon</h3>
+
+<dl>
+
+<dt>Multiple instances
+<dd>I made a pretty convincing jellyfish patch, and while I was watching it swim around, I realized the poor thing looked lonely all by itself in the tank. It wants some friends, i.e. multiple Whorld instances drawn within one frame. They could either overlap another, or in some cases you might see one through the other (e.g. if they're drawn with lines, or in X-Ray mode). Each instance should have independent properties, so they could be different patches. In the easy method, you'd only be able to control one at a time. The hard way would allow independent MIDI assignments, so you could use multiple MIDI control surfaces, one per Whorld. Dueling Whorlds?
+
+<dt>Line and fill patterns
+<dd>The GDI directly supports line and fill patterns, so why not use them to add texture? I implemented them in a test version and it looks promising, though they add a major performance hit. How to manage the patterns? The GDI only supports 5 line patterns, so that's easy enough, but the fill pattern can be any 8 x 8 monochrome bitmap. Some form obvious groups, e.g. dither patterns, or letters and numbers, but the rest are hard to categorize.
+
+<dt>Ring fade-out
+<dd>Wouldn't it be great if rings could gradually become transparent as they radiate out from the center? I've simulated this effect using dither and it looks fantastic! The rings disappear into thin air, like smoke rings. Sadly, dither is just too slow. The GDI doesn't support transparency in its drawing primitives, so the only other alternative I can see is to draw each ring to a temporary bitmap, and then blit it onto the back buffer using TransparentBlt. It's very wasteful, and probably also too slow. This feature might have to wait for Vista...
+
+<dt>Windows screensaver
+<dd>Screensaver architecture is pretty different from MFC style, but that's mostly just moving furniture around. The hard problem is making Whorld run without user input. A lot of energy has been spent making Whorld interactive, and a screensaver is a big step in the opposite direction. Do I need to write an AI algorithm that emulates all my performance techniques, or is there an easier way?
+
+<dt>Beat detection
+<dd>This could be an easy one. I need to experiment with AudioBox. If it works OK I'm done. It seems to require the .NET platform but that's not really a problem now that most people are running XP.
+
+<dt>Movie editing
+<dd>The movie export is great until you try to make a compilation. Right now you have to edit your clips together after you export them, which is absurd. Whorld should have a movie editor, especially since the edits would be non-lossy. I'm not proposing Avid-style timeline editing, just a simple script, consisting of links to clips, and in/out points. Even then it's still a sizeable project, but it's mostly UI, and has zero effect on the rest of the app.
+
+<dt>Feedback
+<dd>Several people have tried combining Whorld with hardware video feedback, and the results were very encouraging. The downside is that you need a video mixer, and unless you can afford $12K for a VGA mixer, you have to use S-video, which noticeably reduces the resolution and color saturation. This could be avoided if Whorld could generate its own feedback. One approach would be to keep a copy of the previous frame, and then combine it with the current frame using transparency.
+
+<dt>Pucker
+<dd>This parameter affects the "odd" polygon, i.e. the vertices that become the points of a star. Pucker is simply translation of the odd polygon, and it completes the series of odd polygon parameters, which include Star Factor (the odd polygon's radius) and Pinwheel (the odd polygon's rotation). Pucker opens up many new possibilities, because it's the first parameter to allow asymmetrical ring geometry.
+
+</dl>
+
+<!--  content stops HERE  -->
+</div>
+</body>
+</html>

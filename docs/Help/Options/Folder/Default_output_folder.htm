@@ -1,0 +1,20 @@
+<title>Default output folder</title>
+<body>
+
+<h3>Default output folder</h3>
+
+<p>In <a href="../../Modes/Veejay_Mode.htm">Veejay mode</a>, dialogs aren't permitted, and as a result, certain commands that create output files behave differently. These commands normally display a file dialog, which prompts the user for the name and location of the output file, but in Veejay mode, the output file is <em>silently</em> created in the default output folder, using a filename that's synthesized from the date and time. The commands that behave this way are:
+
+<p>File/Save Mix
+<br>File/Take Snapshot
+<br>File/Movie/Record
+
+<p>This setting allows you to change the location of the default output folder. The default location is a subfolder called "Whorld" in "My Documents". The full path of the default location varies, but it typically has the form:
+
+<p>C:\Documents and Settings\foo\My Documents\Whorld
+
+<p>where foo is a substitute for the current username. The default location has advantages: since it's within your profile, you're guaranteed to have access to it, and it's also guaranteed to be a unique location for each user. If you change the location, make sure you have access to whatever folder you specify. Note that if you specify an invalid folder, or one that you don't have access to, you may not see any error messages, because Veejay mode doesn't allow dialogs.
+
+<p>It's possible to make these commands <em>always</em> create their output files silently; see <a href="../../Options/Folder/Use_default_folder.htm">Use default folder</a>.
+
+</body>

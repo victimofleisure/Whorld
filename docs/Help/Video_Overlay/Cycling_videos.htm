@@ -1,0 +1,26 @@
+<title>Cycling videos</title>
+<body>
+
+<h3>Cycling videos</h3>
+
+<p>Whorld can automatically step through the <a href="../Video_Overlay/Video_cache.htm">cached videos</a>, while synchronizing the transitions with the master <a href="../Master_Controls/Tempo.htm">tempo</a>. This feature is called video <em>cycling</em>. The cycling continues sequentially until the last video is reached, and then begins again with the first video. The order and contents of the cache can be changed during cycling, simply by <a href="../Video_Overlay/Playing_videos.htm">playing videos</a>. To enable or disable video cycling, use <span class="cmd">Image/Video/Cycle</span> or <span class="key">Ctrl+J</span>.
+
+<p>By default, the cycle includes all cached videos, but it's also possible to limit cycling to the N most recent videos, where N is the cycle length. To specify a cycle length, use <span class="cmd">Image/Video/Cycle Length</span>, or press a number on the numeric keypad while holding down the <span class="key">Alt</span> key, or use the Video Cycle Length <a href="../MIDI/Property_list.htm">MIDI property</a>.
+
+<p>The cycle always starts with video 0, i.e. the video that corresponds to the <span class="key">Num0</span> key. For example, if a cycle length of four is specifed, the cycle will consist of videos 0, 1, 2, and 3. Note that if the cache isn't full, the cycle may be shorter than the specified length, because empty cache slots are skipped. The following table associates cycle lengths with keys and MIDI.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Key</th><th>MIDI</th><th>Cycle length</th>
+<tr><td>Alt+Num1</td><td>0..12</td><td>most recent 1 videos</td></tr>
+<tr><td>Alt+Num2</td><td>13..25</td><td>most recent 2 videos</td></tr>
+<tr><td>Alt+Num3</td><td>26..38</td><td>most recent 3 videos</td></tr>
+<tr><td>Alt+Num4</td><td>39..51</td><td>most recent 4 videos</td></tr>
+<tr><td>Alt+Num5</td><td>52..63</td><td>most recent 5 videos</td></tr>
+<tr><td>Alt+Num6</td><td>64..76</td><td>most recent 6 videos</td></tr>
+<tr><td>Alt+Num7</td><td>77..89</td><td>most recent 7 videos</td></tr>
+<tr><td>Alt+Num8</td><td>90..101</td><td>most recent 8 videos</td></tr>
+<tr><td>Alt+Num9</td><td>102..114</td><td>most recent 9 videos</td></tr>
+<tr><td>Alt+Num0</td><td>115..127</td><td>all videos</td></tr>
+</table>
+
+</body>

@@ -1,0 +1,28 @@
+<title>Crossfading patches</title>
+<body>
+
+<h3>Crossfading patches</h3>
+
+<p>When <a href="../Patches/Patches.htm">patches</a> are played from a <a href="../Playlists/Playlists.htm">playlist</a>, the transitions can be made gradual, using automated crossfades; this works whether the patches are played manually, or via <a href="../Playlists/Autoplay.htm">autoplay</a>.
+
+<p>Playing a patch causes it to be loaded into one of the <a href="../Crossfader/Crossfader_dialog.htm">crossfader</a> inputs. Typically the crossfader is stopped on one input or the other, in which case the new patch is loaded into the <em>opposite</em> input. If the crossfade time is non-zero, the crossfader auto-fades to the new patch, otherwise it simply jumps to the new patch.
+
+<p>If an auto-fade is already in progress when the patch is played, the current mix is copied to one of the inputs, and crossfader is moved to that input; then the new patch is copied to the other input, and a new auto-fade begins. This keeps the transition smooth, even though the first auto-fade was aborted.
+
+<p>The crossfade time can be set in the <a href="../Playlists/Playlist_dialog.htm">playlist dialog</a>, using either a slider or an edit box. It can also be set via the <a href="../Modes/Mouse_Modes.htm">mouse</a> (Ctrl+wheel), or <a href="../MIDI/MIDI_Setup.htm">MIDI</a>. The unit varies, depending on the method used, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Method</th><th>Unit</th>
+</tr><tr>
+<td>slider or mouse</td><td>fraction of Patch seconds</td>
+</tr><tr>
+<td>edit box or MIDI</td><td>absolute time, in seconds</td>
+</tr>
+</table>
+
+<p>Patch seconds is the interval between patch changes in autoplay; it has its own edit box in the playlist dialog, and can also be set via MIDI. Note that setting the crossfade time via any of the above methods won't affect an auto-fade that's already in progress; the new time affects the <em>next</em> auto-fade.
+
+<p>It's possible to make the crossfade time longer than Patch seconds, and this has a curious effect in autoplay: each patch change occurs while the previous auto-fade is still in progress, so the mix accrues and becomes a synthesis of many patches. To demonstrate this, set Patch seconds to 5 and Crossfade seconds to 20.
+
+</body>

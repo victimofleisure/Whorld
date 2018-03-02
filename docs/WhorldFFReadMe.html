@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Whorld Freeframe ReadMe</title>
+<meta content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<link href="./style.css" rel=stylesheet title=default type=text/css>
+</head>
+<body>
+<div class=menu>
+<a href="./index.html"><img src="./images/whorld-icon-32x32.gif" width="32" height="32" alt="icon"></a>
+<div class=title>Whorld</div><p>
+<div class=menuitem0 title="Overview"><a href="./index.html">Home</a></div>
+<div class=menuitem0 title="Movies"><a href="./movies.html">Movies</a></div>
+<div class=menuitem0 title="Gallery"><a href="./gallery/trail.html">Gallery</a></div>
+<div class=menuitem0 title="Screenshots"><a href="./screenshots.html">Screenshots</a></div>
+<div class=menuitem0 title="Features"><a href="./features.html">Features</a></div>
+<div class=menuitem0 title="Download"><a href="./download.html">Download</a></div>
+<div class=menuitem0 title="Documentation"><a href="./helpframe.html">Documentation</a></div>
+<div class=menuitem0 title="Development"><a href="./development.html">Development</a></div>
+<div class=menuitem0 title="Forums"><a href="./forums.html">Forums</a></div>
+<div class=menuitem0 title="Links"><a href="./links.html">Links</a></div>
+<div class=menuitem0 title="Contact"><a href="./contact.html">Contact</a></div><br>
+<div class=images><br><a href="http://sourceforge.net/donate/index.php?group_id=147011"><img src="./images/project-support.jpg" width="88" height="32" border="0" alt="Support This Project"></a></div>
+<div class=images><br><a href="http://sourceforge.net/"><img src="./images/sflogo.png" width="88" height="31" alt="SourceForge Logo"></a></div>
+</div>
+<div id=body>
+<!--  content goes HERE  -->
+
+<h2>Getting started with the Whorld Freeframe plugin</h2>
+
+<h3>Installation</h3>
+
+<p>Start by <a href="download.html">downloading the plugin</a>.
+
+<p>Most softwares reserve a special folder for freeframe plugins.  If your
+software does this, simply copy WhorldFF.dll to the special folder.  Be
+sure to do this BEFORE launching your software, since it probably only
+checks for plugins during startup.  Otherwise, consult your software's
+documentation.
+
+<p>IMPORTANT: In addition to installing the plugin, you should also install
+some Whorld patches, because otherwise the plugin won't do much.  Use
+the following procedure:
+
+<ol>
+<li>Find your "My Documents" folder.  If you're unfamiliar with Windows,
+there are various ways to do this.  One reliable way is to go to the
+Start menu, select "Documents", and then select "My Documents".
+
+<li>In your "My Documents" folder, create a subfolder called WhorldFF.
+The subfolder name must be spelled correctly.  The subfolder's path
+should look something like this (assuming you're the Administrator):
+
+<p>C:\Documents and Settings\Administrator\My Documents\WhorldFF
+
+<li>Copy the patches from this distribution into the WhorldFF
+subfolder.
+</ol>
+
+<h3>Uninstalling</h3>
+
+<p>Just delete the WhorldFF.dll and the Whorld patches, and that's all
+there is to it.
+
+<h3>Parameters</h3>
+
+<p>WhorldFF exposes the following freeframe parameters:
+
+<dl>
+<dt>Patch
+<dd>Selects a patch from your WhorldFF folder; 0 to patches - 1.
+<dt>Speed
+<dd>Master speed; 0 = min, .5 = nominal, 1 = max.
+<dt>Zoom
+<dd>Magnification; 0 = min, .5 = nominal, 1 = max.
+<dt>Hue
+<dd>Shifts the hues in the entire image; 0 to 360 degrees.
+<dt>Damping
+<dd>Applied to origin motion and zoom; 0 = none, 1 = max.
+<dt>Trail
+<dd>Slinky effect applied to origin motion; 0 = none, 1 = max.
+<dt>Rings
+<dd>Maximum number of rings; 0 = none, 1 = unlimited.
+<dt>Tempo
+<dd>If origin motion is "Random", the jump rate: 0 to 250 BPM.
+<dt>X Pos
+<dd>If origin motion is "Drag", the origin X-coordinate.
+<dt>Y Pos
+<dd>If origin motion is "Drag", the origin Y-coordinate.
+</dl>
+
+<p>Your software probably won't support all of these parameters, but it's
+supposed to support at least the first four, according to the freeframe
+specification.  If it doesn't, complain to whoever makes your software,
+not to me :).
+
+<h3>Patches</h3>
+
+<p>You can put any Whorld patches you like in the WhorldFF folder, not just
+the ones provided in this distribution.  By all means use the Whorld
+application to create your own patches.  NOTE however that you should
+use Whorld version 1.4 or higher to create patches for the plugin,
+because otherwise your patches won't be able to specify effects or
+master controls.
+
+<p>Your patches are loaded in alphabetical order.  This means you can
+determine the order in which they appear in the plugin (if you care), by
+naming them appropriately.  For example, you could begin each patch name
+with a number, like this:
+
+<p>00 foo.whp
+<br>01 blah.whp
+<br>etc.
+
+<h3>Troubleshooting</h3>
+
+<p>If you're able to run the plugin, but it only displays pentagons, and
+the patch slider doesn't do anything, it's because the plugin didn't
+find any patches.  The most likely reason is that you put them in the
+wrong folder.  Remember, there's a unique "My Documents" folder for each
+user.  The plugin looks in "My Documents\WhorldFF" for the CURRENT user,
+and nowhere else.
+
+<p>Some patches may cause performance problems, e.g. the frame rate may
+drop, or your software may become unresponsive.  If this occurs, here
+are some things to try:
+
+<ol>
+<li>Use a more powerful gamer-style PC.
+<li>Use a lower-resolution video mode.
+<li>Lower the Rings parameter, if your software supports it.
+<li>Figure out which patches cause trouble, and don't use them.
+<li>Edit the patches to reduce their performance requirements.
+</ol>
+
+<p>It may help to read the "Performance" chapter in Whorld's documentation.
+Briefly, any of the following can cause problems: wide lines, fill mode,
+outline mode, x-ray mode, Bézier curves, excessive poly sides, extreme
+star factor, or excessive ring count.  The easiest solution is usually
+to reduce the Ring count, either directly via the Rings master control,
+or indirectly by increasing the Ring Spacing parameter.
+
+<p>For more information, see <a href="http://whorld.org">whorld.org</a>
+
+<h3>Known bugs</h3>
+
+<p>When you change patches, the other parameters (Speed, Zoom, etc.) don't
+snap to the new patch's values.  Sorry!
+
+<p>Kopyleft 2006 Chris Korda, All Rites Reversed.
+
+<!--  content stops HERE  -->
+</div>
+</body>
+</html>

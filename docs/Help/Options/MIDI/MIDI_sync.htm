@@ -1,0 +1,68 @@
+<title>MIDI sync</title>
+<body>
+
+<h3>MIDI sync</h3>
+
+<p>When this option is checked, Whorld synchronizes the <a href="../../Master_Controls/Tempo.htm">tempo</a> to MIDI clocks. Unlike <a href="../../Loose_Ends/Tap_Tempo.htm">manual synchronization</a>, MIDI sync doesn't drift, even if the tempo changes. Note that tempo has no visible effect unless <a href="../../Modes/Origin_Motion.htm">origin motion</a> is set to Random.
+
+<p>The PC must be connected to a device that sends MIDI clocks for this option to work. While MIDI sync is checked, the origin will not jump unless Whorld is receiving MIDI clocks. Not all MIDI devices send clocks. If necessary, use a different application to verify that the PC is receiving MIDI clocks.
+
+<p>In MIDI sync mode, the usual methods of setting the tempo (Master dialog's tempo controls, <span class="key">Tab</span> key, tempo nudge keys) have no effect. Other tempo functions have subtly different meanings, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Name</th>
+<th>Key</th>
+<th>Function</th>
+</tr><tr>
+<td>Tap</td>
+<td>Tab</td>
+<td>No effect: tempo set by MIDI.</td>
+</tr><tr>
+<td>Nudge Up</td>
+<td>+</td>
+<td>No effect: tempo set by MIDI.</td>
+</tr><tr>
+<td>Nudge Down</td>
+<td>-</td>
+<td>No effect: tempo set by MIDI.</td>
+</tr><tr>
+<td>Resync</td>
+<td>Enter</td>
+<td>Restarts the tempo loop.</td>
+</tr><tr>
+<td>Double</td>
+<td>]</td>
+<td>Doubles the meter.</td>
+</tr><tr>
+<td>Half</td>
+<td>[</td>
+<td>Halves the meter.</td>
+</tr>
+</table>
+
+<p>MIDI sync mode introduces the concept of <em>meter</em>, which governs the relationship between the MIDI tempo, and how often the origin jumps. Tempo is measured in beats per minute (BPM). When the meter is 1/4, the origin jumps once per beat, e.g. at 120 BPM, the origin jumps 120 times a minute, or twice per second. The meter is changed via the <span class="key">[</span> and <span class="key">]</span> keys. The available meters are listed below. Note that in MIDI sync mode, the status bar displays the meter instead of the tempo.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Meter</th><th>Jumps</th><th>BPM</th>
+</tr><tr>
+<td>4/1</td><td>every sixteen beats</td><td>/ 16</td>
+</tr><tr>
+<td>2/1</td><td>every eight beats</td><td>/ 8</td>
+</tr><tr>
+<td>1/1</td><td>every four beats</td><td>/ 4</td>
+</tr><tr>
+<td>1/2</td><td>every other beat</td><td>/ 2</td>
+</tr><tr>
+<td>1/4</td><td>every beat</td><td>&times; 1</td>
+</tr><tr>
+<td>1/8</td><td>twice per beat</td><td>&times; 2</td>
+</tr><tr>
+<td>1/16</td><td>four times per beat</td><td>&times; 4</td>
+</tr>
+</table>
+
+
+
+</body>

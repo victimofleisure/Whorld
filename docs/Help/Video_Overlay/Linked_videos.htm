@@ -1,0 +1,20 @@
+<title>Linked videos</title>
+<body>
+
+<h3>Linked videos</h3>
+
+<p>The video overlay is captured in <a href="../Snapshots/Snapshots.htm">snapshots</a>, but instead of embedding the video frame in the snapshot, the snapshot contains an external link to the video file. This saves a substantial amount of disk space, but it also means that in order to <a href="../Snapshots/Load_Snapshot.htm">load</a> or <a href="../Loose_Ends/Export.htm">export</a> the snapshot, the video file must exist at the correct location on your disk. If the video is not found, a <a href="../Playlists/Missing_Files.htm">missing files</a> dialog is displayed.
+
+<p>The video overlay is also captured in recorded <a href="../Movies/Movies.htm">movies</a>, again via external links to the video files. If you move, rename or delete the linked videos, attempting to <a href="../Movies/Playing_movies.htm">play</a> or <a href="../Movies/Exporting_movies.htm">export</a> the movie causes a <a href="../Playlists/Missing_Files.htm">missing files</a> dialog to be displayed.
+
+<p>Note that depending on how you encode your video, you may experience delays when playing back a recorded movie that contains video links. The delays only affect playback within Whorld: if you export the movie, the delays will NOT appear in the exported AVI file. The delays are likely to be worse with long video clips, and typically occur in the following situations:
+
+<ul>
+<li>If you started recording while a video was playing.
+<li>If during the recording, you played videos that were cached before the recording started, and the Auto-Rewind option was off.
+<li>If you play back the recorded movie from any position other than the beginning.
+</ul>
+
+<p>The delays occur because codecs often exhibit very slow seeking to any position other than the start of the video. The slow seeking is a side effect of temporal compression. You may be able to avoid the delays by <a href="../Video_Overlay/Encoding_videos.htm">encoding</a> your video without temporal compression.
+
+</body>

@@ -1,0 +1,26 @@
+<title>Video blending</title>
+<body>
+
+<h3>Video blending</h3>
+
+<p>The video is blended with the animation, such that both the video and the animation are partially visible. The available blending modes are listed in the table below. Each blending mode corresponds to a Windows GDI Raster Operation (ROP). A raster operation is a boolean operator (OR, AND, XOR) optionally combined with an inversion of the source (the video) or the destination (the animation).
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Key</th><th>MIDI</th><th>Blending</th><th>Description</th><th>ROP code</th><th>Common name</th></tr>
+<tr><td>Ctrl+Num0</td><td>0..12</td><td>~Src & Dst</td><td>AND inverted source with destination</td><td>DSna</td><td>&nbsp;</td></tr>
+<tr><td>Ctrl+Num1</td><td>13..25</td><td>~Src | Dst</td><td>OR inverted source with destination</td><td>DSno</td><td>MERGEPAINT</td></tr>
+<tr><td>Ctrl+Num2</td><td>26..38</td><td>Src & ~Dst</td><td>AND source with inverted destination</td><td>SDna</td><td>SRCERASE</td></tr>
+<tr><td>Ctrl+Num3</td><td>39..51</td><td>Src & ~Dst</td><td>OR source with inverted destination</td><td>SDno</td><td>&nbsp;</td></tr>
+<tr><td>Ctrl+Num4</td><td>52..63</td><td>Src & Dst</td><td>AND source with destination</td><td>DSa</td><td>SRCAND</td></tr>
+<tr><td>Ctrl+Num5</td><td>64..76</td><td>Src | Dst</td><td>OR source with destination</td><td>DSo</td><td>SRCPAINT</td></tr>
+<tr><td>Ctrl+Num6</td><td>77..89</td><td>Src ^ Dst</td><td>XOR source with destination</td><td>DSx</td><td>SRCINVERT</td></tr>
+<tr><td>Ctrl+Num7</td><td>90..101</td><td>~(Src & Dst)</td><td>AND source with destination, invert result</td><td>DSan</td><td>&nbsp;</td></tr>
+<tr><td>Ctrl+Num8</td><td>102..114</td><td>~(Src | Dst)</td><td>OR source with destination, invert result</td><td>DSon</td><td>NOTSRCERASE</td></tr>
+<tr><td>Ctrl+Num9</td><td>115..127</td><td>~(Src ^ Dst)</td><td>XOR source with destination, invert result</td><td>DSxn</td><td>&nbsp;</td></tr>
+</table>
+
+<p>The XOR modes alter the colors drastically, giving a psychedelic effect. The other modes don't alter the colors as much, but they're also more sensitive to very dark or very light inputs. SRCPAINT is similar to transparency, and causes the least amount of color distortion. SRCAND is similar to luma-keying: the video is only visible in non-black portions of the animation. The default blending mode is SRCINVERT.
+
+<p>The blending mode can be changed via <span class="cmd">Image/Video/Blending</span>, or by pressing a number on the numeric keypad while holding down the <span class="key">Ctrl</span> key, or via MIDI. Changing the blending mode is a dramatic effect, but caution is advised since extreme changes in brightness may result. Note that the MIDI values given above assume that the Video Blending <a href="../MIDI/Property_list.htm">MIDI property</a> has its default range (five).
+
+</body>

@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Documentation</title>
+<meta content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<link href="content.css" rel=stylesheet title=default type=text/css>
+<base target="topic"> 
+</head>
+<body>
+<a target="_top" href="../index.html"><img src="../images/whorld-icon-32x32.gif" width="32" height="32" alt="icon"></a>
+<div class=title>Whorld</div>
+<p>
+<div class=menuitem title="Overview"><a target="_top" href="../index.html">Home</a></div>
+

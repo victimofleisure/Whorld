@@ -1,0 +1,26 @@
+<title>Reverse</title>
+<body>
+
+<h3>Reverse</h3>
+
+<p>This effect reverses the direction of ring growth. If the rings were expanding, they immediately begin contracting at the same speed, and vice versa. A similar effect can be achieved by changing the sign of the <a href="../Parameters/Ring_Growth.htm">Ring Growth</a> parameter, but the Reverse command is much more convenient.
+
+<p>Reverse is handled separately from the Ring Growth parameter, and does not alter it; they combine to determine ring behavior, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Ring Growth</th><th>Reverse</th><th>result</th>
+</tr><tr>
+<td>positive</td><td>no</td><td>expansion</td>
+</tr><tr>
+<td>positive</td><td>yes</td><td>contraction</td>
+</tr><tr>
+<td>negative</td><td>no</td><td>contraction</td>
+</tr><tr>
+<td>negative</td><td>yes</td><td>expansion</td>
+</tr><tr>
+<td>zero</td><td>N/A</td><td>frozen</td>
+</tr>
+</table>
+
+</body>

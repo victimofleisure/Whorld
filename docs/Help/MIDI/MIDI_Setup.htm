@@ -1,0 +1,18 @@
+<title>MIDI Setup</title>
+<body>
+
+<h3>MIDI Setup</h3>
+
+<p>This dialog allows you to assign MIDI messages to Whorld's properties. To show or hide the dialog, use <span class="cmd">View/MIDI Setup</span> or <span class="key">Shift+I</span>. The dialog consists of a two-dimensional table, called the <a href="../MIDI/Property_list.htm">property list</a>. Assignments can be made by editing the property list, or via <a href="../MIDI/Learn_mode.htm">Learn mode</a> or <a href="../MIDI/Auto-assign.htm">Auto-assign</a>. Note that you must select a <a href="../Options/MIDI/MIDI_device.htm">MIDI device</a> before MIDI will work.
+
+<p>Each row in the property list displays information about the MIDI message that's assigned to the corresponding property, including the message's range, type, channel, and controller/note number. This information can be edited, and the edits take effect immediately.
+
+<p>For example, to assign controller 1 on channel 12 to <a href="../Parameters/Ring_Spacing.htm">Ring Spacing</a>, go to the appropriate row, change the event type to "CTRL", the channel to 12, and the controller to 1. Twiddling the controller should now affect both the ring spacing and the number in the "Value" column.
+
+<p>If nothing happens, open the Options dialog and check your <a href="../Options/MIDI/MIDI_device.htm">MIDI device</a> selection. Also check your cables and connections. If necessary, use a different application to verify that your PC is receiving MIDI messages.
+
+<p>Note that a given MIDI message can only be assigned to one property at a time. If you assign a message that's already assigned to another property, the other property loses its assignment, and its event type is set to "OFF" to indicate this.
+
+<p>MIDI assignments are saved as part of the <a href="../Playlists/Playlists.htm">playlist</a>. If you already have a playlist with the desired MIDI setup, you can copy the setup into the current playlist, by choosing <span class="cmd">File/Import MIDI Setup</span> from the <a href="../Playlists/Playlist_dialog.htm">playlist dialog</a>'s menus.
+
+</body>

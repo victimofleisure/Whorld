@@ -1,0 +1,64 @@
+<title>Video cache</title>
+<body>
+
+<h3>Video cache</h3>
+
+<p>The ten most recently played videos are cached, and can be selected via <span class="cmd">Image/Video/Select</span>, keys 0..9 on the numeric keypad, or the Video Select <a href="../MIDI/Property_list.htm">MIDI property</a>. This provides you with a dynamic "working set" of videos that can be accessed easily, without having to remember where they are in your playlist. The cache is kept in ascending order by age, i.e. Num0 is always the most recently played video, Num1 is the second most recently played video, and so on.
+
+<p>Note that a distinction is made between <em>selecting</em> cached videos, and <em>playing</em> videos, which may or may not be already cached. Cached videos are selected as described above; videos are <a href="../Video_Overlay/Playing_videos.htm">played</a> via the playlist dialog, assigned keys, or MIDI mapping. Selecting a cached video doesn't affect the cache order, whereas playing a video changes the order as follows:
+
+<ul>
+<li>If the video isn't cached yet, it becomes Num0, the previously cached videos move up a key, and if the cache was full, the tenth video gets bumped.
+<li>If the video is already cached, it moves to Num0, and videos that were below it move up a key, but nobody gets bumped.
+</ul>
+
+<p>The following diagram illustrates both cases, using names to represent the videos. Bold indicates the currently playing video.
+
+<p><table border=0 cellpadding=5 cellspacing=0>
+<tr>
+<td>Initial cache state:</td>
+<td>After playing "karl":</td>
+<td>After playing "fred":</td>
+</tr>
+<tr><td align=center>
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>7<br>cody</td><td>8<br>burt</td><td>9<br>adam</td></tr>
+<tr><td>4<br>fred</td><td>5<br>eddy</td><td>6<br>doug</td></tr>
+<tr><td>1<br>ivan</td><td>2<br>hank</td><td>3<br>greg</td></tr>
+<tr><td colspan=2>0<br><b>jack</b></td><td>&nbsp;</td></tr>
+</table>
+</td><td align=center>
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>7<br>doug</td><td>8<br>cody</td><td>9<br>burt</td></tr>
+<tr><td>4<br>greg</td><td>5<br>fred</td><td>6<br>eddy</td></tr>
+<tr><td>1<br>jack</td><td>2<br>ivan</td><td>3<br>hank</td></tr>
+<tr><td colspan=2>0<br><b>karl</b></td><td>&nbsp;</td></tr>
+</table>
+</td><td align=center>
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>7<br>doug</td><td>8<br>cody</td><td>9<br>burt</td></tr>
+<tr><td>4<br>hank</td><td>5<br>greg</td><td>6<br>eddy</td></tr>
+<tr><td>1<br>karl</td><td>2<br>jack</td><td>3<br>ivan</td></tr>
+<tr><td colspan=2>0<br><b>fred</b></td><td>&nbsp;</td></tr>
+</table>
+</td></tr>
+</table>
+
+<p>The following table associates cached videos with keys and MIDI. Note that a value of 127 disables video. If this is undesirable, set the range of the Video Select MIDI property to 4.99 instead of 5.
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Key</th><th>MIDI</th><th>Video</th>
+<tr><td>Num0</td><td>0..12</td><td>0</td></tr>
+<tr><td>Num1</td><td>13..25</td><td>1</td></tr>
+<tr><td>Num2</td><td>26..38</td><td>2</td></tr>
+<tr><td>Num3</td><td>39..51</td><td>3</td></tr>
+<tr><td>Num4</td><td>52..63</td><td>4</td></tr>
+<tr><td>Num5</td><td>64..76</td><td>5</td></tr>
+<tr><td>Num6</td><td>77..89</td><td>6</td></tr>
+<tr><td>Num7</td><td>90..101</td><td>7</td></tr>
+<tr><td>Num8</td><td>102..114</td><td>8</td></tr>
+<tr><td>Num9</td><td>115..126</td><td>9</td></tr>
+<tr><td>Num.</td><td>127</td><td>None</td></tr>
+</table>
+
+</body>

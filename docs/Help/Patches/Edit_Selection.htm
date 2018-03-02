@@ -1,0 +1,48 @@
+<title>Edit Selection</title>
+<body>
+
+<h3>Edit Selection</h3>
+
+<p>Whorld has various <em>buffers</em> in which patches can be edited. The edit selection determines which one of these buffers the <a href="../Patches/Parameters_dialog.htm">parameters dialog</a> operates on. To change the edit selection, use the Edit menu, or the parameters dialog's system menu (left-click the icon in the dialog's upper-left corner). The choices are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Document</td><td>The patch that the File menu opens and saves, and the name of which appears in the main window's caption.</td>
+</tr><tr>
+<td>Crossfader A</td><td>The crossfader's input patch 'A'; can be loaded, edited, and saved via the <a href="../Crossfader/Crossfader_dialog.htm">crossfader dialog</a>.</td>
+</tr><tr>
+<td>Crossfader B</td><td>The crossfader's input patch 'B'; can be loaded, edited, and saved via the crossfader dialog.</td>
+</tr><tr>
+<td>Crossfader Mix</td><td>The crossfader's output patch; can be edited and saved, but note that edits are overwritten without warning if the crossfader position or inputs change.</td>
+</tr><tr>
+<td>Master Offsets</td><td>This pseudo-patch contains <a href="../Patches/Master_Offsets.htm">offsets</a> which are added to the parameters from the document or crossfader mix; for a schematic, see <a href="../Modes/Signal_Flow.htm">Signal Flow</a>. It also includes an optional <a href="../Patches/Oscillator_Override.htm">oscillator override</a> for each parameter.</td>
+</tr><tr>
+<td>Global Params</td><td>This pseudo-patch contains the <a href="../Parameters/Global_Parameters.htm">global parameters</a>, which affect all existing rings, unlike regular parameters, which only affect new rings.</td>
+</tr>
+</table>
+
+<p>The animation is always controlled by either the document, or the crossfader mix; the <a href="../Modes/View_Mix.htm">View Mix</a> setting determines which one. Edits made via the parameters dialog may or may not affect the animation, depending on the combination of View Mix and edit selection, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th colspan=2 rowspan=2>Do parameters dialog edits affect the animation?</th><th colspan=2>View</th>
+</tr><tr>
+<th>Document</th><th>Mix</th>
+</tr><tr>
+<th rowspan=6>Edit</th><th>Document</th><td>Yes</td><td>No</td>
+</tr><tr>
+<th>Crossfader A</th><td>No</td><td>Maybe</td>
+</tr><tr>
+<th>Crossfader B</th><td>No</td><td>Maybe</td>
+</tr><tr>
+<th>Crossfader Mix</th><td>No</td><td>Yes</td>
+</tr><tr>
+<th>Master Offsets</th><td>Yes</td><td>Yes</td>
+</tr><tr>
+<th>Global Params</th><td>Yes</td><td>Yes</td>
+</tr>
+</table>
+
+<p>For normal patch editing, the edit selection should be "Document", and View Mix should be off, so you can see the effect of your edits. If some cases you may want to edit the crossfader inputs or mix. More likely you'll want to edit the master offsets.
+
+</body>

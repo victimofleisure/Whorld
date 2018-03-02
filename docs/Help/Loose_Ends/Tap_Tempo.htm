@@ -1,0 +1,52 @@
+<title>Tap Tempo</title>
+<body>
+
+<h3>Tap Tempo</h3>
+
+<p>Tap tempo is a method of manually synchronizing Whorld's <a href="../Master_Controls/Tempo.htm">tempo</a> to music, by tapping a special key along with the beat. This initial synchronization typically has to be corrected, by <em>nudging</em> the tempo up or down slightly. The tap tempo functions are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<th>Name</th>
+<th>Key</th>
+<th>Function</th>
+</tr><tr>
+<td>Tap</td>
+<td>Tab</td>
+<td>Sets the tempo when tapped repeatedly in rhythm.</td>
+</tr><tr>
+<td>Nudge Up</td>
+<td>+</td>
+<td>Increases the tempo by the <a href="../Options/Input/Tempo_nudge.htm">tempo nudge</a> percentage.</td>
+</tr><tr>
+<td>Nudge Down</td>
+<td>-</td>
+<td>Decreases the tempo by the <a href="../Options/Input/Tempo_nudge.htm">tempo nudge</a> percentage.</td>
+</tr><tr>
+<td>Resync</td>
+<td>Enter</td>
+<td>Restarts the tempo loop, without changing the tempo.</td>
+</tr><tr>
+<td>Double</td>
+<td>]</td>
+<td>Doubles the tempo.</td>
+</tr><tr>
+<td>Half</td>
+<td>[</td>
+<td>Halves the tempo.</td>
+</tr>
+</table>
+
+<p>The tempo can be entered simply by tapping the <span class="key">Tab</span> key twice: Whorld measures the elapsed time between the taps, and sets the tempo accordingly. Note that tempo has no visible effect unless <a href="../Modes/Origin_Motion.htm">origin motion</a> is set to Random.
+
+<p>More accurate results can be achieved by increasing the number of taps. Each additional tap provides another elapsed time measurement, or <em>sample</em>. The tempo is calculated by <em>averaging</em> the samples, but only so long as they stay within 10% of the average. If a sample is off by more than 10%, the history is flushed, and averaging starts over again from that sample.
+
+<p>You can tap on any evenly-spaced subdivision of the music, not only the main beat. You may prefer to tap on longer subdivisions (e.g. half notes, whole notes, every other measure) so the origin doesn't jump as often.
+
+<p>After tapping the tempo, watch the origin, to see if its jumps are in sync with the music. It's is easier to see when <a href="../Master_Controls/Damping.htm">damping</a> is low. If they seem out of sync, try tapping the <span class="key">Enter</span> key once, right on the beat, or slightly ahead of it. This shifts the jumps onto the beat, but doesn't change the tempo. The sync should improve, at least temporarily. If it stays good for a while, you're done.
+
+<p>Otherwise, when the sync starts to drift, try to determine which <em>way</em> it's drifting. If the jumps are falling behind, the tempo is too slow, so nudge it up. If they're getting ahead, the tempo is too fast, so nudge it down. Be careful not to overcompensate. If you're way off, it may be easier to start over, by tapping the tempo again. It's beat-matching, and it takes some practice.
+
+<p>Without <a href="../Options/MIDI/MIDI_sync.htm">MIDI sync</a>, drift is unavoidable; the question is just how quickly it gets big enough to bother you. Assuming the music has a fixed tempo, you shouldn't have to resync more than once or twice a minute. If you do, either the DJ has his thumb on the record, or you haven't got the tempo right. It may help to play with the <a href="../Options/Input/Tempo_nudge.htm">tempo nudge</a> percentage.
+
+</body>

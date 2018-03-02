@@ -1,0 +1,24 @@
+<title>Panic</title>
+<body>
+
+<h3>Panic</h3>
+
+<p>This command restores critical settings to reasonable values. The affected settings all have the potential to cause confusion or degrade <a href="../Loose_Ends/Performance.htm">performance</a>. Panic can rescue you from a variety of problems, but the transition can be a bit jarring. To execute this command, use <em>Window/Panic</em> or press <span class="key">Esc</span>.
+
+<p>Panic takes the following actions:
+<ul>
+<li>All rings are deleted, clearing the screen.
+<li><a href="../Modes/Pause.htm">Pause</a> is disabled (i.e. animation is unpaused).
+<li><a href="../Effects/Fill.htm">Fill</a>, <a href="../Effects/Outline.htm">outline</a> and <a href="../Effects/X-Ray.htm">X-ray</a> are disabled.
+<li><a href="../Color/Invert_Color.htm">Invert color</a> and <a href="../Effects/Reverse.htm">Reverse</a> modes are disabled.
+<li><a href="../Master_Controls/Speed.htm">Speed</a>, <a href="../Master_Controls/Zoom.htm">Zoom</a>, <a href="../Master_Controls/Damping.htm">Damping</a>, <a href="../Master_Controls/Trail.htm">Trail</a>, and <a href="../Master_Controls/Rings.htm">Rings</a> are reset.
+<li>All <a href="../Patches/Master_Offsets.htm">master offsets</a> are zeroed.
+<li>Random <a href="../Modes/Origin_Motion.htm">origin motion</a> is disabled and the origin is centered.
+<li>Any <a href="../Patches/Oscillator_Override.htm">oscillator override</a> properties that have been changed via MIDI are reset.
+</ul>
+
+<p>Panic also exits from <a href="../Modes/Full_Screen.htm">full-screen</a>, but <em>not</em> from <a href="../Modes/Veejay_Mode.htm">Veejay mode</a>.
+
+<p>Note that if you're using a MIDI controller, after pressing Panic, the positions of your knobs (or sliders, or whatever) are no longer meaningful. To fix this, move the knobs to their default positions, and then <a href="../MIDI/Zero_Controllers.htm">Zero Controllers</a>, or press Panic again.
+
+</body>

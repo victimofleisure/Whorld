@@ -1,0 +1,510 @@
+open	close	type	description	rev
+04/21/05	04/30/05	done	add lightness and saturation controls	1.0.21
+04/21/05	04/30/05	done	add printer support	1.0.21
+04/21/05	04/30/05	done	add variable background color	1.0.21
+04/21/05	04/30/05	done	changing frequency should not affect phase	1.0.21
+04/21/05	05/05/05	done	in crossfader, implement non-looped fade	1.0.22
+04/21/05	05/05/05	done	in crossfader, play must set osc phase from fader pos	1.0.22
+04/21/05	05/05/05	done	in crossfader, separate edit from view	1.0.22
+04/21/05	05/07/05	done	add bitmap export	1.0.23
+05/05/05	05/09/05	done	in crossfader, edit buttons should show params dialog	1.0.24
+05/07/05	05/09/05	done	paint after pause causes center hole; pause must undo last ring step	1.0.24
+04/21/05	05/11/05	done	use DirectDraw	1.0.25
+05/11/05	05/11/05	done	for printing, draw to memory DC and blit, else lines are too thin	1.0.26
+05/11/05	05/11/05	done	move GDI back buffer to its own object	1.0.26
+05/10/05	05/12/05	done	adapt for DirectX 7	1.0.26
+04/21/05	05/16/05	done	can't drag and drop shapshot files	1.0.27
+04/21/05	05/16/05	done	seed random number generator	1.0.27
+05/10/05	05/16/05	done	allow order of parms dlg rows and view params to differ	1.0.27
+05/10/05	05/16/05	done	switching from non-maximized to full screen and exiting breaks full screen on next run	1.0.27
+05/13/05	05/16/05	done	opening a new document doesn't update parms dialog's title	1.0.27
+04/21/05	05/17/05	done	add pulse width column to parms dialog	1.0.28
+05/10/05	05/17/05	done	parms dlg is too big, make it a scrollable view	1.0.28
+05/15/05	05/18/05	done	add command to generate random patches from crossfader inputs	1.0.29
+05/15/05	05/18/05	done	add command to randomize phase of LFOs	1.0.29
+05/15/05	05/18/05	done	add pinwheel parameter	1.0.29
+04/21/05	05/19/05	done	in parms dialog, tab at end of row should go to next row; shift+tab is reverse case	1.0.29
+05/19/05	05/20/05	done	add ring fill and outline	1.0.30
+05/19/05	05/20/05	done	zero window width or height crashes DirectDraw	1.0.30
+05/21/05	05/22/05	done	doc info shouldn't live in CrossDlg	1.0.31
+05/21/05	05/25/05	done	add splitter window for multiple views	1.0.32
+05/22/05	05/26/05	done	add set origin via context menu	1.0.33
+05/26/05	05/26/05	done	dropping a file in split mode must set active pane first	1.0.33
+05/26/05	05/26/05	done	fill mode and origin should be saved in document	1.0.33
+05/27/05	05/28/05	done	save as doesn't change parms dialog title	1.0.33
+05/31/05	06/01/05	done	if 2 panes, splitter isn't centered: switch rows and cols in centering line	1.0.34
+05/31/05	06/01/05	done	next/prev pane keys broken; in SetActivePane, if pWnd is NULL, must call GetPane	1.0.34
+05/15/05	06/02/05	done	add a playlist dialog that loads a list of patches and crossfades between them	1.0.34
+05/26/05	06/02/05	done	in playlist fade, modulators unused in source but active in dest should have random phase	1.0.34
+05/30/05	06/02/05	done	in split mode, need a way to center splitter, and set all pane origins to split point	1.0.34
+05/30/05	06/02/05	done	should be able to exit and reenter split mode without saving documents	1.0.34
+05/31/05	06/02/05	done	accidental cascading ring deletion is an essential feature; make it explicit	1.0.34
+05/31/05	06/02/05	done	in split mode, switching panes after editing a parameter can cause loss of edit	1.0.34
+06/03/05	06/07/05	done	add mirror mode; should work in both single and split frame	1.0.35
+06/06/05	06/08/05	done	add print support for mirror mode; can't stretch blit to printer DC, use DIB instead	1.0.35
+06/06/05	06/08/05	done	in split, drag all should move origins relative to their original positions	1.0.35
+06/07/05	06/08/05	done	add sync panes to split window menu, with check	1.0.35
+05/30/05	06/09/05	done	need a simple way to make split pane color schemes differ; add rotate hue	1.0.36
+06/09/05	06/09/05	done	add toolbar	1.0.36
+06/09/05	06/10/05	done	add list control and shortcut keys to playlist	1.0.37
+06/09/05	06/10/05	done	create dialogs in frame OnCreate	1.0.37
+06/11/05	06/16/05	done	add toolbar button for take snapshot	1.0.38
+06/15/05	06/16/05	done	add missing files dialog to playlist	1.0.38
+06/06/05	06/20/05	done	add x-ray fill mode, using XOR pen	1.0.39
+06/19/05	06/20/05	done	in non-outlined fill mode, draw directly to printer's DC	1.0.39
+06/20/05	06/20/05	done	DC brush color doesn't affect FillRect on some printers; erase with ExtTextOut, faster too	1.0.39
+06/20/05	06/20/05	done	mirror toolbar button and shortcut don't work while paused; SetMirror must invalidate	1.0.39
+06/20/05	06/20/05	done	snapshots must preserve mirror origin, else new window size drastically changes image	1.0.39
+05/20/05	06/22/05	done	add options dialog with DirectDraw checkbox, video vs system memory selector	1.0.40
+06/06/05	06/22/05	done	expose canvas size; options dialog	1.0.40
+06/10/05	06/23/05	done	add master speed dialog; rename parms MasterSpeed to RingGrowth	1.0.40
+06/23/05	06/23/05	done	add status bar	1.0.40
+06/25/05	06/25/05	done	disable timer while iconic	1.0.40
+06/10/05	06/26/05	done	toolbar buttons don't get updated when CPU is saturated; due to IsIdleMessage override	1.0.40
+06/25/05	06/27/05	done	add drag reordering to playlist; make it reusable	1.0.40
+06/20/05	06/28/05	done	origin, fill mode, mirror etc are saved in patch but not restored; make this optional	1.0.40
+06/25/05	06/28/05	done	add command line open for snapshot files	1.0.40
+06/27/05	06/28/05	done	export should allow a size to be specified instead of always using the window size	1.0.40
+06/28/05	06/29/05	done	add ranges for master speed	1.0.40
+06/28/05	06/29/05	done	mirroring to front buffer causes noticeable misalignment; add precise mirror option	1.0.41
+06/20/05	07/01/05	done	add snapshot preview, using enhanced file dialog	1.0.42
+06/29/05	07/04/05	done	add palette cycle limiting, aka hue looping or hue lock	1.0.42
+07/04/05	07/04/05	done	loading a snapshot should save view parms and pause; unpause should restore view	1.0.42
+07/04/05	07/06/05	done	add origin motion damping	1.0.43
+07/06/05	07/06/05	done	add hue wheel sensitivity and hue loop length	1.0.43
+06/20/05	07/07/05	done	load multiple snapshots, view using page up/down	1.0.43
+06/20/05	07/07/05	done	print multiple snapshots at once	1.0.43
+07/01/05	07/07/05	done	add shell open for playlist	1.0.43
+07/02/05	07/07/05	done	changing display settings causes unpainted view; recreate surface in OnDisplayChange	1.0.43
+07/02/05	07/07/05	done	lowering display resolution can cause invisible off-screen modeless dialogs	1.0.43
+07/07/05	07/08/05	done	add master zoom	1.0.44
+06/20/05	07/09/05	done	export multiple snapshots at once	1.0.44
+06/20/05	07/09/05	done	snapshot slide show	1.0.44
+07/09/05	07/10/05	done	back buffer location needs auto option: system memory if mirrored, else video memory	1.0.44
+07/09/05	07/10/05	done	export should have a stretch to fit option; adjusts zoom to match current cropping	1.0.44
+07/11/05	07/11/05	done	in multi-page print job, only first page prints; OnPrint must undo DC mapping changes	1.0.45
+07/11/05	07/11/05	done	in multi-page print job, some pages are corrupted; don't repaint screen during job	1.0.45
+07/11/05	07/11/05	done	in snapshot mode, closing print preview resets caption to doc title; use delayed restore	1.0.45
+07/10/05	07/13/05	done	add origin automation and damping	1.0.46
+07/14/05	07/14/05	done	add tap tempo	1.0.47
+07/10/05	07/15/05	done	derive parms dialog from row dialog with header control	1.0.48
+07/12/05	07/15/05	done	remove split frame; too much overhead and not so useful	1.0.48
+07/14/05	07/16/05	done	add timer thread for tempo clock	1.0.49
+07/17/05	07/17/05	done	add averaging for tap tempo	1.0.50
+06/29/05	07/18/05	done	need mouse deltas for controlling master speed, zoom, etc.; use DirectInput	1.0.51
+07/17/05	07/18/05	done	measure tempo taps from a higher-priority thread for improved accuracy	1.0.51
+07/14/05	07/19/05	done	add detach command; transplant view to an auxiliary frame to allow dual-monitor	1.0.51
+07/19/05	07/20/05	done	mouse wheel doesn't work when detached view has focus	1.0.51
+07/20/05	07/21/05	done	deactivating app must cancel input modes, else they get stuck	1.0.52
+07/21/05	07/21/05	done	playlist shortcut keys stopped working at Z after slide show; try using invisible style	1.0.52
+07/21/05	07/21/05	done	row dialog scroll bars don't show if window pos not set; CreateRows must reposition bars	1.0.52
+07/21/05	07/21/05	done	row dialog shows trashed header if window pos not set, view must override CalcWindowRect	1.0.52
+07/04/05	07/22/05	done	add per-ring line width parameter; optimize to reduce GDI overhead	1.0.53
+07/20/05	07/23/05	done	for master dlg, need a log slider that can be linked to a buddy edit control	1.0.54
+07/10/05	07/24/05	done	export in scale to fit mode should scale line width	1.0.54
+07/10/05	07/24/05	done	print should draw to device in line modes; don't use DC pen, it doesn't scale	1.0.54
+07/24/05	07/26/05	done	add print from bitmap option; trades resolution for color fidelity in XOR mode	1.0.55
+07/01/05	07/27/05	done	playlist file should contain playlist attributes and master settings	1.0.56
+07/18/05	07/27/05	done	in drag origin mode, dragging damping also moves origin	1.0.56
+07/26/05	07/27/05	done	damping becomes negative when slider is at 100	1.0.56
+07/01/05	07/29/05	done	playlist hot keys should be assignable	1.0.57
+07/28/05	07/30/05	done	tempo nudge must resync	1.0.58
+07/29/05	07/30/05	done	make playlist resizable	1.0.58
+07/29/05	07/30/05	done	options dialog should have a reset all button	1.0.58
+07/29/05	07/30/05	done	tempo nudge must be a percentage, else sensitivity varies with tempo	1.0.58
+07/01/05	08/01/05	done	add VJ performance mode that locks out all screen-based UI	1.0.59
+07/12/05	08/01/05	done	store demo path in registry	1.0.59
+07/31/05	08/01/05	done	tempo clock must run all the time to avoid sync loss	1.0.59
+07/09/05	08/02/05	done	in drag origin mode, zooming causes mirror origin shift	1.0.60
+08/02/05	08/02/05	done	add license text and URL to about box	1.0.60
+08/02/05	08/02/05	done	add state icons to playlist	1.0.60
+07/28/05	08/03/05	done	in random mode, unmodified mouse should should zoom	1.0.60
+08/03/05	08/03/05	done	use shift-wheel instead of right-drag for damping; three-thumb range, sens = .025	1.0.61
+05/30/05	08/04/05	done	negative master speed should make rings grow inward; reverse mode, backspace key	1.0.61
+08/02/05	08/04/05	done	add status bar indicators for drag and hue loop	1.0.61
+08/03/05	08/04/05	done	add invert command to image menu (shift+I)	1.0.61
+08/03/05	08/04/05	done	default patch should have same number of sides as icon: change icon to pentagon	1.0.61
+08/03/05	08/04/05	done	hotkeys should trigger patches while playlist has focus; reverse column order	1.0.61
+08/03/05	08/04/05	done	in playlist, pressing Shift-Tab in hotkey control assigns key to current selection, NG	1.0.61
+08/03/05	08/04/05	done	need tempo multiplier; powers of two only is fine, use up/down arrows	1.0.61
+08/03/05	08/04/05	done	playlist File/New not clearing modified flag	1.0.61
+08/03/05	08/04/05	done	playlist Insert should be called Import? Insert Patches is better	1.0.61
+08/03/05	08/04/05	done	playlist needs auto-assign command that assigns keys to list in QWERTY order	1.0.61
+08/03/05	08/04/05	done	playlist needs commands for select all (Ctrl+A) and clear hotkey (Backspace)	1.0.61
+08/04/05	08/04/05	done	shift+ctrl mouse should rotate hue	1.0.61
+08/04/05	08/04/05	done	when drag origin is damped, pressing shift or ctrl shouldn't stop origin motion	1.0.61
+07/18/05	08/05/05	done	Alt key causes modal state with loss of input focus; disable it in VJ mode	1.0.62
+08/03/05	08/05/05	done	can't drag patches onto playlist dialog	1.0.62
+08/03/05	08/05/05	done	DirInput must emulate windows mouse acceleration behavior	1.0.62
+08/03/05	08/05/05	done	onset of damping is too slow; increase log base from 10 to 20	1.0.62
+08/03/05	08/05/05	done	playlist item drag doesn't support vertical scrolling	1.0.62
+08/04/05	08/05/05	done	hue change via mouse is too sensitive; must account for different normalized range	1.0.62
+08/04/05	08/05/05	done	limit tempo multiplier to +/- three steps; reset position on tap?	1.0.62
+08/04/05	08/05/05	done	should be able to move origin off-screen; drag should be independent of windows cursor	1.0.62
+08/05/05	08/05/05	done	in drag mode, if window is resized to zero height, origin gets stuck; divide by zero	1.0.62
+08/05/05	08/05/05	done	in drag mode, origin shifts when entering full-screen or VJ mode	1.0.62
+08/05/05	08/05/05	done	in drag mode, pausing or unpausing causes origin shift	1.0.62
+08/05/05	08/05/05	done	playlist dialog should be able to open a selected patch for parameter editing	1.0.62
+08/05/05	08/05/05	done	replace files dialog hard-codes default extension and doesn't use string resources	1.0.62
+08/05/05	08/05/05	done	when entering VJ mode, if an origin motion isn't already set, it should default to drag	1.0.62
+08/06/05	08/06/05	done	exiting and reentering VJ mode allows windows keys to work; forgot to clear hook	1.0.63
+08/06/05	08/06/05	done	make hue loop right-click instead of middle-click	1.0.63
+08/06/05	08/06/05	done	mouse button hue loop doesn't work if origin motion is off	1.0.63
+08/06/05	08/06/05	done	opening a playlist should jump to patch that was current when playlist was saved	1.0.63
+08/06/05	08/06/05	done	remove hue wheel, dedicate wheel to damping	1.0.63
+06/06/05	08/10/05	done	draw mode change is too abrupt; make it a ring property, to allow gradual transitions	1.0.64
+08/03/05	08/10/05	done	add damping for zoom	1.0.64
+08/09/05	08/11/05	done	in reverse, fill doesn't always fill innermost ring; add ring list dialog to debug it	1.0.64
+08/11/05	08/11/05	done	use fast round in all cases	1.0.64
+07/10/05	08/12/05	done	MIDI control of view parameters: addition works fine	1.0.65
+08/06/05	08/12/05	done	remove color options page, move hue loop length to general page	1.0.65
+08/08/05	08/12/05	done	changing draw mode causes display glitch; view's SetDrawMode shouldn't invalidate	1.0.65
+08/12/05	08/12/05	done	add invert fill, invert outline, invert x-ray	1.0.65
+08/03/05	08/13/05	done	add MIDI setup dialog; derive from row dialog	1.0.65
+08/03/05	08/13/05	done	save MIDI setup in playlist	1.0.65
+08/03/05	08/16/05	done	assignment of MIDI to parameters should have a learn mode, e.g. Reason	1.0.66
+08/15/05	08/16/05	done	exporting snapshot with use window size unchecked crashes	1.0.66
+08/15/05	08/16/05	done	inserting items into playlist doesn't work first time and causes crash on exit	1.0.66
+08/15/05	08/16/05	done	loading snapshot while in full screen mode crashes	1.0.66
+08/05/05	08/17/05	done	it's too easy to choose full screen instead of VJ mode; make VJ Ctrl+F11	1.0.66
+08/12/05	08/17/05	done	function keys should do something in VJ mode: duplicate image commands	1.0.66
+08/08/05	08/18/05	done	playlist should support MIDI program change	1.0.67
+08/17/05	08/18/05	done	don't update bars while full screen; update them when full screen ends	1.0.67
+08/17/05	08/18/05	done	each track read costs nearly 1ms; in VJ mode, playlist should cache tracks	1.0.67
+08/17/05	08/18/05	done	mouse wheel triggers update UI; add it to OnIdle exclude	1.0.67
+08/06/05	08/21/05	done	ctrl+wheel should set crossfader time	1.0.68
+08/19/05	08/21/05	done	in playlist, Alt+F doesn't work if F was assigned to a patch, likewise for E	1.0.68
+08/21/05	08/21/05	done	add playlist popup to file menu	1.0.68
+08/21/05	08/21/05	done	in crossfader, clamp secs and position positive; in playlist, clamp secs positive	1.0.68
+08/21/05	08/21/05	done	in midi setup, zero controllers causes all values to display as -64	1.0.68
+06/01/05	08/27/05	done	at high speeds, rings clump together; move oscillators into view, add fractional ticks	1.0.69
+08/03/05	08/27/05	done	when crossfading, don't interpolate waveform; switch at midpoint instead	1.0.69
+08/01/05	08/28/05	done	add license to all source files	1.0.69
+08/01/05	08/28/05	done	crossfader's open buttons should prompt for save after open dialog, not before	1.0.69
+08/27/05	08/28/05	done	changing master speed causes glitching; suppressing interpolation helps somewhat	1.0.69
+08/27/05	08/28/05	done	suppress interpolation on non-crossfaded patch changes to avoid glitching	1.0.69
+07/01/05	08/29/05	done	if oscillator waveform is random, sweeping frequency fools phase test, causing glitches	1.0.69
+08/01/05	08/29/05	done	add hooks for HTML help	1.0.70
+08/28/05	08/30/05	done	add movie recorder that writes a series of snapshots from timer hook	1.0.71
+08/28/05	08/30/05	done	frame rate should be variable from 24 to 60, via Options/Display	1.0.70
+08/28/05	08/31/05	done	add movie export that converts a snapshot movie to an AVI file	1.0.71
+08/28/05	08/31/05	done	add movie player for viewing snapshot movies	1.0.71
+08/29/05	08/31/05	done	if slideshow dialog is outside main frame, it doesn't erase itself correctly	1.0.71
+08/30/05	08/31/05	done	movie player should allow seeking; snap movie needs a frame index	1.0.71
+08/04/05	09/01/05	done	laptop w/o mouse has no wheel; need alternate way to set damping and crossfade time	1.0.71
+07/01/05	09/02/05	done	GDI mirroring doesn't line up correctly; mirror to an intermediate buffer	1.0.71
+09/01/05	09/02/05	done	add movie to shell open types	1.0.71
+09/01/05	09/02/05	done	linking to AVI DLL causes mysterious crashes; move movie export to its own process	1.0.71
+09/02/05	09/02/05	done	if movie player or slide show is hidden and a button has focus, space can disable left-click	1.0.71
+09/02/05	09/02/05	done	shell open broke because m_pMainWnd is null during CMainFrame::OnCreate; set it to this	1.0.71
+08/30/05	09/03/05	done	add movie export options dialog; frame size, frame rate, crop/stretch	1.0.71
+08/12/05	09/04/05	done	MIDI control of non-view parameters, e.g. mirror, fill, crossfader, etc.	1.0.72
+09/04/05	09/04/05	done	playlist file/new doesn't set defaults for master, crossfader, MIDI setup, etc.	1.0.72
+09/04/05	09/05/05	done	move edit and view selections into frame	1.0.73
+07/29/05	09/06/05	done	add selection to parameters dialog for master offsets	1.0.73
+09/05/05	09/06/05	done	disabling windows keys doesn't work in XP; use low-level hook or DirectInput but not both	1.0.73
+09/05/05	09/06/05	done	playlist FadeTo doesn't update parms dialog	1.0.73
+09/06/05	09/07/05	done	app crashes creating parms dialog, in CalcWindowRect; verify dynamic downcast	1.0.73
+09/07/05	09/07/05	done	put movie export back in app	1.0.73
+08/01/05	09/08/05	done	more comments, esp. for member data	1.0.73
+08/03/05	09/09/05	done	VJ mode needs warning dialog, with don't show this again checkbox	1.0.74
+09/08/05	09/09/05	done	app needs welcome dialog, with view demo yes/no and don't show this again checkbox	1.0.74
+09/08/05	09/09/05	done	main menu's playlist submenu needs recent file list	1.0.74
+09/08/05	09/09/05	done	playlist dialog's file menu needs recent file list; kick idle not sent to modeless dialogs	1.0.74
+09/09/05	09/10/05	done	movie player should be able to save a snapshot	1.0.74
+09/09/05	09/10/05	done	panic should reset draw mode for all rings	1.0.74
+09/11/05	09/11/05	done	record shouldn't clear screen	1.0.74
+09/09/05	09/12/05	done	add MIDI controllers for effects: mirror, draw mode, etc.	1.0.75
+09/12/05	09/12/05	done	tab order is incorrect in parms and midi setup dialogs	1.0.75
+06/01/05	09/15/05	done	optional auto-generation of snapshot names	1.0.76
+08/31/05	09/15/05	done	annoying windows icon in resizeable dialogs (parms, playlist); use tool window style	1.0.76
+09/11/05	09/15/05	done	take snapshot and record movie should work in VJ mode: auto-assign filename	1.0.76
+09/15/05	09/15/05	done	fix playlist shortcuts	1.0.76
+07/14/05	09/17/05	done	add MIDI sync for tempo	1.0.76
+09/17/05	09/20/05	done	tab order is incorrect general options dialog	1.0.76
+09/18/05	09/20/05	done	in movie export, add output frame rate, output frame range, export bitmaps	1.0.76
+09/20/05	09/20/05	done	add MIDI controls for rotate hue 90 degrees, random phase, pause, clear screen	1.0.76
+09/22/05	09/22/05	done	in movie export, if uncompressed, check 2 GB limit	1.0.76
+09/22/05	09/27/05	done	in movie export, source size for scaling should be input frame size, not window size	1.0.77
+09/22/05	09/27/05	done	in movie play/export and snapshot mode, don't clamp origin, else mirroring may change	1.0.77
+09/22/05	09/27/05	done	loading snapshot or movie uses current zoom; zoom must be saved in snaphot	1.0.77
+09/22/05	09/27/05	done	need a way to correct an existing movie's frame size; add resize movie dialog	1.0.77
+10/01/05	10/01/05	done	in snapshot dtor, deleting view backup causes access to non-existent view	1.0.78
+08/01/05	10/02/05	done	should be able to change edit selection from within parms dialog; use system menu	1.0.78
+09/11/05	10/02/05	done	save current settings as a new patch, including master offsets	1.0.78
+10/01/05	10/02/05	done	can't edit mix in parms dialog; OnParamUpdate is clobbering changes	1.0.78
+10/02/05	10/02/05	done	opening a patch in crossfader dialog doesn't update parms dialog	1.0.78
+10/02/05	10/02/05	done	playlist dialog should have file option that imports MIDI setup from a playlist	1.0.78
+10/01/05	10/04/05	done	add MIDI note support; note on alternates between property's extremes	1.0.79
+10/04/05	10/04/05	done	add MIDI auto-assign dialog	1.0.79
+10/01/05	10/05/05	done	add MIDI pitch bend support	1.0.79
+10/01/05	10/05/05	done	add playlist MIDI mapping dialog: map patches to program changes or range of notes	1.0.79
+10/06/05	10/05/05	done	playlist MRU file list: Save As must be added, and failed Open must be removed	1.0.79
+10/06/05	10/06/05	done	make playlist MIDI line tab-delimited	1.0.80
+10/06/05	10/07/05	done	load the playlist's next patch into crossfader input A or B, without changing fader pos	1.0.80
+10/07/05	10/07/05	done	make random patch generation work in VJ mode	1.0.80
+10/08/05	10/08/05	done	alpha keys should not select patches while Shift is pressed	1.0.80
+10/08/05	10/08/05	done	when writing playlist, if patch is in same folder, store filename only (relative link)	1.0.80
+10/10/05	10/12/05	done	crossfader's filename controls should have drop-down lists of playlist patches	1.0.81
+10/10/05	10/12/05	done	if crossfader seconds is zero, pressing play causes thumb to get stuck in the center	1.0.81
+09/09/05	10/13/05	done	hue loop slips when color speed modulation and master speed are high	1.0.81
+10/01/05	10/14/05	done	image sometimes tears; must page-flip instead of blitting, implement exclusive mode	1.0.82
+10/13/05	10/14/05	done	app crashes if certain keys (e.g. page up) are entered in playlist dialog's hotkey control	1.0.82
+10/13/05	10/14/05	done	while playlist dialog has focus, Ctrl + non-accelerator alpha key switches patch	1.0.82
+10/14/05	10/14/05	done	if paused when entering VJ mode, don't set drag mode or origin gets trashed	1.0.82
+10/14/05	10/14/05	done	random patch deserves a function key; give it F12	1.0.82
+10/14/05	10/14/05	done	random patch glitches; flush view history	1.0.82
+10/14/05	10/14/05	done	switching to exclusive mode for less than 1.5 seconds causes spurious timer messages	1.0.82
+08/03/05	10/17/05	done	flash keyboard's scroll lock LED during movie recording; use overlapped I/O	1.0.83
+09/11/05	10/17/05	done	zoom via MIDI should be damped, except when paused	1.0.83
+10/11/05	10/17/05	done	mouse zoom, speed, and hue don't work in dual monitor mode	1.0.83
+10/15/05	10/17/05	done	add MIDI controllers for origin X and Y, with damping	1.0.83
+10/15/05	10/17/05	done	in parms dialog, master offsets aren't displayed correctly after exiting VJ mode	1.0.83
+10/15/05	10/17/05	done	MIDI assign should reset previous mapping's event only, not its channel or controller	1.0.83
+10/17/05	10/17/05	done	if multiple movies are recorded, all but first are garbage; Open must zero frame count	1.0.83
+10/17/05	10/17/05	done	LFO frequency tweening cause glitching; don't interpolate frequency in timer hook	1.0.83
+10/17/05	10/17/05	done	pressing mouse buttons while paused in drag mode causes origin to jump	1.0.83
+10/18/05	10/18/05	done	ring growth LFO causes banding; view's timer hook must compute ring growth up front	1.0.83
+10/18/05	10/18/05	done	snapshots taken while in reverse have holes; update rings before drawing them, not after	1.0.83
+08/27/05	10/19/05	done	changing master speed causes glitching; don't flush history or interpolate frequency	1.0.83
+10/17/05	10/19/05	done	entering and exiting exclusive mode doesn't restore maximized state	1.0.83
+08/08/05	10/20/05	done	not enough assignable keys for patches; use number keys for bank switching	1.0.84
+10/20/05	10/20/05	done	movies have extra rings; in OnTimer, record frame before view's timer hook	1.0.84
+09/01/05	10/23/05	done	repeated hue rotation causes banding due to round-off errors; add HLS color to ring	1.0.85
+10/01/05	10/23/05	done	playlist dialog should support copy/cut/paste	1.0.85
+10/11/05	10/24/05	done	for acceleration on 2nd monitor, must create DD exclusive with monitor's GUID	1.0.85
+10/11/05	10/24/05	done	in dual-monitor mode, panic shouldn't disable full screen mode	1.0.85
+10/23/05	10/24/05	done	if using GDI instead of DirectDraw, veejay mode doesn't go full screen	1.0.85
+10/01/05	10/25/05	done	if movie frames have invalid format, player locks up; OnTimer must catch exceptions	1.0.85
+10/25/05	10/25/05	done	exclude non-essential ring data (deltas, HLS) from movie file to save space	1.0.85
+10/25/05	10/25/05	done	movie player's save command should pause playback during file dialog	1.0.85
+10/25/05	10/25/05	done	selecting multiple snapshots with preview checked can cause file error	1.0.85
+10/25/05	10/26/05	done	in playlist, remove key should operate on entire selection	1.0.85
+10/25/05	10/26/05	done	movie player tears in full screen; should have option to use exclusive mode	1.0.85
+10/26/05	10/26/05	done	if view is detached, movie player full-screen gets stuck in exclusive mode	1.0.85
+10/26/05	10/26/05	done	in playlist, paste inserts items in reverse order	1.0.85
+10/10/05	10/27/05	done	add MIDI properties for patch seconds, crossfader play, and crossfader loop	1.0.85
+10/26/05	10/27/05	done	in FadeTo, if in-between pos, copy mix to source; in RandomPatch, center pos	1.0.85
+10/27/05	10/27/05	done	in crossfader dialog, if resuming previous auto-fade, don't set phase	1.0.85
+10/12/05	10/29/05	done	crossfader dialog's name combos show blank drop list when playlist is empty	1.0.85
+10/28/05	10/29/05	done	can't send document to crossfader; include Document and A/B/Mix in name combos	1.0.85
+10/28/05	10/29/05	done	in playlist's FadeTo, set view mix doesn't work; must use frame's SetViewSel	1.0.85
+10/28/05	10/29/05	done	playlist's Edit Parameters command is too confusing, remove it for now	1.0.85
+10/31/05	11/02/05	done	auto-fade is too useful to be Ctrl+F; give it F12 and move Random Patch to F10	1.0.86
+10/31/05	11/02/05	done	in playlist dialog, dialog shortcuts should work when list control doesn't have focus	1.0.86
+10/31/05	11/02/05	done	in snapshot menu's export all, progress bar is behind by one	1.0.86
+10/31/05	11/02/05	done	playlist dialog's insert command inserts patches in reverse order	1.0.86
+10/31/05	11/02/05	done	switching view mix on/off causes glitches; flush view history first	1.0.86
+11/01/05	11/02/05	done	exiting print preview via caption bar's X button causes save prompts	1.0.86
+10/31/05	11/03/05	done	if a patch is moved or renamed after playlist is opened, selecting it fails silently	1.0.86
+10/31/05	11/03/05	done	if maximized app goes full-screen to veejay and back to full-screen, a border appears	1.0.86
+11/01/05	11/03/05	done	in playlist dialog, if no control has focus, Alt menu keys don't work	1.0.86
+11/03/05	11/03/05	done	if modeless dialog is closed and reopened, current control is lost; derive from CToolDlg	1.0.86
+11/03/05	11/03/05	done	if none of a dialog's controls have focus, minimizing and restoring app hides dialog	1.0.86
+11/07/05	11/08/05	done	default snapshot folder should be in MyDocuments	1.0.87
+11/08/05	11/09/05	done	file dialogs for export and take snapshot should have default filename if available	1.0.87
+06/29/05	11/11/05	done	should be able to limit number of rings, for effect and to improve performance	1.0.88
+11/11/05	11/11/05	done	add menu item for crossfader loop on/off; shortcut is Shift+F12	1.0.88
+11/11/05	11/11/05	done	must disable Alt key in full-screen mode	1.0.88
+12/08/05	12/11/05	done	FadeTo shouldn't reset crossfader's loop or waveform attributes	1.0.89
+12/08/05	12/20/05	done	during unlooped auto-fade, if time becomes too small, complete fade and stop	1.0.89
+12/21/05	12/21/05	done	allow hue loop length to be changed via MIDI	1.0.89
+12/21/05	12/21/05	done	changing hue loop length causes hue to jump needlessly	1.0.89
+12/21/05	12/22/05	done	if main is hogging CPU, Help/About makes app modal but dialog isn't shown	1.0.90
+12/22/05	12/22/05	done	if mirror is twiddled via continuous controller, animation jerks; make invalidate optional	1.0.90
+12/22/05	12/22/05	done	options reset all doesn't reset default output folder	1.0.90
+01/10/06	01/11/06	done	if DirectDraw fails, offer GDI option	1.0.91
+08/01/05	01/14/06	done	write documentation	1.0.91
+09/22/05	02/04/06	done	in movie export, eliminate 2 GB limit; create AVI via DirectShow instead of VfW	1.1.00
+01/24/06	02/10/06	done	all movie times and frame ranges should be in mm:ss.ff format	1.1.01
+01/24/06	02/10/06	done	in movie player, add open file button and accept files via drag/drop	1.1.01
+02/10/06	02/10/06	done	in master dialog, make all edit controls allow editing	1.1.01
+10/10/05	02/16/06	done	add oscillator override and make all LFO properties MIDI-assignable	1.2.00
+02/16/06	02/19/06	done	in CCtrlResize::AddControlList, fix loop test	1.2.00
+02/16/06	02/19/06	done	save master offsets in playlist, so oscillator overrides can be preset	1.2.00
+10/01/05	02/23/06	done	make playlist dialog's editable list control into a reusable base class	1.2.01
+02/23/06	02/23/06	done	in drag list control, fix sloppy autoscroll boundary tests	1.2.01
+03/08/06	03/08/06	done	in oscillator override via MIDI, waveform must be clamped	1.2.02
+08/12/05	03/10/06	done	origin motion should be able to make a trail of rings; high value but major impact	1.3.02
+02/14/06	03/10/06	done	in fill mode, allow solid to be convex instead of concave; draw rings in reverse	1.3.02
+03/07/06	03/15/06	done	can't drag origin while paused, due to trail revision; add SetGlobalOrigin	1.3.03
+03/15/06	03/15/06	done	add random ramp waveform; linearly interpolate between random samples	1.3.03
+03/23/06	03/23/06	done	hue, loop hue, invert color, and pause should be saved in playlist	1.3.04
+03/23/06	03/24/06	done	disabling veejay should only park origin if it's in drag mode	1.3.05
+03/23/06	03/28/06	done	origin shouldn't be limited to middle of screen when zoomed out	1.3.05
+03/23/06	03/28/06	done	enabling drag after resizing frame causes origin skip; adjust target in OnSize	1.3.05
+03/23/06	03/28/06	done	trail breaks ring-origin zoom: make mirror origin space unreversed and zoomed	1.3.05
+03/23/06	03/28/06	done	make zoom type independent of origin motion; add Window/Zoom Center	1.3.05
+03/23/06	03/28/06	done	zooming with mirror and drag enabled causes origin to boomerang, since 1.0	1.3.05
+04/08/06	04/09/06	done	panic should reset trail	1.3.06
+04/09/06	04/12/06	done	opening a playlist can take a while; display hourglass	1.3.07
+04/11/06	04/12/06	done	closing detached view can show file save dialog; remove aux view from doc	1.3.07
+04/12/06	04/12/06	done	increasing Zoom mistakenly deletes rings; set m_st.Zoom before calling SetWndSize	1.3.07
+10/03/05	04/13/06	done	add Bézier curves	1.4.00
+12/21/05	04/18/06	done	hue loop length and canvas scale should be master settings, not options	1.4.01
+04/14/06	04/18/06	done	save mix doesn't save mirror, drawmode or origin	1.4.01
+04/16/06	04/18/06	done	save master and main settings in patch, add patch mode	1.4.01
+01/16/06	04/22/06	done	make a FreeFrame plug-in; big project, similar to making a screensaver	1.4.01
+04/23/06	04/24/06	done	add MIDI controls for canvas scale and patch mode	1.4.02
+04/27/06	04/27/06	done	inverting fill gives unexpected results; update PrevSides in all cases	1.4.03
+04/27/06	04/27/06	done	in view, replace memmove calls with inline assembler	1.4.03
+04/27/06	04/27/06	done	make curve decision per ring instead of per frame	1.4.03
+04/27/06	04/29/06	done	in filled convex mode, colors are shifted by one, so center is same color as 1st ring	1.4.04
+04/29/06	04/29/06	done	in Draw, replace CRect calls with inlines and only calculate iorg if making curves	1.4.04
+05/04/06	05/04/06	done	playlist paste causes duplicate icons; bump current patch after inserting below it	1.4.05
+05/04/06	05/04/06	done	in movie export dialog, changing frame rate doesn't update length and range	1.4.05
+05/04/06	05/04/06	done	in movie export dialog, entering a frame rate of zero causes a divide by zero	1.4.05
+05/04/06	05/04/06	done	panic now centers origin, disables reverse, and sets default master speed	1.4.05
+05/04/06	05/04/06	done	add range selection to movie player; save button should export	1.4.05
+03/28/06	05/05/06	done	add video overlay and extend playlist to accept video files	1.5.00
+05/05/06	05/05/06	done	add 10 extra banks, selectable via shift + number	1.5.00
+05/05/06	05/06/06	done	video overlay doesn't appear in bitmap exports; move overlay into Draw	1.5.00
+05/05/06	05/06/06	done	switching clips can cause a dropped frame; move video open into timer hook	1.5.00
+05/05/06	05/06/06	done	add command to turn video off	1.5.00
+05/05/06	05/06/06	done	video overlay's raster operation should be variable	1.5.00
+05/05/06	05/06/06	done	cache the most recently used video clips on the numeric keypad, in MRU order	1.5.00
+05/07/06	05/09/06	done	optionally cycle most recent N video clips in sync with tempo	1.5.01
+04/07/06	05/13/06	done	select videos via remote control app running on 2nd PC, communicating via MIDI	1.5.02
+05/15/06	05/16/06	done	when videos are cycling, defer list updates until the next transition	1.5.04
+05/15/06	05/19/06	done	panic now disables video cycling	1.5.04
+05/19/06	05/22/06	done	save video list object's state in playlist	1.5.05
+05/30/06	05/30/06	done	playlist dlg still allowing duplicate icons; test for inserting below must be <=	1.5.06
+05/19/06	06/02/06	done	add MIDI properties for video select, blending, and cycling	1.5.07
+06/01/06	06/02/06	done	allow videos to be opened via File/Open, shell, and drag/drop	1.5.07
+05/20/06	06/03/06	done	add thumbnail view to playlist dialog; support video and patches	1.5.08
+05/13/06	06/05/06	done	if window background color isn't white, playlist icons show white edges	1.5.08
+06/03/06	06/05/06	done	in playlist dialog, add a command to update thumbnails	1.5.08
+06/03/06	06/05/06	done	add option to automatically rewind video clips before playing them	1.5.08
+06/05/06	06/05/06	done	playlist dialog's context menu should have a play command	1.5.08
+05/05/06	06/07/06	done	video overlay isn't captured in snapshots or snapshot movies	1.5.09
+06/09/06	06/09/06	done	main frame's non-wizard message map contains duplicate entries; since 1.0.82	1.5.09
+06/08/06	06/12/06	done	in open snapshot dialog, if preview triggers missing files dialog, UI hangs	1.5.11
+06/17/06	06/17/06	done	closing app while recording causes unreadable movie file; introduced in 1.5	1.5.11
+06/19/06	06/19/06	done	skew distorts curved rings; for symmetry, MakeCurves must use skewed origin	1.5.11
+06/21/06	06/21/06	done	make master dialog resizable	1.5.12
+06/23/06	06/23/06	done	if a snapshot is loaded and has a bad format, timer is left stopped	1.5.12
+03/28/06	06/24/06	done	create illusion of multiple whorlds via initial skew; add Copies and Spread	1.6.00
+06/22/06	06/26/06	done	add thumbnail export for remote video browser	1.6.01
+05/08/06	06/29/06	done	allow video origin to be changed in mirror mode, via drag, random jump, and MIDI	1.6.02
+08/21/05	07/24/06	done	add command line flag to start in VJ mode	1.6.03
+09/15/06	09/15/06	done	CVideo shows first frame twice; also occurs in recorded movies	1.6.04
+08/13/06	09/16/06	done	in CNumEdit, notify aux before parent, so master dlg needn't use PostMessage	1.6.04
+09/15/06	09/16/06	done	in movie player, slider is off by one frame during playback	1.6.04
+09/15/06	09/16/06	done	in movie player, looped rewind plays first frame twice	1.6.04
+09/17/06	09/17/06	done	BmpToAvi.ax shouldn't self-register, else uninstalling Whorld breaks FFRend	1.6.04
+09/29/06	10/02/06	done	in movie export dialog, allow fractional output frame rate	1.6.05
+06/15/06	12/10/07	done	add a parameter for initial rotation, as distinct from rotate speed	1.7.01
+12/01/07	12/10/07	done	add global geometry parameters that affect all rings at once	1.7.01
+10/01/05	12/21/07	done	in dual-monitor full-screen mode, main frame should be full-screen too	1.7.02
+08/01/07	01/13/08	done	let paired curve control vectors at each vertex have different lengths; odd/even shear	1.7.02
+06/01/07	01/15/08	done	moving origin via MIDI causes cursor to disappear; don't enter drag origin mode	1.7.02
+10/09/06	01/22/08	done	in CMainFrame's MIDI callback, IsWindowVisible call could be unsafe	1.7.03
+01/19/08	01/22/08	done	in MIDI setup, tabbing skips event combo; fix row dialog's tab order	1.7.03
+01/22/08	01/22/08	done	while learning MIDI, if message is already assigned, previous target is affected	1.7.03
+01/05/06	01/23/08	done	in MIDI setup dialog, left-clicking property name should move cursor to that row	1.7.03
+12/01/07	01/23/08	done	MIDI learn mode should highlight row that's being learned	1.7.03
+12/01/07	01/23/08	done	in MIDI setup dialog, range should consist of two numbers: start and end	1.7.03
+12/01/07	01/24/08	done	curves jitter when star factor is negative; compute curve points from real vertices	1.7.03
+12/01/07	01/25/08	done	autofade (F12) glitches when crossfade time is zero; should flush history	1.7.03
+01/24/08	01/25/08	done	if ring spacing is big, after clearing screen, screen stays empty for a while	1.7.03
+01/24/08	01/25/08	done	panic should clear screen, in case current rings are overloading CPU	1.7.03
+01/11/06	01/27/08	done	movie export should remember codec settings	1.7.03
+01/28/08	01/28/08	done	support Unicode	1.7.04
+01/28/08	01/29/08	done	increase compiler warning level to W4	1.7.04
+02/23/06	01/30/08	done	in unmirrored exclusive mode, can't force back buffer to be in system memory	1.7.05
+09/20/06	01/30/08	done	in playlist dialog, while dragging, escape key should abort drag	1.7.05
+01/10/08	01/30/08	done	status bar should show actual frame rate	1.7.05
+01/30/08	01/30/08	done	if a modeless dialog has focus, keyboard accelerators don't work; allow safe ones	1.7.05
+07/18/05	01/31/08	done	clicking in non-client area of any window freezes display; partial victory	1.7.05
+01/31/08	01/31/08	done	in Print Preview, if zoomed in, scroll bars don't work; OnParentNotify was capturing	1.7.05
+02/06/08	02/06/08	done	increase frame rate range from 24..60 to 1..200	1.7.05
+03/29/08	03/31/08	done	redo default MIDI setup to be all on channel one (JM)	1.7.06
+01/30/05		hold	opening a playlist doesn't restore crossfader state correctly	
+05/10/05		hold	print and print preview should center image on page	
+05/28/05		hold	ring fade-out effect: alpha blit each ring, and make alpha decrease with radius	
+06/06/05		hold	add lissajous origin motion	
+06/29/05		hold	make cascading delete optional	
+07/01/05		hold	undo for parameter editing; major hassle, low priority	
+07/14/05		hold	position and size of random origin's bounding rectangle should be adjustable	
+08/03/05		hold	MIDI setup should have presets for common gear; create as empty playlists	
+08/03/05		hold	tempo multiplier could be a separate state instead of affecting tempo directly	
+08/06/05		hold	try controlling app with a joystick	
+08/06/05		hold	try various mice and trackballs to determine optimal mouse sensitivity	
+08/12/05		hold	in parms dialog, shift+click should restore default value, not center thumb	
+09/01/05		hold	make a screensaver; requires a totally different architecture	
+09/01/05		hold	in playlist dialog's bank droplist, pressing 1 selects bank 10, and 0 doesn't work	
+09/08/05		hold	while window is being resized, display view size in status bar message; see notes	
+09/11/05		hold	add movie edit dialog; selection slider, save/delete selection, insert movie	
+09/17/05		hold	status bar should have an indicator for presence of MIDI clocks	
+09/20/05		hold	add option to specify LFO frequencies as fractions of tempo instead of in Hz	
+09/20/05		hold	change default frame rate to 30 for NTSC: look for problems with existing patches	
+09/20/05		hold	more things should sync to tempo, e.g. random phase, random patch, etc.	
+09/25/05		hold	can't select a specific number of sides without scrolling though intermediate values	
+10/01/05		hold	automatically sync tempo to audio signal; open-source beat detection DLL?	
+10/01/05		hold	can't use mouse to change zoom or hue while paused	
+10/01/05		hold	cull rings by clipping against display rect; might prevent lock-up when zooming in	
+10/01/05		hold	demo mode doesn't have enough variety; it should use effects, zoom, etc.	
+10/03/05		hold	add odd shift parameter; shift odd vertices, compensate for radius and center	
+10/08/05		hold	add dynamic patch memory; numeric keys, Ctrl+ to store, Shift+ to recall?	
+10/10/05		hold	assign mouse modes to properties dynamically, via mouse modes dialog	
+10/10/05		hold	load specific patch into crossfader input A or B; use Alt keys as modifiers in VJ mode?	
+10/27/05		hold	adjusting crossfader via UI or MIDI should stop auto-fade?	
+12/08/05		hold	allow crossfade time to change during auto-fade?	
+01/04/06		hold	add safe mode that limits number of rings if idle time drops to zero	
+01/07/06		hold	tap tempo doesn't appear in menus or shortcut key list	
+01/11/06		hold	movie player should set main frame caption to movie title; same for movie export?	
+01/13/06		hold	snapshot thumbnails in explorer via shell extension; need original window size?	
+01/13/06		hold	notes can be mapped to the playlist AND assigned to a property; prevent this	
+01/16/06		hold	zoom changes a snapshot if it has line widths > 1, especially if it's also mirrored	
+02/08/06		hold	should be able to change background color of a snapshot	
+02/10/06		hold	in movie export dialog, should be able to set frame range visually, via slider	
+02/18/06		hold	try adding feedback; save previous frame and blend with current frame	
+03/22/06		hold	should be able to change hue of subsequent rings without affecting existing ones	
+03/28/06		hold	allow multiple whorlds at once; extra views could draw to main view's device context	
+04/18/06		hold	MIDI setup should use combo boxes for channel and controller (JM)	
+04/24/06		hold	app should optionally open most recent playlist, or demo playlist if none (JM)	
+04/24/06		hold	crossfader should have Select A/B and Load Next/Prev instead of Load Next A/B (JM)	
+04/24/06		hold	crossfader needs a manual mode in which selecting a patch doesn't autofade (JM)	
+05/05/06		hold	video overlay should have speed control via MIDI; scratching or at least slow-motion	
+05/05/06		hold	bitmap export should work in veejay mode	
+05/10/06		hold	add bidirectional loop option to movie export: play forward and then in reverse	
+05/20/06		hold	mirror quadrants shouldn't always have to be the same size	
+06/03/06		hold	add video capture; major research project	
+06/03/06		hold	in playlist dialog, add option to hide all controls except list	
+06/05/06		hold	in playlist dialog, ctrl+wheel should scroll through banks	
+06/19/06		hold	aspect ratio distorts curved rings; hard to avoid, maybe it's a good thing?	
+06/28/06		hold	load next patch A/B doesn't work with video clips	
+10/28/06		hold	add separate folders for patches, playlists, videos, snapshots, movies	
+12/01/07		hold	overhaul UI to use control bars instead of modeless dialogs	
+12/12/07		hold	numbers dialog doesn't include global parameters; make it optional?	
+01/25/08		hold	add metafile export	
+01/27/08		hold	when Copies > 1, fill behaves unexpectedly because rings aren't concentric	
+01/27/08		hold	copies and spread should affect existing rings	
+01/31/08		hold	drag mode should hide cursor only while it's within view?	
+02/02/08		hold	add global hue, lightness, saturation; move RotateHue into main loop?	
+02/08/08		hold	frame rate change requires compensating Ring Growth and Color Speed; automate?	
+02/08/08		hold	should be able to restore ring state from patch, esp if ring growth was zero	
+04/21/05		punt	changing timer frequency shouldn't affect animation speed, but it does	
+06/20/05		punt	color speed should be compensated for growth rate; would affect existing patches	
+07/02/05		punt	starting task manager or changing display settings often hangs app (DirectDraw only)	
+07/10/05		punt	if print draws directly to printer DC in XOR mode, colors don't always match screen	
+07/14/05		punt	when tempo is low, dragging tempo slider fails; long delay before tempo changes	
+07/19/05		punt	can't print from detached view	
+08/12/05		punt	sometimes app won't receive MIDI; receiving MIDI with Reason fixes it (one PC only)	
+09/15/05		punt	show/hide dialog shortcuts don't work in playlist; shift is reserved for key assignment	
+10/01/05		punt	add rotation for the entire scene, including X/Y shift; too expensive	
+10/17/05		punt	if middle button is pressed while navigating a main menu, master speed changes	
+10/18/05		punt	crossfading between patches with different ring growth LFOs causes glitching	
+04/11/06		punt	if view is detached and overlaps toolbar, pressing a toolbar button enables zooming	
+04/13/06		punt	move origin/zoom damping into view? Only makes things more complicated	
+04/27/06		punt	reversing direction in fill mode causes an unfilled ring	
+05/07/06		punt	add command to clear video history; too dangerous	
+05/18/05		sack	tried DirectDraw scaling for giant pixels; unsupported in GDI, also complicates mirror	
+07/01/05		sack	record all performance input for movie-making; recording snapshots instead	
+07/06/05		sack	tried adding perspective; reduces detail and moiré effects, disappointing	
+08/03/05		sack	tried damping on master speed; too twitchy and unpredictable	
+08/05/05		sack	in non-VJ mode, holding down left button should drag origin: too annoying	
+09/09/05		sack	investigate bevel and miter joins; they're more complicated and they look terrible	
+09/11/05		sack	in mirror mode, offset random origin's bounding rectangle by -.25; not enough variety	
+10/07/05		sack	in mix mode, file/save should map to save mix, not save document; too confusing	
+02/02/08		sack	TimerHook needlessly updates rings it's about to delete; fix benched slightly worse	

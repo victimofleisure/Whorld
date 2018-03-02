@@ -1,0 +1,36 @@
+<title>Oscillators</title>
+<body>
+
+<h3>Oscillators</h3>
+
+<p>Each <a href="../Parameters/Parameters.htm">parameter</a> has an oscillator (modulator) associated with it. The oscillator generates a repeating <a href="../Patches/Waveforms.htm">waveform</a> (e.g. a sine wave), which is then used to <em>modulate</em> (change) the corresponding parameter's value. Oscillator waveforms are <em>normalized</em>, such that they always range from &minus;1 to 1. An oscillator has the following properties:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>Waveform</td>
+<td>The type of waveform the oscillator generates: Triangle, Sine, Ramp Up, Ramp Down, Square, Pulse, or Random.</td>
+</tr><tr>
+<td>Amplitude</td>
+<td>The <em>width</em> of the modulation. The oscillator's waveform, which ranges from &minus;1 to 1, is <em>scaled</em> (multiplied) by Amplitude before being added to its parameter.</td>
+</tr><tr>
+<td>Frequency</td>
+<td>The rate at which the oscillator's waveform is repeated, in Hertz (cycles per second). The frequency must be greater than zero, otherwise the oscillator has no effect.</td>
+</tr><tr>
+<td>Pulse Width</td>
+<td>When the oscillator's waveform is "Pulse", this value sets the pulse wave's <em>duty cycle</em> (ratio of low to high), ranging from 0 to 1. At .5, the result is identical to a square wave. For other waveforms, Pulse Width has no effect.</td>
+</tr>
+</table>
+
+<p>In algebraic terms, an oscillator's behavior is:
+<br>Result = Parameter + (Waveform &times; Amplitude).
+
+<p>Note that when the amplitude is zero, the parameter is unchanged.
+
+<p>Since oscillators always swing both positive and negative, in some cases it may be necessary to offset a parameter to achieve the desired effect. For example, to make <a href="../Parameters/Ring_Sides.htm">Ring Sides</a> vary between 3 and 7, you would need to set Ring Sides to 5, and its oscillator's amplitude to 2:
+
+<p>5 + (&minus;1 &times; 2) = 3
+<br>5 + (1 &times; 2) = 7
+
+<p>While programming oscillators, it may be helpful to view the <a href="../Patches/Numbers_dialog.htm">numbers dialog</a>, because it displays the modulated values of the parameters.
+
+</body>

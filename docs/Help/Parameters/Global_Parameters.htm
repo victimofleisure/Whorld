@@ -1,0 +1,20 @@
+<title>Global Parameters</title>
+<body>
+
+<h3>Global Parameters</h3>
+
+<p>Changing a regular <a href="../Parameters/Parameters.htm">parameter</a> only affects new rings. A global parameter corresponds to a regular parameter, and has the same effect, except that it operates on <em>all existing rings at once</em>. For example, Global Aspect Ratio is identical to <a href="../Parameters/Aspect_Ratio.htm">Aspect Ratio</a>, except that it stretches the entire image, not just new rings. The global parameters are accessed in the <a href="../Patches/Parameters_dialog.htm">Parameters dialog</a> by selecting <span class="cmd">Edit/Global Params</span>.
+
+<p>A global parameter doesn't override its corresponding regular parameter; rather, it <em>adds</em> to it. Thus global parameters can be combined with regular parameters, e.g. global parameters can modify the behavior of <a href="../Patches/Patches.htm">patches</a>. Global parameters aren't saved in patches, but they are saved in <a href="../Playlists/Playlists.htm">playlists</a>.
+
+<p>Global parameters have their own <a href="../Patches/Oscillators.htm">oscillators</a>, which are independent of the regular parameter oscillators. A given parameter can be modulated by both oscillators simultaneously: one affects new rings, while the other affects existing rings.
+
+<p>Regular parameter changes propagate gradually, depending on the rate of <a href="../Parameters/Ring_Growth.htm">Ring Growth</a>, which causes the output to lag behind the parameter changes. This lag (AKA <em>hysteresis</em>) is essential to Whorld's look, but it has a down side: if you try to control regular parameters via <a href="../MIDI/MIDI_Setup.htm">MIDI</a>, the controls can feel sluggish because they're not having enough impact. Since global parameters affect the whole image at once, they give a stronger impression of realtime control.
+
+<p>When global parameters are controlled via MIDI, they are affected by <a href="../Master_Controls/Damping.htm">damping</a>. This allows you to make a tradeoff between responsiveness and smoothness. It's particularly useful for avoiding jerkiness when controlling global parameters with a noisy MIDI device.
+
+<p>Most of the parameters have global equivalents; the only ones that don't are Ring Growth, Ring Spacing, and the six color parameters. Global hue can already be controlled via <a href="../Modes/Mouse_Modes.htm">mouse</a> and MIDI, and the background color is global by definition.
+
+
+
+</body>

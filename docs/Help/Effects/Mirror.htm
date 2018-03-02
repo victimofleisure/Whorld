@@ -1,0 +1,26 @@
+<title>Mirror</title>
+<body>
+
+<h3>Mirror</h3>
+
+<p>This effect causes the output window to be divided equally into four rectangles or <em>quadrants</em>. Only the upper-left quadrant is drawn to in this mode; the other three quadrants are mirror images of the upper-left, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr>
+<td>upper left</td><td>unmodified</td>
+</tr><tr>
+<td>upper right</td><td>upper left, flipped horizontally</td>
+</tr><tr>
+<td>lower left</td><td>upper left, flipped vertically</td>
+</tr><tr>
+<td>lower right</td><td>upper left, flipped horizontally and vertically</td>
+</tr>
+</table>
+
+<p>The result is similar to a kaleidoscope. Note that since <a href="../Modes/Origin_Motion.htm">origin motion</a> still ranges over the entire <a href="../Master_Controls/Canvas_scale.htm">canvas</a>, it's possible to hide some or all of the Whorld image, by placing the origin in any quadrant other than the upper-left. Pleasing results can often be obtained by moving the origin along the edges of the upper-left quadrant, especially when <a href="../Master_Controls/Damping.htm">damping</a> is used.
+
+<p>To enable/disable mirroring, use <span class="cmd">Image/Mirror</span> or <span class="key">F5</span>.
+
+<p>Mirroring <a href="../Loose_Ends/Performance.htm">performance</a> depends almost entirely on the capabilities of your graphics card. Most 2000/XP-era PCs should be able to handle it acceptably, but if not, try upgrading your graphics card first before upgrading anything else. Mirroring may also be affected by the <a href="../Options/Display/DirectDraw.htm">DirectDraw</a> options.
+
+</body>

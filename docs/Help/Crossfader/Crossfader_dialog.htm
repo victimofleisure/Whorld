@@ -1,0 +1,61 @@
+<title>Crossfader dialog</title>
+<body>
+
+<h3>Crossfader dialog</h3>
+
+<p>The crossfader allows you to <a href="../Crossfader/Interpolation.htm">interpolate</a> between two input <a href="../Patches/Patches.htm">patches</a>, called 'A' and 'B'. The result is a new patch, called the crossfader <em>mix</em>, which varies between 'A' and 'B', depending on the position of the crossfader. The position can be adjusted manually, or automated, so that it moves by itself. Note that the crossfader has no effect on the animation unless <a href="../Modes/View_Mix.htm">View Mix</a> is enabled. To show or hide the crossfader dialog, use <span class="cmd">View/Crossfader</span>, or <span class="key">Shift+X</span>.
+
+<dl>
+
+<dt>Position
+<dd>This is the current position of the crossfader. It ranges from 0 to 1, where 0 is all 'A', 1 is all 'B', and .5 is an equal mix. The position can be set by entering a number in the edit box, by moving the slider, or via MIDI. Note that the position can't be set during an auto-fade; see below.
+
+<dt>Seconds
+<dd>This is the auto-fade length; it specifies how long the crossfader thumb takes to move from one end of its range to the other, in seconds.
+
+<dt>Play
+<dd>This button starts an automated fade. The crossfader thumb moves by itself, until it reaches end-of-travel (unless Loop is pressed), or you press Stop. The auto-fade length (see above) determines how quickly it moves. Which direction it moves depends on its current position, and whether you've moved it manually since you last pressed Stop, as shown below:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>At end-of-travel?</th><th>Moved since Stop?</th><th>Result</th></tr>
+<tr><td>Yes</td><td>N/A</td><td>Moves towards opposite end.</td></tr>
+<tr><td>No</td><td>Yes</td><td>Moves from left to right.</td></tr>
+<tr><td>No</td><td>No</td><td>Moves in same direction it was moving before.</td></tr>
+</table>
+
+<p><dt>Stop
+<dd>This button stops an automated fade.
+
+<dt>Loop
+<dd>An automated fade normally stops when the fader reaches end-of-travel. When this button is pressed, the fader continues to move back and forth between 'A' and 'B' until you press Stop.
+
+<dt>Name
+<dd>This pair of drop-lists allows you to select a patch for either input. Each list contains three special selections, followed by the patches from the current bank of your <a href="../Playlists/Playlists.htm">playlist</a>. The special selections are as follows:
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><td>Document</td><td>Loads the patch currently being edited.</td></tr>
+<tr><td>Crossfader A/B</td><td>Loads the other input's patch.</td></tr>
+<tr><td>Crossfader Mix</td><td>Loads the current crossfader mix.</td></tr>
+</table>
+
+<p><dt>Open
+<dd>This pair of buttons allows you to load either input from a file.
+
+<dt>Save
+<dd>This pair of buttons allows you save either input to a file.
+
+<dt>Edit A/B/Mix
+<dd>These buttons set the <a href="../Patches/Edit_Selection.htm">edit selection</a> to input 'A', input 'B', or the crossfader mix, and also show the <a href="../Parameters/Parameters.htm">parameters</a> dialog if it's not already visible. Selecting "Mix" allows you to watch the parameters and oscillator settings change as the crossfader moves. It's also possible to edit the mix, but note that moving the crossfader or changing either input overwrites your edits without warning. It's safer to save the mix to a file, and then open the file for editing; see Save Mix below.
+
+<dt>View Mix
+<dd>This button duplicates the <a href="../Modes/View_Mix.htm">View Mix</a> setting; when pressed, Whorld's image is controlled by the crossfader, otherwise it's controlled by the document.
+
+<dt>Save Mix
+<dd>This button allows you to save the current mix to a file. Note that the resulting patch does not include the <a href="../Patches/Master_Offsets.htm">master offsets</a>, and may not look the same when reloaded unless all master offsets are zero. To include the master offsets, use <span class="cmd">File/Save Mix</span> instead.
+
+<dt>Waveform
+<dd>This sets the type of <a href="../Patches/Waveforms.htm">waveform</a> that's used to control automated fading. For normal behavior, select "Triangle".
+
+</dl>
+
+</body>

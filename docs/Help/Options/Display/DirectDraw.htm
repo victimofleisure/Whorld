@@ -1,0 +1,24 @@
+<title>DirectDraw</title>
+<body>
+
+<h3>DirectDraw</h3>
+
+<p>Windows includes two systems for drawing 2D graphics: GDI and DirectDraw. Whorld can use either, but DirectDraw is more hardware-oriented and typically gives much better performance than GDI. The following options allow you to control Whorld's usage of DirectDraw.
+
+<dl>
+
+<dt>Use DirectDraw
+<dd>If checked, Whorld uses DirectDraw, otherwise it uses GDI and ignores the other DirectDraw settings. This option should be checked unless DirectDraw causes problems. Note that if you change this option, you must restart Whorld for the change to take effect.
+
+<dt>Mirror to back buffer
+<dd>If checked, Whorld <a href="../../Effects/Mirror.htm">mirrors</a> to an intermediate back buffer, and then blits the resulting image to the front buffer; otherwise it mirrors directly to the front buffer. Mirroring directly to the front buffer is slightly faster, but allows the mirror quadrants to become misaligned. This option should be checked unless mirroring causes problems.
+
+<dt>Allow Exclusive mode
+<dd>If checked, Whorld uses DirectDraw's Exclusive mode in the following situations: in <a href="../../Modes/Veejay_Mode.htm">Veejay mode</a>, in full-screen <a href="../../Modes/Dual-Monitor.htm">dual-monitor</a> configuration, and when playing back a Whorld <a href="../../Movies/Movies.htm">movie</a> full-screen. Exclusive mode is more efficient and eliminates <a href="../../Loose_Ends/Tearing.htm">tearing</a>, so this option should be checked unless Exclusive mode causes problems.
+<dt>Back buffer location
+
+<dd>Frames are drawn in off-screen memory (the "back buffer") and then copied to the screen (the "front buffer"). The back buffer can be located in either video or system memory. You can force Whorld to always use one or the other, but it's usually best to let it choose the optimal location, by leaving this option set to "Auto". Selecting "System" should always be safe, but may reduce performance. Selecting "Video" may interfere with mirrored and <a href="../../Effects/X-Ray.htm">X-ray</a> modes, because they require the back buffer to be read as well as written; reading from video memory is typically very slow.
+
+</dl>
+
+</body>

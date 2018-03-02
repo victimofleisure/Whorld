@@ -1,0 +1,24 @@
+<title>Zoom</title>
+<body>
+
+<h3>Zoom</h3>
+
+<p>This setting controls the magnification at which the image is displayed. The value is a percentage of normal zoom, ranging from 10 (1/10 of normal) to 1000 (10 times normal). The default setting is 100 (normal).
+
+<p>Zoom is affected by <a href="../Master_Controls/Damping.htm">damping</a>. As damping increases, zoom becomes more fluid, but less precise. With too little damping, zoom feels jerky; with too much, it reacts slowly and tends to overshoot the target.
+
+<p>Zoom scales the <a href="../Master_Controls/Canvas_scale.htm">canvas</a> as well as the image, and therefore also affects <a href="../Modes/Origin_Motion.htm">origin motion</a>. Origin dragging is limited to either the zoomed canvas or the window, whichever is bigger.
+
+<p>Note that zooming in may reduce <a href="../Loose_Ends/Performance.htm">performance</a>, particularly when <a href="../Effects/Fill.htm">fill</a> or <a href="../Parameters/Line_Width.htm">wide lines</a> are used. The performance hit is roughly proportional to the amount of zoom, so it may be possible to manage the problem by zooming in cautiously, and backing off if the animation starts to slow down.
+
+<p>Zoom can be changed via the Master dialog or MIDI, or by moving the <a href="../Modes/Mouse_Modes.htm">mouse</a> vertically while holding down the left button.
+
+<p>Two types of zoom are available: origin zoom, and window-centered zoom, as described below. To toggle between them, use <span class="cmd">Window/Zoom Center</span> (<span class="key">Shift+W</span>).
+
+<p><table border=1 cellpadding=2 cellspacing=0>
+<tr><th>Zoom Type</th><th>Behavior</th></tr>
+<tr><td>Origin zoom</td><td>Zooms into or out of the current ring origin. This is the default.</td></tr>
+<tr><td>Window-centered zoom</td><td>Zooms into or out of the center of the window. This is useful for magnifying an arbitrary portion of the image: drag the image until the portion of interest is in the center of the window, and then zoom. It's also useful in <a href="../Effects/Mirror.htm">mirror</a> mode, because it allows you to zoom without altering the reflections.</td></tr>
+</table>
+
+</body>

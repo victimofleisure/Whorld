@@ -3,14 +3,14 @@ echo y | rd /s C:\Chris\MyProjects\Whorld\web\Help
 ren helpframe.html helpframe.txt
 rem attrib +r gallery\*.* /s
 rem attrib +r temp\*.* /s
-C:\Chris\tools\navgen template.html .
+C:\Chris\tools\navgen templateGitHub.html .
 if errorlevel 1 goto err
 "C:\Chris\MyProjects\FixSelfUrl\Release\FixSelfUrl" *.html
 if errorlevel 1 goto err
 rem attrib -r gallery\*.* /s
 rem attrib -r temp\*.* /s
 rem cd gallery
-rem navgen templateGitHub.html .
+rem navgen template.html .
 rem if errorlevel 1 goto err
 rem "C:\Chris\MyProjects\FixSelfUrl\Release\FixSelfUrl" *.html
 rem if errorlevel 1 goto err

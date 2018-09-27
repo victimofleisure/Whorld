@@ -1,0 +1,14 @@
+body {
+	background-color:#808080;
+	font-family:Verdana,Helvetica,sans-serif;
+	font-size:10px;
+	text-align:center;
+}
+.thumb {
+	border:0px;
+	margin-bottom:5px;
+}
+.navtext, .navtext a {
+	text-decoration:none;
+	color:#ffffff;
+}

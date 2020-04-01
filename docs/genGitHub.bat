@@ -9,14 +9,14 @@ C:\Chris\tools\navgen templateGitHub.html .
 if errorlevel 1 goto err
 "C:\Chris\MyProjects\FixSelfUrl\Release\FixSelfUrl" *.html
 if errorlevel 1 goto err
-rem attrib -r gallery\*.* /s
-rem attrib -r temp\*.* /s
-rem cd gallery
-rem navgen template.html .
-rem if errorlevel 1 goto err
-rem "C:\Chris\MyProjects\FixSelfUrl\Release\FixSelfUrl" *.html
-rem if errorlevel 1 goto err
-rem cd..
+attrib -r gallery\*.* /s
+attrib -r temp\*.* /s
+cd gallery
+navgen templateGitHub.html .
+f errorlevel 1 goto err
+"C:\Chris\MyProjects\FixSelfUrl\Release\FixSelfUrl" *.html
+if errorlevel 1 goto err
+cd..
 rem if errorlevel 1 goto err
 rem ren helpframe.txt helpframe.html
 rem md Help

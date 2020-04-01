@@ -12,6 +12,7 @@ if errorlevel 1 goto err
 attrib -r gallery\*.* /s
 attrib -r temp\*.* /s
 cd gallery
+copy C:\Chris\MyProjects\Whorld\web\Gallery\*.html
 navgen templateGitHub.html .
 f errorlevel 1 goto err
 "C:\Chris\MyProjects\FixSelfUrl\Release\FixSelfUrl" *.html

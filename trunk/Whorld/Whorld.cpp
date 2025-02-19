@@ -1,4 +1,4 @@
-// Copyleft 2005 Chris Korda
+// Copyleft 2025 Chris Korda
 // This program is free software; you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
 // Software Foundation; either version 2 of the License, or any later version.
@@ -7,223 +7,548 @@
  
 		revision history:
 		rev		date	comments
-        00      22apr05	initial version
-		01		28jun05	add snapshot file open
-		02		07jul05	add playlist file open
-		03		01aug05	disable and restore accessibility shortcuts
-		04		18aug05	add mouse wheel to OnIdle excludes
-		05		29aug05	add HTML help
-		06		02jun06	add AVI to shell open
-		07		24jul06	add command-line flag to start in VJ mode
-		08		27jan08	add GetAppDataFolder
+        00      06feb25	initial version
 
-        Whorld application
- 
 */
 
 // Whorld.cpp : Defines the class behaviors for the application.
 //
 
 #include "stdafx.h"
+#include "afxwinappex.h"
+#include "afxdialogex.h"
 #include "Whorld.h"
-
 #include "MainFrm.h"
+#include "AboutDlg.h"
+
 #include "WhorldDoc.h"
 #include "WhorldView.h"
-#include "WhorldViewDD.h"
-#include "AboutDlg.h"
 #include "Win32Console.h"
 #include "Persist.h"
-#include "shlwapi.h"
+#include "SaveObj.h"
+#include "FocusEdit.h"
+#include "afxregpath.h"
+#include "AppRegKey.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CWhorldApp
+#define RK_RENDER_WND _T("RenderWnd")
 
-BEGIN_MESSAGE_MAP(CWhorldApp, CWinApp)
-	//{{AFX_MSG_MAP(CWhorldApp)
-	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-	ON_COMMAND(ID_APP_HOME_PAGE, OnAppHomePage)
-	//}}AFX_MSG_MAP
-	// Standard file based document commands
-	ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, CWinApp::OnFileOpen)
-	// Standard print setup command
-	ON_COMMAND(ID_FILE_PRINT_SETUP, CWinApp::OnFilePrintSetup)
-END_MESSAGE_MAP()
+#define ON_ERROR(x) OnError(x, __FILE__, __LINE__, __DATE__);
 
-/////////////////////////////////////////////////////////////////////////////
 // CWhorldApp construction
 
 CWhorldApp::CWhorldApp()
 {
+	m_bHiColorIcons = TRUE;
+	SetAppID(_T("Whorld"));
+	m_pView = NULL;
+	m_bIsDetached = false;
+	m_bIsFullScreen = false;
+	m_bIsFullScreenChanging = false;
+	m_bDetachedPreFullScreen = false;
+	m_bIsDualMonitor = false;
+	m_hKeyboardHook = NULL;
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // The one and only CWhorldApp object
 
 CWhorldApp theApp;
 
-/////////////////////////////////////////////////////////////////////////////
 // CWhorldApp initialization
-
-LONG __stdcall CWhorldApp::CrashHandler(EXCEPTION_POINTERS *ExceptionInfo)
-{
-	((CWhorldApp *)AfxGetApp())->m_NoAccess.Restore();	// restore accessibility
-	return(EXCEPTION_CONTINUE_SEARCH);
-}
 
 BOOL CWhorldApp::InitInstance()
 {
-	SetUnhandledExceptionFilter(CrashHandler);	// trap unhandled exceptions
+	InitWhorldBase();	// initialize Whorld base class
+
+#if _DEBUG
+	Win32Console::Create();	// create console window for debugging
+#endif
+
+	// InitCommonControlsEx() is required on Windows XP if an application
+	// manifest specifies use of ComCtl32.dll version 6 or later to enable
+	// visual styles.  Otherwise, any window creation will fail.
+	INITCOMMONCONTROLSEX InitCtrls;
+	InitCtrls.dwSize = sizeof(InitCtrls);
+	// Set this to include all the common control classes you want to use
+	// in your application.
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls);
+
+	CWinAppEx::InitInstance();
+
+	// Initialize OLE libraries
+	if (!AfxOleInit())
+	{
+		AfxMessageBox(IDP_OLE_INIT_FAILED);
+		return FALSE;
+	}
 
 	AfxEnableControlContainer();
 
-#ifdef _DEBUG
-	Win32Console::Create();
-#endif
+	EnableTaskbarInteraction(FALSE);
+
+	// AfxInitRichEdit2() is required to use RichEdit control	
+	// AfxInitRichEdit2();
 
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
-	//  of your final executable, you should remove from the following
-	//  the specific initialization routines you do not need.
-
-#ifdef _AFXDLL
-	Enable3dControls();			// Call this when using MFC in a shared DLL
-#else
-	Enable3dControlsStatic();	// Call this when linking to MFC statically
-#endif
-
+	// of your final executable, you should remove from the following
+	// the specific initialization routines you do not need
+	// Change the registry key under which our settings are stored
+	LPCTSTR	pPrevAppName = m_pszAppName;
+	m_pszAppName = _T("Whorld2");	// create new profile for version 2
 	SetRegistryKey(_T("Anal Software"));
-
+	m_pszAppName = pPrevAppName;
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 
+	InitContextMenuManager();
+
+	InitKeyboardManager();
+
+	InitTooltipManager();
+	CMFCToolTipInfo ttParams;
+	ttParams.m_bVislManagerTheme = TRUE;
+	GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
+		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
+
 	// Register the application's document templates.  Document templates
-	//  serve as the connection between documents, frame windows and views.
+	//  serve as the connection between documents, frame windows and views
 	CSingleDocTemplate* pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CWhorldDoc),
-		RUNTIME_CLASS(CMainFrame),		// main SDI frame window
-		CMainFrame::GetViewClass());	// GDI or DirectDraw
+		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+		RUNTIME_CLASS(CWhorldView));
+	if (!pDocTemplate)
+		return FALSE;
 	AddDocTemplate(pDocTemplate);
 
 	// Parse command line for standard shell commands, DDE, file open
-	ParseCommandLine(m_cmdInfo);
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
 
-	// if special file type, disable standard open document behavior
-	bool	SpecialFile = FALSE;
-	if (!m_cmdInfo.m_strFileName.IsEmpty()) {
-		CString	Ext = PathFindExtension(m_cmdInfo.m_strFileName);
-		if (!Ext.IsEmpty()) {
-			if (!_tcsicmp(Ext, EXT_SNAPSHOT)
-			|| !_tcsicmp(Ext, EXT_PLAYLIST)
-			|| !_tcsicmp(Ext, EXT_MOVIE)
-			|| !_tcsicmp(Ext, EXT_AVI)) {
-				SpecialFile = TRUE;
-				m_cmdInfo.m_nShellCommand = CCommandLineInfo::FileNew;
-			}
-		}
-	}
-
-	// Dispatch commands specified on the command line
-	if (!ProcessShellCommand(m_cmdInfo))
+	// Dispatch commands specified on the command line.  Will return FALSE if
+	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 
-	// The one and only window has been initialized, so show and update it.
-	m_pMainWnd->ShowWindow(SW_SHOW);
-	m_pMainWnd->UpdateWindow();
-
-	// notify frame about special file type
-	if (SpecialFile) {
-		LPCTSTR	Path = m_cmdInfo.m_strFileName;
-		m_pMainWnd->PostMessage(UWM_SHELLOPEN, (LPARAM)Path, m_cmdInfo.m_StartVJ);
-	}
+	// The stock code shows and updates the main window here, but this makes the
+	// view flicker due to being painted twice; it's solved by moving show/update
+	// to CMainFrame::OnDelayedCreate which runs after the window sizes stabilize
 
 	return TRUE;
 }
 
-CWhorldApp::CMyCommandLineInfo::CMyCommandLineInfo()
+int CWhorldApp::ExitInstance()
 {
-	m_StartVJ = FALSE;
+	m_thrRender.DestroyThread();
+	m_wndRender.DestroyWindow();
+	AfxOleTerm(FALSE);
+	if (m_bCleanStateOnExit) {
+		ResetWindowLayout();	// delete window layout keys
+		CleanState();	// delete workspace key
+		RestartApp();	// launch new instance of app
+	}
+	return CWinAppEx::ExitInstance();
 }
 
-void CWhorldApp::CMyCommandLineInfo::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
+void CWhorldApp::ResetWindowLayout()
 {
-	if (bFlag && !_tcsicmp(lpszParam, _T("vj")))
-		m_StartVJ = TRUE;
-	CCommandLineInfo::ParseParam(lpszParam, bFlag, bLast);
+	// registry keys listed here will be deleted
+	static const LPCTSTR pszCleanKey[] = {
+		#define MAINDOCKBARDEF(name, width, height, style) RK_##name##Bar,
+		#include "MainDockBarDef.h"	// generate keys for main dockable bars
+		REG_SETTINGS,
+		_T("Options\\Expand"),
+	};
+	CSettingsStoreSP regSP;
+	CSettingsStore& reg = regSP.Create(FALSE, FALSE);
+	int	nKeys = _countof(pszCleanKey);
+	for (int iKey = 0; iKey < nKeys; iKey++)	// for each listed key
+		reg.DeleteKey(AFXGetRegPath(pszCleanKey[iKey]));
 }
 
-/////////////////////////////////////////////////////////////////////////////
+CWhorldDoc *CWhorldApp::GetDocument()
+{
+	ASSERT(m_pView != NULL);
+	CWhorldDoc	*pDoc = m_pView->GetDocument();
+	ASSERT(pDoc != NULL);
+	return pDoc;
+}
+
+void CWhorldApp::OnError(CString sErrorMsg, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
+{
+	DWORD	nError = GetLastError();
+	if (nError != ERROR_SUCCESS) {	// if last error isn't success
+		// add error code and its translation to message
+		CString	sErrorCode;
+		sErrorCode.Format(_T("\nSystem Error %d (0x%x).\n"), nError, nError);
+		sErrorMsg += sErrorCode + FormatSystemError(nError);
+	}
+	CString	sSrcFileName(pszSrcFileName);	// convert to Unicode
+	CString	sSrcFileDate(pszSrcFileDate);
+	if (sErrorMsg.Right(1) != '\n')
+		sErrorMsg += '\n';
+	CString sContext;
+	sContext.Format(_T("%s line %d (%s)"), sSrcFileName.GetString(), nLineNum, sSrcFileDate.GetString());
+	sErrorMsg += sContext;
+	Log(sErrorMsg);
+	AfxMessageBox(sErrorMsg);
+}
+
+bool CWhorldApp::HandleDlgKeyMsg(MSG* pMsg)
+{
+	static const LPCSTR	EditBoxCtrlKeys = "ACHVX";	// Z reserved for app undo
+	CMainFrame	*pMain = GetMainFrame();
+	ASSERT(pMain != NULL);	// main frame must exist
+	switch (pMsg->message) {
+	case WM_KEYDOWN:
+		{
+			int	nVKey = INT64TO32(pMsg->wParam);
+			bool	bTryMainAccels = false;	// assume failure
+			if ((nVKey >= VK_F1 && nVKey <= VK_F24) || nVKey == VK_ESCAPE) {
+				bTryMainAccels = true;	// function key or escape
+			} else {
+				bool	bIsAlpha = nVKey >= 'A' && nVKey <= 'Z';
+				CEdit	*pEdit = CFocusEdit::GetEdit();
+				if (pEdit != NULL) {	// if an edit control has focus
+					if ((bIsAlpha								// if (alpha key
+					&& strchr(EditBoxCtrlKeys, nVKey) == NULL	// and unused by edit
+					&& (GetKeyState(VK_CONTROL) & GKS_DOWN))	// and Ctrl is down)
+					|| (!bIsAlpha								// or (non-alpha key
+					&& (GetKeyState(VK_CONTROL) & GKS_DOWN))	// and Ctrl is down)
+					|| (nVKey == VK_SPACE						// or (space key
+					&& ((GetKeyState(VK_CONTROL) & GKS_DOWN))	// and Ctrl is down)
+					|| (GetKeyState(VK_SHIFT) & GKS_DOWN)))	{	// or Shift is down
+						bTryMainAccels = true;	// give main accelerators a try
+					}
+				} else {	// non-edit control has focus
+					if (bIsAlpha								// if alpha key
+					|| nVKey == VK_SPACE						// or space key
+					|| (GetKeyState(VK_CONTROL) & GKS_DOWN)		// or Ctrl is down
+					|| (GetKeyState(VK_SHIFT) & GKS_DOWN)) {	// or Shift is down
+						bTryMainAccels = true;	// give main accelerators a try
+					}
+				}
+			}
+			if (bTryMainAccels) {
+				HACCEL	hAccel = pMain->GetAccelTable();
+				if (hAccel != NULL && TranslateAccelerator(pMain->m_hWnd, hAccel, pMsg)) {
+					return true;	// message was translated, stop dispatching
+				}
+			}
+		}
+		break;
+	case WM_SYSKEYDOWN:
+		{
+			if (GetKeyState(VK_SHIFT) & GKS_DOWN)	// if context menu
+				return false;	// keep dispatching (false alarm)
+			pMain->SetFocus();	// main frame must have focus to display menus
+			HACCEL	hAccel = pMain->GetAccelTable();
+			if (hAccel != NULL && TranslateAccelerator(pMain->m_hWnd, hAccel, pMsg)) {
+				return true;	// message was translated, stop dispatching
+			}
+		}
+		break;
+	}
+	return false;	// continue dispatching
+}
+
+// CWhorldApp customization load/save methods
+
+void CWhorldApp::PreLoadState()
+{
+	BOOL bNameValid;
+	CString strName;
+	bNameValid = strName.LoadString(IDS_EDIT_MENU);
+	ASSERT(bNameValid);
+	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+}
+
+void CWhorldApp::LoadCustomState()
+{
+}
+
+void CWhorldApp::SaveCustomState()
+{
+}
+
+void CWhorldApp::Log(CString sMsg)
+{
+#if _DEBUG
+	SYSTEMTIME	sysTime;
+	GetSystemTime(&sysTime);
+	CString	sTime;
+	sTime.Format(_T("%02d:%02d:%02d.%03d"), sysTime.wHour, sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
+	sMsg.Replace('\n', ' ');	// remove internal newlines
+	sMsg += '\n';	// append trailing newline
+	_fputts(sTime + ' ' + sMsg, stdout);
+#endif
+}
+
+bool CWhorldApp::CreateRenderWnd(DWORD dwStyle, CRect& rWnd, CWnd *pParentWnd)
+{
+	if (!m_wndRender.CreateWnd(dwStyle, rWnd, pParentWnd)) {	// create rendering window
+		ON_ERROR(LDS(IDS_APP_ERR_CANT_CREATE_RENDER_WINDOW));
+		return false;
+	}
+	if (!m_thrRender.CreateThread(m_wndRender.m_hWnd)) {	// create rendering thread
+		ON_ERROR(LDS(IDS_APP_ERR_CANT_CREATE_RENDER_THREAD));
+		return false;
+	}
+	return true;
+}
+
+void CWhorldApp::DestroyRenderWnd()
+{
+	m_thrRender.DestroyThread();	// destroy render thread first as it uses render window
+	if (m_wndRender.m_hWnd) {	// if render window exists
+		if (m_bIsDetached) {	// if render window is detached
+			// save render window's placement in registry
+			CPersist::SaveWnd(REG_SETTINGS, &m_wndRender, RK_RENDER_WND);
+		} else {	// render window is attached to view
+			m_wndRender.SetParent(NULL);	// make render window a top-level window
+			// change render window style's from child to overlapped and invisible
+			m_wndRender.ModifyStyle(WS_CHILD | WS_VISIBLE, WS_OVERLAPPED);
+		}
+		m_wndRender.DestroyWindow();
+	}
+}
+
+void CWhorldApp::ResizeRenderWnd(int cx, int cy)
+{
+	if (m_wndRender.m_hWnd) {	// if render window exists
+		ASSERT(!m_bIsDetached);	// only if render window is a child
+		m_wndRender.MoveWindow(0, 0, cx, cy);	// resize window
+	}
+}
+
+void CWhorldApp::PushRenderCommand(const CRenderCmd& cmd)
+{
+	if (!m_thrRender.PushCommand(cmd)) {
+		ON_ERROR(LDS(IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS));
+	}
+}
+
+bool CWhorldApp::SetDetached(bool bEnable)
+{
+	ASSERT(m_wndRender.m_hWnd);
+	if (bEnable == m_bIsDetached)	// if already in requested state
+		return true;	// nothing to do
+	if (m_bIsFullScreen)	// if full screen
+		return false;	// detach isn't allowed
+	CRect	r;
+	WINDOWPLACEMENT	wp = {};	// initalize to zero
+	// SWP_FRAMECHANGED is required because we're changing frame styles;
+	// SWP_NOCOPYBITS is advisable to reduce glitch as window changes size
+	UINT	nSetPosFlags = SWP_FRAMECHANGED | SWP_NOCOPYBITS | SWP_NOZORDER;
+	if (bEnable) {	// if detaching render window from view
+		m_pView->GetWindowRect(r);	// get view's rect in screen coords
+		m_wndRender.SetParent(NULL);	// make render window a top-level window
+		m_wndRender.MoveWindow(r);	// prevent render window from jumping around
+		// remove child style and add overlapped style, normally via the combined style
+		// WS_OVERLAPPEDWINDOW which includes a caption bar, but if full screen mode is
+		// changing, the caption would cause visual glitch so use WS_OVERLAPPED instead
+		UINT	dwAddStyle = m_bIsFullScreenChanging ? WS_OVERLAPPED : WS_OVERLAPPEDWINDOW;
+		m_wndRender.ModifyStyle(WS_CHILDWINDOW, dwAddStyle);
+		// if full screen mode isn't changing, and window placement is available
+		if (!m_bIsFullScreenChanging	
+		&& CPersist::GetWndPlacement(REG_SETTINGS, RK_RENDER_WND, wp)) {
+			nSetPosFlags |= SWP_NOMOVE | SWP_NOSIZE;	// don't move or size render window
+		} else {	// offset render window from view
+			int	nOffset = GetSystemMetrics(SM_CYCAPTION) * 2;
+			r.OffsetRect(nOffset, nOffset);
+		}
+	} else {	// attaching render window to view
+		CPersist::SaveWnd(REG_SETTINGS, &m_wndRender, RK_RENDER_WND);
+		m_wndRender.SetParent(m_pView);
+		m_wndRender.ModifyStyle(WS_OVERLAPPEDWINDOW, WS_CHILDWINDOW);
+		m_pView->GetClientRect(r);
+	}
+	// If you change any of the frame styles, you must call SetWindowPos 
+	// with the SWP_FRAMECHANGED flag for the cache to be updated properly.
+	m_wndRender.SetWindowPos(NULL, r.left, r.top, r.Width(), r.Height(), nSetPosFlags);
+	if (wp.length) {	// if placement was obtained above
+		m_wndRender.SetWindowPlacement(&wp);	// restore placement
+	}
+	if (!bEnable) {	// if attaching render window to view
+		m_pView->SetFocus();	// set focus to view
+	}
+	m_bIsDetached = bEnable;	// update state data member
+	return true;
+}
+
+bool CWhorldApp::SetFullScreen(bool bEnable)
+{
+	if (bEnable == m_bIsFullScreen)	// if already in requested state
+		return true;	// nothing to do
+	if (m_bIsFullScreenChanging)	// if full screen change in progress
+		return false;	// not allowed
+	// set full screen change flag, but automatically restore its previous
+	// state when CSaveObj goes out of scope, unless m_objOld is changed
+	CSaveObj<bool>	objFullScreenChanging(m_bIsFullScreenChanging, true);
+	if (bEnable) {	// if entering full screen mode
+		if (!GetMonitorConfig(m_bIsDualMonitor))	// get monitor configuration
+			return false;	// error already reported
+		m_bDetachedPreFullScreen = m_bIsDetached;	// save detached state
+		if (!SetDetached(true)) {	// detach render window from view
+			ON_ERROR(LDS(IDS_APP_ERR_CANT_DETACH_RENDER_WINDOW));
+			return false;
+		}
+		if (IsSingleMonitor()) {	// if single monitor configuration
+			if (!SetSingleMonitorExclusive(true))
+				return false;
+		}
+	} else {	// entering windowed mode
+		if (IsSingleMonitor()) {	// if single monitor configuration
+			SetSingleMonitorExclusive(false);
+		}
+	}
+	CRenderCmd	cmd(RC_SET_FULLSCREEN, bEnable);
+	PushRenderCommand(cmd);	// queue full screen command to render thread
+	m_bIsFullScreen = bEnable;	// update state data member
+	objFullScreenChanging.m_objOld = true;	// set flag for real
+	return true;
+}
+
+void CWhorldApp::OnFullScreenChanged(bool bIsFullScreen, bool bResult)
+{
+	m_bIsFullScreen = bIsFullScreen;	// update state data member
+	if (m_wndRender.m_hWnd) {	// if render window exists
+		if (!bIsFullScreen) {	// if changed to windowed mode
+			// if render window was attached to view when full-screen mode was entered
+			if (!m_bDetachedPreFullScreen) {
+				SetDetached(false);	// re-attach render window to view
+			}
+		}
+	}
+	m_bIsFullScreenChanging = false;
+	if (!bResult) {	// if mode change failed
+		SetSingleMonitorExclusive(false);	// do cleanup
+	}
+}
+
+bool CWhorldApp::SetSingleMonitorExclusive(bool bEnable)
+{
+	if (bEnable) {	// if entering exclusive
+		if (!SetKeyboardHook())	// set keyboard hook
+			return false;
+	} else {	// exiting exclusive
+		RemoveKeyboardHook();	// remove keyboard hook
+	}
+	GetMainFrame()->m_wndMenuBar.ShowPane(!bEnable, false, false);	// show or hide main menus
+	return true;
+}
+
+BOOL CWhorldApp::GetNearestMonitorInfo(HWND hWnd, MONITORINFOEX& monInfo)
+{
+	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+	ZeroMemory(&monInfo, sizeof(monInfo));
+	monInfo.cbSize = sizeof(monInfo);
+	return GetMonitorInfo(hMon, &monInfo);
+}
+
+bool CWhorldApp::GetMonitorConfig(bool& bIsDualMonitor)
+{
+	MONITORINFOEX monInfoRender;
+	if (!GetNearestMonitorInfo(m_wndRender.m_hWnd, monInfoRender)) {
+		ON_ERROR(LDS(IDS_APP_ERR_CANT_GET_MONITOR_INFO));
+		return false;
+	}
+	MONITORINFOEX monInfoMain;
+	if (!GetNearestMonitorInfo(m_pMainWnd->m_hWnd, monInfoMain)) {
+		ON_ERROR(LDS(IDS_APP_ERR_CANT_GET_MONITOR_INFO));
+		return false;
+	}
+	// if device names differ, it's a dual-monitor setup
+	bIsDualMonitor = _tcsicmp(monInfoRender.szDevice, monInfoMain.szDevice) != 0;
+	return true;
+}
+
+bool CWhorldApp::SetKeyboardHook()
+{
+	if (m_hKeyboardHook != NULL)	// if hooks already set
+		return true;	// do nothing
+	m_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD, KeyboardHookProc, NULL, GetCurrentThreadId());
+	if (m_hKeyboardHook == NULL) {
+		ON_ERROR(LDS(IDS_APP_ERR_CANT_SET_KEYBOARD_HOOK));
+		return false;
+	}
+	return true;
+}
+
+bool CWhorldApp::RemoveKeyboardHook()
+{
+	if (m_hKeyboardHook != NULL) {	// if hook was set
+		BOOL	bResult = UnhookWindowsHookEx(m_hKeyboardHook);
+		m_hKeyboardHook = NULL;
+		if (!bResult) {
+			ON_ERROR(LDS(IDS_APP_ERR_CANT_REMOVE_KEYBOARD_HOOK));
+			return false;
+		}
+	}
+	return true;
+}
+
+LRESULT CALLBACK CWhorldApp::KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
+{
+	switch (wParam) {
+	case VK_MENU:
+		return true;	// eat the key
+	}
+	return CallNextHookEx(NULL, code, wParam, lParam);
+}
+
+LRESULT	CWhorldApp::OnTrackingHelp(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	return 0;
+}
+
+bool CWhorldApp::UpdateFrameRate()
+{
+	MONITORINFOEX monInfoRender;
+	if (!GetNearestMonitorInfo(m_wndRender.m_hWnd, monInfoRender)) {
+		ON_ERROR(LDS(IDS_APP_ERR_CANT_GET_MONITOR_INFO));
+		return false;
+	}
+	DEVMODE	mode;
+	ZeroMemory(&mode, sizeof(mode));
+	mode.dmSize = sizeof(mode);
+	if (!EnumDisplaySettings(monInfoRender.szDevice, ENUM_CURRENT_SETTINGS, &mode)) {
+		ON_ERROR(LDS(IDS_APP_ERR_CANT_GET_DISPLAY_SETTINGS));
+		return false;
+	}
+	if (mode.dmDisplayFrequency != GetFrameRate()) {	// if display frequency changed
+		CRenderCmd	cmd(RC_SET_FRAME_RATE, mode.dmDisplayFrequency);
+		PushRenderCommand(cmd);
+	}
+	return true;
+}
+
+// CWhorldApp message map
+
+BEGIN_MESSAGE_MAP(CWhorldApp, CWinAppEx)
+	ON_COMMAND(ID_APP_ABOUT, &CWhorldApp::OnAppAbout)
+	// Standard file based document commands
+	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
+	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
+	ON_COMMAND(ID_APP_HOME_PAGE, &CWhorldApp::OnAppHomePage)
+END_MESSAGE_MAP()
+
 // CWhorldApp message handlers
 
-// By default, CWinApp::OnIdle is called after WM_TIMER messages.  This isn't
-// normally a problem, but if the application uses a short timer, OnIdle will
-// be called frequently, seriously degrading performance.  Performance can be
-// improved by overriding IsIdleMessage to return FALSE for WM_TIMER messages,
-// which prevents them from triggering OnIdle.  This technique can be applied
-// to any idle-triggering message that repeats frequently, e.g. WM_MOUSEMOVE.
-//
-BOOL CWhorldApp::IsIdleMessage(MSG* pMsg)
-{
-	if (CWinApp::IsIdleMessage(pMsg)) {
-		switch (pMsg->message) {	// don't call OnIdle after these messages
-		case WM_TIMER:
-		case WM_MOUSEMOVE:
-		case WM_NCMOUSEMOVE:
-		case WM_KEYDOWN:	// so keyboard auto-repeat doesn't hog CPU
-		case WM_HSCROLL:	// Page Up/Down auto-repeats this message too
-		case WM_MOUSEWHEEL:
-			return(FALSE);
-		default:
-			return(TRUE);
-		}
-	} else
-		return(FALSE);
-}
-
-// App command to run the dialog
 void CWhorldApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 }
 
-void CWhorldApp::OnAppHomePage() 
+void CWhorldApp::OnAppHomePage()
 {
-	CHyperlink::GotoUrl(CAboutDlg::HOME_PAGE_URL);
+	GotoUrl(_T("https://whorld.sourceforge.net/"));
 }
-
-bool CWhorldApp::GetAppDataFolder(CString& Folder)
-{
-	LPTSTR	p = Folder.GetBuffer(MAX_PATH);
-	bool	retc = SUCCEEDED(SHGetSpecialFolderPath(NULL, p, CSIDL_APPDATA, 0));
-	Folder.ReleaseBuffer();
-	return(retc);
-}
-
-// MakeSureDirectoryPathExists doesn't support Unicode; SHCreateDirectoryEx
-// is a reasonable substitute, but our version of the SDK doesn't define it
-#if defined(UNICODE) && !defined(SHCreateDirectoryEx)
-int WINAPI SHCreateDirectoryExW(HWND hwnd, LPCWSTR pszPath, SECURITY_ATTRIBUTES *psa)
-{
-	int	retc = ERROR_INVALID_FUNCTION;
-	typedef int (WINAPI* lpfnSHCreateDirectoryExW)(HWND hwnd, LPCWSTR pszPath, SECURITY_ATTRIBUTES *psa);
-	HMODULE hShell = LoadLibrary(_T("shell32.dll"));
-	lpfnSHCreateDirectoryExW lpfn = NULL;
-	if (hShell) {
-		lpfn = (lpfnSHCreateDirectoryExW)GetProcAddress(hShell, "SHCreateDirectoryExW");
-		if (lpfn)
-			retc = lpfn(hwnd, pszPath, psa);
-		FreeLibrary(hShell);
-	}
-	return(retc);
-}
-#define SHCreateDirectoryEx SHCreateDirectoryExW
-#endif

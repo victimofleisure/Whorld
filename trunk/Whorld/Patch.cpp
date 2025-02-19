@@ -12,6 +12,7 @@
 		02		21jun06	add tag to MasterDef macro
 		03		24jun06	add Copies and Spread
 		04		28jan08	support Unicode
+		05		09feb25	refactor
 
 		patch container
  
@@ -21,146 +22,182 @@
 #include "Resource.h"
 #include "Patch.h"
 #include "FormatIO.h"
-#include "WhorldView.h"
 
 const LPCTSTR CPatch::FILE_ID = _T("WHORLD%d");	// placeholder for version number
 
-const CPatch::LINE_INFO CPatch::m_LineInfo[] = {
-	#undef MASTERDEF
-	#define MASTERDEF(tag, name, type) {_T(#name), FIO_##type, offsetof(CPatch, m_Master.name)},
-	#include "MasterDef.h"	// build I/O list for master members
-	#undef MAINDEF
-	#define MAINDEF(name, type) {_T(#name), FIO_##type, offsetof(CPatch, m_Main.name)},
-	#include "MainDef.h"	// build I/O list for main members
-	{NULL}	// terminator, don't delete
-};
-
-const CPatch::MASTER CPatch::m_MasterDefaults = {
-	1,			// Speed
-	1,			// Zoom
-	.186261,	// Damping
-	0,			// Trail
-	MAX_RINGS,	// Rings
-	100,		// Tempo
-	30,			// HueLoopLength
-	1.4,		// CanvasScale
-	1,			// Copies
-	100			// Spread
-};
-
-const CPatch::MAIN CPatch::m_MainDefaults = {
-	{.5, .5},	// Origin
-	0,			// DrawMode
-	0,			// OrgMotion
-	0,			// Hue
-	FALSE,		// Mirror
-	FALSE,		// Reverse
-	FALSE,		// Convex
-	FALSE,		// InvertColor
-	FALSE,		// LoopHue
-	FALSE,		// Pause
-	FALSE		// ZoomCenter
-};
-
 void CPatch::SetDefaults()
 {
-	CParmInfo::SetDefaults();
-	m_Master = m_MasterDefaults;
-	m_Main = m_MainDefaults;
+	SetParamDefaults(m_aParam);
+	m_master = m_masterDefault;
+	m_main = m_mainDefault;
 }
 
-bool CPatch::Read(CStdioFile& fp)
+void CPatch::GetParam(int iParam, int iProp, CComVariant& prop) const
 {
-	CString	s;
-	int	Version;
-	if (!fp.ReadString(s) || _stscanf(s, FILE_ID, &Version) != 1)
-		return(FALSE);
+	// assign parameter row property to caller's variant
+	ASSERT(IsValidParamIdx(iParam));	// check parameter index range
+	ASSERT(IsValidParamProp(iProp));	// check parameter property index range
+	const PARAM_ROW&	row = m_aParam.row[iParam];	// reference specified parameter row
+	switch (iProp) {
+	#define PARAMPROPDEF(name, type, prefix, variant) \
+	case PARAM_PROP_##name: prop.variant = row.prefix##name; break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+}
+
+void CPatch::SetParam(int iParam, int iProp, const CComVariant& prop)
+{
+	// assign caller's variant to parameter row property
+	ASSERT(IsValidParamIdx(iParam));	// check parameter index range
+	ASSERT(IsValidParamProp(iProp));	// check parameter property index range
+	PARAM_ROW&	row = m_aParam.row[iParam];	// reference specified parameter row
+	switch (iProp) {
+	#define PARAMPROPDEF(name, type, prefix, variant) \
+	case PARAM_PROP_##name: row.prefix##name = prop.variant; break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+}
+
+void CPatch::GetParamRC(int iParam, int iProp, VARIANT_PROP& prop) const
+{
+	// assign parameter row property to caller's variant
+	ASSERT(IsValidParamIdx(iParam));	// check parameter index range
+	ASSERT(IsValidParamProp(iProp));	// check parameter property index range
+	const PARAM_ROW&	row = m_aParam.row[iParam];	// reference specified parameter row
+	switch (iProp) {
+	#define PARAMPROPDEF(name, type, prefix, variant) \
+	case PARAM_PROP_##name: prop.##variant = row.prefix##name; break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+}
+
+void CPatch::SetParamRC(int iParam, int iProp, const VARIANT_PROP& prop)
+{
+	// assign parameter row property to caller's variant
+	ASSERT(IsValidParamIdx(iParam));	// check parameter index range
+	ASSERT(IsValidParamProp(iProp));	// check parameter property index range
+	PARAM_ROW&	row = m_aParam.row[iParam];	// reference specified parameter row
+	switch (iProp) {
+	#define PARAMPROPDEF(name, type, prefix, variant) \
+	case PARAM_PROP_##name: row.prefix##name = prop.##variant; break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+}
+
+void CPatch::GetMainProp(int iProp, VARIANT_PROP& prop) const
+{
+	ASSERT(IsValidMainProp(iProp));
+	switch (iProp) {
+	#define MAINDEF(name, type, prefix, initval, variant) \
+	case MAIN_##name: prop.variant = m_main.##prefix##name; break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+}
+
+void CPatch::SetMainProp(int iProp, const VARIANT_PROP& prop)
+{
+	ASSERT(IsValidMainProp(iProp));
+	switch (iProp) {
+	#define MAINDEF(name, type, prefix, initval, variant) \
+	case MAIN_##name: m_main.##prefix##name = prop.variant; break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+}
+
+CString	CPatch::ParamToString(int iProp, const VARIANT_PROP& prop)
+{
+	ASSERT(IsValidParamProp(iProp));	// check parameter property index range
+	CString	sOut;
+	switch (iProp) {
+	#define PARAMPROPDEF(name, type, prefix, variant) \
+	case PARAM_PROP_##name: sOut = ValToString(prop.variant); break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+	return sOut;
+}
+
+CString	CPatch::MasterToString(int iProp, const VARIANT_PROP& prop)
+{
+	UNREFERENCED_PARAMETER(iProp);
+	return ValToString(prop.dblVal);
+}
+
+CString	CPatch::MainToString(int iProp, const VARIANT_PROP& prop)
+{
+	ASSERT(IsValidMainProp(iProp));	// check parameter property index range
+	CString	sOut;
+	switch (iProp) {
+	#define MAINDEF(name, type, prefix, initval, variant) \
+	case MAIN_##name: sOut = ValToString(prop.variant); break;
+	#include "WhorldDef.h"	// generate cases for each property type
+	}
+	return sOut;
+}
+
+bool CPatch::ParseLine(CString sLine)
+{
+	sLine.TrimLeft();
+	CString	sName = sLine.SpanExcluding(_T(" \t"));
+	CString	sArg = sLine.Mid(sName.GetLength());
+	int	iParam = FindParamByName(sName);
+	if (iParam >= 0) {	// if parameter found
+		PARAM_ROW&	row = m_aParam.row[iParam];
+		_stscanf_s(sArg, _T("%lf %d %lf %lf %lf"),
+			&row.fVal, &row.iWave, &row.fAmp, &row.fFreq, &row.fPW);
+		return true;
+	}
+	int	iMaster = FindMasterByName(sName);
+	if (iMaster >= 0) {	// if master property found
+		_stscanf_s(sArg, _T("%lf"), &m_master.a[iMaster]);
+		return true;
+	}
+	int	iMain = FindMainByName(sName);
+	if (iMain >= 0) {	// if main property found
+		const MAIN_INFO& info = GetMainInfo(iMain);
+		CFormatIO::StrToVal(info.nFIOType, sArg, ((BYTE *)&m_main) + info.nOffset);
+		return true;
+	}
+	return false;	// unknown symbol; parse failed
+}
+
+bool CPatch::Read(LPCTSTR pszPath)
+{
+	CStdioFile	fIn(pszPath, CFile::modeRead | CFile::shareDenyWrite);
+	CString	sLine;
+	int	nVersion;
+	if (!fIn.ReadString(sLine) || _stscanf_s(sLine, FILE_ID, &nVersion) != 1) {
+		AfxMessageBox(IDS_DOC_BAD_FORMAT);
+		return(false);
+	}
 	SetDefaults();	// in case some lines are missing
-	while (fp.ReadString(s)) {
-		s.TrimLeft();
-		CString	Name = s.SpanExcluding(_T(" \t"));
-		CString	Arg = s.Mid(Name.GetLength());
-		int	i;
-		for (i = 0; i < ROWS; i++) {
-			if (Name == m_RowData[i].Name) {
-				ROW	*r = &m_Row[i];
-				_stscanf(Arg, _T("%lf %d %lf %lf %lf"),
-					&r->Val, &r->Wave, &r->Amp, &r->Freq, &r->PW);
-				break;
-			}
-		}
-		if (i >= ROWS) {	// not a parm row, assume it's a state member
-			for (i = 0; m_LineInfo[i].Name != NULL; i++) {
-				if (Name == m_LineInfo[i].Name) {
-					CFormatIO::StrToVal(m_LineInfo[i].Type, Arg,
-						((char *)this) + m_LineInfo[i].Offset);
-					break;
-				}
-			}
-		}
+	while (fIn.ReadString(sLine)) {
+		ParseLine(sLine);
 	}
-	return(TRUE);
+	return(true);
 }
 
-bool CPatch::Write(CStdioFile& fp) const
+bool CPatch::Write(LPCTSTR pszPath) const
 {
-	CString	s;
-	s.Format(FILE_ID, FILE_VERSION);
-	fp.WriteString(s + "\n");
-	int	i;
-	for (i = 0; i < ROWS; i++) {
-		const ROW	*r = &m_Row[i];
-		s.Format(_T("%s\t%g\t%d\t%g\t%g\t%g\n"), m_RowData[i].Name,
-			r->Val, r->Wave, r->Amp, r->Freq, r->PW);
-		fp.WriteString(s);
+	CStdioFile	fOut(pszPath, CFile::modeCreate | CFile::modeWrite);
+	CString	sLine;
+	sLine.Format(FILE_ID, FILE_VERSION);
+	fOut.WriteString(sLine + "\n");
+	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
+		const PARAM_ROW& row = m_aParam.row[iParam];
+		const PARAM_INFO& info = GetParamInfo(iParam); 
+		sLine.Format(_T("%s\t%g\t%d\t%g\t%g\t%g\n"), info.pszName,
+			row.fVal, row.iWave, row.fAmp, row.fFreq, row.fPW);
+		fOut.WriteString(sLine);
 	}
-	for (i = 0; m_LineInfo[i].Name != NULL; i++) {
-		CFormatIO::ValToStr(m_LineInfo[i].Type, 
-			((char *)this) + m_LineInfo[i].Offset, s);
-		fp.WriteString(CString(m_LineInfo[i].Name) + "\t" + s + "\n");
+	for (int iMaster = 0; iMaster < MASTER_COUNT; iMaster++) {	// for each master property
+		const MASTER_INFO& info = GetMasterInfo(iMaster);
+		sLine.Format(_T("%s\t%g\n"), info.pszName, m_master.a[iMaster]);
+		fOut.WriteString(sLine);
 	}
-	return(TRUE);
-}
-
-bool CPatch::Read(LPCTSTR Path)
-{
-	CStdioFile	fp;
-	CFileException	e;
-	if (!fp.Open(Path, CFile::modeRead | CFile::shareDenyWrite, &e)) {
-		e.ReportError();
-		return(FALSE);
+	for (int iMain = 0; iMain < MAIN_COUNT; iMain++) {	// for each main property
+		const MAIN_INFO& info = GetMainInfo(iMain);
+		CFormatIO::ValToStr(info.nFIOType, ((BYTE *)&m_main) + info.nOffset, sLine);
+		fOut.WriteString(CString(info.pszName) + '\t' + sLine + '\n');
 	}
-	TRY {
-		if (!Read(fp)) {
-			AfxMessageBox(IDS_DOC_BAD_FORMAT);
-			return(FALSE);
-		}
-	}
-	CATCH(CFileException, e)
-	{
-		e->ReportError();
-		return(FALSE);
-	}
-	END_CATCH
-	return(TRUE);
-}
-
-bool CPatch::Write(LPCTSTR Path) const
-{
-	CStdioFile	fp;
-	CFileException	e;
-	if (!fp.Open(Path, CFile::modeCreate | CFile::modeWrite, &e)) {
-		e.ReportError();
-		return(FALSE);
-	}
-	TRY {
-		Write(fp);
-	}
-	CATCH(CFileException, e)
-	{
-		e->ReportError();
-		return(FALSE);
-	}
-	END_CATCH
-	return(TRUE);
+	return(true);
 }

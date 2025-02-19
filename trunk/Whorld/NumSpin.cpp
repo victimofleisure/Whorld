@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      28sep04	initial version
+		01		24apr18	standardize names
 
         spin buddy for numeric edit control
  
@@ -34,7 +35,7 @@ IMPLEMENT_DYNAMIC(CNumSpin, CSpinButtonCtrl);
 
 CNumSpin::CNumSpin()
 {
-	m_Delta = 1;
+	m_fDelta = 1;
 }
 
 CNumSpin::~CNumSpin()
@@ -55,6 +56,6 @@ void CNumSpin::OnDeltapos(NMHDR* pNMHDR, LRESULT* pResult)
 	NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
 	CNumEdit	*edit = DYNAMIC_DOWNCAST(CNumEdit, GetWindow(GW_HWNDPREV));
 	if (edit != NULL)
-		edit->AddSpin(-pNMUpDown->iDelta * m_Delta);
+		edit->AddSpin(-pNMUpDown->iDelta * m_fDelta);
 	*pResult = 0;
 }

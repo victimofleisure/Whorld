@@ -13,6 +13,14 @@
 		03		24jul05	add log base and aux notify
 		04		13aug06	notify aux before parent
 		05		28jan08	support Unicode
+		06		19sep13	add spin control format
+		07		17oct13	in PreTranslateMessage, don't change focus
+		08		18feb14	add OnEnable to invalidate spin control
+		09		19apr18	move spin control creation to helper
+		10		24apr18	standardize names
+		11		02jun18	in Notify, fix x64 crash due to casting pointer to long
+		12		14dec22	add fraction format
+		13		10feb25	in AddSpin, if clamped value is unchanged, don't notify
 
         numeric edit control
  
@@ -24,6 +32,7 @@
 #include "stdafx.h"
 #include "Resource.h"
 #include "NumEdit.h"
+#include "NumSpin.h"
 #include <math.h>
 
 #ifdef _DEBUG
@@ -39,19 +48,22 @@ IMPLEMENT_DYNAMIC(CNumEdit, CEdit);
 
 CNumEdit::CNumEdit()
 {
-	m_Val = 0;
-	m_Scale = 1;
-	m_LogBase = 0;
-	m_Precision = -1;
-	m_AuxNotify = NULL;
-	m_MinVal = 0;
-	m_MaxVal = 0;
-	m_HaveRange = FALSE;
-	m_Format = DF_REAL;
+	m_fVal = 0;
+	m_fScale = 1;
+	m_fLogBase = 0;
+	m_nPrecision = -1;
+	m_pAuxNotify = NULL;
+	m_fMinVal = 0;
+	m_fMaxVal = 0;
+	m_bHaveRange = FALSE;
+	m_nFormat = DF_REAL;
+	m_nFracScale = 0;
+	m_pSpin = NULL;
 }
 
 CNumEdit::~CNumEdit()
 {
+	delete m_pSpin;
 }
 
 void CNumEdit::SetText()
@@ -68,69 +80,82 @@ void CNumEdit::GetText()
 	StrToVal(s);
 }
 
-void CNumEdit::SetVal(double Val)
+void CNumEdit::SetVal(double fVal)
 {
-	m_Val = Val;
+	m_fVal = fVal;
 	SetText();
 	Notify(NTF_AUX);	// don't notify parent, to avoid feedback
 }
 
-void CNumEdit::SetVal(double Val, int NotifyMask)
+void CNumEdit::SetVal(double fVal, int nNotifyMask)
 {
-	m_Val = Val;
+	m_fVal = fVal;
 	SetText();
-	Notify(NotifyMask);	// caller determines who gets notified
+	Notify(nNotifyMask);	// caller determines who gets notified
 }
 
-void CNumEdit::AddSpin(double Delta)
+void CNumEdit::AddSpin(double fDelta)
 {
 	GetText();	// freshen value before incrementing it
-	m_Val += Delta;
-	if (m_HaveRange)
-		m_Val = CLAMP(m_Val, m_MinVal, m_MaxVal);
+	double	fNewVal = m_fVal + fDelta;
+	if (m_bHaveRange) {	// if range was specified
+		fNewVal = CLAMP(fNewVal, m_fMinVal, m_fMaxVal);
+		if (fNewVal == m_fVal)	// if clamped value is unchanged
+			return;	// don't notify
+	}
+	m_fVal = fNewVal;
 	SetText();
 	Notify();
 }
 
 void CNumEdit::StrToVal(LPCTSTR Str)
 {
-	double	r = _tstof(Str) * m_Scale;
-	if (m_LogBase)
-		r = log(r) / log(m_LogBase);
-	m_Val = r;
+	double	r;
+	int	nNumerator, nDenominator;
+	if ((m_nFormat & DF_FRACTION)	// if fractions are enabled
+	&& _stscanf_s(Str, _T("%d/%d"), &nNumerator, &nDenominator) == 2	// and both values scanned
+	&& nDenominator != 0)	// and denominator is non-zero
+		r = nNumerator / double(nDenominator) * m_nFracScale;
+	else
+		r = _tstof(Str) * m_fScale;
+	if (m_fLogBase)
+		r = log(r) / log(m_fLogBase);
+	m_fVal = r;
 }
 
 void CNumEdit::ValToStr(CString& Str)
 {
-	double	r = m_Val;
-	if (m_LogBase)
-		r = pow(m_LogBase, r);
-	r /= m_Scale;
-	if (m_Precision < 0)
+	double	r = m_fVal;
+	if (m_fLogBase)
+		r = pow(m_fLogBase, r);
+	r /= m_fScale;
+	if (m_nPrecision < 0)
 		Str.Format(_T("%g"), r);
 	else
-		Str.Format(_T("%.*f"), m_Precision, r);
+		Str.Format(_T("%.*f"), m_nPrecision, r);
 }
 
-bool CNumEdit::IsValidChar(int Char)
+bool CNumEdit::IsValidChar(int nChar)
 {
-	switch (Char) {
+	switch (nChar) {
 	case '-':
 	case VK_BACK:
 		break;
 	case '.':
 	case 'e':
-		if (m_Format != DF_REAL)
+		if (m_nFormat & DF_INT)
 			return(FALSE);
 		break;
+	case '/':
+		return (m_nFormat & DF_FRACTION) != 0;
 	default:
-		if (!(isdigit(Char) || iscntrl(Char)))
+		if (!(isdigit(nChar) || iscntrl(nChar)))
 			return(FALSE);
 	}
 	return(TRUE);
 }
 
-void CNumEdit::Notify(int NotifyMask)
+void CNumEdit::Notify(int nNotifyMask)
 {
 	NMHDR	nmh;
 	nmh.hwndFrom = m_hWnd;
@@ -138,23 +163,37 @@ void CNumEdit::Notify(int NotifyMask)
 	nmh.code = NEN_CHANGED;
 	// notify aux before parent; else if parent send its own notification via
 	// SendMessage, and recipient reads value from aux, value will be stale
-	if (m_AuxNotify != NULL && (NotifyMask & NTF_AUX))	// notify aux first
-		m_AuxNotify->SendMessage(WM_NOTIFY, nmh.idFrom, long(&nmh));
-	if (NotifyMask & NTF_PARENT)
-		GetParent()->SendMessage(WM_NOTIFY, nmh.idFrom, long(&nmh));
+	if (m_pAuxNotify != NULL && (nNotifyMask & NTF_AUX))	// notify aux first
+		m_pAuxNotify->SendMessage(WM_NOTIFY, nmh.idFrom, reinterpret_cast<LPARAM>(&nmh));
+	if (nNotifyMask & NTF_PARENT)
+		GetParent()->SendMessage(WM_NOTIFY, nmh.idFrom, reinterpret_cast<LPARAM>(&nmh));
 }
 
-void CNumEdit::SetRange(double MinVal, double MaxVal)
+void CNumEdit::SetRange(double fMinVal, double fMaxVal)
 {
-	m_MinVal = MinVal;
-	m_MaxVal = MaxVal;
-	m_HaveRange = TRUE;
+	m_fMinVal = fMinVal;
+	m_fMaxVal = fMaxVal;
+	m_bHaveRange = TRUE;
+}
+
+void CNumEdit::CreateSpinCtrl()
+{
+	ASSERT(m_pSpin == NULL);
+	m_pSpin = new CNumSpin;
+	UINT	style = WS_CHILD | WS_VISIBLE | UDS_ALIGNRIGHT | UDS_ARROWKEYS;
+	UINT	IDC_SPIN_OFFSET = 0x4000;
+	UINT	nID = GetDlgCtrlID() + IDC_SPIN_OFFSET;
+	if (!m_pSpin->Create(style, CRect(0, 0, 0, 0), GetParent(), nID))
+		AfxThrowResourceException();
+	m_pSpin->SetWindowPos(this, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);	// set Z order
+	m_pSpin->SetBuddy(this);
 }
 
 BEGIN_MESSAGE_MAP(CNumEdit, CEdit)
 	//{{AFX_MSG_MAP(CNumEdit)
 	ON_CONTROL_REFLECT_EX(EN_KILLFOCUS, OnKillfocus)
 	ON_WM_CHAR()
+	ON_WM_ENABLE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -165,8 +204,8 @@ BOOL CNumEdit::OnKillfocus()
 {
 	if (GetModify()) {
 		GetText();
-		if (m_HaveRange) {
-			m_Val = CLAMP(m_Val, m_MinVal, m_MaxVal);
+		if (m_bHaveRange) {
+			m_fVal = CLAMP(m_fVal, m_fMinVal, m_fMaxVal);
 			SetText();
 		}
 		Notify();
@@ -182,13 +221,24 @@ void CNumEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 BOOL CNumEdit::PreTranslateMessage(MSG* pMsg) 
 {
-	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN)
-		GetParent()->SetFocus();	// return ends edit
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) {
+		OnKillfocus();
+		SetSel(0, -1);	// select entire text
+	}
 	return CEdit::PreTranslateMessage(pMsg);
 }
 
 void CNumEdit::PreSubclassWindow() 
 {
-	SetVal(m_Val);
+	SetVal(m_fVal);
 	CEdit::PreSubclassWindow();
+	if (m_nFormat & DF_SPIN)	// if spin control requested
+		CreateSpinCtrl();
+}
+
+void CNumEdit::OnEnable(BOOL bEnable) 
+{
+	CEdit::OnEnable(bEnable);
+	if (m_pSpin != NULL)	// if spin control attached
+		m_pSpin->Invalidate();	// make sure it gets repainted
 }

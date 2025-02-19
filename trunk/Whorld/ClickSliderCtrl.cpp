@@ -10,6 +10,8 @@
         00      28sep04	initial version
 		01		22apr05	remove undo handling
 		02		31jul05	add SetTicCount
+		03		18feb09	in OnLButtonDown, temporarily disable paging
+		04		10feb25	fix warnings on casting window handle
 
 		slider with jump to position and default
  
@@ -58,12 +60,12 @@ int CClickSliderCtrl::PointToPos(CPoint point)
 void CClickSliderCtrl::PostPos()
 {
 	GetParent()->PostMessage(WM_HSCROLL,
-		MAKELONG(SB_THUMBTRACK, GetPos()), long(this->m_hWnd));
+		MAKELONG(SB_THUMBTRACK, GetPos()), reinterpret_cast<LPARAM>(this->m_hWnd));
 }
 
 void CClickSliderCtrl::PostNotification(int Code)
 {
-	GetParent()->PostMessage(WM_HSCROLL, Code, long(this->m_hWnd));
+	GetParent()->PostMessage(WM_HSCROLL, Code, reinterpret_cast<LPARAM>(this->m_hWnd));
 }
 
 void CClickSliderCtrl::SetTicCount(int Count)
@@ -96,7 +98,15 @@ void CClickSliderCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 	GetThumbRect(tr);
 	if (!tr.PtInRect(point))	// if click was within thumb, don't jump
 		SetPos(PointToPos(point));
-	CSliderCtrl::OnLButtonDown(nFlags, point);
+	// We need to call the base class for capture and mouse move handling, but
+	// the base class also sets the current position, potentially altering the
+	// position we just set. The base class jumps to the nearest page boundary,
+	// so its position could differ significantly from ours, particularly for
+	// small ranges. We fix this by temporarily setting the page size to one.
+	int PageSize = GetPageSize();	// save page size
+	SetPageSize(1);	// disable paging so base class doesn't change position
+	CSliderCtrl::OnLButtonDown(nFlags, point);	// do base class behavior
+	SetPageSize(PageSize);	// restore page size
 	// if click was outside channel, MFC doesn't post HScroll
 	CRect	cr;
 	GetChannelRect(cr);
@@ -130,6 +140,8 @@ void CClickSliderCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 BOOL CClickSliderCtrl::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
 {
+	UNREFERENCED_PARAMETER(pt);
+	UNREFERENCED_PARAMETER(nFlags);
 	// un-reverse wheel
 	if (zDelta > 0)
 		OnKeyDown(VK_UP, 0, 0);

@@ -10,6 +10,7 @@
         00      27jul05	initial version
 		01		28jan08	support Unicode
 		02		29jan08	in StrToVal, add static cast to fix warning
+		03		09feb25	replace deprecated methods to fix warnings
 
         type-driven formatted I/O
  
@@ -20,7 +21,7 @@
 
 #define VALTOSTR(type, fmt) case FIO_##type: Str.Format(fmt, *((type *)Val)); break;
 #define VALTOSTR_PREC(type, fmt, prec) case FIO_##type: Str.Format(fmt, prec, *((type *)Val)); break;
-#define STRTOVAL(type, fmt) case FIO_##type: _stscanf(Str, fmt, Val); break;
+#define STRTOVAL(type, fmt) case FIO_##type: _stscanf_s(Str, fmt, (type *)Val); break;
 
 bool CFormatIO::ValToStr(int Type, const PVOID Val, CString& Str)
 {
@@ -60,14 +61,14 @@ bool CFormatIO::StrToVal(int Type, LPCTSTR Str, void *Val)
 	STRTOVAL(FLOAT,		_T("%f"));
 	STRTOVAL(DOUBLE,	_T("%lf"));
 	case FIO_DPOINT:
-		_stscanf(Str, _T("%lf %lf"), &((DPOINT *)Val)->x, &((DPOINT *)Val)->y);
+		_stscanf_s(Str, _T("%lf %lf"), &((DPOINT *)Val)->x, &((DPOINT *)Val)->y);
 		break;
 	STRTOVAL(SHORT,		_T("%hd"));
 	STRTOVAL(USHORT,	_T("%hu"));
 	case FIO_BYTE:
 		{
 			int	i;
-			_stscanf(Str, _T("%d"), &i);
+			_stscanf_s(Str, _T("%d"), &i);
 			*((BYTE *)Val) = static_cast<BYTE>(i);
 		}
 	default:

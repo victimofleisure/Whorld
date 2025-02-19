@@ -8,17 +8,14 @@
 		revision history:
 		rev		date	comments
         00      28sep04	initial version
+		01		24apr18	standardize names
 
         spin buddy for numeric edit control
  
 */
 
-#if !defined(AFX_NUMSPIN_H__0A4DA8A8_20BF_4003_8676_2FAF9C519059__INCLUDED_)
-#define AFX_NUMSPIN_H__0A4DA8A8_20BF_4003_8676_2FAF9C519059__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 // NumSpin.h : header file
 //
 
@@ -34,7 +31,7 @@ public:
 
 // Attributes
 public:
-	void	SetDelta(double Delta);
+	void	SetDelta(double fDelta);
 
 // Operations
 public:
@@ -56,17 +53,15 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 // Member data
-	double	m_Delta;	// increment numeric edit control by this amount
+	double	m_fDelta;	// increment numeric edit control by this amount
 };
 
-inline void CNumSpin::SetDelta(double Delta)
+inline void CNumSpin::SetDelta(double fDelta)
 {
-	m_Delta = Delta;
+	m_fDelta = fDelta;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_NUMSPIN_H__0A4DA8A8_20BF_4003_8676_2FAF9C519059__INCLUDED_)

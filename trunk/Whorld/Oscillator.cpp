@@ -14,6 +14,7 @@
 		04		28aug05	random case must test current phase
 		05		08mar06	in GetVal, default case now returns zero
 		06		15mar06	add random ramp waveform
+		07		12feb25	remove pi
 
         general-purpose waveform generator
  
@@ -21,86 +22,58 @@
 
 #include "stdafx.h"
 #include "Oscillator.h"
+#define _USE_MATH_DEFINES
 #include <math.h>
-
-const double COscillator::pi = 3.141592653589793;
 
 COscillator::COscillator()
 {
 	Init();
 }
 
-COscillator::COscillator(double TimerFreq, int Waveform, double Freq)
+COscillator::COscillator(double fTimerFreq, int nWaveform, double fFreq)
 {
 	Init();
-	m_TimerFreq = TimerFreq;
-	m_Waveform = Waveform;
-	m_Freq = Freq;
+	m_fTimerFreq = fTimerFreq;
+	m_nWaveform = nWaveform;
+	m_fFreq = fFreq;
 }
 
 void COscillator::Init()
 {
-	m_TimerFreq = 0;
-	m_Waveform = 0;
-	m_Freq = 0;
-	m_PulseWidth = .5;
-	m_RandPrvPhase = 0;
-	m_RandCurVal = 0;
-	m_RandPrvVal = 0;
-	m_Clock = 0;
-}
-
-inline double COscillator::CurPos() const
-{
-	return(m_Freq / m_TimerFreq * m_Clock);
+	m_fTimerFreq = 0;
+	m_nWaveform = 0;
+	m_fFreq = 0;
+	m_fPulseWidth = 0.5;
+	m_fRandPrvPhase = 0;
+	m_fRandCurVal = 0;
+	m_fRandPrvVal = 0;
+	m_fClock = 0;
 }
 
 inline double COscillator::CurPhase() const
 {
-	return(fmod(CurPos(), 1));
+	return fmod(CurPos(), 1);
 }
 
-inline void COscillator::Resync(double Phase)
-{
-	m_Clock = m_Freq ? Phase * (m_TimerFreq / m_Freq) : 0;
-}
-
-double COscillator::GetPhase() const
-{
-	return(CurPhase());
-}
-
-void COscillator::SetPhase(double Phase)
-{
-	Resync(Phase);
-}
-
-void COscillator::SetFreq(double Freq)
-{
-	double	Phase = CurPhase();
-	m_Freq = Freq;
-	Resync(Phase);
-}
-
-void COscillator::SetPhaseFromVal(double Val)
+void COscillator::SetPhaseFromVal(double fVal)
 {
 	double	r;
-	switch (m_Waveform) {
+	switch (m_nWaveform) {
 	case TRIANGLE:
-		r = (Val + 1) / 2 + 1.5;
+		r = (fVal + 1) / 2 + 10.5;
 		break;
 	case SINE:
-		r = asin(Val) / pi;
+		r = asin(fVal) / M_PI;
 		break;
 	case RAMP_UP:
-		r = Val + 1;
+		r = fVal + 1;
 		break;
 	case RAMP_DOWN:
-		r = 1 - Val;
+		r = 1 - fVal;
 		break;
 	case SQUARE:
 	case PULSE:
-		r = (Val + 1) / 2 + 1;
+		r = (fVal + 1) / 2 + 1;
 		break;
 	default:
 		r = 0;
@@ -111,13 +84,13 @@ void COscillator::SetPhaseFromVal(double Val)
 double COscillator::GetVal()
 {
 	double	r;
-	switch (m_Waveform) {
+	switch (m_nWaveform) {
 	case TRIANGLE:
-		r = fmod(CurPos() * 2 + .5, 2);
+		r = fmod(CurPos() * 2 + 0.5, 2);
 		r = r < 1 ? r * 2 - 1 : 3 - r * 2;
 		break;
 	case SINE:
-		r = sin(CurPos() * pi * 2);
+		r = sin(CurPos() * M_PI * 2);
 		break;
 	case RAMP_UP:
 		r = CurPhase() * 2 - 1;
@@ -126,29 +99,29 @@ double COscillator::GetVal()
 		r = 1 - CurPhase() * 2;
 		break;
 	case SQUARE:
-		r = CurPhase() < .5 ? 1 : -1;
+		r = CurPhase() < 0.5 ? 1 : -1;
 		break;
 	case PULSE:
-		r = CurPhase() < m_PulseWidth ? 1 : -1;
+		r = CurPhase() < m_fPulseWidth ? 1 : -1;
 		break;
 	case RANDOM:
 		r = CurPhase();
-		if (r < .5 && m_RandPrvPhase > .5)
-			m_RandCurVal = double(rand()) / RAND_MAX * 2 - 1;
-		m_RandPrvPhase = r;
-		r = m_RandCurVal;
+		if (r < 0.5 && m_fRandPrvPhase > 0.5)
+			m_fRandCurVal = double(rand()) / RAND_MAX * 2 - 1;
+		m_fRandPrvPhase = r;
+		r = m_fRandCurVal;
 		break;
 	case RANDOM_RAMP:
 		r = CurPhase();
-		if (r < .5 && m_RandPrvPhase > .5) {
-			m_RandPrvVal = m_RandCurVal;
-			m_RandCurVal = double(rand()) / RAND_MAX * 2 - 1;
+		if (r < 0.5 && m_fRandPrvPhase > 0.5) {
+			m_fRandPrvVal = m_fRandCurVal;
+			m_fRandCurVal = double(rand()) / RAND_MAX * 2 - 1;
 		}
-		m_RandPrvPhase = r;
-		r = m_RandPrvVal + (m_RandCurVal - m_RandPrvVal) * r;
+		m_fRandPrvPhase = r;
+		r = m_fRandPrvVal + (m_fRandCurVal - m_fRandPrvVal) * r;
 		break;
 	default:
 		r = 0;
 	}
-	return(r);
+	return r;
 }

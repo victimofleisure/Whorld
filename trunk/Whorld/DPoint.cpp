@@ -16,7 +16,9 @@
 #include "DPoint.h"
 #include "math.h"
 
+const double DPoint::Epsilon = 1e-10;
+
 bool DPoint::Equal(double a, double b)
 {
-	return(fabs(a - b) < 1e-10);	// less than this and they're equal
+	return(fabs(a - b) < Epsilon);	// less than this and they're equal
 }

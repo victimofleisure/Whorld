@@ -1,7 +1,7 @@
-// Information contained in this document is the confidential property of Z
-// Corporation.  Recipient shall not disclose such Information to any third
-// party, and shall not use it for any purpose except as agreed to in writing
-// by Z Corporation.  © Z Corporation 1995-2002.  All rights reserved.
+// Copyleft 2008 Chris Korda
+// This program is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or any later version.
 /*
 		chris korda
 
@@ -9,6 +9,7 @@
 		00		31jul04		initial version
 		01		30nov07		handle close signal by closing main window
 		02		29jan08		change SetScreenBufferSize arg type to fix warning
+		03		27apr24		replace Redirect with standard file reopen
 
 		Create a Win32 console and redirect standard I/O to it
 
@@ -65,15 +66,6 @@ public:
 protected:
 	static	bool	m_IsOpen;	// True if the console was created.
 
-// Redirects an I/O handle to a standard file stream.
-//
-// Returns: True if successful.
-//
-	static	bool	Redirect(
-		HANDLE	Handle,		// The I/O handle to redirect.
-		FILE	*File,		// Receives the file stream.
-		LPCSTR	Mode		// The file mode to set.
-	);
 //
 // Handles close signal by closing app's main window.
 //

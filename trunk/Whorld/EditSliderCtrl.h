@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      23jul05	initial version
+		01		04mar09	add static norm/denorm functions
 
 		slider with buddy numeric edit control
  
@@ -62,6 +63,8 @@ public:
 
 // Operations
 public:
+	static	double	Norm(const INFO& Info, double Val);
+	static	double	Denorm(const INFO& Info, double Val);
 
 // Overrides
 	// ClassWizard generated virtual function overrides

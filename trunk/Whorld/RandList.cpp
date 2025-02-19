@@ -8,6 +8,9 @@
 		revision history:
 		rev		date	comments
         00      02jun05	initial version
+        01      01jul12	fix Rand to avoid possible overrun
+        02      06jan13	add cast to GetSize for x64
+		03		07jun21	rename rounding functions
 
 		random sequence without duplicates
  
@@ -34,15 +37,18 @@ void CRandList::Init(int Size)
 	m_Avail = 0;
 }
 
-int CRandList::Rand(int Limit)
+int CRandList::Rand(int Vals)
 {
-	return(int(float(rand()) / RAND_MAX * Limit));
+	if (Vals <= 0)
+		return(-1);
+	int	i = Trunc(rand() / double(RAND_MAX) * Vals);
+	return(min(i, Vals - 1));
 }
 
 int CRandList::GetNext()
 {
 	if (!m_Avail)
-		m_Avail = m_List.GetSize();
+		m_Avail = GetSize();
 	ASSERT(m_Avail > 0);
 	int	idx = Rand(m_Avail);
 	m_Avail--;

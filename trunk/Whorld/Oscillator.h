@@ -9,13 +9,13 @@
 		rev		date	comments
         00      22apr05	initial version
 		01		15mar06	add random ramp waveform
+		02		12feb25	remove pi
 
         general-purpose waveform generator
  
 */
 
-#ifndef COSCILLATOR_DEFINED
-#define COSCILLATOR_DEFINED
+#pragma once
 
 class COscillator {
 public:
@@ -34,102 +34,160 @@ public:
 
 // Construction
 	COscillator();
-	COscillator(double TimerFreq, int Waveform, double Freq);
+	COscillator(double fTimerFreq, int nWaveform, double fFreq);
 
 // Attributes
 	double	GetTimerFreq() const;
-	void	SetTimerFreq(double TimerFreq);	// in Hz
+	void	SetTimerFreq(double fTimerFreq);	// in Hz
 	int		GetWaveform() const;
-	void	SetWaveform(int Waveform);
+	void	SetWaveform(int nWaveform);
 	double	GetFreq() const;
-	void	SetFreq(double Freq);		// doesn't change phase, but loses sync
-	void	SetFreqSync(double Freq);	// stays in sync, but changes phase
+	void	SetFreq(double fFreq);		// doesn't change phase, but loses sync
+	void	SetFreqSync(double fFreq);	// stays in sync, but changes phase
 	double	GetPulseWidth() const;
-	void	SetPulseWidth(double PulseWidth);	// 0..1, 1 = 100% duty
+	void	SetPulseWidth(double fPulseWidth);	// 0..1, 1 = 100% duty
 	double	GetClock() const;
-	void	SetClock(double Clock);	// in ticks
+	void	SetClock(double fClock);	// in ticks
 	double	GetPhase() const;	// 0..1, 1 = 360 degrees
-	void	SetPhase(double Phase);		// 0..1, 1 = 360 degrees
-	void	SetPhaseFromVal(double Val);	// -1..1
+	void	SetPhase(double fPhase);		// 0..1, 1 = 360 degrees
+	void	SetPhaseFromVal(double fVal);	// -1..1
 	double	GetVal();	// -1..1
 
 // Operations
 	void	TimerHook();
 
 private:
-// Constants
-	static const double	pi;
-
 // Member data
-	double	m_TimerFreq;	// frequency at which timer hook runs, in Hz
-	int		m_Waveform;		// type of waveform to generate; see enum above
-	double	m_Freq;			// output frequency, in Hz
-	double	m_PulseWidth;	// for pulse waveform: pulse duty cycle, from 0..1
-	double	m_RandPrvPhase;	// for random waveform: previous tick's phase
-	double	m_RandCurVal;	// for random waveform: current random value
-	double	m_RandPrvVal;	// for random waveform: previous random value
-	double	m_Clock;		// clock tick count; fractional ticks allowed
+	double	m_fTimerFreq;	// frequency at which timer hook runs, in Hz
+	int		m_nWaveform;	// type of waveform to generate; see enum above
+	double	m_fFreq;		// output frequency, in Hz
+	double	m_fPulseWidth;	// for pulse waveform: pulse duty cycle, from 0..1
+	double	m_fRandPrvPhase;	// for random waveform: previous tick's phase
+	double	m_fRandCurVal;	// for random waveform: current random value
+	double	m_fRandPrvVal;	// for random waveform: previous random value
+	double	m_fClock;		// clock tick count; fractional ticks allowed
 
 // Helpers
 	void	Init();
 	double	CurPos() const;
 	double	CurPhase() const;
-	void	Resync(double Phase);
+	void	Resync(double fPhase);
 };
 
 inline double COscillator::GetTimerFreq() const
 {
-	return(m_TimerFreq);
+	return m_fTimerFreq;
 }
 
-inline void COscillator::SetTimerFreq(double TimerFreq)
+inline void COscillator::SetTimerFreq(double fTimerFreq)
 {
-	m_TimerFreq = TimerFreq;
+	m_fTimerFreq = fTimerFreq;
 }
 
 inline int COscillator::GetWaveform() const
 {
-	return(m_Waveform);
+	return m_nWaveform;
 }
 
-inline void COscillator::SetWaveform(int Waveform)
+inline void COscillator::SetWaveform(int nWaveform)
 {
-	m_Waveform = Waveform;
+	m_nWaveform = nWaveform;
 }
 
 inline double COscillator::GetFreq() const
 {
-	return(m_Freq);
+	return m_fFreq;
 }
 
-inline void COscillator::SetFreqSync(double Freq)
+inline void COscillator::SetFreq(double fFreq)
 {
-	m_Freq = Freq;
+	double	fPhase = CurPhase();
+	m_fFreq = fFreq;
+	Resync(fPhase);
+}
+
+inline void COscillator::SetFreqSync(double fFreq)
+{
+	m_fFreq = fFreq;
 }
 
 inline double COscillator::GetPulseWidth() const
 {
-	return(m_PulseWidth);
+	return m_fPulseWidth;
 }
 
-inline void COscillator::SetPulseWidth(double PulseWidth)
+inline void COscillator::SetPulseWidth(double fPulseWidth)
 {
-	m_PulseWidth = PulseWidth;
+	m_fPulseWidth = fPulseWidth;
 }
 
 inline double COscillator::GetClock() const
 {
-	return(m_Clock);
+	return m_fClock;
 }
 
-inline void COscillator::SetClock(double Clock)
+inline void COscillator::SetClock(double fClock)
 {
-	m_Clock = Clock;
+	m_fClock = fClock;
+}
+
+inline double COscillator::GetPhase() const
+{
+	return CurPhase();
+}
+
+inline void COscillator::SetPhase(double fPhase)
+{
+	Resync(fPhase);
 }
 
 inline void COscillator::TimerHook()
 {
-	m_Clock++;
+	m_fClock++;
 }
 
-#endif
+inline double COscillator::CurPos() const
+{
+	return m_fFreq / m_fTimerFreq * m_fClock;
+}
+
+inline void COscillator::Resync(double fPhase)
+{
+	m_fClock = m_fFreq ? fPhase * (m_fTimerFreq / m_fFreq) : 0;
+}
+
+class CTriggerOscillator : public COscillator {
+public:
+	CTriggerOscillator();
+	CTriggerOscillator(double fTimerFreq, double fFreq);
+	bool	IsTrigger();
+	void	Reset();
+
+protected:
+	bool	m_bIsHigh;	// true if previous output was high
+};
+
+inline CTriggerOscillator::CTriggerOscillator()
+{
+}
+
+inline CTriggerOscillator::CTriggerOscillator(double fTimerFreq, double fFreq) 
+	: COscillator(fTimerFreq, SQUARE, fFreq)
+{
+	m_bIsHigh = false;
+}
+
+inline bool CTriggerOscillator::IsTrigger()
+{
+	TimerHook();
+	bool	bIsHigh = GetVal() >= 1 - DPoint::Epsilon;	// true if output is high
+	bool	bIsTrigger = bIsHigh && !m_bIsHigh;	// true if transition from low to high
+	m_bIsHigh = bIsHigh;	// update previous output state
+	return bIsTrigger;
+}
+
+inline void CTriggerOscillator::Reset()
+{
+	SetClock(0);
+	m_bIsHigh = false;
+}

@@ -22,7 +22,7 @@ bool CVersionInfo::GetFileInfo(VS_FIXEDFILEINFO& Info, LPCTSTR Path)
 	ZeroMemory(&Info, sizeof(VS_FIXEDFILEINFO));
 	TCHAR	module[MAX_PATH];
 	if (Path != NULL)
-		_tcsncpy(module, Path, MAX_PATH);
+		_tcsncpy_s(module, Path, MAX_PATH);
 	else
 		GetModuleFileName(AfxGetInstanceHandle(), module, MAX_PATH);
 	DWORD	handle;

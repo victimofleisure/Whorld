@@ -1,4 +1,4 @@
-// Copyleft 2005 Chris Korda
+// Copyleft 2017 Chris Korda
 // This program is free software; you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
 // Software Foundation; either version 2 of the License, or any later version.
@@ -7,23 +7,16 @@
  
 		revision history:
 		rev		date	comments
-        00      22apr05	initial version
-		01		28jan08	support Unicode
+        00      26mar17	initial version
 
         about dialog
  
 */
 
-#if !defined(AFX_ABOUTDLG_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_)
-#define AFX_ABOUTDLG_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// AboutDlg.h : header file
-//
 
-#include "Hyperlink.h"
+/////////////////////////////////////////////////////////////////////////////
+// CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialog
 {
@@ -32,7 +25,6 @@ public:
 	CAboutDlg();
 
 // Constants
-	static const LPCTSTR HOME_PAGE_URL;
 
 // ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAboutDlg)
@@ -42,7 +34,6 @@ public:
 
 // Implementation
 protected:
-// Generated message map functions
 	//{{AFX_MSG(CAboutDlg)
 	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
@@ -51,10 +42,8 @@ protected:
 // Dialog Data
 	//{{AFX_DATA(CAboutDlg)
 	enum { IDD = IDD_ABOUTBOX };
-	CEdit	m_Credits;
 	CEdit	m_License;
-	CHyperlink	m_AboutUrl;
-	CStatic	m_AboutText;
+	CStatic	m_Version;
 	//}}AFX_DATA
 };
 
@@ -62,5 +51,3 @@ protected:
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ABOUTDLG_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_)

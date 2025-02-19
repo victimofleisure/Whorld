@@ -8,18 +8,21 @@
 		rev		date	comments
 		00		28jan03	initial version
 		01		17apr06	add DPOINT ctor and assignment
+		02		14feb08	add SIZE ctor
+		03		09feb25	rename round function
+		04		12feb25	add POINTFLOAT ctor and conversion
+		05		14feb25	simplify base struct def
 
 		double-precision 2D coordinate
 
 */
 
-#ifndef DPOINT_INCLUDED
-#define DPOINT_INCLUDED
+#pragma once
 
-typedef struct tagDPOINT {
+struct DPOINT {
 	double	x;
 	double	y;
-} DPOINT;
+};
 
 class DPoint : public DPOINT {
 public:
@@ -28,6 +31,8 @@ public:
 	DPoint(const DPoint& p);
 	DPoint(const DPOINT& p);
 	DPoint(const POINT& p);
+	DPoint(const SIZE& p);
+	DPoint(const POINTFLOAT& p);
 	DPoint& operator=(const DPoint& p);
 	DPoint& operator=(const DPOINT& p);
 	const DPoint operator+(const DPoint& p) const;
@@ -51,7 +56,9 @@ public:
 	const double operator[](int i) const;
 	double& operator[](int i);
   	operator POINT() const;
+	operator POINTFLOAT() const;
 	static bool Equal(double a, double b);
+	static const double Epsilon;
 };
 
 inline DPoint::DPoint()
@@ -77,6 +84,18 @@ inline DPoint::DPoint(const DPOINT& p)
 }
 
 inline	DPoint::DPoint(const POINT& p)
+{
+	x = p.x;
+	y = p.y;
+}
+
+inline	DPoint::DPoint(const SIZE& p)
+{
+	x = p.cx;
+	y = p.cy;
+}
+
+inline	DPoint::DPoint(const POINTFLOAT& p)
 {
 	x = p.x;
 	y = p.y;
@@ -203,9 +222,15 @@ inline double& DPoint::operator[](int i)
 inline DPoint::operator POINT() const
 {
 	POINT	p;
-	p.x = round(x);
-	p.y = round(y);
+	p.x = Round(x);
+	p.y = Round(y);
 	return(p);
 }
 
-#endif
+inline DPoint::operator POINTFLOAT() const
+{
+	POINTFLOAT	pt;
+	pt.x = static_cast<float>(x);
+	pt.y = static_cast<float>(y);
+	return pt;
+}

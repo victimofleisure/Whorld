@@ -8,42 +8,49 @@
 		revision history:
 		rev		date	comments
         00      14jul05	initial version
+		01		12apr18	move ctor to header
+		02		10feb25	reset method now returns elapsed time
 
         compute benchmarks using performance counter
  
 */
 
-#ifndef CBENCHMARK_INCLUDED
-#define CBENCHMARK_INCLUDED
+#pragma once
 
 class CBenchmark {
 public:
 	CBenchmark();
 	double	Elapsed() const;
-	void	Reset();
+	double	Reset();
 	static	double	Time();
 
 private:
-	double	m_Start;		// start time, in seconds since boot
-	static	__int64	m_Freq;	// performance counter frequency, in Hz
-	static	__int64	InitFreq();
+	double	m_fStart;		// start time, in seconds since boot
+	static	LONGLONG	m_nFreq;	// performance counter frequency, in Hz
+	static	LONGLONG	InitFreq();
 };
+
+inline CBenchmark::CBenchmark()
+{
+	Reset();
+}
 
 inline double CBenchmark::Time()
 {
-	__int64	pc;
-	QueryPerformanceCounter((LARGE_INTEGER *)&pc);
-	return((double)pc / m_Freq);
+	LARGE_INTEGER	nCount;
+	QueryPerformanceCounter(&nCount);
+	return(static_cast<double>(nCount.QuadPart) / m_nFreq);
 }
 
 inline double CBenchmark::Elapsed() const
 {
-	return(Time() - m_Start);
+	return(Time() - m_fStart);
 }
 
-inline void CBenchmark::Reset()
+inline double CBenchmark::Reset()
 {
-	m_Start = Time();
+	double	fTime = Time();
+	double	fElapsed = fTime - m_fStart;
+	m_fStart = fTime;
+	return fElapsed;
 }
-
-#endif

@@ -1,4 +1,4 @@
-// Copyleft 2005 Chris Korda
+// Copyleft 2025 Chris Korda
 // This program is free software; you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
 // Software Foundation; either version 2 of the License, or any later version.
@@ -7,78 +7,180 @@
  
 		revision history:
 		rev		date	comments
-        00      22apr05	initial version
-		01		24jul06	add command-line flag to start in VJ mode
-		02		27jan08	add GetAppDataFolder
+        00      06feb25	initial version
 
-        Whorld application
- 
 */
 
-// Whorld.h : main header file for the WHORLD application
+// Whorld.h : main header file for the Whorld application
 //
-
-#if !defined(AFX_WHORLD_H__5AE44A19_CE24_4C34_A2F6_99C6A6BB0383__INCLUDED_)
-#define AFX_WHORLD_H__5AE44A19_CE24_4C34_A2F6_99C6A6BB0383__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
+	#error "include 'stdafx.h' before including this file for PCH"
 #endif
 
-#include "Resource.h"       // main symbols
-#include "NoAccessKeys.h"
+#include "resource.h"       // main symbols
 
-/////////////////////////////////////////////////////////////////////////////
+#include "WinAppCK.h"
+#include "RenderWnd.h"
+#include "WhorldThread.h"
+
 // CWhorldApp:
 // See Whorld.cpp for the implementation of this class
 //
 
-class CWhorldApp : public CWinApp
+class CMainFrame;
+class CWhorldView;
+class CWhorldDoc;
+
+class CWhorldApp : public CWinAppCK, public CWhorldBase
 {
+// Construction
 public:
 	CWhorldApp();
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CWhorldApp)
-	public:
-	virtual BOOL InitInstance();
-	virtual BOOL IsIdleMessage(MSG* pMsg);
-	//}}AFX_VIRTUAL
+// Attributes
+	CMainFrame	*GetMainFrame() const;
+	void	SetView(CWhorldView *pView);
+	CWhorldView	*GetView();
+	CWhorldDoc	*GetDocument();
+	bool	IsDetached() const;
+	bool	IsFullScreen() const;
+	bool	IsFullScreenChanging() const;
+	bool	IsDualMonitor() const;
+	bool	IsSingleMonitor() const;
+	bool	IsRenderWndCreated() const;
+	UINT_PTR	GetRingCount() const;
+	UINT_PTR	GetFrameCount() const;
+	bool	IsPaused() const;
+	DWORD	GetFrameRate() const;
+	DPoint	GetOrigin() const;
 
 // Operations
-	static	bool	GetAppDataFolder(CString& Folder);
+	void	Log(CString sMsg);
+	void	PushRenderCommand(const CRenderCmd& cmd);
+	bool	SetDetached(bool bEnable);
+	bool	SetFullScreen(bool bEnable);
+	bool	SetSingleMonitorExclusive(bool bEnable);
+	bool	CreateRenderWnd(DWORD dwStyle, CRect& rWnd, CWnd *pParentWnd);
+	void	DestroyRenderWnd();
+	void	ResizeRenderWnd(int cx, int cy);
+	void	OnError(CString sErrorMsg, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
+	void	OnFullScreenChanged(bool bIsFullScreen, bool bResult);
+	LRESULT	OnTrackingHelp(WPARAM wParam, LPARAM lParam);
+	bool	HandleDlgKeyMsg(MSG* pMsg);
+	bool	UpdateFrameRate();
+
+// Overrides
+public:
+	virtual BOOL InitInstance();
+	virtual int ExitInstance();
+
+// Implementation
+	UINT  m_nAppLook;
+	BOOL  m_bHiColorIcons;
+	bool	m_bCleanStateOnExit;	// if true, clean state before exiting
+
+	virtual void PreLoadState();
+	virtual void LoadCustomState();
+	virtual void SaveCustomState();
 
 protected:
-// Implementation
-	//{{AFX_MSG(CWhorldApp)
-	afx_msg void OnAppAbout();
-	afx_msg void OnAppHomePage();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-
-// Data members
-	class CMyCommandLineInfo : public CCommandLineInfo {
-	public:
-		CMyCommandLineInfo();
-		void	ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast);
-		bool	m_StartVJ;
-	};
-	CMyCommandLineInfo	m_cmdInfo;
-	CNoAccessKeys	m_NoAccess;
+// Member data
+	CWhorldView	*m_pView;		// pointer to one and only view; app is SDI
+	CRenderWnd	m_wndRender;	// render window
+	CWhorldThread	m_thrRender;	// derived render thread
+	bool	m_bIsDetached;		// true if render window is detached
+	bool	m_bIsFullScreen;	// true if app is full-screen
+	bool	m_bIsFullScreenChanging;	// true if full-screen mode switch is in progress
+	bool	m_bDetachedPreFullScreen;	// true if render window was already detached when full-screen started
+	bool	m_bIsDualMonitor;	// true if render window is on a different monitor than user interface
+	HHOOK	m_hKeyboardHook;	// handle to keyboard hook
 
 // Helpers
-	static LONG __stdcall CrashHandler(EXCEPTION_POINTERS *ExceptionInfo);
+	static BOOL	GetNearestMonitorInfo(HWND hWnd, MONITORINFOEX& monInfo);
+	bool	GetMonitorConfig(bool& bIsDualMonitor);
+	bool	SetKeyboardHook();
+	bool	RemoveKeyboardHook();
+	static LRESULT CALLBACK KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam);
+	void	ResetWindowLayout();
+
+// Message handlers
+	DECLARE_MESSAGE_MAP()
+	afx_msg void OnAppAbout();
+public:
+	afx_msg void OnAppHomePage();
 };
 
+extern CWhorldApp theApp;
 
-/////////////////////////////////////////////////////////////////////////////
+inline CMainFrame* CWhorldApp::GetMainFrame() const
+{
+	return reinterpret_cast<CMainFrame*>(m_pMainWnd);
+}
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+inline void CWhorldApp::SetView(CWhorldView *pView)
+{
+	m_pView = pView;
+}
 
-#endif // !defined(AFX_WHORLD_H__5AE44A19_CE24_4C34_A2F6_99C6A6BB0383__INCLUDED_)
+inline CWhorldView *CWhorldApp::GetView()
+{
+	return m_pView;
+}
+
+inline bool CWhorldApp::IsDetached() const
+{
+	return m_bIsDetached;
+}
+
+inline bool CWhorldApp::IsFullScreen() const
+{
+	return m_bIsFullScreen;
+}
+
+inline bool CWhorldApp::IsFullScreenChanging() const
+{
+	return m_bIsFullScreenChanging;
+}
+
+inline bool CWhorldApp::IsDualMonitor() const
+{
+	return m_bIsDualMonitor;
+}
+
+inline bool CWhorldApp::IsSingleMonitor() const
+{
+	return !m_bIsDualMonitor;
+}
+
+inline bool CWhorldApp::IsRenderWndCreated() const
+{
+	return m_wndRender.m_hWnd != 0;
+}
+
+inline UINT_PTR CWhorldApp::GetRingCount() const
+{
+	return m_thrRender.GetRingCount();
+}
+
+inline UINT_PTR CWhorldApp::GetFrameCount() const
+{
+	return m_thrRender.GetFrameCount();
+}
+
+inline bool CWhorldApp::IsPaused() const
+{
+	return m_thrRender.IsPaused();
+}
+
+inline DWORD CWhorldApp::GetFrameRate() const
+{
+	return m_thrRender.GetFrameRate();
+}
+
+inline DPoint CWhorldApp::GetOrigin() const
+{
+	return m_thrRender.GetOrigin();
+}
+

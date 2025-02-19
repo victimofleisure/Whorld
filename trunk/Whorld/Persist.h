@@ -11,6 +11,7 @@
 		01		23apr05	add no resize flag
 		02		31jul05	add double support
 		03		23nov07	support Unicode
+		04		29nov08	add GetWndPlacement
 
 		make states persistent using registry
  
@@ -30,6 +31,8 @@ public:
 	static	BOOL	WriteInt(LPCTSTR Section, LPCTSTR Entry, int Value);
 	static	CString	GetString(LPCTSTR Section, LPCTSTR Entry, LPCTSTR Default = NULL);
 	static	BOOL	WriteString(LPCTSTR Section, LPCTSTR Entry, LPCTSTR Value);
+	static	BOOL	GetWndPlacement(LPCTSTR Section, LPCTSTR Name, WINDOWPLACEMENT& wp);
+	static	BOOL	WriteWndPlacement(LPCTSTR Section, LPCTSTR Name, const WINDOWPLACEMENT& wp);
 	static	void	SaveWnd(LPCTSTR Section, const CWnd *Wnd, LPCTSTR Name);
 	static	int		LoadWnd(LPCTSTR Section, CWnd *Wnd, LPCTSTR Name, int Options = 0);
 	static	int		GetWndShow(LPCTSTR Section, LPCTSTR Name);

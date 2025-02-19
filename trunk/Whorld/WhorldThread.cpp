@@ -1,0 +1,846 @@
+// Copyleft 2025 Chris Korda
+// This program is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or any later version.
+/*
+        chris korda
+ 
+		revision history:
+		rev		date	comments
+        00      06feb25	initial version
+
+*/
+
+#include "stdafx.h"
+#include "Whorld.h"
+#include "WhorldThread.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include "hls.h"
+#include "Statistics.h"
+
+#define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { OnError(hr, __FILE__, __LINE__, __DATE__); return false; }}
+#define DTOF(x) static_cast<float>(x)
+
+#define RENDER_CMD_NATTER 1	// set true to display render commands on console
+
+const double CWhorldThread::MIN_ASPECT_RATIO = 1e-9;
+const double CWhorldThread::MIN_STAR_RATIO = 1e-2;
+
+static CStatistics stats(60);//@@@
+
+const CWhorldThread::STATE CWhorldThread::m_stateDefault = {
+	0,	// fRingOffset
+	0,	// fHue
+	{0},	// clrCur
+	{0},	// clrBkgnd
+	{0, 0},	// ptOrigin
+	0,	// fHueLoopPos
+	60,	// HueLoopLength
+	0,	// fHueLoopBase
+};
+
+const CWhorldThread::GLOBRING CWhorldThread::m_globalRingDefault = {
+	0,	// fRot
+	1,	// fStarRatio
+	0,	// fPinwheel
+	{1, 1},	// ptScale
+	{0, 0},	// ptShift
+	0,	// fEvenCurve
+	0,	// fOddCurve
+	1,	// fEvenShear
+	1,	// fOddShear
+	0,	// fLineWidth
+	0,	// nPolySides
+};
+
+CWhorldThread::CWhorldThread() : m_oscOrigin(DEFAULT_FRAME_RATE, 1)
+{
+	SetDefaults();
+	m_params = m_paramDefault;
+	ZeroMemory(&m_globs, sizeof(m_globs));
+	m_globRing = m_globalRingDefault;
+	m_st = m_stateDefault;
+	SetParamDefaults(m_aPrevParam);
+	ZeroMemory(m_aPt, sizeof(m_aPt));
+	m_nFrameCount = 0;
+	m_posDel = NULL;
+	m_rCanvas.SetRectEmpty();
+	m_fNewGrowth = 0;
+	m_nMaxRings = INT_MAX;
+	m_bFlushHistory = false;
+	m_bCopying = false;
+	m_nCopyCount = 1;
+	m_nCopySpread = 0;
+	m_fCopyTheta = 0;
+	m_fCopyDelta = 0;
+	m_nFrameRate = DEFAULT_FRAME_RATE;
+	m_ptOriginTarget = DPoint(0, 0);
+	m_fZoomTarget = 1;
+}
+
+bool CWhorldThread::CreateUserResources()
+{
+	// NOTE: objects created here must be released in DestroyUserResources
+	CHECK(m_pD2DDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0, 255, 0, 0.5f), &m_pBkgndBrush));
+	CHECK(m_pD2DDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0, 255, 0, 0.5f), &m_pDrawBrush));
+//	m_pD2DDeviceContext->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);//@@@ test only!! 40% faster but ugly
+	return true;
+}
+
+void CWhorldThread::DestroyUserResources()
+{
+	m_pBkgndBrush.Release();
+	m_pDrawBrush.Release();
+}
+
+bool CWhorldThread::OnThreadCreate()
+{
+	DWORD	nFrameRate;
+	if (!GetDisplayFrequency(nFrameRate))
+		return false;
+	SetFrameRate(nFrameRate);
+	return true;
+}
+
+void CWhorldThread::OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
+{
+	CString	sSrcFileName(pszSrcFileName);	// convert to Unicode
+	CString	sSrcFileDate(pszSrcFileDate);
+	CString	sMsg;
+	sMsg.Format(_T("COM error 0x%x in %s line %d (%s)"), hr, sSrcFileName.GetString(), nLineNum, sSrcFileDate.GetString());
+	theApp.Log(sMsg);
+	AfxMessageBox(sMsg);
+}
+
+void CWhorldThread::Log(CString sMsg)
+{
+	theApp.Log(sMsg);
+}
+
+inline double CWhorldThread::Wrap(double Val, double Limit)
+{
+	double	r = fmod(Val, Limit);
+	return(Val < 0 ? r + Limit : r);
+}
+
+inline double CWhorldThread::Reflect(double Val, double Limit)
+{
+	double	m = Limit * 2;
+	double	r = Wrap(Val, m);
+	return(r < Limit ? r : m - r);
+}
+
+inline void CWhorldThread::UpdateHue(double DeltaTick)
+{
+	if (m_main.bLoopHue) {
+		if (m_master.fHueLoopLength) {
+			m_st.fHueLoopPos += m_params.fColorSpeed * DeltaTick;
+			m_st.fHue = m_st.fHueLoopBase + 
+				Reflect(m_st.fHueLoopPos, m_master.fHueLoopLength);
+		} else
+			m_st.fHue = m_st.fHueLoopBase;
+	} else
+		m_st.fHue += m_params.fColorSpeed * DeltaTick;
+	m_st.fHue = Wrap(m_st.fHue, 360);
+}
+
+void CWhorldThread::ResizeCanvas()
+{
+	double	fScale = m_master.fCanvasScale * m_master.fZoom;
+	CD2DRectFEx	rCanvas(0, 0, DTOF(m_szClient.width * fScale), DTOF(m_szClient.height * fScale));
+	rCanvas.OffsetRect((m_szClient.width - rCanvas.Width()) / 2, (m_szClient.height - rCanvas.Height()) / 2);
+	m_rCanvas = rCanvas;
+}
+
+void CWhorldThread::OnCopiesChange()
+{
+	int	nCount = Round(m_master.fCopies);
+	if (nCount > 1) {	// if multiple copies desired
+		m_fCopyDelta = M_PI * 2 / nCount;
+		m_fCopyTheta = m_fCopyDelta / 2;
+		m_bCopying = m_master.fSpread != 0;
+	} else {	// one copy only
+		m_bCopying = false;
+	}
+}
+
+void CWhorldThread::AddRing()
+{
+	m_params.fRingSpacing = max(m_params.fRingSpacing, 1);
+	m_params.fPolySides = CLAMP(m_params.fPolySides, 3, MAX_SIDES);
+	m_params.fLightness = CLAMP(m_params.fLightness, 0, 1);
+	m_params.fSaturation = CLAMP(m_params.fSaturation, 0, 1);
+	double	fR, fG, fB;
+	CHLS::hls2rgb(m_st.fHue, m_params.fLightness, m_params.fSaturation, fR, fG, fB);
+	m_st.clrRing = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
+	RING	ring;
+	bool	bReverse = m_params.fRingGrowth < 0;
+	double	fRingOffset = bReverse ? -m_st.fRingOffset : m_st.fRingOffset;
+	ring.fRotDelta = m_params.fRotateSpeed;
+	ring.fRot = ring.fRotDelta * fRingOffset - ring.fRotDelta * m_fNewGrowth;
+	if (m_params.fRingGrowth >= 0)
+		ring.fRadius = m_st.fRingOffset - m_fNewGrowth;
+	else {	// if inward growth, start at outermost edge of canvas
+		ring.fRadius = (max(m_rCanvas.Width(), m_rCanvas.Height()) / 2 
+			/ m_master.fZoom - m_st.fRingOffset) - m_fNewGrowth;
+	}
+	// don't let rings get too flat, or they'll never die
+	double	fAspect = max(pow(2, m_params.fAspectRatio), MIN_ASPECT_RATIO);
+	ring.ptScale.x = fAspect > 1 ? fAspect : 1;
+	ring.ptScale.y = fAspect < 1 ? 1 / fAspect : 1;
+	ring.ptShiftDelta.x = sin(m_params.fSkewAngle) * m_params.fSkewRadius;
+	ring.ptShiftDelta.y = cos(m_params.fSkewAngle) * m_params.fSkewRadius;
+	ring.ptShift.x = ring.ptShiftDelta.x * fRingOffset - ring.ptShiftDelta.x * m_fNewGrowth;
+	ring.ptShift.y = ring.ptShiftDelta.y * fRingOffset - ring.ptShiftDelta.y * m_fNewGrowth;
+	if (m_bCopying) {
+		ring.ptShift.x += sin(m_fCopyTheta) * m_master.fSpread;
+		ring.ptShift.y += cos(m_fCopyTheta) * m_master.fSpread;
+		m_fCopyTheta += m_fCopyDelta;
+	}
+	ring.clrCur = m_st.clrRing;
+	ring.nSides = static_cast<short>(Round(m_params.fPolySides));
+	ring.bDelete = false;
+	// don't let stars get too thin, or they'll never die
+	double	fRad = max(pow(2, m_params.fStarFactor), MIN_STAR_RATIO);
+	// use trig to find distance from origin to middle of a side
+	// b is unknown, A is at origin, c is radius, b = cos(A) * c
+	ring.fStarRatio = cos(M_PI / ring.nSides) * fRad;
+	ring.fPinwheel = M_PI / ring.nSides * m_params.fPinwheel;
+	ring.fLineWidth = DTOF(m_params.fLineWidth);
+	ring.nDrawMode = static_cast<short>(m_main.nDrawMode);
+	ring.fHue = m_st.fHue;
+	ring.fLightness = m_params.fLightness;
+	ring.fSaturation = m_params.fSaturation;
+	ring.ptOrigin = m_st.ptOrigin;
+	ring.fEvenCurve = m_params.fEvenCurve;
+	ring.fOddCurve = m_params.fOddCurve / ring.fStarRatio;
+	ring.fEvenShear = m_params.fEvenShear;
+	ring.fOddShear = m_params.fOddShear;
+	POSITION	posStart = bReverse ? m_aRing.GetTailPosition() : m_aRing.GetHeadPosition();
+	if (posStart != NULL) {	// if ring list has elements
+		const RING& ringStart = bReverse ? m_aRing.GetPrev(posStart) : m_aRing.GetNext(posStart);
+		double	fRingSpacing = bReverse ? -m_params.fRingSpacing : m_params.fRingSpacing;
+		ring.bSkipFill = fabs(ring.fRadius + fRingSpacing - ringStart.fRadius) > m_params.fRingSpacing * 2;
+	} else {	// ring list is empty
+		ring.bSkipFill = bReverse;
+	}
+	// add ring to list
+	if (bReverse)
+		m_aRing.AddTail(ring);
+	else
+		m_aRing.AddHead(ring);
+	while (m_aRing.GetCount() > m_nMaxRings) {
+		if (bReverse)
+			m_aRing.RemoveHead();
+		else
+			m_aRing.RemoveTail();
+	}
+}
+
+inline double CWhorldThread::RandDouble()
+{
+	return static_cast<double>(rand()) / RAND_MAX;
+}
+
+void CWhorldThread::OnTempoChange()
+{
+	if (m_master.fTempo) {	// if non-zero tempo
+		m_oscOrigin.SetFreq(m_master.fTempo / 60);
+	}
+}
+
+void CWhorldThread::OnOriginMotionChange()
+{
+	switch (m_main.nOrgMotion) {
+	case OM_RANDOM:
+		m_oscOrigin.Reset();
+		break;
+	}
+}
+
+void CWhorldThread::UpdateOrigin()
+{
+	switch (m_main.nOrgMotion) {
+	case OM_DRAG:
+		{
+			POINT	ptCursor;
+			if (GetCursorPos(&ptCursor)) {
+				ScreenToClient(m_hRenderWnd, &ptCursor);	// convert to client coords
+				CRect	rClient;
+				GetClientRect(m_hRenderWnd, &rClient);	// get client window rectangle
+				DPoint	pt = DPoint(ptCursor) / rClient.Size();	// normalize cursor position
+				pt.x = CLAMP(pt.x, 0, 1);	// limit to within client window
+				pt.y = CLAMP(pt.y, 0, 1);
+				m_ptOriginTarget = (pt - 0.5) * GetClientSize();	// convert to DIPs
+			}
+		}
+		break;
+	case OM_RANDOM:
+		if (m_master.fTempo) {	// if non-zero tempo
+			if (m_oscOrigin.IsTrigger()) {	// if origin oscillator triggered
+				DPoint	ptRand(RandDouble(), RandDouble());	// generate normalized random point
+				m_ptOriginTarget = (ptRand - 0.5) * GetClientSize();	// convert to DIPs
+			}
+		}
+		break;
+	}
+	DPoint	ptOrg(m_st.ptOrigin);
+	ptOrg += (m_ptOriginTarget - ptOrg) * m_master.fDamping;
+	m_st.ptOrigin = ptOrg;
+}
+
+void CWhorldThread::UpdateZoom()
+{
+	m_master.fZoom += (m_fZoomTarget - m_master.fZoom) * m_master.fDamping;
+}
+
+void CWhorldThread::TimerHook()
+{
+	if (m_main.nOrgMotion) {
+		UpdateOrigin();
+	}
+	UpdateZoom();
+	double	fSpeed = m_main.bReverse ? -m_master.fSpeed : m_master.fSpeed;
+	double	afPrevClock[PARAM_COUNT];
+	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
+		afPrevClock[iParam] = m_aOsc[iParam].GetClock();
+		m_aOsc[iParam].SetTimerFreq(m_nFrameRate);
+	}
+	if (m_bFlushHistory) {
+		m_aPrevParam = m_aParam;	// suppress interpolation
+		for (int iParam = 0; iParam < PARAM_COUNT; iParam++)
+			m_aOsc[iParam].SetFreq(m_aParam.row[iParam].fFreq);
+		m_bFlushHistory = false;
+	}
+	static const int RG = PARAM_RingGrowth;
+	const PARAM_ROW&	rowRG = m_aParam.row[RG];
+	m_aOsc[RG].SetClock(afPrevClock[RG] + 1);
+	m_fNewGrowth = (rowRG.fVal + m_aOsc[RG].GetVal() * rowRG.fAmp) * fSpeed;
+	double	fAbsGrowth = fabs(m_fNewGrowth);
+	double	fPrevFracTick = 0;
+	while (m_st.fRingOffset > 0) {
+		double	fFracTick = fAbsGrowth ? (1 - m_st.fRingOffset / fAbsGrowth) : 0;
+		for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
+			const PARAM_ROW&	prev = m_aPrevParam.row[iParam];
+			const PARAM_ROW&	cur = m_aParam.row[iParam];
+			m_aOsc[iParam].SetClock(afPrevClock[iParam] + fFracTick);
+			double	fAmp = prev.fAmp + (cur.fAmp - prev.fAmp) * fFracTick;
+			m_params.a[iParam] = prev.fVal + (cur.fVal - prev.fVal) * fFracTick
+				+ m_aOsc[iParam].GetVal() * fAmp;
+		}
+		m_params.fRingGrowth *= fSpeed;
+		m_params.fColorSpeed *= fSpeed;
+		UpdateHue(fFracTick - fPrevFracTick);
+		AddRing();
+		m_st.fRingOffset -= m_params.fRingSpacing;
+		fPrevFracTick = fFracTick;
+	}
+	m_st.fRingOffset += fAbsGrowth;
+	m_params.fRingGrowth = m_fNewGrowth;
+	m_aOsc[RG].SetClock(afPrevClock[RG] + 1);
+	for (int iParam = 1; iParam < PARAM_COUNT; iParam++) {	// skip ring growth; assume it's first row
+		const PARAM_ROW&	cur = m_aParam.row[iParam];
+		m_aOsc[iParam].SetClock(afPrevClock[iParam] + 1);
+		if (cur.fFreq != m_aPrevParam.row[iParam].fFreq)
+			m_aOsc[iParam].SetFreq(cur.fFreq);
+		m_params.a[iParam] = cur.fVal + m_aOsc[iParam].GetVal() * cur.fAmp;
+	}
+	m_aPrevParam = m_aParam;
+	m_params.fColorSpeed *= fSpeed;
+	UpdateHue(1 - fPrevFracTick);
+	double	fR, fG, fB;
+	m_params.fBkLightness = CLAMP(m_params.fBkLightness, 0, 1);
+	m_params.fBkSaturation = CLAMP(m_params.fBkSaturation, 0, 1);
+	CHLS::hls2rgb(m_params.fBkHue, m_params.fBkLightness, m_params.fBkSaturation, fR, fG, fB);
+	m_st.clrBkgnd = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
+	// update rings
+	POSITION	posNext = m_aRing.GetHeadPosition();
+	DPOINT	ptPrevOrg = m_st.ptOrigin;
+	double	fTrail = 1 - m_master.fTrail;
+	bool	bReverse = m_params.fRingGrowth < 0;
+	POSITION	posCur = NULL;
+	m_posDel = NULL;
+	while (posNext != NULL) {
+		posCur = posNext;
+		// update ring origins
+		RING&	ring = m_aRing.GetNext(posNext);
+		ring.ptOrigin.x += (ptPrevOrg.x - ring.ptOrigin.x) * fTrail;
+		ring.ptOrigin.y += (ptPrevOrg.y - ring.ptOrigin.y) * fTrail;
+		ptPrevOrg = ring.ptOrigin;
+		// increment cumulative ring properties
+		ring.fRadius += m_params.fRingGrowth;
+		ring.fRot += ring.fRotDelta * m_params.fRingGrowth;
+		ring.ptShift.x += ring.ptShiftDelta.x * m_params.fRingGrowth;
+		ring.ptShift.y += ring.ptShiftDelta.y * m_params.fRingGrowth;
+		if (bReverse) {
+			if (ring.fRadius <= 0) {
+				m_aRing.RemoveAt(posCur);
+			}
+		} else {
+			if (ring.bDelete) {
+				m_aRing.RemoveAt(posCur);
+				m_posDel = posNext;	// save position after last deletion for cascade
+			}
+		}
+	}
+	m_globRing.fRot = m_globs.fRotateSpeed / 5 * 180;
+	m_globRing.fStarRatio = max(pow(2, m_globs.fStarFactor), MIN_STAR_RATIO);
+	m_globRing.fPinwheel = m_globs.fPinwheel;
+	double	r = max(pow(2, m_globs.fAspectRatio), MIN_ASPECT_RATIO);
+	m_globRing.ptScale.x = r > 1 ? r : 1;
+	m_globRing.ptScale.y = r < 1 ? 1 / r : 1;
+	m_globRing.ptShift.x = sin(m_globs.fSkewAngle) * m_globs.fSkewRadius;
+	m_globRing.ptShift.y = cos(m_globs.fSkewAngle) * m_globs.fSkewRadius;
+	m_globRing.fEvenCurve = m_globs.fEvenCurve;
+	m_globRing.fOddCurve = m_globs.fOddCurve / m_globRing.fStarRatio;
+	m_globRing.fEvenShear = m_globs.fEvenShear + 1;
+	m_globRing.fOddShear = m_globs.fOddShear + 1;
+	m_globRing.fLineWidth = DTOF(m_globs.fLineWidth);
+	m_globRing.nPolySides = Round(m_globs.fPolySides);
+}
+
+#if _DEBUG	// if Debug build, check results
+
+#define OPEN_GEOMETRY_SINK \
+	CComPtr<ID2D1PathGeometry>	pPath; \
+	CHECK(m_pD2DFactory->CreatePathGeometry(&pPath)); \
+	CComPtr<ID2D1GeometrySink> pSink; \
+	CHECK(pPath->Open(&pSink));
+
+#define CLOSE_GEOMETRY_SINK \
+	CHECK(pSink->Close());
+
+#else	// Release build: don't check results
+
+#define OPEN_GEOMETRY_SINK \
+	CComPtr<ID2D1PathGeometry>	pPath; \
+	m_pD2DFactory->CreatePathGeometry(&pPath); \
+	CComPtr<ID2D1GeometrySink> pSink; \
+	pPath->Open(&pSink);
+
+#define CLOSE_GEOMETRY_SINK \
+	pSink->Close();
+
+#endif	// _DEBUG
+
+__forceinline void CWhorldThread::DrawRing(
+	ID2D1GeometrySink* pSink, D2D1_FIGURE_BEGIN nBeginType, 
+	int iFirstPoint, int nPoints, int nVertices, bool bCurved) const
+{
+	pSink->BeginFigure(m_aPt[iFirstPoint], nBeginType);
+	if (bCurved) {	// if ring is curved
+		pSink->AddBeziers(reinterpret_cast<const D2D1_BEZIER_SEGMENT*>(&m_aPt[iFirstPoint]), nVertices);
+	} else {	// ring is straight
+		pSink->AddLines(&m_aPt[iFirstPoint + 1], nPoints - 1);
+	}
+	pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
+}
+
+__forceinline void CWhorldThread::DrawOutline(ID2D1PathGeometry* pPath, const RING& ring, float fLineWidth) const
+{
+	ID2D1Brush	*pBrush;
+	if (ring.nDrawMode & DM_OUTLINE) {	// if ring is outlined
+		pBrush = m_pBkgndBrush;	// use background color
+	} else {	// ring isn't outlined
+		// outline anyway to ensure rings overlap completely
+		fLineWidth = 1;	// override line width
+		pBrush = m_pDrawBrush;	// use fill color
+	}
+	m_pD2DDeviceContext->DrawGeometry(pPath, pBrush, fLineWidth);
+}
+
+bool CWhorldThread::OnDraw()
+{
+//	CBenchmark b;//@@@
+	int	nRings = Round(m_master.fRings);
+	m_nMaxRings = nRings >= MAX_RINGS ? INT_MAX : nRings;
+	if (!m_bIsPaused) {
+		TimerHook();
+	}
+	m_pD2DDeviceContext->Clear(m_st.clrBkgnd);	// clear to specified color
+	m_pBkgndBrush->SetColor(m_st.clrBkgnd);
+	m_szClient = m_pD2DDeviceContext->GetSize();
+	ResizeCanvas();
+	bool	bConvex = m_main.bConvex;
+	POSITION	posNext = bConvex ? m_aRing.GetTailPosition() : m_aRing.GetHeadPosition();
+	D2D1_COLOR_F	clrPrev;
+	bool	bPrevSkipFill = false;
+	if (bConvex) {
+		POSITION	posTail = posNext;
+		if (posTail != NULL) {
+			const RING&	ringTail = m_aRing.GetPrev(posTail);
+			clrPrev = ringTail.clrCur;
+			bPrevSkipFill = ringTail.bSkipFill;
+		}
+	}
+	CD2DPointF	ptWndCenter(m_szClient.width / 2, m_szClient.height / 2);
+	int		nPoints = 0;			// number of points in current ring
+	int		nPrevPoints = 0;		// number of points in previous ring
+	int		nPrevVertices = 0;		// number of vertices in previous ring if it's curved
+	while (posNext != NULL) {
+		RING&	ring = bConvex ? m_aRing.GetPrev(posNext) : m_aRing.GetNext(posNext);
+		DPoint	ptOrg(ptWndCenter.x + ring.ptOrigin.x, ptWndCenter.y + ring.ptOrigin.y);
+		CD2DPointF	irorg(DTOF(ring.ptOrigin.x), DTOF(ring.ptOrigin.y));
+		CD2DRectFEx	rBounds(m_rCanvas);
+		rBounds.OffsetRect(irorg.x, irorg.y);
+		int		nSides = ring.nSides + m_globRing.nPolySides;
+		nSides = max(nSides, 1);
+		float	fLineWidth = ring.fLineWidth + m_globRing.fLineWidth;
+		double	fRot = ring.fRot + m_globRing.fRot;
+		double	afRot[2] = {fRot, fRot + ring.fPinwheel + M_PI / nSides * m_globRing.fPinwheel};
+		double	fRad = ring.fRadius * m_master.fZoom;
+		double	arRad[2] = {fRad, fRad * ring.fStarRatio * m_globRing.fStarRatio};
+		DPoint	ptScale(DPoint(ring.ptScale) * m_globRing.ptScale);
+		DPoint	aptRad[2] = {ptScale * arRad[0], ptScale * arRad[1]};
+		DPoint	ptShift((DPoint(ring.ptShift) * m_master.fZoom + DPoint(m_globRing.ptShift) * fRad) + ptOrg);
+		double	fDelta = M_PI / nSides;
+		int		nVertices = nSides * 2;	// two vertices per side
+		bool	bRingVisible = false;
+		double	fCurveLenCW[2];
+		fCurveLenCW[0] = ring.fEvenCurve + m_globRing.fEvenCurve;
+		fCurveLenCW[1] = ring.fOddCurve + m_globRing.fOddCurve;
+		bool	bCurved = fCurveLenCW[0] != 0 || fCurveLenCW[1] != 0;
+		if (bCurved) {	// if ring is curved
+			nPoints = nVertices * 3 + 1;	// three per Bezier plus one for start point
+		} else {	// ring is straight
+			nPoints = nVertices;
+		}
+		if (ring.nDrawMode & DM_FILL) {	// if ring is filled
+			memcpy(m_aPt + nPoints, m_aPt, nPrevPoints * sizeof(D2D_POINT_2F));
+		}
+		if (bCurved) {	// if ring is curved
+			DPoint	ptCurveOrigin(ptShift);	// use skewed origin
+			double	fCurveLenCCW[2];
+			fCurveLenCCW[0] = fCurveLenCW[0] * (ring.fEvenShear + m_globRing.fEvenShear);
+			fCurveLenCCW[1] = fCurveLenCW[1] * (ring.fOddShear + m_globRing.fOddShear);
+			// previous ring's start point clobbers current ring's final control point
+			D2D_POINT_2F	ptPrevRingStart = m_aPt[nPoints];	// so make a backup
+			D2D_POINT_2F	*pPt = &m_aPt[2];	// first two points are set after loop
+			for (int iVert = 0; iVert < nVertices; iVert++) {	// innermost loop
+				BOOL	bOdd = iVert & 1;
+				double	fTheta = fDelta * iVert + afRot[bOdd];
+				DPoint	pt;	// compute curve points from real vertex
+				pt.x = sin(fTheta) * aptRad[bOdd].x + ptShift.x;
+				pt.y = cos(fTheta) * aptRad[bOdd].y + ptShift.y;
+				CD2DPointF	spt(DTOF(pt.x), DTOF(pt.y));	// single precision
+				if (rBounds.PtInRect(spt))
+					bRingVisible = true;
+				DPoint	ptVec(pt - ptCurveOrigin);	// vector from vertex to origin
+				double	rLen = fCurveLenCW[bOdd];	// get clockwise curve vector length
+				// previous segment's second control point
+				*pPt++ = CD2DPointF(DTOF(pt.x - ptVec.y * rLen), DTOF(pt.y + ptVec.x * rLen));
+				*pPt++ = spt;	// current segment's start point
+				rLen = fCurveLenCCW[bOdd];	// get counter-clockwise curve vector length
+				// current segment's first control point
+				*pPt++ = CD2DPointF(DTOF(pt.x + ptVec.y * rLen), DTOF(pt.y - ptVec.x * rLen));
+			}
+			m_aPt[0] = m_aPt[nPoints - 1];	// set start point
+			m_aPt[1] = m_aPt[nPoints];	// set first segment's first control point
+			m_aPt[nPoints] = ptPrevRingStart;	// restore previous ring's start point
+		} else {	// ring is straight
+			for (int iVert = 0; iVert < nVertices; iVert++) {	// innermost loop
+				int	bOdd = iVert & 1;
+				double	fTheta = fDelta * iVert + afRot[bOdd];
+				D2D_POINT_2F	pt;
+				pt.x = DTOF(sin(fTheta) * aptRad[bOdd].x + ptShift.x);
+				pt.y = DTOF(cos(fTheta) * aptRad[bOdd].y + ptShift.y);
+				m_aPt[iVert] = pt;
+				if (rBounds.PtInRect(pt))
+					bRingVisible = true;
+			}
+		}
+		ring.bDelete = !bRingVisible;
+		if (ring.nDrawMode & DM_FILL) {	// if ring is filled
+			if (!ring.bSkipFill && !bPrevSkipFill) {	// if not skipping ring
+				if (!bConvex || nPrevPoints) {	// if concave or previous ring is valid
+					OPEN_GEOMETRY_SINK;
+					DrawRing(pSink, D2D1_FIGURE_BEGIN_FILLED, 0, nPoints, nVertices, bCurved);
+					if (nPrevPoints) {	// if previous ring is valid
+						DrawRing(pSink, D2D1_FIGURE_BEGIN_FILLED, nPoints, nPrevPoints, nPrevVertices, bCurved);
+					}
+					CLOSE_GEOMETRY_SINK;
+					m_pDrawBrush->SetColor(bConvex ? clrPrev : ring.clrCur);
+					m_pD2DDeviceContext->FillGeometry(pPath, m_pDrawBrush);
+					DrawOutline(pPath, ring, fLineWidth);
+				}
+				if (bConvex && posNext == NULL) {	// if convex and last ring, draw bullseye
+					OPEN_GEOMETRY_SINK;
+					DrawRing(pSink, D2D1_FIGURE_BEGIN_FILLED, 0, nPoints, nVertices, bCurved);
+					CLOSE_GEOMETRY_SINK;
+					m_pDrawBrush->SetColor(ring.clrCur);
+					m_pD2DDeviceContext->FillGeometry(pPath, m_pDrawBrush);
+					DrawOutline(pPath, ring, fLineWidth);
+				}
+			}
+		} else {	// ring is straight
+			OPEN_GEOMETRY_SINK;
+			DrawRing(pSink, D2D1_FIGURE_BEGIN_HOLLOW, 0, nPoints, nVertices, bCurved);
+			CLOSE_GEOMETRY_SINK;
+			m_pDrawBrush->SetColor(ring.clrCur);
+			m_pD2DDeviceContext->DrawGeometry(pPath, m_pDrawBrush, fLineWidth);
+		}
+		nPrevPoints = nPoints;
+		nPrevVertices = nVertices;
+		clrPrev = ring.clrCur;
+		bPrevSkipFill = ring.bSkipFill;
+	}
+	if (m_posDel != NULL) {
+		RING&	ring = m_aRing.GetNext(m_posDel);
+		ring.bDelete = true;	// cascade delete
+	}
+	m_nFrameCount++;
+//	stats.Print(b.Elapsed());//@@@
+	return true;
+}
+
+void CWhorldThread::OnMasterPropChange(int iProp)
+{
+	switch (iProp) {
+	case MASTER_Copies:
+	case MASTER_Spread:
+		OnCopiesChange();
+		break;
+	case MASTER_CanvasScale:
+	case MASTER_Zoom:
+		ResizeCanvas();
+		m_fZoomTarget = m_master.fZoom;	// disable damping
+		break;
+	case MASTER_Tempo:
+		OnTempoChange();
+		break;
+	}
+}
+
+void CWhorldThread::OnMainPropChange(int iProp)
+{
+	switch (iProp) {
+	case MAIN_OrgMotion:
+		OnOriginMotionChange();
+		break;
+	}
+}
+
+void CWhorldThread::OnMasterPropChange()
+{
+	for (int iProp = 0; iProp < MASTER_COUNT; iProp++) {	// for each master property
+		OnMasterPropChange(iProp);
+	}
+}
+
+void CWhorldThread::OnMainPropChange()
+{
+	for (int iProp = 0; iProp < MAIN_COUNT; iProp++) {	// for each main property
+		OnMainPropChange(iProp);
+	}
+}
+
+void CWhorldThread::SetParam(int iParam, double fVal)
+{
+	GetParamRow(iParam).fVal = fVal;
+}
+
+void CWhorldThread::SetWaveform(int iParam, int iWave)
+{
+	GetParamRow(iParam).iWave = iWave;
+	m_aOsc[iParam].SetWaveform(iWave);
+}
+
+void CWhorldThread::SetAmplitude(int iParam, double fAmp)
+{
+	GetParamRow(iParam).fAmp = fAmp;
+}
+
+void CWhorldThread::SetFrequency(int iParam, double fFreq)
+{
+	GetParamRow(iParam).fFreq = fFreq;
+	m_aOsc[iParam].SetFreq(fFreq);
+}
+
+void CWhorldThread::SetPulseWidth(int iParam, double fPW)
+{
+	GetParamRow(iParam).fFreq = fPW;
+	m_aOsc[iParam].SetFreq(fPW);
+}
+
+void CWhorldThread::SetMasterProp(int iProp, double fVal)
+{
+	CPatch::SetMasterProp(iProp, fVal);
+	OnMasterPropChange(iProp);
+}
+
+void CWhorldThread::SetMainProp(int iProp, const VARIANT_PROP& prop)
+{
+	CPatch::SetMainProp(iProp, prop);
+	OnMainPropChange(iProp);
+}
+
+void CWhorldThread::SetPatch(CPatch *pPatch)
+{
+	// assume dynamic allocation: recipient is responsible for deletion
+	ASSERT(pPatch != NULL);	// patch pointer had better not be null
+	CPatch&	patch = *this;	// upcast to patch data base class
+	patch = *pPatch;	// copy patch data from buffer to bass class
+	delete pPatch;	// delete patch data buffer
+	OnMasterPropChange();	// handle master property changes
+	OnMainPropChange();	// handle main property changes
+}
+
+bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
+{
+	if (!nFrameRate) {
+		ASSERT(0);	// zero frame rate is intolerable
+		return false;	// avoid divide by zero when calculating period
+	}
+	m_nFrameRate = nFrameRate;
+	m_oscOrigin.SetTimerFreq(nFrameRate);
+	return true;
+}
+
+void CWhorldThread::SetPause(bool bIsPaused)
+{
+	m_bIsPaused = bIsPaused;
+}
+
+void CWhorldThread::SingleStep()
+{
+	if (m_bIsPaused) {
+		TimerHook();
+	}
+}
+
+void CWhorldThread::SetEmpty()
+{
+	m_aRing.RemoveAll();
+}
+
+void CWhorldThread::RandomPhase()
+{
+	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
+		m_aOsc[iParam].SetPhase(RandDouble());
+	}
+}
+
+void CWhorldThread::SetZoom(double fZoom, bool bDamping)
+{
+	m_fZoomTarget = fZoom;
+	if (!bDamping) {	// if not damping
+		m_master.fZoom = fZoom;	// go to target
+	}
+}
+
+void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
+{
+	DPoint	ptClientOrigin((ptOrigin - 0.5) * GetClientSize());
+	m_ptOriginTarget = ptClientOrigin;
+	if (!bDamping) {	// if not damping
+		m_st.ptOrigin = ptClientOrigin;	// go to target
+	}
+}
+
+DPoint CWhorldThread::GetOrigin() const
+{
+	if (!m_szClient.width || !m_szClient.height) {
+		return DPoint(0, 0);	// avoid divide by zero
+	}
+	return DPoint(m_st.ptOrigin) / GetClientSize() + 0.5;
+}
+
+void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
+{
+#if _DEBUG && RENDER_CMD_NATTER
+	_fputts(RenderCommandToString(cmd) + '\n', stdout);
+#endif
+	switch (cmd.m_nCmd) {
+	case RC_SET_PARAM_Val:
+		SetParam(cmd.m_nParam, cmd.m_prop.dblVal);
+		break;
+	case RC_SET_PARAM_Wave:
+		SetWaveform(cmd.m_nParam, cmd.m_prop.intVal);
+		break;
+	case RC_SET_PARAM_Amp:
+		SetAmplitude(cmd.m_nParam, cmd.m_prop.dblVal);
+		break;
+	case RC_SET_PARAM_Freq:
+		SetFrequency(cmd.m_nParam, cmd.m_prop.dblVal);
+		break;
+	case RC_SET_PARAM_PW:
+		SetPulseWidth(cmd.m_nParam,  cmd.m_prop.dblVal);
+		break;
+	case RC_SET_MASTER:
+		SetMasterProp(cmd.m_nParam, cmd.m_prop.dblVal);
+		break;
+	case RC_SET_MAIN:
+		SetMainProp(cmd.m_nParam, cmd.m_prop);
+		break;
+	case RC_SET_PATCH:
+		SetPatch(static_cast<CPatch*>(cmd.m_prop.byref));
+		break;
+	case RC_SET_EMPTY:
+		SetEmpty();
+		break;
+	case RC_SET_FRAME_RATE:
+		SetFrameRate(cmd.m_nParam);
+		break;
+	case RC_SET_PAUSE:
+		SetPause(cmd.m_nParam != 0);
+		break;
+	case RC_SINGLE_STEP:
+		SingleStep();
+		break;
+	case RC_RANDOM_PHASE:
+		RandomPhase();
+		break;
+	case RC_SET_ZOOM:
+		SetZoom(cmd.m_prop.dblVal, cmd.m_nParam != 0);
+		break;
+	case RC_SET_ORIGIN:
+		SetOrigin(cmd.m_prop.fltPt, cmd.m_nParam != 0);
+		break;
+	default:
+		ASSERT(0);	// missing command case
+	};
+}
+
+CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
+{
+	CString	sRet;	// string returned to caller
+	CString	sCmdName(GetRenderCmdName(cmd.m_nCmd));	// get command name
+	// try parameter commands first as they occupy a contiguous range
+	if (cmd.m_nCmd >= RC_SET_PARAM_FIRST && cmd.m_nCmd <= RC_SET_PARAM_LAST) {
+		int	iProp = cmd.m_nCmd - RC_SET_PARAM_FIRST;	// get property index
+		sRet = sCmdName 
+			+ _T(" '") + GetParamName(cmd.m_nParam) 
+			+ _T("' ") + GetParamPropName(iProp)
+			+ _T(" = ") + ParamToString(iProp, cmd.m_prop);
+	} else {	// not a parameter command
+		switch (cmd.m_nCmd) {
+		case RC_SET_PATCH:
+			sRet = sCmdName + ' ' + ValToString(cmd.m_prop.byref);
+			break;
+		case RC_SET_MASTER:
+			sRet = sCmdName 
+				+ _T(" '") + GetMasterName(cmd.m_nParam) 
+				+ _T("' = ") + MasterToString(cmd.m_nParam, cmd.m_prop);
+			break;
+		case RC_SET_MAIN:
+			sRet = sCmdName 
+				+ _T(" '") + GetMainName(cmd.m_nParam) 
+				+ _T("' = ") + MainToString(cmd.m_nParam, cmd.m_prop);
+			break;
+		case RC_SET_ZOOM:
+			sRet = sCmdName 
+				+ ' ' + ValToString(cmd.m_nParam) 
+				+ ' ' + ValToString(cmd.m_prop.dblVal);
+			break;
+		case RC_SET_ORIGIN:
+			sRet = sCmdName 
+				+ ' ' + ValToString(cmd.m_nParam) 
+				+ ' ' + ValToString(cmd.m_prop.fltPt);
+			break;
+		default:
+			sRet = sCmdName + ' ' + ValToString(cmd.m_nParam);
+		}
+	}
+	return sRet;
+}

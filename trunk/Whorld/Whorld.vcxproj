@@ -1,0 +1,326 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{83D74B0A-7804-4051-9792-5D4B16766198}</ProjectGuid>
+    <RootNamespace>Whorld</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AboutDlg.h" />
+    <ClInclude Include="AppRegKey.h" />
+    <ClInclude Include="ArrayEx.h" />
+    <ClInclude Include="ArrayExAlgoDef.h" />
+    <ClInclude Include="Benchmark.h" />
+    <ClInclude Include="ClickSliderCtrl.h" />
+    <ClInclude Include="D2DDevCtx.h" />
+    <ClInclude Include="DPoint.h" />
+    <ClInclude Include="EditSliderCtrl.h" />
+    <ClInclude Include="FocusEdit.h" />
+    <ClInclude Include="FormatIO.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="hls.h" />
+    <ClInclude Include="ILockRingBuf.h" />
+    <ClInclude Include="ListCtrlExSel.h" />
+    <ClInclude Include="MainDockBarDef.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MasterBar.h" />
+    <ClInclude Include="MasterRowDlg.h" />
+    <ClInclude Include="MyDockablePane.h" />
+    <ClInclude Include="Oscillator.h" />
+    <ClInclude Include="StringTpl.h" />
+    <ClInclude Include="WhorldUndoTest.h" />
+    <ClInclude Include="NumEdit.h" />
+    <ClInclude Include="NumSpin.h" />
+    <ClInclude Include="ParamsRowDlg.h" />
+    <ClInclude Include="Patch.h" />
+    <ClInclude Include="PathStr.h" />
+    <ClInclude Include="Persist.h" />
+    <ClInclude Include="ParamsBar.h" />
+    <ClInclude Include="ProgressDlg.h" />
+    <ClInclude Include="RandList.h" />
+    <ClInclude Include="Range.h" />
+    <ClInclude Include="RefPtr.h" />
+    <ClInclude Include="RenderThread.h" />
+    <ClInclude Include="RenderWnd.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Round.h" />
+    <ClInclude Include="RowDlg.h" />
+    <ClInclude Include="RowForm.h" />
+    <ClInclude Include="RowView.h" />
+    <ClInclude Include="SaveObj.h" />
+    <ClInclude Include="Statistics.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Undoable.h" />
+    <ClInclude Include="UndoCodeData.h" />
+    <ClInclude Include="UndoCodes.h" />
+    <ClInclude Include="UndoManager.h" />
+    <ClInclude Include="UndoState.h" />
+    <ClInclude Include="UndoTest.h" />
+    <ClInclude Include="UndoTypes.h" />
+    <ClInclude Include="Version.h" />
+    <ClInclude Include="VersionInfo.h" />
+    <ClInclude Include="Whorld.h" />
+    <ClInclude Include="WhorldBase.h" />
+    <ClInclude Include="WhorldDef.h" />
+    <ClInclude Include="WhorldDoc.h" />
+    <ClInclude Include="WhorldThread.h" />
+    <ClInclude Include="WhorldView.h" />
+    <ClInclude Include="Win32Console.h" />
+    <ClInclude Include="WinAppCK.h" />
+    <ClInclude Include="WObject.h" />
+    <ClInclude Include="Wrapx64.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="ArrayEx.cpp" />
+    <ClCompile Include="Benchmark.cpp" />
+    <ClCompile Include="ClickSliderCtrl.cpp" />
+    <ClCompile Include="D2DDevCtx.cpp" />
+    <ClCompile Include="DPoint.cpp" />
+    <ClCompile Include="EditSliderCtrl.cpp" />
+    <ClCompile Include="FocusEdit.cpp" />
+    <ClCompile Include="FormatIO.cpp" />
+    <ClCompile Include="hls.cpp" />
+    <ClCompile Include="ListCtrlExSel.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MasterBar.cpp" />
+    <ClCompile Include="MasterRowDlg.cpp" />
+    <ClCompile Include="MyDockablePane.cpp" />
+    <ClCompile Include="Oscillator.cpp" />
+    <ClCompile Include="WhorldUndoTest.cpp" />
+    <ClCompile Include="NumEdit.cpp" />
+    <ClCompile Include="NumSpin.cpp" />
+    <ClCompile Include="ParamsRowDlg.cpp" />
+    <ClCompile Include="Patch.cpp" />
+    <ClCompile Include="PathStr.cpp" />
+    <ClCompile Include="Persist.cpp" />
+    <ClCompile Include="ParamsBar.cpp" />
+    <ClCompile Include="ProgressDlg.cpp" />
+    <ClCompile Include="RandList.cpp" />
+    <ClCompile Include="RenderThread.cpp" />
+    <ClCompile Include="RenderWnd.cpp" />
+    <ClCompile Include="RowDlg.cpp" />
+    <ClCompile Include="RowForm.cpp" />
+    <ClCompile Include="RowView.cpp" />
+    <ClCompile Include="Statistics.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Undoable.cpp" />
+    <ClCompile Include="UndoManager.cpp" />
+    <ClCompile Include="UndoState.cpp" />
+    <ClCompile Include="UndoTest.cpp" />
+    <ClCompile Include="VersionInfo.cpp" />
+    <ClCompile Include="Whorld.cpp" />
+    <ClCompile Include="WhorldBase.cpp" />
+    <ClCompile Include="WhorldDoc.cpp" />
+    <ClCompile Include="WhorldThread.cpp" />
+    <ClCompile Include="WhorldView.cpp" />
+    <ClCompile Include="Win32Console.cpp" />
+    <ClCompile Include="WinAppCK.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Whorld.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\Toolbar.bmp" />
+    <Image Include="res\Toolbar256.bmp" />
+    <Image Include="res\Whorld.ico" />
+    <Image Include="res\WhorldDoc.ico" />
+    <Image Include="UserImages.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Whorld.rc2" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="Whorld.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

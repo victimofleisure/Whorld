@@ -9,6 +9,12 @@
 		rev		date	comments
         00      23jul05	initial version
         01      02dec06	in HScroll, ignore button up
+		02		04mar09	in set/get val norm, use min, not only max
+		03		04mar09	add static norm/denorm functions
+		04		12may11	in HScroll, notify only if value changed
+		05		30may11	in HScroll, handle all scroll-bar codes
+		06		09feb25	rename round function
+		07		19feb25	remove range shift from static norm/denorm
 
 		slider with buddy numeric edit control
  
@@ -63,19 +69,38 @@ double CEditSliderCtrl::Denorm(double x) const
 void CEditSliderCtrl::SetVal(double Val)
 {
 	m_Val = Val;
-	SetPos(round(Norm(m_Val)));
+	SetPos(Round(Norm(m_Val)));
 	if (m_Edit != NULL)
 		m_Edit->SetVal(m_Val, CNumEdit::NTF_NONE);	// don't notify anyone
 }
 
 void CEditSliderCtrl::SetValNorm(double Val)
 {
-	SetVal(Denorm(Val * GetRangeMax()));
+	int	nMin, nMax;
+	GetRange(nMin, nMax);
+	SetVal(Denorm(Val * (nMax - nMin) + nMin));
 }
 
 double CEditSliderCtrl::GetValNorm() const
 {
-	return(Norm(m_Val) / GetRangeMax());
+	int	nMin, nMax;
+	GetRange(nMin, nMax);
+	return((Norm(m_Val) - nMin) / (nMax - nMin));
+}
+
+double CEditSliderCtrl::Norm(const INFO& Info, double Val)
+{
+	if (Info.LogBase)
+		Val = log(Val) / log(double(Info.LogBase));
+	return(Val * Info.SliderScale);
+}
+
+double CEditSliderCtrl::Denorm(const INFO& Info, double Val)
+{
+	Val /= Info.SliderScale;
+	if (Info.LogBase)
+		Val = pow(double(Info.LogBase), Val);
+	return(Val);
 }
 
 void CEditSliderCtrl::SetEditCtrl(CNumEdit *Edit)
@@ -115,12 +140,12 @@ END_MESSAGE_MAP()
 
 void CEditSliderCtrl::HScroll(UINT nSBCode, UINT nPos)
 {
-	switch (nSBCode) {
-	case SB_ENDSCROLL:
-	case SB_THUMBPOSITION:
-		break;	// ignore button up
-	default:
-		m_Val = Denorm(GetPos());
+	UNREFERENCED_PARAMETER(nSBCode);
+	UNREFERENCED_PARAMETER(nPos);
+	int	pos = GetPos();
+	double	val = Denorm(pos);
+	if (val != m_Val) {	// if value changed
+		m_Val = val;
 		if (m_Edit != NULL)
 			m_Edit->SetVal(m_Val, CNumEdit::NTF_PARENT);	// notify parent only
 	}
@@ -140,7 +165,7 @@ BOOL CEditSliderCtrl::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 	NMHDR	*nmh = (NMHDR *)lParam;
 	if (m_Edit != NULL && nmh->hwndFrom == m_Edit->m_hWnd) {
 		m_Val = m_Edit->GetVal();
-		SetPos(round(Norm(m_Val)));
+		SetPos(Round(Norm(m_Val)));
 	}
 	return CClickSliderCtrl::OnNotify(wParam, lParam, pResult);
 }

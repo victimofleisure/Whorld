@@ -11,17 +11,19 @@
 		01		22apr05	remove undo handling, use doubles
 		02		28jan08	support Unicode
 		03		29jan08	in SetFormat, add static cast to fix warning
+		04		19sep13	add spin control format
+		05		19apr18	move spin control creation to helper
+		06		24apr18	standardize names
+		07		28apr18	make AddSpin virtual
+		08		07jun21	rename rounding functions
+		09		14dec22	add fraction format
 
         numeric edit control
  
 */
 
-#if !defined(AFX_NUMEDIT_H__2E70D361_CC38_42FC_868E_27A60970D10B__INCLUDED_)
-#define AFX_NUMEDIT_H__2E70D361_CC38_42FC_868E_27A60970D10B__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 // NumEdit.h : header file
 //
 
@@ -29,6 +31,8 @@
 // CNumEdit window
 
 #define NEN_CHANGED	2000	// custom notification
+
+class CNumSpin;
 
 class CNumEdit : public CEdit
 {
@@ -45,26 +49,29 @@ public:
 		NTF_ALL		= -1
 	};
 	enum {	// data formats
-		DF_REAL,
-		DF_INT
+		DF_REAL		= 0x00,
+		DF_INT		= 0x01,
+		DF_SPIN		= 0x02,
+		DF_FRACTION	= 0x04,
 	};
 
 // Attributes
 public:
-	void	SetVal(double Val);
-	void	SetVal(double Val, int NotifyMask);
+	void	SetVal(double fVal);
+	void	SetVal(double fVal, int nNotifyMask);
 	double	GetVal() const;
 	int		GetIntVal() const;
-	void	SetScale(double Scale);
-	void	SetLogBase(double Base);
-	void	SetPrecision(int Precision);
-	void	SetAuxNotify(CWnd *Wnd);
-	void	SetRange(double MinVal, double MaxVal);
-	void	SetFormat(int Type);
+	void	SetScale(double fScale);
+	void	SetLogBase(double fBase);
+	void	SetPrecision(int nPrecision);
+	void	SetAuxNotify(CWnd *pWnd);
+	void	SetRange(double fMinVal, double fMaxVal);
+	void	SetFormat(int nType);
+	void	SetFractionScale(int nScale);
 
 // Operations
 public:
-	void	AddSpin(double Delta);
+	virtual	void	AddSpin(double fDelta);
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -84,67 +91,74 @@ protected:
 	//{{AFX_MSG(CNumEdit)
 	afx_msg BOOL OnKillfocus();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnEnable(BOOL bEnable);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 // Member data
-	double	m_Val;			// our current value
-	double	m_Scale;		// display value multiplied by this
-	double	m_LogBase;		// if non-zero, display base raised to value's power
-	int		m_Precision;	// if non-zero, number of decimal places to display
-	CWnd	*m_AuxNotify;	// send notifications to this window as well as parent
-	double	m_MinVal;		// value's lower limit
-	double	m_MaxVal;		// value's upper limit
-	bool	m_HaveRange;	// true if value should be limited
-	BYTE	m_Format;		// value's data format; see enum above
+	double	m_fVal;			// our current value
+	double	m_fScale;		// display value multiplied by this
+	double	m_fLogBase;		// if non-zero, display base raised to value's power
+	int		m_nPrecision;	// if non-zero, number of decimal places to display
+	CWnd	*m_pAuxNotify;	// send notifications to this window as well as parent
+	double	m_fMinVal;		// value's lower limit
+	double	m_fMaxVal;		// value's upper limit
+	bool	m_bHaveRange;	// true if value should be limited
+	BYTE	m_nFormat;		// value's data format; see enum above
+	int		m_nFracScale;	// fraction scaling factor
+	CNumSpin	*m_pSpin;	// associated spin control if any
 
 // Helpers
 	virtual	void	StrToVal(LPCTSTR Str);
 	virtual	void	ValToStr(CString& Str);
-	virtual	bool	IsValidChar(int Char);
+	virtual	bool	IsValidChar(int nChar);
 	void	SetText();
 	void	GetText();
-	void	Notify(int NotifyMask = NTF_ALL);
+	void	Notify(int nNotifyMask = NTF_ALL);
+	void	CreateSpinCtrl();
 };
 
 inline double CNumEdit::GetVal() const
 {
-	return(m_Val);
+	return(m_fVal);
 }
 
 inline int CNumEdit::GetIntVal() const
 {
-	return(round(m_Val));
+	return(Round(m_fVal));
 }
 
-inline void CNumEdit::SetScale(double Scale)
+inline void CNumEdit::SetScale(double fScale)
 {
-	m_Scale = Scale;
+	m_fScale = fScale;
 }
 
-inline void CNumEdit::SetLogBase(double Base)
+inline void CNumEdit::SetLogBase(double fBase)
 {
-	m_LogBase = Base;
+	m_fLogBase = fBase;
 }
 
-inline void CNumEdit::SetPrecision(int Precision)
+inline void CNumEdit::SetPrecision(int nPrecision)
 {
-	m_Precision = Precision;
+	m_nPrecision = nPrecision;
 }
 
-inline void CNumEdit::SetAuxNotify(CWnd *Wnd)
+inline void CNumEdit::SetAuxNotify(CWnd *pWnd)
 {
-	m_AuxNotify = Wnd;
+	m_pAuxNotify = pWnd;
 }
 
 inline void CNumEdit::SetFormat(int Format)
 {
-	m_Format = static_cast<BYTE>(Format);
+	m_nFormat = static_cast<BYTE>(Format);
+}
+
+inline void CNumEdit::SetFractionScale(int nScale)
+{
+	m_nFracScale = nScale;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_NUMEDIT_H__2E70D361_CC38_42FC_868E_27A60970D10B__INCLUDED_)

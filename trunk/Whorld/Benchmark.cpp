@@ -8,6 +8,8 @@
 		revision history:
 		rev		date	comments
         00      14jul05	initial version
+		01		12apr18	move ctor to header
+		02		10feb25	rename variables
 
         compute benchmarks using performance counter
  
@@ -16,16 +18,11 @@
 #include "stdafx.h"
 #include "Benchmark.h"
 
-__int64 CBenchmark::m_Freq = InitFreq();
+LONGLONG CBenchmark::m_nFreq = InitFreq();
 
-__int64 CBenchmark::InitFreq()
+LONGLONG CBenchmark::InitFreq()
 {
-	__int64	Freq;
-	QueryPerformanceFrequency((LARGE_INTEGER *)&Freq);
-	return(Freq);
-}
-
-CBenchmark::CBenchmark()
-{
-	Reset();
+	LARGE_INTEGER	nFreq;
+	QueryPerformanceFrequency(&nFreq);
+	return(nFreq.QuadPart);
 }

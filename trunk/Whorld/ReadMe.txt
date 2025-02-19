@@ -1,81 +1,120 @@
-*** Whorld source distribution ***
+================================================================================
+    MICROSOFT FOUNDATION CLASS LIBRARY : Whorld Project Overview
+===============================================================================
 
-REQUIREMENTS:
+The application wizard has created this Whorld application for
+you.  This application not only demonstrates the basics of using the Microsoft
+Foundation Classes but is also a starting point for writing your application.
 
-Whorld is designed to be an MFC VC++ 6.0 project.  It may or may not
-compile correctly in other versions of MFC, or in .NET.  Whorld has
-mainly been tested under Windows 2000 SP4, but it should work fine
-under XP SP2.
+This file contains a summary of what you will find in each of the files that
+make up your Whorld application.
 
-You'll need the following files from the DirectX 8.1 SDK:
+Whorld.vcxproj
+    This is the main project file for VC++ projects generated using an application wizard.
+    It contains information about the version of Visual C++ that generated the file, and
+    information about the platforms, configurations, and project features selected with the
+    application wizard.
 
-ddraw.h
-ddrawex.h
-ddraw.lib
-dxguid.lib
-dshow.h (and all its dependencies)
-strmbase.lib
-quartz.lib
+Whorld.vcxproj.filters
+    This is the filters file for VC++ projects generated using an Application Wizard. 
+    It contains information about the association between the files in your project 
+    and the filters. This association is used in the IDE to show grouping of files with
+    similar extensions under a specific node (for e.g. ".cpp" files are associated with the
+    "Source Files" filter).
 
-Note that Whorld may not be compatible with later versions of the SDK.
+Whorld.h
+    This is the main header file for the application.  It includes other
+    project specific headers (including Resource.h) and declares the
+    CWhorldApp application class.
 
-You'll also need the following files from HTML help:
+Whorld.cpp
+    This is the main application source file that contains the application
+    class CWhorldApp.
 
-htmlhelp.h
-htmlhelp.lib
+Whorld.rc
+    This is a listing of all of the Microsoft Windows resources that the
+    program uses.  It includes the icons, bitmaps, and cursors that are stored
+    in the RES subdirectory.  This file can be directly edited in Microsoft
+    Visual C++. Your project resources are in 1033.
 
-The files are available via links on the Whorld web site's development
-page.  You can add include and lib paths for them, or simply copy them
-into Whorld's folder.
+res\Whorld.ico
+    This is an icon file, which is used as the application's icon.  This
+    icon is included by the main resource file Whorld.rc.
 
-INSTALLATION:
+res\Whorld.rc2
+    This file contains resources that are not edited by Microsoft
+    Visual C++. You should place all resources not editable by
+    the resource editor in this file.
 
-The source distribution of Whorld doesn't have an installer.  Whorld
-assumes the following files exist in the same folder somewhere on your
-hard drive:
+/////////////////////////////////////////////////////////////////////////////
 
-Whorld.exe
-Whorld.chm
+For the main frame window:
+    The project includes a standard MFC interface.
 
-Note that to use Whorld's movie export feature, you must register the
-BmpToAvi DirectShow source filter, which is included in this release.
-The filter only needs to be registered once, via the following command
-(assuming BmpToAvi.ax is in the current folder):
+MainFrm.h, MainFrm.cpp
+    These files contain the frame class CMainFrame, which is derived from
+    CFrameWnd and controls all SDI frame features.
 
-regsvr32 BmpToAvi.ax
+res\Toolbar.bmp
+    This bitmap file is used to create tiled images for the toolbar.
+    The initial toolbar and status bar are constructed in the CMainFrame
+    class. Edit this toolbar bitmap using the resource editor, and
+    update the IDR_MAINFRAME TOOLBAR array in Whorld.rc to add
+    toolbar buttons.
+/////////////////////////////////////////////////////////////////////////////
 
-UNINSTALLING:
+The application wizard creates one document type and one view:
 
-To uninstall Whorld, you need to do three things:
+WhorldDoc.h, WhorldDoc.cpp - the document
+    These files contain your CWhorldDoc class.  Edit these files to
+    add your special document data and to implement file saving and loading
+    (via CWhorldDoc::Serialize).
 
-1.  Delete Whorld's program files from the folder you copied them to.
-2.  Delete Whorld's registry entries, using regedit.  The key to
-delete is:
+WhorldView.h, WhorldView.cpp - the view of the document
+    These files contain your CWhorldView class.
+    CWhorldView objects are used to view CWhorldDoc objects.
 
-"HKEY_CURRENT_USER\Software\Anal Software\Whorld"
 
-3.  If you registered the BmpToAvi filter, unregister it, via the 
-following command:
 
-regsvr32 /u BmpToAvi.ax
 
-NOTES:
+/////////////////////////////////////////////////////////////////////////////
 
-The binary version of this release is available from the Whorld web
-site, http://whorld.org.  Additional patches and printable versions of
-the help are available from the Download page.
+Other Features:
 
-LICENSE:
+ActiveX Controls
+    The application includes support to use ActiveX controls.
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of the License, or (at your
-option) any later version.  This program is distributed in the hope that
-it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-the GNU General Public License for more details.  You should have
-received a copy of the GNU General Public License along with this
-program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place, Suite 330, Boston, MA 02111 USA.
+/////////////////////////////////////////////////////////////////////////////
 
-END
+Other standard files:
+
+StdAfx.h, StdAfx.cpp
+    These files are used to build a precompiled header (PCH) file
+    named Whorld.pch and a precompiled types file named StdAfx.obj.
+
+Resource.h
+    This is the standard header file, which defines new resource IDs.
+    Microsoft Visual C++ reads and updates this file.
+
+Whorld.manifest
+	Application manifest files are used by Windows XP to describe an applications
+	dependency on specific versions of Side-by-Side assemblies. The loader uses this
+	information to load the appropriate assembly from the assembly cache or private
+	from the application. The Application manifest  maybe included for redistribution
+	as an external .manifest file that is installed in the same folder as the application
+	executable or it may be included in the executable in the form of a resource.
+/////////////////////////////////////////////////////////////////////////////
+
+Other notes:
+
+The application wizard uses "TODO:" to indicate parts of the source code you
+should add to or customize.
+
+If your application uses MFC in a shared DLL, you will need
+to redistribute the MFC DLLs. If your application is in a language
+other than the operating system's locale, you will also have to
+redistribute the corresponding localized resources mfc110XXX.DLL.
+For more information on both of these topics, please see the section on
+redistributing Visual C++ applications in MSDN documentation.
+
+/////////////////////////////////////////////////////////////////////////////

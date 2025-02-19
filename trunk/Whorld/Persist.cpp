@@ -16,6 +16,10 @@
 		06		23apr05	add no resize flag
 		07		31jul05	add double support
 		08		23nov07	support Unicode
+		09		28oct08	close key in get/write binary
+		10		29nov08	add GetWndPlacement
+		11		05jun10	in get/write binary, use profile name instead of app name
+		12		31jan13	refactor get/write binary to use CWinApp methods
 
 		make states persistent using registry
  
@@ -26,75 +30,81 @@
 
 LPCTSTR CPersist::WND_PLACE	= _T("WP");
 
+BOOL CPersist::GetWndPlacement(LPCTSTR Section, LPCTSTR Name, WINDOWPLACEMENT& wp)
+{
+	DWORD	Size = sizeof(WINDOWPLACEMENT);
+	memset(&wp, 0, Size);
+	return(GetBinary(Section, CString(Name) + WND_PLACE, &wp, &Size));
+}
+
+BOOL CPersist::WriteWndPlacement(LPCTSTR Section, LPCTSTR Name, const WINDOWPLACEMENT& wp)
+{
+	return(WriteBinary(Section, CString(Name) + WND_PLACE, &wp, sizeof(WINDOWPLACEMENT)));
+}
+
 void CPersist::SaveWnd(LPCTSTR Section, const CWnd *Wnd, LPCTSTR Name)
 {
 	WINDOWPLACEMENT	wp;
 	Wnd->GetWindowPlacement(&wp);
-	WriteBinary(Section, CString(Name) + WND_PLACE, &wp, sizeof(WINDOWPLACEMENT));
+	WriteWndPlacement(Section, Name, wp);
 }
 
 int CPersist::LoadWnd(LPCTSTR Section, CWnd *Wnd, LPCTSTR Name, int Options)
 {
 	WINDOWPLACEMENT	wp;
-	DWORD	Size = sizeof(WINDOWPLACEMENT);
-	memset(&wp, 0, Size);
-	CRect	CurRect;
-	Wnd->GetWindowRect(CurRect);
-	if (GetBinary(Section, CString(Name) + WND_PLACE, &wp, &Size)) {
-		if ((wp.showCmd == SW_SHOWMINIMIZED && (Options & NO_MINIMIZE))
-		|| (wp.showCmd == SW_SHOWMAXIMIZED && (Options & NO_MAXIMIZE)))
-			wp.showCmd = SW_SHOWNORMAL;
-		if (Options & NO_RESIZE) {
-			wp.rcNormalPosition.right = wp.rcNormalPosition.left + CurRect.Width();
-			wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + CurRect.Height();
-		}
-		Wnd->SetWindowPlacement(&wp);
+	if (!GetWndPlacement(Section, Name, wp))
+		return(0);
+	if ((wp.showCmd == SW_SHOWMINIMIZED && (Options & NO_MINIMIZE))
+	|| (wp.showCmd == SW_SHOWMAXIMIZED && (Options & NO_MAXIMIZE)))
+		wp.showCmd = SW_SHOWNORMAL;
+	if (Options & NO_RESIZE) {
+		CRect	CurRect;
+		Wnd->GetWindowRect(CurRect);
+		wp.rcNormalPosition.right = wp.rcNormalPosition.left + CurRect.Width();
+		wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + CurRect.Height();
 	}
+	Wnd->SetWindowPlacement(&wp);
 	return(wp.showCmd);
 }
 
 int CPersist::GetWndShow(LPCTSTR Section, LPCTSTR Name)
 {
 	WINDOWPLACEMENT	wp;
-	DWORD	Size = sizeof(WINDOWPLACEMENT);
-	memset(&wp, 0, Size);
-	GetBinary(Section, CString(Name) + WND_PLACE, &wp, &Size);
+	if (!GetWndPlacement(Section, Name, wp))
+		return(0);
 	return(wp.showCmd);
 }
 
 BOOL CPersist::GetBinary(LPCTSTR Section, LPCTSTR Entry, LPVOID Buffer, LPDWORD Size)
 {
-	CString	KeyName;
-	KeyName.Format(_T("Software\\%s\\%s\\%s"), AfxGetApp()->m_pszRegistryKey, 
-		AfxGetApp()->m_pszAppName, Section);
-	HKEY	key;
-	LONG	retc;
-	DWORD	type;
-	if ((retc = RegOpenKeyEx(HKEY_CURRENT_USER, KeyName, 
-		0, KEY_READ, &key)) == ERROR_SUCCESS)
-		retc = RegQueryValueEx(key, Entry, 0, &type, (const LPBYTE)Buffer, Size);
-	return(retc == ERROR_SUCCESS);
+	ASSERT(Buffer != NULL);
+	ASSERT(Size != NULL);
+	LPBYTE	pData;
+	UINT	DataLen;
+	if (!AfxGetApp()->GetProfileBinary(Section, Entry, &pData, &DataLen))
+		return(FALSE);
+	bool	retc;
+	if (DataLen > *Size)	// if data too big for buffer
+		retc = FALSE;
+	else {	// data fits in buffer
+		CopyMemory(Buffer, pData, DataLen);	// copy data to buffer
+		*Size = DataLen;	// replace buffer size with data length
+		retc = TRUE;
+	}
+	delete [] pData;	// free data regardless
+	return(retc);
 }
 
 BOOL CPersist::WriteBinary(LPCTSTR Section, LPCTSTR Entry, LPCVOID Buffer, DWORD Size)
 {
-	CString	KeyName;
-	KeyName.Format(_T("Software\\%s\\%s\\%s"), AfxGetApp()->m_pszRegistryKey, 
-		AfxGetApp()->m_pszAppName, Section);
-	HKEY	key;
-	DWORD	disp;
-	LONG	retc;
-	if ((retc = RegCreateKeyEx(HKEY_CURRENT_USER, KeyName,
-		0, 0, 0, KEY_ALL_ACCESS, 0, &key, &disp)) == ERROR_SUCCESS)
-		retc = RegSetValueEx(key, Entry, 0, REG_BINARY, (const LPBYTE)Buffer, Size);
-	return(retc == ERROR_SUCCESS);
+	return(AfxGetApp()->WriteProfileBinary(Section, Entry, LPBYTE(Buffer), Size));
 }
 
 BOOL CPersist::GetFont(LPCTSTR Section, LPCTSTR Entry, CFont *Font)
 {
 	LOGFONT	lf;
 	DWORD	Size = sizeof(LOGFONT);
-	if (Font != NULL && CPersist::GetBinary(Section, Entry, &lf, &Size)
+	if (Font != NULL && GetBinary(Section, Entry, &lf, &Size)
 		&& Size == sizeof(LOGFONT))
 		return(Font->CreateFontIndirect(&lf));
 	return(FALSE);
@@ -105,7 +115,7 @@ BOOL CPersist::WriteFont(LPCTSTR Section, LPCTSTR Entry, CFont *Font)
 	LOGFONT	lf;
 	DWORD	Size = (Font != NULL && Font->GetSafeHandle() 
 		&& Font->GetLogFont(&lf) ? sizeof(LOGFONT) : 0);
-	return(CPersist::WriteBinary(Section, Entry, &lf, Size));
+	return(WriteBinary(Section, Entry, &lf, Size));
 }
 
 float CPersist::GetFloat(LPCTSTR Section, LPCTSTR Entry, float Default)

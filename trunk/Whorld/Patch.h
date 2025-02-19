@@ -12,71 +12,78 @@
 		02		18apr06	bump file version to 2
 		03		21jun06	add tag to MasterDef macro
 		04		28jan08	support Unicode
+		05		09feb25	refactor
 
 		patch container
  
 */
 
-#ifndef CPATCH_INCLUDED
-#define CPATCH_INCLUDED
+#pragma once
 
-#include "ParmInfo.h"
+#include "WhorldBase.h"
 
-class CPatch : public CParmInfo {
+class CPatch : public CWhorldBase {
 public:
 // Construction
 	CPatch() {}	// use SetDefaults to initialize this object
 	~CPatch() {}
 
-// Types
-	#undef MASTERDEF
-	#define MASTERDEF(tag, name, type) type name;
-	typedef struct tagMASTER {
-		#include "MasterDef.h"
-	} MASTER;
-	#undef MAINDEF
-	#define MAINDEF(name, type) type name;
-	typedef struct tagMAIN {
-		#include "MainDef.h"
-	} MAIN;
-	typedef struct tagLINE_INFO {
-		LPCTSTR	Name;		// field's unique identifier
-		int		Type;		// field's data type; see enum in FormatIO.h
-		int		Offset;		// field's byte offset within this class
-	} LINE_INFO;
-
-// Constants
-	enum {
-		MAX_RINGS = 1000
-	};
-	static const MASTER	m_MasterDefaults;	// default values for master members
-	static const MAIN	m_MainDefaults;		// default values for main members
-
 // Public data
-	MASTER	m_Master;
-	MAIN	m_Main;
+	PARAM_TABLE		m_aParam;	// table of parameter rows
+	MASTER_PROPS	m_master;	// master properties
+	MAIN_PROPS		m_main;		// main properties
+
+// Attributes
+	void	SetDefaults();
+	const PARAM_ROW&	GetParamRow(int iParam) const;
+	PARAM_ROW&	GetParamRow(int iParam);
+	void	GetParam(int iParam, int iProp, CComVariant& prop) const;
+	void	SetParam(int iParam, int iProp, const CComVariant& prop);
+	void	GetParamRC(int iParam, int iProp, VARIANT_PROP& prop) const;
+	void	SetParamRC(int iParam, int iProp, const VARIANT_PROP& prop);
+	double	GetMasterProp(int iProp) const;
+	void	SetMasterProp(int iProp, double fVal);
+	void	GetMainProp(int iProp, VARIANT_PROP& prop) const;
+	void	SetMainProp(int iProp, const VARIANT_PROP& prop);
 
 // Operations
-	void	SetDefaults();
-	bool	Read(CStdioFile& fp);
-	bool	Read(LPCTSTR Path);
-	bool	Write(CStdioFile& fp) const;
-	bool	Write(LPCTSTR Path) const;
-	void	operator=(const CParmInfo& Info);
+	static CString	ParamToString(int iProp, const VARIANT_PROP& prop);
+	static CString	MasterToString(int iProp, const VARIANT_PROP& prop);
+	static CString	MainToString(int iProp, const VARIANT_PROP& prop);
+	bool	Read(LPCTSTR pszPath);
+	bool	Write(LPCTSTR pszPath) const;
 
-private:
+protected:
 // Constants
 	enum {
 		FILE_VERSION = 2	// file format version number
 	};
 	static const LPCTSTR FILE_ID;		// file format signature
-	static const LINE_INFO	m_LineInfo[];	// data for I/O of lines
+
+// Helpers
+	bool	ParseLine(CString sLine);
 };
 
-inline void CPatch::operator=(const CParmInfo& Info)
+inline const CPatch::PARAM_ROW& CPatch::GetParamRow(int iParam) const
 {
-	CParmInfo *p = this;	// upcast to base class pointer
-	*p = Info;	// assign to base class
+	ASSERT(IsValidParamIdx(iParam));
+	return m_aParam.row[iParam];
 }
 
-#endif
+inline CPatch::PARAM_ROW& CPatch::GetParamRow(int iParam)
+{
+	ASSERT(IsValidParamIdx(iParam));
+	return m_aParam.row[iParam];
+}
+
+inline double CPatch::GetMasterProp(int iProp) const
+{
+	ASSERT(IsValidMasterProp(iProp));
+	return m_master.a[iProp];
+}
+
+inline void CPatch::SetMasterProp(int iProp, double fVal)
+{
+	ASSERT(IsValidMasterProp(iProp));
+	m_master.a[iProp] = fVal;
+}

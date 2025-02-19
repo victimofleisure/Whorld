@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
 		00		15aug04	initial version
+		01		09sep14	add WCopyable to allow default memberwise copy
  
         minimal base class for objects not derived from CObject
  
@@ -18,6 +19,13 @@ public:
 	WObject() {}	// default ctor required
 
 private:
-	WObject(const WObject&);	// prevent bitwise copy
-	WObject& operator=(const WObject&);	// prevent bitwise assignment
+	WObject(const WObject&);	// prevent default copy
+	WObject& operator=(const WObject&);	// prevent default assignment
+};
+
+class WCopyable : public WObject {
+public:
+	WCopyable() {}	// default ctor required
+	WCopyable(const WCopyable&) {}	// allow default copy and assignment
+	WCopyable& operator=(const WCopyable&) { return *this; }
 };

@@ -10,6 +10,7 @@
         00      27jul05	initial version
         01      18apr06	add FIO_bool
 		02		28jan08	support Unicode
+		03		12feb25	add alias for DPoint
 
         type-driven formatted I/O
  
@@ -30,6 +31,7 @@ enum {
 };
 
 #define FIO_bool FIO_BYTE
+#define FIO_DPoint FIO_DPOINT
 
 class CFormatIO {
 public:

@@ -137,6 +137,8 @@ BEGIN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
+        MENUITEM "&Export...",                  ID_FILE_EXPORT
+        MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
@@ -257,6 +259,7 @@ BEGIN
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
     VK_TAB,         ID_IMAGE_CONVEX,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_IMAGE_FILL,          VIRTKEY, NOINVERT
+    VK_F5,          ID_IMAGE_MIRROR,        VIRTKEY, NOINVERT
     "0",            ID_IMAGE_ORIGIN_CENTER, VIRTKEY, CONTROL, NOINVERT
     "D",            ID_IMAGE_ORIGIN_DRAG,   VIRTKEY, CONTROL, NOINVERT
     "R",            ID_IMAGE_ORIGIN_RANDOM, VIRTKEY, CONTROL, NOINVERT
@@ -268,7 +271,7 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    VK_F5,          ID_IMAGE_MIRROR,        VIRTKEY, NOINVERT
+    "E",            ID_FILE_EXPORT,         VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -339,8 +342,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,0,1
- PRODUCTVERSION 2,0,0,1
+ FILEVERSION 2,0,1,1
+ PRODUCTVERSION 2,0,1,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -357,12 +360,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "TODO: <Company name>"
             VALUE "FileDescription", "Whorld"
-            VALUE "FileVersion", "2.0.0.1"
+            VALUE "FileVersion", "2.0.1.1"
             VALUE "InternalName", "Whorld.exe"
             VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
             VALUE "OriginalFilename", "Whorld.exe"
             VALUE "ProductName", "TODO: <Product name>"
-            VALUE "ProductVersion", "2.0.0.1"
+            VALUE "ProductVersion", "2.0.1.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -428,7 +431,6 @@ STRINGTABLE
 BEGIN
     IDS_APP_LICENSE         "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA."
     IDS_APP_UNKNOWN_SYSTEM_ERROR "Unknown system error %d (0x%X)"
-    ID_HELP_FINDER          "List help topics\nHelp Topics"
     IDS_BAR_Master          "Master"
     IDS_BAR_Params          "Parameters"
     IDS_DOC_BAD_FORMAT      "Unexpected file format."
@@ -443,6 +445,13 @@ BEGIN
     IDS_MAIN_Mirror         "Mirror"
     IDS_MAIN_OrgMotion      "Origin Motion"
     IDS_MAIN_Origin         "Origin"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+    ID_HELP_FINDER          "List help topics\nHelp Topics"
 END
 
 STRINGTABLE
@@ -518,6 +527,7 @@ BEGIN
     ID_APP_HOME_PAGE        "Go to the Whorld home page\nHome page"
     ID_EDIT_DELETE          "Delete"
     ID_EDIT_INSERT          "Insert"
+    ID_FILE_EXPORT          "Export an image file\nExport"
     ID_IMAGE_CONVEX         "Draw rings in descending size order\nConvex"
     ID_IMAGE_FILL           "Fill area between rings\nFill"
     ID_IMAGE_MIRROR         "Mirror image\nMirror"
@@ -527,15 +537,22 @@ BEGIN
     ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
     ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
     ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
-    ID_STATUS_PANE_FRAME_RATE "000.00"
 END
 
 STRINGTABLE
 BEGIN
+    ID_STATUS_PANE_FRAME_RATE "000.00"
     ID_STATUS_PANE_RING_COUNT "00000"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
+END
+
+STRINGTABLE
+BEGIN
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
+    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
+    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
+    ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
 STRINGTABLE
@@ -566,12 +583,6 @@ BEGIN
     ID_FILE_CLOSE           "Close the active document\nClose"
     ID_FILE_SAVE            "Save the active document\nSave"
     ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
-END
-
-STRINGTABLE
-BEGIN
-    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
-    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END
 
 STRINGTABLE
@@ -640,13 +651,6 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
-END
-
-STRINGTABLE
-BEGIN
-    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
-    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
-    ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
 #endif    // English (United States) resources

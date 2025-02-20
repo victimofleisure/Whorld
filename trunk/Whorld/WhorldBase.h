@@ -125,7 +125,7 @@ public:
 		// m_nParam is the parameter index and m_prop is the variant data payload
 		#define PARAMPROPDEF(name, type, prefix, variant) RC_SET_PARAM_##name,
 		#include "WhorldDef.h"	// generate range of parameter commands
-		#define RENDERCMDDEF(name) RC_##name,
+		#define RENDERCMDDEF(name, vartype) RC_##name,
 		#include "WhorldDef.h"	// generate regular commands
 		RENDER_COMMANDS,
 		RC_SET_PARAM_FIRST = RC_START + 1,	// first set parameter command

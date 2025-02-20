@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		20feb25	add file export
 
 */
 
@@ -20,6 +21,7 @@
 #include "WhorldDoc.h"
 #include "WhorldView.h"
 #include "MainFrm.h"
+#include "PathStr.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -41,7 +43,8 @@ BEGIN_MESSAGE_MAP(CWhorldView, CView)
 	ON_COMMAND(ID_WINDOW_STEP, OnWindowStep)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_STEP, OnUpdateWindowStep)
 	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
-	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, &CWhorldView::OnImageRandomPhase)
+	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, OnImageRandomPhase)
+	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 END_MESSAGE_MAP()
 
 // CWhorldView construction/destruction
@@ -198,4 +201,25 @@ void CWhorldView::OnImageRandomPhase()
 {
 	CRenderCmd	cmd(RC_RANDOM_PHASE);
 	theApp.PushRenderCommand(cmd);
+}
+
+void CWhorldView::OnFileExport()
+{
+	CSize	szExport(1920, 1080);//@@@ get size from somewhere; need flags too
+	// render thread captures bitmap and posts it to our main window for writing
+	CRenderCmd	cmd(RC_CAPTURE_BITMAP);
+	cmd.m_prop.szVal = szExport;
+	theApp.PushRenderCommand(cmd);	// start capture ASAP in case we're unpaused
+	CPathStr	sExportFolder;
+	theApp.GetSpecialFolderPath(CSIDL_MYPICTURES, sExportFolder);//@@@ belongs in options init
+	if (!PathFileExists(sExportFolder)) {
+		AfxMessageBox(_T("Invalid folder."));
+		return;
+	}
+	CString	sExportFileName(theApp.GetTimestampFileName());
+	CPathStr sExportPath(sExportFolder);
+	sExportPath.Append(sExportFileName);
+	CString	sExportExt(_T(".png"));
+	sExportPath += sExportExt;
+	theApp.GetMainFrame()->AddImageExportPath(sExportPath);
 }

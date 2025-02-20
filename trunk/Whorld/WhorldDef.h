@@ -14,7 +14,8 @@
 		04		22jul05	add line width
 		05		13apr06	add even and odd curve
 		06		13dec07	add even and odd shear
-		07		09feb08	consolidate various def files here
+		07		09feb25	consolidate various def files here
+		08		20feb25	add bitmap render commands
 
         define parameter attributes
 
@@ -133,16 +134,19 @@ MASTERCOLDEF(VAL_EDIT)
 
 // set parameter range is defined separately via PARAMPROPDEF
 
-RENDERCMDDEF(SET_MASTER)		// sets a master property; m_nParam: property index, m_prop: double fProp
-RENDERCMDDEF(SET_MAIN)			// sets a main property; m_nParam: property index, m_prop: VARIANT_PROP
-RENDERCMDDEF(SET_PATCH)			// sets a patch; m_nParam: unused, m_prop: CPatch pointer allocated on heap
-RENDERCMDDEF(SET_EMPTY)			// removes all geometry; no parameters
-RENDERCMDDEF(SET_FRAME_RATE)	// sets frame rate; m_nParam: integer frame rate in Hertz
-RENDERCMDDEF(SET_PAUSE)			// pauses updates; m_nParam: non-zero to pause, zero to unpause
-RENDERCMDDEF(SINGLE_STEP)		// single steps while paused; no parameters
-RENDERCMDDEF(RANDOM_PHASE)		// randomizes phase of all oscillators; no parameters
-RENDERCMDDEF(SET_ZOOM)			// sets zoom; m_nParam: non-zero for damping, m_prop: double fZoom
-RENDERCMDDEF(SET_ORIGIN)		// sets origin; m_nParam: non-zero for damping, m_prop: POINTFLOAT ptOrigin
+//			 name				vartype
+RENDERCMDDEF(SET_MASTER,		dblVal	)	// sets a master property; m_nParam: property index, m_prop: fProp
+RENDERCMDDEF(SET_MAIN,			intVal	)	// sets a main property; m_nParam: property index, m_prop: variant property
+RENDERCMDDEF(SET_PATCH,			byref	)	// sets a patch; m_nParam: unused, m_prop: CPatch pointer allocated on heap
+RENDERCMDDEF(SET_EMPTY,			intVal	)	// removes all geometry; no parameters
+RENDERCMDDEF(SET_FRAME_RATE,	intVal	)	// sets frame rate; m_nParam: integer frame rate in Hertz
+RENDERCMDDEF(SET_PAUSE,			intVal	)	// pauses updates; m_nParam: non-zero to pause, zero to unpause
+RENDERCMDDEF(SINGLE_STEP,		intVal	)	// single steps while paused; no parameters
+RENDERCMDDEF(RANDOM_PHASE,		intVal	)	// randomizes phase of all oscillators; no parameters
+RENDERCMDDEF(SET_ZOOM,			dblVal	)	// sets zoom; m_nParam: non-zero for damping, m_prop: double fZoom
+RENDERCMDDEF(SET_ORIGIN,		fltPt	)	// sets origin; m_nParam: non-zero for damping, m_prop: POINTFLOAT ptOrigin
+RENDERCMDDEF(CAPTURE_BITMAP,	szVal	)	// capture a bitmap; m_nParam: non-zero for scaling, m_prop: SIZE
+RENDERCMDDEF(RELEASE_BITMAP,	byref	)	// release captured bitmap; m_nParam: none, m_prop: ID2D1Bitmap1*
 
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF

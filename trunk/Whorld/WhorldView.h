@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		20feb25	add file export
 
 */
 
@@ -61,8 +62,8 @@ protected:
 	afx_msg void OnWindowStep();
 	afx_msg void OnUpdateWindowStep(CCmdUI *pCmdUI);
 	afx_msg void OnWindowClear();
-public:
 	afx_msg void OnImageRandomPhase();
+	afx_msg void OnFileExport();
 };
 
 #ifndef _DEBUG  // debug version in WhorldView.cpp

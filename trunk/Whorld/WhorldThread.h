@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+        01      20feb25	add bitmap capture and write
 
 */
 
@@ -27,6 +28,9 @@ public:
 	bool	IsPaused() const;
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
+
+// Operations
+	static bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
 
 protected:
 // Types
@@ -156,10 +160,14 @@ protected:
 	void	RandomPhase();
 	void	SetZoom(double fZoom, bool bDamping);
 	void	SetOrigin(DPoint ptOrigin, bool bDamping);
+	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
+	void	CaptureBitmap(UINT nFlags, SIZE szImage);
+	void	ReleaseBitmap(ID2D1Bitmap1* pBitmap);
 
 // Helpers
-	static	double	Wrap(double Val, double Limit);
-	static	double	Reflect(double Val, double Limit);
+	static void		HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
+	static double	Wrap(double Val, double Limit);
+	static double	Reflect(double Val, double Limit);
 	void	UpdateHue(double DeltaTick);
 	void	AddRing();
 	void	ResizeCanvas();

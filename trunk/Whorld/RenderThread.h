@@ -36,6 +36,8 @@ public:
 		LONGLONG	llVal;
 		ULONGLONG	ullVal;
 		PVOID	byref;
+		POINT	ptVal;
+		SIZE	szVal;
 		POINTFLOAT	fltPt;	// pair of float; non-standard
 	};
 	class CRenderCmd {

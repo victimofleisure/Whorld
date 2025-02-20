@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+        01      20feb25	add bitmap capture and write
 
 */
 
@@ -49,6 +50,7 @@ public:
 	bool	IsFullScreenChanging() const;
 	bool	IsDualMonitor() const;
 	bool	IsSingleMonitor() const;
+	bool	IsFullScreenSingleMonitor() const;
 	bool	IsRenderWndCreated() const;
 	UINT_PTR	GetRingCount() const;
 	UINT_PTR	GetFrameCount() const;
@@ -70,6 +72,8 @@ public:
 	LRESULT	OnTrackingHelp(WPARAM wParam, LPARAM lParam);
 	bool	HandleDlgKeyMsg(MSG* pMsg);
 	bool	UpdateFrameRate();
+	bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
+	static CString	GetTimestampFileName();
 
 // Overrides
 public:
@@ -154,6 +158,11 @@ inline bool CWhorldApp::IsSingleMonitor() const
 	return !m_bIsDualMonitor;
 }
 
+inline bool CWhorldApp::IsFullScreenSingleMonitor() const
+{
+	return m_bIsFullScreen && !m_bIsDualMonitor;
+}
+
 inline bool CWhorldApp::IsRenderWndCreated() const
 {
 	return m_wndRender.m_hWnd != 0;
@@ -184,3 +193,7 @@ inline DPoint CWhorldApp::GetOrigin() const
 	return m_thrRender.GetOrigin();
 }
 
+inline bool CWhorldApp::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath)
+{
+	return m_thrRender.WriteCapturedBitmap(pBitmap, pszImagePath);
+}

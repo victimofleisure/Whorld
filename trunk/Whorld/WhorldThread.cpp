@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+        01      20feb25	add bitmap capture and write
 
 */
 
@@ -18,8 +19,9 @@
 #include <math.h>
 #include "hls.h"
 #include "Statistics.h"
+#include "SaveObj.h"
 
-#define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { OnError(hr, __FILE__, __LINE__, __DATE__); return false; }}
+#define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { HandleError(hr, __FILE__, __LINE__, __DATE__); return false; }}
 #define DTOF(x) static_cast<float>(x)
 
 #define RENDER_CMD_NATTER 1	// set true to display render commands on console
@@ -103,14 +105,20 @@ bool CWhorldThread::OnThreadCreate()
 	return true;
 }
 
-void CWhorldThread::OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
+void CWhorldThread::HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
 {
 	CString	sSrcFileName(pszSrcFileName);	// convert to Unicode
 	CString	sSrcFileDate(pszSrcFileDate);
 	CString	sMsg;
 	sMsg.Format(_T("COM error 0x%x in %s line %d (%s)"), hr, sSrcFileName.GetString(), nLineNum, sSrcFileDate.GetString());
+	sMsg += '\n' + FormatSystemError(hr);
 	theApp.Log(sMsg);
 	AfxMessageBox(sMsg);
+}
+
+void CWhorldThread::OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
+{
+	HandleError(hr, pszSrcFileName, nLineNum, pszSrcFileDate);	// static method
 }
 
 void CWhorldThread::Log(CString sMsg)
@@ -635,6 +643,42 @@ void CWhorldThread::OnMainPropChange()
 	}
 }
 
+CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
+{
+	CString	sRet;	// string returned to caller
+	CString	sCmdName(GetRenderCmdName(cmd.m_nCmd));	// get command name
+	// try parameter commands first as they occupy a contiguous range
+	if (cmd.m_nCmd >= RC_SET_PARAM_FIRST && cmd.m_nCmd <= RC_SET_PARAM_LAST) {
+		int	iProp = cmd.m_nCmd - RC_SET_PARAM_FIRST;	// get property index
+		sRet = sCmdName 
+			+ _T(" '") + GetParamName(cmd.m_nParam) 
+			+ _T("' ") + GetParamPropName(iProp)
+			+ _T(" = ") + ParamToString(iProp, cmd.m_prop);
+	} else {	// not a parameter command
+		switch (cmd.m_nCmd) {
+		case RC_SET_MASTER:
+			sRet = sCmdName 
+				+ _T(" '") + GetMasterName(cmd.m_nParam) 
+				+ _T("' = ") + MasterToString(cmd.m_nParam, cmd.m_prop);
+			break;
+		case RC_SET_MAIN:
+			sRet = sCmdName 
+				+ _T(" '") + GetMainName(cmd.m_nParam) 
+				+ _T("' = ") + MainToString(cmd.m_nParam, cmd.m_prop);
+			break;
+		default:
+			switch (cmd.m_nCmd) {
+			#define RENDERCMDDEF(name, vartype) case RC_##name: sRet = sCmdName \
+				+ ' ' + ValToString(cmd.m_nParam) \
+				+ ' ' + ValToString(cmd.m_prop.vartype); \
+				break;
+			#include "WhorldDef.h"	// generate cases for generic commands
+			}
+		}
+	}
+	return sRet;
+}
+
 void CWhorldThread::SetParam(int iParam, double fVal)
 {
 	GetParamRow(iParam).fVal = fVal;
@@ -746,11 +790,111 @@ DPoint CWhorldThread::GetOrigin() const
 	return DPoint(m_st.ptOrigin) / GetClientSize() + 0.5;
 }
 
+bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)
+{
+	UNREFERENCED_PARAMETER(nFlags); // @@@ flags: same size as window, scale versus crop
+	pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
+	//
+	// 1) Create the capture bitmap, which can be a GPU target but isn't readable by the CPU.
+	//
+	D2D1_BITMAP_PROPERTIES1 propsCapture = {
+		{DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED}, 0, 0,
+		D2D1_BITMAP_OPTIONS_TARGET,	// target option is incompatible with CPU read
+	};
+	CComPtr<ID2D1Bitmap1>	pCaptureBitmap;
+	CHECK(m_pD2DDeviceContext->CreateBitmap(szImage, NULL, 0, &propsCapture, &pCaptureBitmap));
+	//
+	// 2) Draw into the capture bitmap.
+	//
+	m_pD2DDeviceContext->SetTarget(pCaptureBitmap);	// make capture bitmap the render target
+	// pause state will be restored automatically when CSaveObj instance goes out of scope
+	CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set the pause state
+	m_pD2DDeviceContext->BeginDraw();	// start drawing
+	OnDraw();	// draw as usual; geometry is frozen because we're paused
+	m_pD2DDeviceContext->EndDraw();	// end drawing
+	m_pD2DDeviceContext->SetTarget(m_pTargetBitmap);	// restore the swap chain render target
+	//
+	// 3) Create the CPU-readable bitmap.
+	//
+	D2D1_BITMAP_PROPERTIES1 propsReadable = {
+		{DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED}, 0, 0,
+		D2D1_BITMAP_OPTIONS_CPU_READ | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+	};
+	CComPtr<ID2D1Bitmap1> pReadableBitmap;
+	CHECK(m_pD2DDeviceContext->CreateBitmap(szImage, NULL, 0, &propsReadable, &pReadableBitmap));
+	//
+	// 4) Copy from the capture bitmap to the readable bitmap.
+	//
+	CHECK(pReadableBitmap->CopyFromBitmap(NULL, pCaptureBitmap, NULL));
+	//
+	// 5) Return readable bitmap to caller for mapping and writing.
+	//
+	pBitmap = pReadableBitmap.Detach();	// detach bitmap from its smart pointer
+	return true;
+}
+
+void CWhorldThread::CaptureBitmap(UINT nFlags, SIZE szImage)
+{
+	ID2D1Bitmap1*	pBitmap;
+	CaptureBitmap(nFlags, CD2DSizeU(szImage), pBitmap);
+	LPARAM	lParam = reinterpret_cast<LPARAM>(pBitmap);	
+	AfxGetMainWnd()->PostMessage(UWM_BITMAP_CAPTURE, 0, lParam);	// post pointer to main window
+}
+
+bool CWhorldThread::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath)
+{
+	// This method finishes capturing a bitmap and writes the image to a file.
+	// It's called by the main thread in response to the message posted above.
+	// For thread safety, this method is static and can't access instance data.
+	// The mapping to CPU memory is done here because it's relatively slow.
+	//
+	ASSERT(pBitmap != NULL);	// bitmap pointer can't be null
+	ASSERT(pszImagePath != NULL);	// image path can't be null either
+	//
+	// 1) Map the bitmap into CPU memory.
+	//
+	D2D1_MAPPED_RECT mapped = {};
+	CHECK(pBitmap->Map(D2D1_MAP_OPTIONS_READ, &mapped));	// map bitmap into CPU memory
+	//
+	// 2) Encode the bitmap to PNG with WIC.
+	//
+	CD2DSizeU	sz(pBitmap->GetPixelSize());	// get bitmap size in device-dependent pixels
+	CComPtr<IWICImagingFactory> pWICFactory;
+	CHECK(CoCreateInstance(CLSID_WICImagingFactory, NULL,	// create WIC factory
+		CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pWICFactory)));
+	CComPtr<IWICBitmapEncoder> pEncoder;
+	CHECK(pWICFactory->CreateEncoder(GUID_ContainerFormatPng, NULL, &pEncoder));	// create encoder
+	CComPtr<IWICStream> pStream;
+	CHECK(pWICFactory->CreateStream(&pStream));	// create WIC stream
+	CHECK(pStream->InitializeFromFilename(pszImagePath, GENERIC_WRITE)); // initialize stream
+	CHECK(pEncoder->Initialize(pStream, WICBitmapEncoderNoCache));	// initialize encoder with stream
+	CComPtr<IWICBitmapFrameEncode>	pFrame;
+	CHECK(pEncoder->CreateNewFrame(&pFrame, NULL));	// create WIC frame
+	CHECK(pFrame->Initialize(NULL));	// initialize frame encoder
+	CHECK(pFrame->SetSize(sz.width, sz.height));	// set desired image dimensions
+	WICPixelFormatGUID formatGUID = GUID_WICPixelFormat32bppBGRA;	// pixel format GUID
+	CHECK(pFrame->SetPixelFormat(&formatGUID));	// set desired pixel format
+	UINT cbStride = mapped.pitch;	// size of bitmap scanline in bytes
+	UINT cbBufferSize = cbStride * sz.height;	// buffer size is pitch times height
+	pFrame->WritePixels(sz.height, cbStride, cbBufferSize, mapped.bits);	// encode frame scanlines
+	CHECK(pFrame->Commit());	// commit frame to image
+	CHECK(pEncoder->Commit());	// commit all image changes and close stream
+	CHECK(pBitmap->Unmap());	// unmap bitmap from memory
+	return true;
+}
+
+void CWhorldThread::ReleaseBitmap(ID2D1Bitmap1* pBitmap)
+{
+	ASSERT(pBitmap != NULL);	// bitmap pointer can't be null
+	pBitmap->Release();	// deletes itself when its reference count drops to zero
+}
+
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 {
 #if _DEBUG && RENDER_CMD_NATTER
 	_fputts(RenderCommandToString(cmd) + '\n', stdout);
 #endif
+	// dispatch render command to appropriate handler
 	switch (cmd.m_nCmd) {
 	case RC_SET_PARAM_Val:
 		SetParam(cmd.m_nParam, cmd.m_prop.dblVal);
@@ -797,50 +941,13 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 	case RC_SET_ORIGIN:
 		SetOrigin(cmd.m_prop.fltPt, cmd.m_nParam != 0);
 		break;
+	case RC_CAPTURE_BITMAP:
+		CaptureBitmap(cmd.m_nParam, cmd.m_prop.szVal);
+		break;
+	case RC_RELEASE_BITMAP:
+		ReleaseBitmap(static_cast<ID2D1Bitmap1*>(cmd.m_prop.byref));
+		break;
 	default:
 		ASSERT(0);	// missing command case
 	};
-}
-
-CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
-{
-	CString	sRet;	// string returned to caller
-	CString	sCmdName(GetRenderCmdName(cmd.m_nCmd));	// get command name
-	// try parameter commands first as they occupy a contiguous range
-	if (cmd.m_nCmd >= RC_SET_PARAM_FIRST && cmd.m_nCmd <= RC_SET_PARAM_LAST) {
-		int	iProp = cmd.m_nCmd - RC_SET_PARAM_FIRST;	// get property index
-		sRet = sCmdName 
-			+ _T(" '") + GetParamName(cmd.m_nParam) 
-			+ _T("' ") + GetParamPropName(iProp)
-			+ _T(" = ") + ParamToString(iProp, cmd.m_prop);
-	} else {	// not a parameter command
-		switch (cmd.m_nCmd) {
-		case RC_SET_PATCH:
-			sRet = sCmdName + ' ' + ValToString(cmd.m_prop.byref);
-			break;
-		case RC_SET_MASTER:
-			sRet = sCmdName 
-				+ _T(" '") + GetMasterName(cmd.m_nParam) 
-				+ _T("' = ") + MasterToString(cmd.m_nParam, cmd.m_prop);
-			break;
-		case RC_SET_MAIN:
-			sRet = sCmdName 
-				+ _T(" '") + GetMainName(cmd.m_nParam) 
-				+ _T("' = ") + MainToString(cmd.m_nParam, cmd.m_prop);
-			break;
-		case RC_SET_ZOOM:
-			sRet = sCmdName 
-				+ ' ' + ValToString(cmd.m_nParam) 
-				+ ' ' + ValToString(cmd.m_prop.dblVal);
-			break;
-		case RC_SET_ORIGIN:
-			sRet = sCmdName 
-				+ ' ' + ValToString(cmd.m_nParam) 
-				+ ' ' + ValToString(cmd.m_prop.fltPt);
-			break;
-		default:
-			sRet = sCmdName + ' ' + ValToString(cmd.m_nParam);
-		}
-	}
-	return sRet;
 }

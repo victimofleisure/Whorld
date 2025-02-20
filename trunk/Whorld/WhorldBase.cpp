@@ -71,7 +71,7 @@ const LPCTSTR CWhorldBase::m_arrRenderCmdName[RENDER_COMMANDS] = {
 	_T("FULL_SCREEN"),
 	#define PARAMPROPDEF(name, type, prefix, variant) _T("SET_PARAM_") _T(#name),
 	#include "WhorldDef.h"	// generate range of parameter commands
-	#define RENDERCMDDEF(name) _T(#name),
+	#define RENDERCMDDEF(name, vartype) _T(#name),
 	#include "WhorldDef.h"	// generate regular commands
 };
 

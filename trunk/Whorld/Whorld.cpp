@@ -328,8 +328,11 @@ void CWhorldApp::ResizeRenderWnd(int cx, int cy)
 
 void CWhorldApp::PushRenderCommand(const CRenderCmd& cmd)
 {
-	if (!m_thrRender.PushCommand(cmd)) {
-		ON_ERROR(LDS(IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS));
+	while (!m_thrRender.PushCommand(cmd)) {
+		// command queue was full; give user a chance to retry
+		if (AfxMessageBox(IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS, MB_RETRYCANCEL) != IDRETRY) {
+			break;
+		}
 	}
 }
 
@@ -528,6 +531,16 @@ bool CWhorldApp::UpdateFrameRate()
 		PushRenderCommand(cmd);
 	}
 	return true;
+}
+
+CString CWhorldApp::GetTimestampFileName()
+{
+	SYSTEMTIME	t;
+	GetSystemTime(&t);
+	CString	sFileName;
+	sFileName.Format(_T("%04d-%02d-%02d-%02d-%02d-%02d.%03d"),
+		t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
+	return sFileName;
 }
 
 // CWhorldApp message map

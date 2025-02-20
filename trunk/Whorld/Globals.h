@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		20feb25	add bitmap captured message
 
 */
 
@@ -114,6 +115,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_RENDER_WND_CLOSED,		// wParam: none, lParam: none
 	UWM_FULL_SCREEN_CHANGED,	// wParam: bIsFullScreen, lParam: bResult
 	UWM_SHOW_CHANGING,			// wParam: none, lParam: none
+	UWM_BITMAP_CAPTURE,			// wParam: none, lParam: ID2D1Bitmap1*
 };
 
 // undo natter should always be zero in a shipping version

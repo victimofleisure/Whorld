@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		20feb25	add bitmap capture and write
 
 */
 
@@ -16,6 +17,7 @@
 
 #pragma once
 
+#include "WhorldBase.h"
 #include "ParamsBar.h"
 #include "MasterBar.h"
 
@@ -32,7 +34,7 @@ enum {	// docking bar IDs; don't change, else bar placement won't be restored
 class CAuxFrame;
 class CAuxView;
 
-class CMainFrame : public CFrameWndEx
+class CMainFrame : public CFrameWndEx, public CWhorldBase
 {
 protected: // create from serialization only
 	CMainFrame();
@@ -57,13 +59,14 @@ public:
 
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	void	AddImageExportPath(CString sPath);
 
 // Overrides
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL DestroyWindow();
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 
-// Public data
+// Docking bars
 	CMFCMenuBar       m_wndMenuBar;
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
@@ -92,8 +95,9 @@ public:
 // Data members
 	UINT_PTR	m_nPrevFrameCount;	// previous frame count, for measuring frame rate
 	CBenchmark	m_benchFrameRate;	// benchmark timer, for measuring frame rate
-	CString	m_sRingCount;
-	CString	m_sFrameRate;
+	CString	m_sRingCount;			// ring count status pane string
+	CString	m_sFrameRate;			// frame rate status pane string
+	CStringArrayEx	m_saImageExportPath;	// array of image export paths
 
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -118,9 +122,11 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg LRESULT	OnDisplayChange(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnWindowResetLayout();
+	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const
 {
 	return m_hAccelTable;
 }
+

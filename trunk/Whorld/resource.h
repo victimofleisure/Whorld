@@ -108,35 +108,36 @@
 #define ID_APP_HOME_PAGE                32771
 #define ID_EDIT_DELETE                  32772
 #define ID_EDIT_INSERT                  32773
-#define ID_IMAGE_CONVEX                 32774
-#define ID_IMAGE_FILL                   32775
-#define ID_IMAGE_MIRROR                 32776
-#define ID_IMAGE_ORIGIN_CENTER          32777
-#define ID_IMAGE_ORIGIN_DRAG            32778
-#define ID_IMAGE_ORIGIN_RANDOM          32779
-#define ID_IMAGE_OUTLINE                32780
-#define ID_IMAGE_RANDOM_PHASE           32781
-#define ID_IMAGE_REVERSE                32782
-#define ID_STATUS_PANE_FRAME_RATE       32783
-#define ID_STATUS_PANE_RING_COUNT       32784
-#define ID_VIEW_APPLOOK_OFF_2003        32785
-#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32786
-#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32787
-#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32788
-#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32789
-#define ID_VIEW_APPLOOK_OFF_XP          32790
-#define ID_VIEW_APPLOOK_VS_2005         32791
-#define ID_VIEW_APPLOOK_VS_2008         32792
-#define ID_VIEW_APPLOOK_WINDOWS_7       32793
-#define ID_VIEW_APPLOOK_WIN_2000        32794
-#define ID_VIEW_APPLOOK_WIN_XP          32795
-#define ID_VIEW_CUSTOMIZE               32796
-#define ID_WINDOW_CLEAR                 32797
-#define ID_WINDOW_DETACH                32798
-#define ID_WINDOW_FULLSCREEN            32799
-#define ID_WINDOW_PAUSE                 32800
-#define ID_WINDOW_RESET_LAYOUT          32801
-#define ID_WINDOW_STEP                  32802
+#define ID_FILE_EXPORT                  32774
+#define ID_IMAGE_CONVEX                 32775
+#define ID_IMAGE_FILL                   32776
+#define ID_IMAGE_MIRROR                 32777
+#define ID_IMAGE_ORIGIN_CENTER          32778
+#define ID_IMAGE_ORIGIN_DRAG            32779
+#define ID_IMAGE_ORIGIN_RANDOM          32780
+#define ID_IMAGE_OUTLINE                32781
+#define ID_IMAGE_RANDOM_PHASE           32782
+#define ID_IMAGE_REVERSE                32783
+#define ID_STATUS_PANE_FRAME_RATE       32784
+#define ID_STATUS_PANE_RING_COUNT       32785
+#define ID_VIEW_APPLOOK_OFF_2003        32786
+#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32787
+#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32788
+#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32789
+#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32790
+#define ID_VIEW_APPLOOK_OFF_XP          32791
+#define ID_VIEW_APPLOOK_VS_2005         32792
+#define ID_VIEW_APPLOOK_VS_2008         32793
+#define ID_VIEW_APPLOOK_WINDOWS_7       32794
+#define ID_VIEW_APPLOOK_WIN_2000        32795
+#define ID_VIEW_APPLOOK_WIN_XP          32796
+#define ID_VIEW_CUSTOMIZE               32797
+#define ID_WINDOW_CLEAR                 32798
+#define ID_WINDOW_DETACH                32799
+#define ID_WINDOW_FULLSCREEN            32800
+#define ID_WINDOW_PAUSE                 32801
+#define ID_WINDOW_RESET_LAYOUT          32802
+#define ID_WINDOW_STEP                  32803
 
 // Next default values for new objects
 //
@@ -144,7 +145,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                1
 #define _APS_NEXT_RESOURCE_VALUE        275
-#define _APS_NEXT_COMMAND_VALUE         32803
+#define _APS_NEXT_COMMAND_VALUE         32804
 #define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

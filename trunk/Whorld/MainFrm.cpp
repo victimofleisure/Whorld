@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		20feb25	add bitmap capture and write
 
 */
 
@@ -323,6 +324,11 @@ bool CMainFrame::FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& 
 	return true;
 }
 
+void CMainFrame::AddImageExportPath(CString sPath)
+{
+	m_saImageExportPath.Add(sPath);
+}
+
 // CMainFrame diagnostics
 
 #ifdef _DEBUG
@@ -358,6 +364,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_TIMER()
 	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
+	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
 END_MESSAGE_MAP()
 
 // CMainFrame message handlers
@@ -544,8 +551,8 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 void CMainFrame::OnEditCopy() //@@@ test only
 {
 #if _DEBUG
-//	theApp.GetDocument()->SetParam(CWhorldBase::PARAM_AspectRatio, 0, 1.23);
-//	theApp.GetDocument()->SetMasterProp(CWhorldBase::MASTER_CanvasScale, 1.23);
+//	theApp.GetDocument()->SetParam(PARAM_AspectRatio, 0, 1.23);
+//	theApp.GetDocument()->SetMasterProp(MASTER_CanvasScale, 1.23);
 	AfxMessageBox(_T("TEST CMainFrame::OnEditCopy"));
 #endif
 }
@@ -566,4 +573,26 @@ void CMainFrame::OnWindowResetLayout()
 		theApp.m_bCleanStateOnExit = true;
 		PostMessage(WM_CLOSE);
 	}
+}
+
+LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
+{
+	// Assume this message was posted by the render thread in response to a
+	// capture bitmap command. The message is posted even if capture failed.
+	UNREFERENCED_PARAMETER(wParam);
+	ID2D1Bitmap1* pBitmap = reinterpret_cast<ID2D1Bitmap1*>(lParam);
+	if (!m_saImageExportPath.IsEmpty()) {	// if export path available
+		CString	sExportPath(m_saImageExportPath[0]);	// copy oldest export path
+		m_saImageExportPath.RemoveAt(0);	// remove oldest export path from array
+		if (pBitmap != NULL) {	// if capture succeeded
+			theApp.WriteCapturedBitmap(pBitmap, sExportPath);	// export image
+		}
+	}
+	if (pBitmap != NULL) {	// if capture succeeded
+		// bitmap belongs to render thread, so let render thread release it
+		CRenderCmd	cmd(RC_RELEASE_BITMAP);
+		cmd.m_prop.byref = pBitmap;
+		theApp.PushRenderCommand(cmd);	// queue bitmap for release
+	}
+	return 0;
 }

@@ -883,12 +883,6 @@ bool CWhorldThread::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImageP
 	return true;
 }
 
-void CWhorldThread::ReleaseBitmap(ID2D1Bitmap1* pBitmap)
-{
-	ASSERT(pBitmap != NULL);	// bitmap pointer can't be null
-	pBitmap->Release();	// deletes itself when its reference count drops to zero
-}
-
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 {
 #if _DEBUG && RENDER_CMD_NATTER
@@ -943,9 +937,6 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_CAPTURE_BITMAP:
 		CaptureBitmap(cmd.m_nParam, cmd.m_prop.szVal);
-		break;
-	case RC_RELEASE_BITMAP:
-		ReleaseBitmap(static_cast<ID2D1Bitmap1*>(cmd.m_prop.byref));
 		break;
 	default:
 		ASSERT(0);	// missing command case

@@ -146,7 +146,6 @@ RENDERCMDDEF(RANDOM_PHASE,		intVal	)	// randomizes phase of all oscillators; no 
 RENDERCMDDEF(SET_ZOOM,			dblVal	)	// sets zoom; m_nParam: non-zero for damping, m_prop: double fZoom
 RENDERCMDDEF(SET_ORIGIN,		fltPt	)	// sets origin; m_nParam: non-zero for damping, m_prop: POINTFLOAT ptOrigin
 RENDERCMDDEF(CAPTURE_BITMAP,	szVal	)	// capture a bitmap; m_nParam: non-zero for scaling, m_prop: SIZE
-RENDERCMDDEF(RELEASE_BITMAP,	byref	)	// release captured bitmap; m_nParam: none, m_prop: ID2D1Bitmap1*
 
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF

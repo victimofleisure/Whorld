@@ -589,10 +589,7 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 		}
 	}
 	if (pBitmap != NULL) {	// if capture succeeded
-		// bitmap belongs to render thread, so let render thread release it
-		CRenderCmd	cmd(RC_RELEASE_BITMAP);
-		cmd.m_prop.byref = pBitmap;
-		theApp.PushRenderCommand(cmd);	// queue bitmap for release
+		pBitmap->Release();	// deletes itself when its reference count drops to zero
 	}
 	return 0;
 }

@@ -162,7 +162,6 @@ protected:
 	void	SetOrigin(DPoint ptOrigin, bool bDamping);
 	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
 	void	CaptureBitmap(UINT nFlags, SIZE szImage);
-	void	ReleaseBitmap(ID2D1Bitmap1* pBitmap);
 
 // Helpers
 	static void		HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);

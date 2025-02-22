@@ -9,17 +9,14 @@
 		rev		date	comments
         00      23jul05	initial version
 		01		04mar09	add static norm/denorm functions
+        02      22feb25	replace header guard with pragma
 
 		slider with buddy numeric edit control
  
 */
 
-#if !defined(AFX_EDITSLIDERCTRL_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_)
-#define AFX_EDITSLIDERCTRL_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 // EditSliderCtrl.h : header file
 //
 
@@ -115,10 +112,3 @@ inline CNumEdit *CEditSliderCtrl::GetEditCtrl() const
 {
 	return(m_Edit);
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_EDITSLIDERCTRL_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_)

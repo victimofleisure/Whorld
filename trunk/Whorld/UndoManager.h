@@ -20,13 +20,13 @@
 		10		25apr18	standardize names
 		11		19apr20	return const string reference from title accessors
 		12		05nov20	overload cancel edit
+        13      22feb25	replace header guard with pragma
 
         undoable edit interface
  
 */
 
-#ifndef CUNDOMANAGER_INCLUDED
-#define CUNDOMANAGER_INCLUDED
+#pragma once
 
 #include "ArrayEx.h"
 #include "UndoState.h"
@@ -189,5 +189,3 @@ inline CUndoState& CUndoManager::GetState(int iPos)
 {
 	return(m_arrState[iPos]);
 }
-
-#endif

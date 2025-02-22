@@ -17,12 +17,8 @@
  
 */
 
-#if !defined(AFX_ROWFORM_H__F9AB8865_A0D5_49C5_97A9_9A1E2F74BEB1__INCLUDED_)
-#define AFX_ROWFORM_H__F9AB8865_A0D5_49C5_97A9_9A1E2F74BEB1__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 // RowFormView.h : header file
 //
 
@@ -73,10 +69,3 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ROWFORM_H__F9AB8865_A0D5_49C5_97A9_9A1E2F74BEB1__INCLUDED_)

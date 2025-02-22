@@ -9,17 +9,14 @@
 		rev		date	comments
         00      28sep04	initial version
 		01		22apr05	remove undo handling
+        02      22feb25	replace header guard with pragma
 
 		slider with jump to position and default
  
 */
 
-#if !defined(AFX_CLICKSLIDERCTRL_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_)
-#define AFX_CLICKSLIDERCTRL_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 // ClickSliderCtrl.h : header file
 //
 
@@ -84,10 +81,3 @@ inline void CClickSliderCtrl::SetDefaultPos(int Pos)
 {
 	m_DefPos = Pos;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_CLICKSLIDERCTRL_H__810797E4_C040_4E3D_98F7_C75B7C55507D__INCLUDED_)

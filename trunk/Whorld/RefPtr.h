@@ -10,13 +10,13 @@
         00      03jan08	initial version
 		01		14feb08	convert to a template
 		02		28oct08	check for self-assignment
+        03      22feb25	replace header guard with pragma
 
         reference-counting pointer
  
 */
 
-#ifndef CREFPTR_INCLUDED
-#define CREFPTR_INCLUDED
+#pragma once
 
 class CRefObj : public WObject {
 public:
@@ -212,5 +212,3 @@ inline void CRefPtr<T>::Serialize(CArchive& ar)
 		}
 	}
 }
-
-#endif

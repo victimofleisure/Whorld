@@ -13,13 +13,13 @@
 		03		28may10	add CtrlID to notify and cancel
 		04		01may14	widen CtrlID and Code to 32-bit
 		05		25apr18	standardize names
+        06      22feb25	replace header guard with pragma
 
         undoable edit interface
  
 */
 
-#ifndef CUNDOABLE_INCLUDED
-#define CUNDOABLE_INCLUDED
+#pragma once
 
 #include "UndoState.h"
 #include "UndoManager.h"
@@ -109,5 +109,3 @@ inline void CUndoable::ClearUndoHistory()
 {
 	m_UndoManager->DiscardAllEdits();
 }
-
-#endif

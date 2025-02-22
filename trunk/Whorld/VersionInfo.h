@@ -9,18 +9,16 @@
 		rev		date	comments
         00      19jan04	initial version
 		01		23nov07	support Unicode
+        02      22feb25	replace header guard with pragma
 
         retrieve version information
  
 */
 
-#ifndef CVERSIONINFO_INCLUDED
-#define CVERSIONINFO_INCLUDED
+#pragma once
 
 class CVersionInfo {
 public:
 	static	bool	GetFileInfo(VS_FIXEDFILEINFO& Info, LPCTSTR Path);
 	static	bool	GetModuleInfo(VS_FIXEDFILEINFO& Info, LPCTSTR ModuleName);
 };
-
-#endif

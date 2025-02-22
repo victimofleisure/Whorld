@@ -24,12 +24,8 @@
  
 */
 
-#if !defined(AFX_ROWVIEW_H__53C410DA_1109_40AF_B567_7D7918C63980__INCLUDED_)
-#define AFX_ROWVIEW_H__53C410DA_1109_40AF_B567_7D7918C63980__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 // RowView.h : header file
 //
 
@@ -240,8 +236,3 @@ inline int CRowView::GetColumnWidth(int ColIdx) const
 {
 	return(m_ColState[ColIdx].CurWidth);
 }
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ROWVIEW_H__53C410DA_1109_40AF_B567_7D7918C63980__INCLUDED_)

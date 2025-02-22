@@ -14,12 +14,8 @@
  
 */
 
-#if !defined(AFX_ROWDLG_H__A2704F05_FC3B_4FF6_AAEF_9A1FB2527928__INCLUDED_)
-#define AFX_ROWDLG_H__A2704F05_FC3B_4FF6_AAEF_9A1FB2527928__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 // RowDlg.h : header file
 //
 
@@ -107,8 +103,3 @@ inline void CRowDlg::SetRowPos(int Pos)
 {
 	m_RowPos = Pos;
 }
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ROWDLG_H__A2704F05_FC3B_4FF6_AAEF_9A1FB2527928__INCLUDED_)

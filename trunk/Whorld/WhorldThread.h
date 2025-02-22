@@ -15,6 +15,7 @@
 #pragma once
 
 #include "Patch.h"
+#include "RenderThread.h"
 #include "Oscillator.h"
 #include "D2DHelper.h"
 

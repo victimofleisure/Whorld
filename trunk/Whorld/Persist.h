@@ -12,13 +12,13 @@
 		02		31jul05	add double support
 		03		23nov07	support Unicode
 		04		29nov08	add GetWndPlacement
+        05      22feb25	replace header guard with pragma
 
 		make states persistent using registry
  
 */
 
-#ifndef CPERSIST_INCLUDED
-#define	CPERSIST_INCLUDED
+#pragma once
 
 class CPersist {
 public:
@@ -68,5 +68,3 @@ inline BOOL	CPersist::WriteString(LPCTSTR Section, LPCTSTR Entry, LPCTSTR Value)
 {
 	return(AfxGetApp()->WriteProfileString(Section, Entry, Value));
 }
-
-#endif

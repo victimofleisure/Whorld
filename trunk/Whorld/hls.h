@@ -8,13 +8,13 @@
 		revision history:
 		rev		date	comments
         00      22apr05	initial version
+        01      22feb25	replace header guard with pragma
 
         convert between RGB and HLS color space
  
 */
 
-#ifndef CHLS_INCLUDED
-#define	CHLS_INCLUDED
+#pragma once
 
 class CHLS {
 public:
@@ -26,5 +26,3 @@ public:
 private:
 	static	double	mkrgb(double H, double M1, double M2);
 };
-
-#endif

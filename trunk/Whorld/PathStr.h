@@ -9,13 +9,13 @@
 		rev		date	comments
         00      27jul05	initial version
 		01		23nov07	support Unicode
+        02      22feb25	replace header guard with pragma
 
 		wrap useful shell path functions
  
 */
 
-#ifndef CPATHSTR_INCLUDED
-#define CPATHSTR_INCLUDED
+#pragma once
 
 #include "shlwapi.h"
 
@@ -42,5 +42,3 @@ inline CPathStr::CPathStr(const CString& stringSrc) : CString(stringSrc)
 inline CPathStr::CPathStr(LPCTSTR lpsz) : CString(lpsz)
 {
 }
-
-#endif

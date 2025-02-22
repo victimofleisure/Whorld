@@ -11,13 +11,12 @@
         01      18apr06	add FIO_bool
 		02		28jan08	support Unicode
 		03		12feb25	add alias for DPoint
-
+ 
         type-driven formatted I/O
  
 */
 
-#ifndef CFORMATIO_INCLUDED
-#define CFORMATIO_INCLUDED
+#pragma once
 
 enum {
 	FIO_INT,
@@ -39,5 +38,3 @@ public:
 	static	bool	ValToStr(int Type, const PVOID Val, CString& Str, int Precision);
 	static	bool	StrToVal(int Type, LPCTSTR Str, void *Val);
 };
-
-#endif

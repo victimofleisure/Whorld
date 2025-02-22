@@ -22,13 +22,13 @@
 		12		10apr18	remove pack pragma to fix CRefString alignment bug
 		13		25apr18	standardize names
 		14		19feb25	add point float
+        15      22feb25 replace header guard with pragma
 
         undo state container
  
 */
 
-#ifndef CUNDOSTATE_INCLUDED
-#define CUNDOSTATE_INCLUDED
+#pragma once
 
 #include "RefPtr.h"
 
@@ -152,5 +152,3 @@ inline void CUndoState::Empty()
 	CRefPtr<CRefObj>::SetEmpty();
 	memset(&m_Val, 0, sizeof(VALUE));
 }
-
-#endif

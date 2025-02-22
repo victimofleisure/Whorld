@@ -81,6 +81,20 @@ CString CWhorldBase::m_arrMasterName[MASTER_COUNT];
 CString CWhorldBase::m_arrMainName[MAIN_COUNT];
 CString CWhorldBase::m_arrWaveformName[WAVEFORM_COUNT];
 
+const CWhorldBase::GLOBRING CWhorldBase::m_globalRingDefault = {
+	0,	// fRot
+	1,	// fStarRatio
+	0,	// fPinwheel
+	{1, 1},	// ptScale
+	{0, 0},	// ptShift
+	0,	// fEvenCurve
+	0,	// fOddCurve
+	1,	// fEvenShear
+	1,	// fOddShear
+	0,	// fLineWidth
+	0,	// nPolySides
+};
+
 void CWhorldBase::SetParamDefaults(PARAM_TABLE& aParam)
 {
 	static const PARAM_ROW rowDefault = {0, 0, 0, 0, 0.5};

@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		20feb25	add bitmap capture and write
 		02		21feb25	add options
+        03      22feb25	add snapshot capture and load
 
 */
 
@@ -23,6 +24,9 @@
 #include "WhorldDoc.h"
 #include "WhorldView.h"
 #include "OptionsDlg.h"
+#include "Snapshot.h"
+#include "SmartPtr.h"
+#include "PathStr.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -265,7 +269,7 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	bool	bResetCustomizations = true;	// customizations are too confusing during development
 #else
 	// in Release only, reset customizations if resource version changed
-	bool	bResetCustomizations = theApp.m_nNewResourceVersion != theApp.m_nOldResourceVersion;
+	bool	bResetCustomizations = theApp.ResourceVersionChanged();
 #endif
 	if (bResetCustomizations) {	// if resetting UI to its default state
 #if _MFC_VER < 0xb00
@@ -325,9 +329,9 @@ bool CMainFrame::FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& 
 	return true;
 }
 
-void CMainFrame::AddImageExportPath(CString sPath)
+void CMainFrame::AddOutputPath(CString sPath)
 {
-	m_saImageExportPath.Add(sPath);
+	m_saOutputPath.Add(sPath);
 }
 
 // CMainFrame diagnostics
@@ -366,6 +370,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
+	ON_MESSAGE(UWM_SNAPSHOT_CAPTURE, OnSnapshotCapture)
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
 		ON_UPDATE_COMMAND_UI(ID_VIEW_BAR_##name, OnUpdateViewBar##name)
@@ -586,16 +591,23 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 	// Assume this message was posted by the render thread in response to a
 	// capture bitmap command. The message is posted even if capture failed.
 	UNREFERENCED_PARAMETER(wParam);
-	ID2D1Bitmap1* pBitmap = reinterpret_cast<ID2D1Bitmap1*>(lParam);
-	if (!m_saImageExportPath.IsEmpty()) {	// if export path available
-		CString	sExportPath(m_saImageExportPath[0]);	// copy oldest export path
-		m_saImageExportPath.RemoveAt(0);	// remove oldest export path from array
+	CComPtr<ID2D1Bitmap1> pBitmap(reinterpret_cast<ID2D1Bitmap1*>(lParam));
+	if (!m_saOutputPath.IsEmpty()) {	// if output path available
+		CString	sExportPath(m_saOutputPath[0]);	// copy oldest output path
+		m_saOutputPath.RemoveAt(0);	// remove oldest output path from array
 		if (pBitmap != NULL) {	// if capture succeeded
 			theApp.WriteCapturedBitmap(pBitmap, sExportPath);	// export image
 		}
 	}
-	if (pBitmap != NULL) {	// if capture succeeded
-		pBitmap->Release();	// deletes itself when its reference count drops to zero
+	return 0;
+}
+
+LRESULT	CMainFrame::OnSnapshotCapture(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(wParam);
+	CSmartPtr<CSnapshot> pSnapshot(reinterpret_cast<CSnapshot*>(lParam));
+	if (pSnapshot != NULL) {	// if capture succeeded
+		theApp.GetView()->WriteSnapshot(pSnapshot);
 	}
 	return 0;
 }

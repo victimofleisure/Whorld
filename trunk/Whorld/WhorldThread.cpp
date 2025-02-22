@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
         01      20feb25	add bitmap capture and write
+        02      22feb25	add snapshot capture and load
 
 */
 
@@ -20,6 +21,7 @@
 #include "hls.h"
 #include "Statistics.h"
 #include "SaveObj.h"
+#include "Snapshot.h"
 
 #define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { HandleError(hr, __FILE__, __LINE__, __DATE__); return false; }}
 #define DTOF(x) static_cast<float>(x)
@@ -31,38 +33,13 @@ const double CWhorldThread::MIN_STAR_RATIO = 1e-2;
 
 static CStatistics stats(60);//@@@
 
-const CWhorldThread::STATE CWhorldThread::m_stateDefault = {
-	0,	// fRingOffset
-	0,	// fHue
-	{0},	// clrCur
-	{0},	// clrBkgnd
-	{0, 0},	// ptOrigin
-	0,	// fHueLoopPos
-	60,	// HueLoopLength
-	0,	// fHueLoopBase
-};
-
-const CWhorldThread::GLOBRING CWhorldThread::m_globalRingDefault = {
-	0,	// fRot
-	1,	// fStarRatio
-	0,	// fPinwheel
-	{1, 1},	// ptScale
-	{0, 0},	// ptShift
-	0,	// fEvenCurve
-	0,	// fOddCurve
-	1,	// fEvenShear
-	1,	// fOddShear
-	0,	// fLineWidth
-	0,	// nPolySides
-};
-
-CWhorldThread::CWhorldThread() : m_oscOrigin(DEFAULT_FRAME_RATE, 1)
+CWhorldThread::CWhorldThread() 
+	: m_oscOrigin(DEFAULT_FRAME_RATE, 1)
 {
 	SetDefaults();
 	m_params = m_paramDefault;
 	ZeroMemory(&m_globs, sizeof(m_globs));
 	m_globRing = m_globalRingDefault;
-	m_st = m_stateDefault;
 	SetParamDefaults(m_aPrevParam);
 	ZeroMemory(m_aPt, sizeof(m_aPt));
 	m_nFrameCount = 0;
@@ -74,13 +51,19 @@ CWhorldThread::CWhorldThread() : m_oscOrigin(DEFAULT_FRAME_RATE, 1)
 	m_bCapturing = false;
 	m_bFlushHistory = false;
 	m_bCopying = false;
-	m_nCopyCount = 1;
-	m_nCopySpread = 0;
+	m_fRingOffset = 0;
+	m_fHue = 0;
+	m_clrRing = D2D1::ColorF(0);
+	m_clrBkgnd = D2D1::ColorF(0);
+	m_fHueLoopPos = 0;
+	m_fHueLoopBase = 0;
 	m_fCopyTheta = 0;
 	m_fCopyDelta = 0;
-	m_nFrameRate = DEFAULT_FRAME_RATE;
+	m_ptOrigin = DPoint(0, 0);
 	m_ptOriginTarget = DPoint(0, 0);
+	m_fZoom = 1;
 	m_fZoomTarget = 1;
+	m_nFrameRate = DEFAULT_FRAME_RATE;
 }
 
 bool CWhorldThread::CreateUserResources()
@@ -96,6 +79,12 @@ void CWhorldThread::DestroyUserResources()
 {
 	m_pBkgndBrush.Release();
 	m_pDrawBrush.Release();
+}
+
+void CWhorldThread::OnResize()
+{
+	m_szClient = m_pD2DDeviceContext->GetSize();
+	ResizeCanvas();
 }
 
 bool CWhorldThread::OnThreadCreate()
@@ -145,19 +134,20 @@ inline void CWhorldThread::UpdateHue(double DeltaTick)
 {
 	if (m_main.bLoopHue) {
 		if (m_master.fHueLoopLength) {
-			m_st.fHueLoopPos += m_params.fColorSpeed * DeltaTick;
-			m_st.fHue = m_st.fHueLoopBase + 
-				Reflect(m_st.fHueLoopPos, m_master.fHueLoopLength);
+			m_fHueLoopPos += m_params.fColorSpeed * DeltaTick;
+			m_fHue = m_fHueLoopBase + 
+				Reflect(m_fHueLoopPos, m_master.fHueLoopLength);
 		} else
-			m_st.fHue = m_st.fHueLoopBase;
+			m_fHue = m_fHueLoopBase;
 	} else
-		m_st.fHue += m_params.fColorSpeed * DeltaTick;
-	m_st.fHue = Wrap(m_st.fHue, 360);
+		m_fHue += m_params.fColorSpeed * DeltaTick;
+	m_fHue = Wrap(m_fHue, 360);
 }
 
 void CWhorldThread::ResizeCanvas()
 {
-	double	fScale = m_master.fCanvasScale * m_master.fZoom;
+	m_fZoom = m_master.fZoom;
+	double	fScale = m_master.fCanvasScale * m_fZoom;
 	CKD2DRectF	rCanvas(0, 0, DTOF(m_szClient.width * fScale), DTOF(m_szClient.height * fScale));
 	rCanvas.OffsetRect((m_szClient.width - rCanvas.Width()) / 2, (m_szClient.height - rCanvas.Height()) / 2);
 	m_rCanvas = rCanvas;
@@ -182,18 +172,18 @@ void CWhorldThread::AddRing()
 	m_params.fLightness = CLAMP(m_params.fLightness, 0, 1);
 	m_params.fSaturation = CLAMP(m_params.fSaturation, 0, 1);
 	double	fR, fG, fB;
-	CHLS::hls2rgb(m_st.fHue, m_params.fLightness, m_params.fSaturation, fR, fG, fB);
-	m_st.clrRing = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
+	CHLS::hls2rgb(m_fHue, m_params.fLightness, m_params.fSaturation, fR, fG, fB);
+	m_clrRing = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
 	RING	ring;
 	bool	bReverse = m_params.fRingGrowth < 0;
-	double	fRingOffset = bReverse ? -m_st.fRingOffset : m_st.fRingOffset;
+	double	fRingOffset = bReverse ? -m_fRingOffset : m_fRingOffset;
 	ring.fRotDelta = m_params.fRotateSpeed;
 	ring.fRot = ring.fRotDelta * fRingOffset - ring.fRotDelta * m_fNewGrowth;
 	if (m_params.fRingGrowth >= 0)
-		ring.fRadius = m_st.fRingOffset - m_fNewGrowth;
+		ring.fRadius = m_fRingOffset - m_fNewGrowth;
 	else {	// if inward growth, start at outermost edge of canvas
 		ring.fRadius = (max(m_rCanvas.Width(), m_rCanvas.Height()) / 2 
-			/ m_master.fZoom - m_st.fRingOffset) - m_fNewGrowth;
+			/ m_fZoom - m_fRingOffset) - m_fNewGrowth;
 	}
 	// don't let rings get too flat, or they'll never die
 	double	fAspect = max(pow(2, m_params.fAspectRatio), MIN_ASPECT_RATIO);
@@ -208,7 +198,7 @@ void CWhorldThread::AddRing()
 		ring.ptShift.y += cos(m_fCopyTheta) * m_master.fSpread;
 		m_fCopyTheta += m_fCopyDelta;
 	}
-	ring.clrCur = m_st.clrRing;
+	ring.clrCur = m_clrRing;
 	ring.nSides = static_cast<short>(Round(m_params.fPolySides));
 	ring.bDelete = false;
 	// don't let stars get too thin, or they'll never die
@@ -219,10 +209,10 @@ void CWhorldThread::AddRing()
 	ring.fPinwheel = M_PI / ring.nSides * m_params.fPinwheel;
 	ring.fLineWidth = DTOF(m_params.fLineWidth);
 	ring.nDrawMode = static_cast<short>(m_main.nDrawMode);
-	ring.fHue = m_st.fHue;
+	ring.fHue = m_fHue;
 	ring.fLightness = m_params.fLightness;
 	ring.fSaturation = m_params.fSaturation;
-	ring.ptOrigin = m_st.ptOrigin;
+	ring.ptOrigin = m_ptOrigin;
 	ring.fEvenCurve = m_params.fEvenCurve;
 	ring.fOddCurve = m_params.fOddCurve / ring.fStarRatio;
 	ring.fEvenShear = m_params.fEvenShear;
@@ -295,18 +285,18 @@ void CWhorldThread::UpdateOrigin()
 		}
 		break;
 	}
-	DPoint	ptOrg(m_st.ptOrigin);
-	ptOrg += (m_ptOriginTarget - ptOrg) * m_master.fDamping;
-	m_st.ptOrigin = ptOrg;
+	m_ptOrigin += (m_ptOriginTarget - m_ptOrigin) * m_master.fDamping;
 }
 
 void CWhorldThread::UpdateZoom()
 {
-	m_master.fZoom += (m_fZoomTarget - m_master.fZoom) * m_master.fDamping;
+	m_fZoom += (m_fZoomTarget - m_fZoom) * m_master.fDamping;
 }
 
 void CWhorldThread::TimerHook()
 {
+	int	nRings = Round(m_master.fRings);
+	m_nMaxRings = nRings >= MAX_RINGS ? INT_MAX : nRings;
 	if (m_main.nOrgMotion) {
 		UpdateOrigin();
 	}
@@ -317,11 +307,13 @@ void CWhorldThread::TimerHook()
 		afPrevClock[iParam] = m_aOsc[iParam].GetClock();
 		m_aOsc[iParam].SetTimerFreq(m_nFrameRate);
 	}
-	if (m_bFlushHistory) {
-		m_aPrevParam = m_aParam;	// suppress interpolation
-		for (int iParam = 0; iParam < PARAM_COUNT; iParam++)
-			m_aOsc[iParam].SetFreq(m_aParam.row[iParam].fFreq);
-		m_bFlushHistory = false;
+	if (m_bFlushHistory) {	// if flushing history
+		m_aPrevParam = m_aParam;	// suppress oscillator interpolation
+		for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
+			// set parameter's oscillator frequency without compensating phase
+			m_aOsc[iParam].SetFreqSync(m_aParam.row[iParam].fFreq);
+		}
+		m_bFlushHistory = false;	// reset flushing history flag
 	}
 	static const int RG = PARAM_RingGrowth;
 	const PARAM_ROW&	rowRG = m_aParam.row[RG];
@@ -329,8 +321,8 @@ void CWhorldThread::TimerHook()
 	m_fNewGrowth = (rowRG.fVal + m_aOsc[RG].GetVal() * rowRG.fAmp) * fSpeed;
 	double	fAbsGrowth = fabs(m_fNewGrowth);
 	double	fPrevFracTick = 0;
-	while (m_st.fRingOffset > 0) {
-		double	fFracTick = fAbsGrowth ? (1 - m_st.fRingOffset / fAbsGrowth) : 0;
+	while (m_fRingOffset > 0) {
+		double	fFracTick = fAbsGrowth ? (1 - m_fRingOffset / fAbsGrowth) : 0;
 		for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
 			const PARAM_ROW&	prev = m_aPrevParam.row[iParam];
 			const PARAM_ROW&	cur = m_aParam.row[iParam];
@@ -343,10 +335,10 @@ void CWhorldThread::TimerHook()
 		m_params.fColorSpeed *= fSpeed;
 		UpdateHue(fFracTick - fPrevFracTick);
 		AddRing();
-		m_st.fRingOffset -= m_params.fRingSpacing;
+		m_fRingOffset -= m_params.fRingSpacing;
 		fPrevFracTick = fFracTick;
 	}
-	m_st.fRingOffset += fAbsGrowth;
+	m_fRingOffset += fAbsGrowth;
 	m_params.fRingGrowth = m_fNewGrowth;
 	m_aOsc[RG].SetClock(afPrevClock[RG] + 1);
 	for (int iParam = 1; iParam < PARAM_COUNT; iParam++) {	// skip ring growth; assume it's first row
@@ -363,10 +355,10 @@ void CWhorldThread::TimerHook()
 	m_params.fBkLightness = CLAMP(m_params.fBkLightness, 0, 1);
 	m_params.fBkSaturation = CLAMP(m_params.fBkSaturation, 0, 1);
 	CHLS::hls2rgb(m_params.fBkHue, m_params.fBkLightness, m_params.fBkSaturation, fR, fG, fB);
-	m_st.clrBkgnd = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
+	m_clrBkgnd = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
 	// update rings
 	POSITION	posNext = m_aRing.GetHeadPosition();
-	DPOINT	ptPrevOrg = m_st.ptOrigin;
+	DPoint	ptPrevOrg(m_ptOrigin);
 	double	fTrail = 1 - m_master.fTrail;
 	bool	bReverse = m_params.fRingGrowth < 0;
 	POSITION	posCur = NULL;
@@ -463,15 +455,11 @@ __forceinline void CWhorldThread::DrawOutline(ID2D1PathGeometry* pPath, const RI
 bool CWhorldThread::OnDraw()
 {
 //	CBenchmark b;//@@@
-	int	nRings = Round(m_master.fRings);
-	m_nMaxRings = nRings >= MAX_RINGS ? INT_MAX : nRings;
 	if (!m_bIsPaused) {	// if unpaused
 		TimerHook();
 	}
-	m_pD2DDeviceContext->Clear(m_st.clrBkgnd);	// clear to specified color
-	m_pBkgndBrush->SetColor(m_st.clrBkgnd);
-	m_szClient = m_pD2DDeviceContext->GetSize();
-	ResizeCanvas();
+	m_pD2DDeviceContext->Clear(m_clrBkgnd);	// clear to specified color
+	m_pBkgndBrush->SetColor(m_clrBkgnd);
 	bool	bConvex = m_main.bConvex;
 	POSITION	posNext = bConvex ? m_aRing.GetTailPosition() : m_aRing.GetHeadPosition();
 	D2D1_COLOR_F	clrPrev;
@@ -493,8 +481,8 @@ bool CWhorldThread::OnDraw()
 		double	fLineWidth = ring.fLineWidth + m_globRing.fLineWidth;
 		DPoint	ptOrg(ring.ptOrigin);
 		if (m_bCapturing) {	// if capturing a bitmap
-			fLineWidth *= m_master.fZoom;	// apply special scaling
-			ptOrg *= m_master.fZoom;
+			fLineWidth *= m_fZoom;	// apply special scaling
+			ptOrg *= m_fZoom;
 		}
 		CKD2DRectF	rBounds(m_rCanvas);
 		rBounds.OffsetRect(DTOF(ptOrg.x), DTOF(ptOrg.y));
@@ -502,11 +490,11 @@ bool CWhorldThread::OnDraw()
 		nSides = max(nSides, 1);
 		double	fRot = ring.fRot + m_globRing.fRot;
 		double	afRot[2] = {fRot, fRot + ring.fPinwheel + M_PI / nSides * m_globRing.fPinwheel};
-		double	fRad = ring.fRadius * m_master.fZoom;
+		double	fRad = ring.fRadius * m_fZoom;
 		double	arRad[2] = {fRad, fRad * ring.fStarRatio * m_globRing.fStarRatio};
 		DPoint	ptScale(DPoint(ring.ptScale) * m_globRing.ptScale);
 		DPoint	aptRad[2] = {ptScale * arRad[0], ptScale * arRad[1]};
-		DPoint	ptShift((DPoint(ring.ptShift) * m_master.fZoom + DPoint(m_globRing.ptShift) * fRad) 
+		DPoint	ptShift((DPoint(ring.ptShift) * m_fZoom + DPoint(m_globRing.ptShift) * fRad) 
 			+ ptOrg + ptWndCenter);
 		double	fDelta = M_PI / nSides;
 		int		nVertices = nSides * 2;	// two vertices per side
@@ -620,7 +608,7 @@ void CWhorldThread::OnMasterPropChange(int iProp)
 	case MASTER_CanvasScale:
 	case MASTER_Zoom:
 		ResizeCanvas();
-		m_fZoomTarget = m_master.fZoom;	// disable damping
+		m_fZoomTarget = m_fZoom;	// disable damping
 		break;
 	case MASTER_Tempo:
 		OnTempoChange();
@@ -727,7 +715,7 @@ void CWhorldThread::SetMainProp(int iProp, const VARIANT_PROP& prop)
 	OnMainPropChange(iProp);
 }
 
-void CWhorldThread::SetPatch(CPatch *pPatch)
+void CWhorldThread::SetPatch(const CPatch *pPatch)
 {
 	// assume dynamic allocation: recipient is responsible for deletion
 	ASSERT(pPatch != NULL);	// patch pointer had better not be null
@@ -736,6 +724,7 @@ void CWhorldThread::SetPatch(CPatch *pPatch)
 	delete pPatch;	// delete patch data buffer
 	OnMasterPropChange();	// handle master property changes
 	OnMainPropChange();	// handle main property changes
+	m_bFlushHistory = true;	// suppress interpolation to avoid glitch
 }
 
 bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
@@ -777,7 +766,7 @@ void CWhorldThread::SetZoom(double fZoom, bool bDamping)
 {
 	m_fZoomTarget = fZoom;
 	if (!bDamping) {	// if not damping
-		m_master.fZoom = fZoom;	// go to target
+		m_fZoom = fZoom;	// go to target
 	}
 }
 
@@ -786,7 +775,7 @@ void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
 	DPoint	ptClientOrigin((ptOrigin - 0.5) * GetClientSize());
 	m_ptOriginTarget = ptClientOrigin;
 	if (!bDamping) {	// if not damping
-		m_st.ptOrigin = ptClientOrigin;	// go to target
+		m_ptOrigin = ptClientOrigin;	// go to target
 	}
 }
 
@@ -795,7 +784,7 @@ DPoint CWhorldThread::GetOrigin() const
 	if (!m_szClient.width || !m_szClient.height) {
 		return DPoint(0, 0);	// avoid divide by zero
 	}
-	return DPoint(m_st.ptOrigin) / GetClientSize() + 0.5;
+	return DPoint(m_ptOrigin) / GetClientSize() + 0.5;
 }
 
 bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)
@@ -821,18 +810,20 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 	{
 		CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set pause state
 		CSaveObj<bool>	saveCapturing(m_bCapturing, true);	// save and capturing state
-		CSaveObj<double>	saveZoom(m_master.fZoom);	// save zoom
+		CSaveObj<double>	saveZoom(m_fZoom);	// save zoom
 		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
 			double	fScaleWidth = szImage.width / m_szClient.width;
 			double	fScaleHeight = szImage.height / m_szClient.height;
 			double	fScaleToFit = min(fScaleWidth, fScaleHeight);
-			m_master.fZoom *= fScaleToFit; 
+			m_fZoom *= fScaleToFit; 
 		}
+		OnResize();	// handle size change
 		OnDraw();	// draw as usual; geometry is frozen because we're paused
 		// state is restored automatically when CSaveObj instances goes out of scope
 	}
 	m_pD2DDeviceContext->EndDraw();	// end drawing
 	m_pD2DDeviceContext->SetTarget(m_pTargetBitmap);	// restore the swap chain render target
+	OnResize();	// handle size change
 	//
 	// 3) Create the CPU-readable bitmap.
 	//
@@ -903,6 +894,53 @@ bool CWhorldThread::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImageP
 	return true;
 }
 
+bool CWhorldThread::CaptureSnapshot()
+{
+	CSnapshot *pSnapshot = new CSnapshot;
+	if (pSnapshot == NULL) {	// if allocation failed
+		CHECK(E_OUTOFMEMORY);	// Ran out of memory
+	}
+	// save draw state members
+	pSnapshot->m_data.drawState.clrBkgnd = m_clrBkgnd;
+	pSnapshot->m_data.drawState.fZoom = m_fZoom;
+	pSnapshot->m_data.drawState.bConvex = m_main.bConvex;
+	// save ring list
+	CSnapshot::CRingArray&	aSnapRing = pSnapshot->m_aRing;
+	aSnapRing.FastSetSize(m_aRing.GetCount());
+	POSITION	posNext = m_aRing.GetHeadPosition();
+	int	iRing = 0;
+	while (posNext != NULL) {	// for each ring in list
+		aSnapRing[iRing] = m_aRing.GetNext(posNext);	// copy to snapshot ring array
+		iRing++;
+	}
+	pSnapshot->m_globRing = m_globRing;	// save global ring data
+	LPARAM	lParam = reinterpret_cast<LPARAM>(pSnapshot);
+	AfxGetMainWnd()->PostMessage(UWM_SNAPSHOT_CAPTURE, 0, lParam);	// post pointer to main window
+	return true;
+}
+
+bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
+{
+	if (pSnapshot == NULL) {	// if null snapshot pointer
+		CHECK(E_INVALIDARG);	// One or more arguments are invalid
+	}
+	// restore draw state members
+	m_clrBkgnd = pSnapshot->m_data.drawState.clrBkgnd;
+	m_fZoom = pSnapshot->m_data.drawState.fZoom;
+	m_main.bConvex = pSnapshot->m_data.drawState.bConvex;
+	// restore ring list
+	m_aRing.RemoveAll();	// empty ring list
+	CSnapshot::CRingArray&	aSnapRing = const_cast<CSnapshot*>(pSnapshot)->m_aRing;
+	int	nRings = aSnapRing.GetSize();	// number of snapshot rings
+	for (int iRing = 0; iRing < nRings; iRing++) {	// for each snapshot ring
+		m_aRing.AddTail(aSnapRing[iRing]);	// add ring to list
+	}
+	m_globRing = pSnapshot->m_globRing;	// restore global ring data
+	m_bIsPaused = true;	// pause display; pointless otherwise
+	delete pSnapshot;	// assume snapshot was allocated on heap
+	return true;
+}
+
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 {
 #if _DEBUG && RENDER_CMD_NATTER
@@ -957,6 +995,12 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_CAPTURE_BITMAP:
 		CaptureBitmap(cmd.m_nParam, cmd.m_prop.szVal);
+		break;
+	case RC_CAPTURE_SNAPSHOT:
+		CaptureSnapshot();
+		break;
+	case RC_DISPLAY_SNAPSHOT:
+		DisplaySnapshot(static_cast<CSnapshot*>(cmd.m_prop.byref));
 		break;
 	default:
 		ASSERT(0);	// missing command case

@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
         01      20feb25	add bitmap capture and write
+        02      22feb25	add snapshot capture and load
 
 */
 
@@ -18,6 +19,8 @@
 #include "RenderThread.h"
 #include "Oscillator.h"
 #include "D2DHelper.h"
+
+class CSnapshot;
 
 class CWhorldThread : protected CPatch, public CRenderThread {
 public:
@@ -36,54 +39,6 @@ public:
 
 protected:
 // Types
-	struct RING {
-		DPOINT	ptShiftDelta;	// additional shear per tick
-		double	fRotDelta;		// additional rotation per tick
-		double	fHue;			// current hue
-		double	fLightness;		// current lightness
-		double	fSaturation;	// current saturation
-		// mini-ring begins here
-		double	fRot;			// rotation for all vertices, in radians
-		double	fRadius;		// radius of even vertices, in pixels
-		DPOINT	ptScale;		// anisotropic scaling
-		DPOINT	ptShift;		// shear, in pixels
-		double	fStarRatio;		// ratio of odd radii to even radii
-		short	nSides;			// polygon's number of sides
-		short	nDrawMode;		// see draw mode enum
-		bool	bDelete;		// true if ring should be deleted
-		bool	bSkipFill;		// true if ring should be skipped in fill mode
-		D2D1_COLOR_F	clrCur;	// current color
-		double	fPinwheel;		// additional rotation for odd vertices, in radians
-		double	fLineWidth;		// line width, in pixels
-		DPOINT	ptOrigin;		// origin in client coords relative to window center
-		double	fEvenCurve;		// even vertex curvature, as multiple of radius
-		double	fOddCurve;		// odd vertex curvature, as multiple of radius
-		double	fEvenShear;		// even vertex curve point asymmetry ratio
-		double	fOddShear;		// odd vertex curve point asymmetry ratio
-	};
-	struct GLOBRING {
-		double	fRot;			// rotation for all vertices, in radians
-		double	fStarRatio;		// ratio of odd radii to even radii
-		double	fPinwheel;		// additional rotation for odd vertices
-		DPOINT	ptScale;		// anisotropic scaling
-		DPOINT	ptShift;		// shear, in pixels
-		double	fEvenCurve;		// even vertex curvature, as multiple of radius
-		double	fOddCurve;		// odd vertex curvature, as multiple of radius
-		double	fEvenShear;		// even vertex curve point asymmetry ratio
-		double	fOddShear;		// odd vertex curve point asymmetry ratio
-		double	fLineWidth;		// line width, in pixels
-		int		nPolySides;		// number of sides
-	};
-	struct STATE {
-		double	fRingOffset;	// size of gap since last ring, in pixels
-		double	fHue;			// hue of new rings, in degrees
-		D2D1_COLOR_F	clrRing;	// color of new rings
-		D2D1_COLOR_F	clrBkgnd;	// background color
-		DPOINT	ptOrigin;		// distance from origin to window center, in DIPs
-		double	fHueLoopPos;	// hue loop position, in degrees
-		double	fHueLoopLength;	// length of hue loop, in degrees
-		double	fHueLoopBase;	// hue loop's base hue, in degrees
-	};
 
 // Constants
 	enum {
@@ -94,8 +49,6 @@ protected:
 	};
 	static const double MIN_ASPECT_RATIO;
 	static const double MIN_STAR_RATIO;
-	static const STATE	m_stateDefault;	// default state
-	static const GLOBRING	m_globalRingDefault;	// default global ring
 
 // Data members
 	CComPtr<ID2D1SolidColorBrush>	m_pBkgndBrush;	// background brush
@@ -103,7 +56,6 @@ protected:
 	PARAM_VALS	m_params;	// parameters
 	PARAM_VALS	m_globs;	// global parameters
 	GLOBRING	m_globRing;	// global ring offsets
-	STATE	m_st;			// current state
 	CList<RING, RING&>	m_aRing;	// array of rings
 	COscillator	m_aOsc[PARAM_COUNT];	// array of oscillators
 	PARAM_TABLE	m_aPrevParam;	// previous parameter table
@@ -116,21 +68,28 @@ protected:
 	int		m_nMaxRings;	// maximum number of rings
 	bool	m_bIsPaused;	// if true, we're paused
 	bool	m_bCapturing;	// if true, we're capturing an image
-	bool	m_bFlushHistory;	// if true, next TimerHook won't interpolate
+	bool	m_bFlushHistory;	// if true, next TimerHook won't interpolate oscillators
 	bool	m_bCopying;		// if true, add a rotating skew to new ring origins
-	int		m_nCopyCount;	// number of copies; must be > 0
-	int		m_nCopySpread;	// copy rotation radius, in pixels
+	double	m_fRingOffset;	// size of gap since last ring, in pixels
+	double	m_fHue;			// hue of new rings, in degrees
+	D2D1_COLOR_F	m_clrRing;	// color of new rings
+	D2D1_COLOR_F	m_clrBkgnd;	// background color
+	double	m_fHueLoopPos;	// hue loop position, in degrees
+	double	m_fHueLoopBase;	// hue loop's base hue, in degrees
 	double	m_fCopyTheta;	// copy rotation angle, in radians
 	double	m_fCopyDelta;	// copy rotation angle increment, in radians per frame
-	DWORD	m_nFrameRate;	// current frame rate in Hertz
-	DPoint	m_ptOriginTarget;	// target point for damped origin motion
 	CTriggerOscillator	m_oscOrigin;	// trigger oscillator for origin motion
+	DPoint	m_ptOrigin;		// distance from origin to window center, in DIPs
+	DPoint	m_ptOriginTarget;	// target point for damped origin motion
+	double	m_fZoom;		// current zoom, as a scaling factor
 	double	m_fZoomTarget;	// target zoom for damped zooming
+	DWORD	m_nFrameRate;	// current frame rate in Hertz
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
 	virtual	bool	CreateUserResources();
 	virtual	void	DestroyUserResources();
+	virtual void	OnResize();
 	virtual bool	OnThreadCreate();
 	virtual bool	OnDraw();
 	virtual void	OnRenderCommand(const CRenderCmd& cmd);
@@ -144,7 +103,7 @@ protected:
 	void	SetPulseWidth(int iParam, double fPW);
 	void	SetMasterProp(int iProp, double fVal);
 	void	SetMainProp(int iProp, const VARIANT_PROP& prop);
-	void	SetPatch(CPatch *pPatch);
+	void	SetPatch(const CPatch *pPatch);
 	bool	SetFrameRate(DWORD nFrameRate);
 	void	SetPause(bool bIsPaused);
 	void	SingleStep();
@@ -154,6 +113,8 @@ protected:
 	void	SetOrigin(DPoint ptOrigin, bool bDamping);
 	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
 	void	CaptureBitmap(UINT nFlags, SIZE szImage);
+	bool	CaptureSnapshot();
+	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
 
 // Helpers
 	static void		HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);

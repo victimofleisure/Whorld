@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		20feb25	add file export
 		02		21feb25	add options
+        03      22feb25	add snapshot capture and load
 
 */
 
@@ -24,6 +25,8 @@
 #include "MainFrm.h"
 #include "PathStr.h"
 #include "ExportDlg.h"
+#include "Snapshot.h"
+#include "SmartPtr.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -32,6 +35,11 @@
 // CWhorldView
 
 IMPLEMENT_DYNCREATE(CWhorldView, CView)
+
+const LPCTSTR CWhorldView::m_pszExportExt = _T("png");
+const LPCTSTR CWhorldView::m_pszExportFilter = _T("PNG Files (*.png)|*.png|All Files (*.*)|*.*||");
+const LPCTSTR CWhorldView::m_pszSnapshotExt = _T("whs");
+const LPCTSTR CWhorldView::m_pszSnapshotFilter = _T("Snapshot Files (*.whs)|*.whs|All Files (*.*)|*.*||");
 
 // CWhorldView construction/destruction
 
@@ -103,24 +111,8 @@ void CWhorldView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	theApp.GetMainFrame()->OnUpdate(pSender, lHint, pHint);
 }
 
-bool CWhorldView::PromptForExportData(CString& sExportPath)
+bool CWhorldView::MakeExportPath(CString& sExportPath, LPCTSTR pszExt)
 {
-	static const LPCTSTR pszPngFilter = _T("PNG Files (*.png)|All Files (*.*)|*.*||");
-	CFileDialog	fd(false, _T("png"), NULL, OFN_OVERWRITEPROMPT, pszPngFilter);
-	if (fd.DoModal() != IDOK) {	// display folder dialog
-		return false;	// user canceled
-	}
-	sExportPath = fd.GetPathName();
-	CExportDlg	dlg;
-	if (dlg.DoModal() != IDOK) {	// display export options dialog
-		return false;	// user canceled
-	}
-	return true;
-}
-
-bool CWhorldView::MakeExportPath(CString& sExportPath)
-{
-	static const LPCTSTR pszPngExt = _T(".png");
 	CPathStr	sPath(theApp.m_options.m_Export_sImageFolder);
 	if (!PathFileExists(sPath)) {	// if export image folder doesn't exist
 		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
@@ -128,7 +120,26 @@ bool CWhorldView::MakeExportPath(CString& sExportPath)
 	}
 	// automatically assign a filename based on date and time
 	sPath.Append(theApp.GetTimestampFileName());	// append filename to folder
-	sExportPath = sPath + pszPngExt;	// append file extension to filename
+	sExportPath = sPath + '.' + CString(pszExt);	// append file extension to filename
+	return true;
+}
+
+bool CWhorldView::WriteSnapshot(CSnapshot *pSnapshot)
+{
+	ASSERT(pSnapshot != NULL);
+	CString	sSnapshotPath;
+	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
+	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+		CFileDialog	fd(false, m_pszSnapshotExt, NULL, OFN_OVERWRITEPROMPT, m_pszSnapshotFilter);
+		if (fd.DoModal() != IDOK) {	// display file dialog
+			return false;	// user canceled
+		}
+		sSnapshotPath = fd.GetPathName();
+	} else {	// not prompting
+		if (!CWhorldView::MakeExportPath(sSnapshotPath, m_pszSnapshotExt))	// generate path
+			return false;	// unable to generate path
+	}
+	pSnapshot->Write(sSnapshotPath);
 	return true;
 }
 
@@ -166,6 +177,8 @@ BEGIN_MESSAGE_MAP(CWhorldView, CView)
 	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
 	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, OnImageRandomPhase)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
+	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, &CWhorldView::OnFileTakeSnapshot)
+	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, &CWhorldView::OnFileLoadSnapshot)
 END_MESSAGE_MAP()
 
 // CWhorldView message handlers
@@ -242,18 +255,45 @@ void CWhorldView::OnFileExport()
 	CString	sExportPath;
 	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
 	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
-		// prompt user for destination folder, filename, and export options
-		if (!PromptForExportData(sExportPath))
+		// prompt user for export path
+		CFileDialog	fd(false, m_pszExportExt, NULL, OFN_OVERWRITEPROMPT, m_pszExportFilter);
+		if (fd.DoModal() != IDOK) {	// display file dialog
 			return;	// user canceled
+		}
+		sExportPath = fd.GetPathName();
+		// prompt user for export options
+		CExportDlg	dlg;
+		if (dlg.DoModal() != IDOK) {	// display export options dialog
+			return;	// user canceled
+		}
 	}
 	// render thread captures bitmap and posts it to our main window for writing
 	CRenderCmd	cmd(RC_CAPTURE_BITMAP, theApp.m_options.GetExportFlags());
 	cmd.m_prop.szVal = theApp.m_options.GetExportImageSize();
 	theApp.PushRenderCommand(cmd);	// start capture ASAP in case we're unpaused
 	if (sExportPath.IsEmpty()) {	// if export path is unspecified
-		if (!MakeExportPath(sExportPath))	// generate path from date and time
+		if (!MakeExportPath(sExportPath, m_pszExportExt))	// generate path
 			return;	// unable to generate path
 	}
-	theApp.GetMainFrame()->AddImageExportPath(sExportPath);
+	theApp.GetMainFrame()->AddOutputPath(sExportPath);
 	// bitmap capture message may already be waiting for us in message queue
+}
+
+void CWhorldView::OnFileTakeSnapshot()
+{
+	CRenderCmd	cmd(RC_CAPTURE_SNAPSHOT);
+	theApp.PushRenderCommand(cmd);
+}
+
+void CWhorldView::OnFileLoadSnapshot()
+{
+	CFileDialog	fd(true, m_pszSnapshotExt, NULL, OFN_HIDEREADONLY, m_pszSnapshotFilter);
+	if (fd.DoModal() != IDOK) {	// display file dialog
+		return;	// user canceled
+	}
+	CSmartPtr<CSnapshot>	pSnapshot(new CSnapshot);
+	pSnapshot->Read(fd.GetPathName());
+	CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
+	cmd.m_prop.byref = pSnapshot.Detach();
+	theApp.PushRenderCommand(cmd);
 }

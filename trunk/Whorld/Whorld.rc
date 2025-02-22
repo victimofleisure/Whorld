@@ -138,6 +138,8 @@ BEGIN
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
         MENUITEM "&Export...",                  ID_FILE_EXPORT
+        MENUITEM "&Take Snapshot...",           ID_FILE_TAKE_SNAPSHOT
+        MENUITEM "&Load Snapshot...",           ID_FILE_LOAD_SNAPSHOT
         MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
@@ -263,6 +265,7 @@ BEGIN
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_FILE_TAKE_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
     VK_TAB,         ID_IMAGE_CONVEX,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_IMAGE_FILL,          VIRTKEY, NOINVERT
     VK_F5,          ID_IMAGE_MIRROR,        VIRTKEY, NOINVERT
@@ -272,14 +275,15 @@ BEGIN
     VK_F7,          ID_IMAGE_OUTLINE,       VIRTKEY, NOINVERT
     VK_F9,          ID_IMAGE_RANDOM_PHASE,  VIRTKEY, NOINVERT
     VK_BACK,        ID_IMAGE_REVERSE,       VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
+    "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
     "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_DELETE,      ID_WINDOW_CLEAR,        VIRTKEY, CONTROL, NOINVERT
     VK_F12,         ID_WINDOW_DETACH,       VIRTKEY, CONTROL, NOINVERT
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
-    "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
+    "L",            ID_FILE_LOAD_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -470,6 +474,7 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER "Invalid export image folder."
     IDS_APP_ERR_CANT_CREATE_RENDER_THREAD "Can't create render thread."
     IDS_APP_ERR_CANT_CREATE_RENDER_WINDOW "Can't create render window."
     IDS_APP_ERR_CANT_DETACH_RENDER_WINDOW "Can't detach render window."
@@ -477,11 +482,11 @@ BEGIN
     IDS_APP_ERR_CANT_GET_MONITOR_INFO "Can't get monitor info."
     IDS_APP_ERR_CANT_REMOVE_KEYBOARD_HOOK "Can't remove keyboard hook."
     IDS_APP_ERR_CANT_SET_KEYBOARD_HOOK "Can't set keyboard hook."
-    IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS "Too many render commands."
 END
 
 STRINGTABLE
 BEGIN
+    IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS "Too many render commands."
     IDS_APP_LICENSE         "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA."
     IDS_APP_UNKNOWN_SYSTEM_ERROR "Unknown system error %d (0x%X)"
     IDS_BAR_Master          "Master"
@@ -497,11 +502,11 @@ BEGIN
     IDS_MAIN_InvertColor    "Invert Color"
     IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
-    IDS_MAIN_OrgMotion      "Origin Motion"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_OrgMotion      "Origin Motion"
     IDS_MAIN_Origin         "Origin"
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
@@ -515,18 +520,21 @@ BEGIN
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
+    IDS_OPT_DESC_Export_bPromptUser 
+                            "Prompt user for destination folder, filename, and options"
     IDS_OPT_DESC_Export_bScaleToFit 
                             "If true, scale drawing to fit within image size, otherwise drawing is cropped"
-    IDS_OPT_DESC_Export_bUseViewSize 
-                            "If true, use view size as image size, otherwise get image size from options"
-    IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Export_bUseViewSize 
+                            "If true, use view size as image size, otherwise get image size from options"
+    IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
     IDS_OPT_GROUP_Export    "Export"
+    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
@@ -537,13 +545,13 @@ BEGIN
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
-    IDS_PARAM_EvenCurve     "Even Curve"
-    IDS_PARAM_EvenShear     "Even Shear"
-    IDS_PARAM_Lightness     "Lightness"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_EvenCurve     "Even Curve"
+    IDS_PARAM_EvenShear     "Even Shear"
+    IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
@@ -557,20 +565,13 @@ BEGIN
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
+END
+
+STRINGTABLE
+BEGIN
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_NAME_STATIC    "Name"
-END
-
-STRINGTABLE
-BEGIN
-    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
-    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
-    ID_HELP_FINDER          "List help topics\nHelp Topics"
-END
-
-STRINGTABLE
-BEGIN
     IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
@@ -584,19 +585,22 @@ BEGIN
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
-    IDS_WAVE_SQUARE         "Square"
-    IDS_WAVE_TRIANGLE       "Triangle"
-    IDS_WINDOW_RESET_LAYOUT_WARN 
-                            "Reset all windows to their default layout? This action can't be undone, and the application will restart."
 END
 
 STRINGTABLE
 BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+    ID_HELP_FINDER          "List help topics\nHelp Topics"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_WAVE_SQUARE         "Square"
+    IDS_WAVE_TRIANGLE       "Triangle"
+    IDS_WINDOW_RESET_LAYOUT_WARN 
+                            "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
-    IDS_OPT_DESC_Export_bPromptUser 
-                            "Prompt user for destination folder, filename, and options"
-    IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER "Invalid export image folder."
 END
 
 STRINGTABLE
@@ -605,6 +609,8 @@ BEGIN
     ID_EDIT_DELETE          "Delete"
     ID_EDIT_INSERT          "Insert"
     ID_FILE_EXPORT          "Export an image file\nExport"
+    ID_FILE_LOAD_SNAPSHOT   "Restore one or more captured images\nLoad Snapshot"
+    ID_FILE_TAKE_SNAPSHOT   "Capture the current image\nTake Snapshot"
     ID_IMAGE_CONVEX         "Draw rings in descending size order\nConvex"
     ID_IMAGE_FILL           "Fill area between rings\nFill"
     ID_IMAGE_MIRROR         "Mirror image\nMirror"
@@ -612,15 +618,19 @@ BEGIN
     ID_IMAGE_ORIGIN_DRAG    "Enable origin dragging\nDrag Origin"
     ID_IMAGE_ORIGIN_RANDOM  "Enable random origin\nRandom Origin"
     ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
-    ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
-    ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
-    ID_STATUS_PANE_FRAME_RATE "000.00"
-    ID_STATUS_PANE_RING_COUNT "00000"
 END
 
 STRINGTABLE
 BEGIN
+    ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
+    ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
+    ID_STATUS_PANE_FRAME_RATE "000.00"
+    ID_STATUS_PANE_RING_COUNT "00000"
     ID_VIEW_BAR_Master      "Show or hide the master pane\nMaster"
+END
+
+STRINGTABLE
+BEGIN
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nParameters"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
     ID_VIEW_OPTIONS         "Edit the options\nOptions"

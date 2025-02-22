@@ -33,6 +33,10 @@ void CD2DDevCtx::DestroyUserResources()
 {
 }
 
+void CD2DDevCtx::OnResize()
+{
+}
+
 bool CD2DDevCtx::Create(HWND hWnd)
 {
 	CHECK(D3D11CreateDevice(
@@ -96,6 +100,7 @@ bool CD2DDevCtx::Resize()
 	CHECK(m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer)));
 	CHECK(m_pD2DDeviceContext->CreateBitmapFromDxgiSurface(pBackBuffer, NULL, &m_pTargetBitmap));
 	m_pD2DDeviceContext->SetTarget(m_pTargetBitmap);	// reset the target
+	OnResize();
 	return true;
 }
 

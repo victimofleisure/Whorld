@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		20feb25	add bitmap capture and write
 		02		21feb25	add options
+        03      22feb25	add snapshot capture and load
 
 */
 
@@ -60,7 +61,7 @@ public:
 
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	void	AddImageExportPath(CString sPath);
+	void	AddOutputPath(CString sPath);
 
 // Overrides
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -98,7 +99,7 @@ public:
 	CBenchmark	m_benchFrameRate;	// benchmark timer, for measuring frame rate
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
-	CStringArrayEx	m_saImageExportPath;	// array of image export paths
+	CStringArrayEx	m_saOutputPath;	// array of output paths
 
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -124,6 +125,7 @@ public:
 	afx_msg LRESULT	OnDisplayChange(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnWindowResetLayout();
 	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnSnapshotCapture(WPARAM wParam, LPARAM lParam);
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		afx_msg void OnViewBar##name(); \
 		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);

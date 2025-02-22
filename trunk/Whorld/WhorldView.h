@@ -9,6 +9,8 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		20feb25	add file export
+		02		21feb25	add options
+        03      22feb25	add snapshot capture and load
 
 */
 
@@ -18,6 +20,8 @@
 #pragma once
 
 #include "WhorldBase.h"
+
+class CSnapshot;
 
 class CWhorldView : public CView, public CWhorldBase
 {
@@ -31,12 +35,20 @@ public:
 
 // Operations
 public:
+	bool	WriteSnapshot(CSnapshot *pSnapshot);
+	static bool	MakeExportPath(CString& sExportPath, LPCTSTR pszExt);
 
 // Overrides
 public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
+
+// Constants
+	static const LPCTSTR m_pszExportExt;
+	static const LPCTSTR m_pszExportFilter;
+	static const LPCTSTR m_pszSnapshotExt;
+	static const LPCTSTR m_pszSnapshotFilter;
 
 // Implementation
 public:
@@ -45,11 +57,6 @@ public:
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
-
-// Helpers
-protected:
-	bool	PromptForExportData(CString& sExportPath);
-	bool	MakeExportPath(CString& sExportPath);
 
 // Generated message map functions
 protected:
@@ -67,6 +74,8 @@ protected:
 	afx_msg void OnWindowClear();
 	afx_msg void OnImageRandomPhase();
 	afx_msg void OnFileExport();
+	afx_msg void OnFileTakeSnapshot();
+	afx_msg void OnFileLoadSnapshot();
 };
 
 #ifndef _DEBUG  // debug version in WhorldView.cpp

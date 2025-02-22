@@ -42,6 +42,7 @@ public:
 	virtual void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
 	virtual	bool	CreateUserResources();
 	virtual	void	DestroyUserResources();
+	virtual void	OnResize();
 
 protected:
 // Data members

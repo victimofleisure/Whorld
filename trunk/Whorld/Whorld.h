@@ -59,6 +59,7 @@ public:
 	bool	IsPaused() const;
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
+	bool	ResourceVersionChanged() const;
 
 // Operations
 	void	Log(CString sMsg);
@@ -201,4 +202,9 @@ inline DPoint CWhorldApp::GetOrigin() const
 inline bool CWhorldApp::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath)
 {
 	return m_thrRender.WriteCapturedBitmap(pBitmap, pszImagePath);
+}
+
+inline bool	CWhorldApp::ResourceVersionChanged() const
+{
+	return m_nNewResourceVersion != m_nOldResourceVersion;
 }

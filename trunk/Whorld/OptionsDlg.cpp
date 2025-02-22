@@ -52,8 +52,6 @@ BOOL COptionsDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-//@@@	theApp.m_options.UpdateMidiDevices();
-
 	CRect	rc;
 	GetClientRect(rc);
 	HDITEM hdItem;

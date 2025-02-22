@@ -192,8 +192,10 @@
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="ClickSliderCtrl.h" />
     <ClInclude Include="D2DDevCtx.h" />
+    <ClInclude Include="D2DHelper.h" />
     <ClInclude Include="DPoint.h" />
     <ClInclude Include="EditSliderCtrl.h" />
+    <ClInclude Include="ExportDlg.h" />
     <ClInclude Include="FocusEdit.h" />
     <ClInclude Include="FormatIO.h" />
     <ClInclude Include="Globals.h" />
@@ -205,8 +207,16 @@
     <ClInclude Include="MasterBar.h" />
     <ClInclude Include="MasterRowDlg.h" />
     <ClInclude Include="MyDockablePane.h" />
+    <ClInclude Include="Options.h" />
+    <ClInclude Include="OptionsDef.h" />
+    <ClInclude Include="OptionsDlg.h" />
     <ClInclude Include="Oscillator.h" />
+    <ClInclude Include="Properties.h" />
+    <ClInclude Include="PropertiesGrid.h" />
+    <ClInclude Include="RegTempl.h" />
+    <ClInclude Include="RegTemplTypes.h" />
     <ClInclude Include="StringTpl.h" />
+    <ClInclude Include="VariantHelper.h" />
     <ClInclude Include="WhorldUndoTest.h" />
     <ClInclude Include="NumEdit.h" />
     <ClInclude Include="NumSpin.h" />
@@ -258,6 +268,7 @@
     <ClCompile Include="D2DDevCtx.cpp" />
     <ClCompile Include="DPoint.cpp" />
     <ClCompile Include="EditSliderCtrl.cpp" />
+    <ClCompile Include="ExportDlg.cpp" />
     <ClCompile Include="FocusEdit.cpp" />
     <ClCompile Include="FormatIO.cpp" />
     <ClCompile Include="hls.cpp" />
@@ -266,7 +277,11 @@
     <ClCompile Include="MasterBar.cpp" />
     <ClCompile Include="MasterRowDlg.cpp" />
     <ClCompile Include="MyDockablePane.cpp" />
+    <ClCompile Include="Options.cpp" />
+    <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="Oscillator.cpp" />
+    <ClCompile Include="Properties.cpp" />
+    <ClCompile Include="PropertiesGrid.cpp" />
     <ClCompile Include="WhorldUndoTest.cpp" />
     <ClCompile Include="NumEdit.cpp" />
     <ClCompile Include="NumSpin.cpp" />

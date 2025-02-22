@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		20feb25	add file export
+		02		21feb25	add options
 
 */
 
@@ -22,6 +23,7 @@
 #include "WhorldView.h"
 #include "MainFrm.h"
 #include "PathStr.h"
+#include "ExportDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -30,22 +32,6 @@
 // CWhorldView
 
 IMPLEMENT_DYNCREATE(CWhorldView, CView)
-
-BEGIN_MESSAGE_MAP(CWhorldView, CView)
-	ON_WM_CONTEXTMENU()
-	ON_WM_RBUTTONUP()
-	ON_WM_SIZE()
-	ON_WM_ERASEBKGND()
-	ON_WM_CREATE()
-	ON_MESSAGE(UWM_DELAYED_CREATE, OnDelayedCreate)
-	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
-	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
-	ON_COMMAND(ID_WINDOW_STEP, OnWindowStep)
-	ON_UPDATE_COMMAND_UI(ID_WINDOW_STEP, OnUpdateWindowStep)
-	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
-	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, OnImageRandomPhase)
-	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
-END_MESSAGE_MAP()
 
 // CWhorldView construction/destruction
 
@@ -58,32 +44,23 @@ CWhorldView::~CWhorldView()
 {
 }
 
+// CWhorldView overrides
+
 BOOL CWhorldView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	return CView::PreCreateWindow(cs);
 }
 
-// CWhorldView drawing
-
 void CWhorldView::OnDraw(CDC* /*pDC*/)
 {
+	// do nothing; actual drawing is done by CRenderWnd
 }
 
-void CWhorldView::OnRButtonUp(UINT /* nFlags */, CPoint point)
-{
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
-}
-
-void CWhorldView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
-{
-#ifndef SHARED_HANDLERS
-	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
-#endif
-}
+// CWhorldView operations
 
 void CWhorldView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
+	// handle view updates by delegating them to the render thread
 	CWhorldDoc	*pDoc = GetDocument();
 	switch (lHint) {
 	case HINT_NONE:
@@ -92,9 +69,9 @@ void CWhorldView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			// dynamically allocate patch data and enqueue a pointer to it;
 			// recipient (render thread) is responsible for deleting buffer
 			CPatch&	patch = *pDoc;	// upcast from document to patch data
-			CPatch	*pPatch = new CPatch(patch);	// allocate buffer
+			CPatch	*pPatch = new CPatch(patch);	// allocate new patch on heap
 			cmd.m_prop.byref = pPatch;	// command property is pointer to patch
-			theApp.PushRenderCommand(cmd);
+			theApp.PushRenderCommand(cmd);	// patch belongs to render thread now
 		}
 		break;
 	case HINT_PARAM:
@@ -126,6 +103,35 @@ void CWhorldView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	theApp.GetMainFrame()->OnUpdate(pSender, lHint, pHint);
 }
 
+bool CWhorldView::PromptForExportData(CString& sExportPath)
+{
+	static const LPCTSTR pszPngFilter = _T("PNG Files (*.png)|All Files (*.*)|*.*||");
+	CFileDialog	fd(false, _T("png"), NULL, OFN_OVERWRITEPROMPT, pszPngFilter);
+	if (fd.DoModal() != IDOK) {	// display folder dialog
+		return false;	// user canceled
+	}
+	sExportPath = fd.GetPathName();
+	CExportDlg	dlg;
+	if (dlg.DoModal() != IDOK) {	// display export options dialog
+		return false;	// user canceled
+	}
+	return true;
+}
+
+bool CWhorldView::MakeExportPath(CString& sExportPath)
+{
+	static const LPCTSTR pszPngExt = _T(".png");
+	CPathStr	sPath(theApp.m_options.m_Export_sImageFolder);
+	if (!PathFileExists(sPath)) {	// if export image folder doesn't exist
+		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
+		return false;
+	}
+	// automatically assign a filename based on date and time
+	sPath.Append(theApp.GetTimestampFileName());	// append filename to folder
+	sExportPath = sPath + pszPngExt;	// append file extension to filename
+	return true;
+}
+
 // CWhorldView diagnostics
 
 #ifdef _DEBUG
@@ -146,7 +152,34 @@ CWhorldDoc* CWhorldView::GetDocument() const // non-debug version is inline
 }
 #endif //_DEBUG
 
+// CWhorldView message map
+
+BEGIN_MESSAGE_MAP(CWhorldView, CView)
+	ON_WM_CONTEXTMENU()
+	ON_WM_RBUTTONUP()
+	ON_WM_SIZE()
+	ON_MESSAGE(UWM_DELAYED_CREATE, OnDelayedCreate)
+	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
+	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
+	ON_COMMAND(ID_WINDOW_STEP, OnWindowStep)
+	ON_UPDATE_COMMAND_UI(ID_WINDOW_STEP, OnUpdateWindowStep)
+	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
+	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, OnImageRandomPhase)
+	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
+END_MESSAGE_MAP()
+
 // CWhorldView message handlers
+
+LRESULT CWhorldView::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	CRect	rc;
+	GetClientRect(rc);
+	DWORD	dwStyle = WS_CHILD | WS_VISIBLE;
+	theApp.CreateRenderWnd(dwStyle, rc, this);
+	return 0;
+}
 
 void CWhorldView::OnSize(UINT nType, int cx, int cy)
 {
@@ -158,15 +191,16 @@ void CWhorldView::OnSize(UINT nType, int cx, int cy)
 	}
 }
 
-LRESULT CWhorldView::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
+void CWhorldView::OnRButtonUp(UINT /* nFlags */, CPoint point)
 {
-	UNREFERENCED_PARAMETER(wParam);
-	UNREFERENCED_PARAMETER(lParam);
-	CRect	rc;
-	GetClientRect(rc);
-	DWORD	dwStyle = WS_CHILD | WS_VISIBLE;
-	theApp.CreateRenderWnd(dwStyle, rc, this);
-	return 0;
+	ClientToScreen(&point);
+	OnContextMenu(this, point);
+}
+
+void CWhorldView::OnContextMenu(CWnd* /* pWnd */, CPoint /* point */)
+{
+	// stock project displays a popup edit menu; disable that for now
+	// theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
 }
 
 void CWhorldView::OnWindowPause()
@@ -205,21 +239,21 @@ void CWhorldView::OnImageRandomPhase()
 
 void CWhorldView::OnFileExport()
 {
-	CSize	szExport(1920, 1080);//@@@ get size from somewhere; need flags too
-	// render thread captures bitmap and posts it to our main window for writing
-	CRenderCmd	cmd(RC_CAPTURE_BITMAP);
-	cmd.m_prop.szVal = szExport;
-	theApp.PushRenderCommand(cmd);	// start capture ASAP in case we're unpaused
-	CPathStr	sExportFolder;
-	theApp.GetSpecialFolderPath(CSIDL_MYPICTURES, sExportFolder);//@@@ belongs in options init
-	if (!PathFileExists(sExportFolder)) {
-		AfxMessageBox(_T("Invalid folder."));
-		return;
+	CString	sExportPath;
+	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
+	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+		// prompt user for destination folder, filename, and export options
+		if (!PromptForExportData(sExportPath))
+			return;	// user canceled
 	}
-	CString	sExportFileName(theApp.GetTimestampFileName());
-	CPathStr sExportPath(sExportFolder);
-	sExportPath.Append(sExportFileName);
-	CString	sExportExt(_T(".png"));
-	sExportPath += sExportExt;
+	// render thread captures bitmap and posts it to our main window for writing
+	CRenderCmd	cmd(RC_CAPTURE_BITMAP, theApp.m_options.GetExportFlags());
+	cmd.m_prop.szVal = theApp.m_options.GetExportImageSize();
+	theApp.PushRenderCommand(cmd);	// start capture ASAP in case we're unpaused
+	if (sExportPath.IsEmpty()) {	// if export path is unspecified
+		if (!MakeExportPath(sExportPath))	// generate path from date and time
+			return;	// unable to generate path
+	}
 	theApp.GetMainFrame()->AddImageExportPath(sExportPath);
+	// bitmap capture message may already be waiting for us in message queue
 }

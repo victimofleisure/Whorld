@@ -119,6 +119,10 @@ public:
 		OM_RANDOM,	// random jump
 		ORIGIN_MOTION_TYPES
 	};
+	enum {	// image export flags
+		EF_USE_VIEW_SIZE	= 0x01,	// make image same size as view
+		EF_SCALE_TO_FIT		= 0x02,	// scale image to fit within view
+	};
 	enum {	// Whorld-specific render commands
 		RC_START = BASE_RENDER_COMMANDS - 1,	// offset from base render commands
 		// set parameter uses a range of commands, one for each parameter property;

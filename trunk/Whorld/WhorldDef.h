@@ -132,7 +132,7 @@ MASTERCOLDEF(VAL_EDIT)
 
 #ifdef RENDERCMDDEF	// render commands
 
-// set parameter range is defined separately via PARAMPROPDEF
+// set parameter commands are defined separately via PARAMPROPDEF
 
 //			 name				vartype
 RENDERCMDDEF(SET_MASTER,		dblVal	)	// sets a master property; m_nParam: property index, m_prop: fProp
@@ -145,7 +145,7 @@ RENDERCMDDEF(SINGLE_STEP,		intVal	)	// single steps while paused; no parameters
 RENDERCMDDEF(RANDOM_PHASE,		intVal	)	// randomizes phase of all oscillators; no parameters
 RENDERCMDDEF(SET_ZOOM,			dblVal	)	// sets zoom; m_nParam: non-zero for damping, m_prop: double fZoom
 RENDERCMDDEF(SET_ORIGIN,		fltPt	)	// sets origin; m_nParam: non-zero for damping, m_prop: POINTFLOAT ptOrigin
-RENDERCMDDEF(CAPTURE_BITMAP,	szVal	)	// capture a bitmap; m_nParam: non-zero for scaling, m_prop: SIZE
+RENDERCMDDEF(CAPTURE_BITMAP,	szVal	)	// capture a bitmap; m_nParam: image export flags, m_prop: SIZE szImage
 
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF

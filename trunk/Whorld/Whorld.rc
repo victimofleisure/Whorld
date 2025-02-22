@@ -192,6 +192,11 @@ BEGIN
                 MENUITEM "&Aqua Style",                 ID_VIEW_APPLOOK_OFF_2007_AQUA
             END
         END
+        MENUITEM SEPARATOR
+        MENUITEM "&Options...",                 ID_VIEW_OPTIONS
+        MENUITEM SEPARATOR
+        MENUITEM "&Master",                     ID_VIEW_BAR_Master
+        MENUITEM "&Parameters",                 ID_VIEW_BAR_Params
     END
     POPUP "&Window"
     BEGIN
@@ -254,6 +259,7 @@ BEGIN
     "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_FILE_EXPORT,         VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
@@ -266,12 +272,14 @@ BEGIN
     VK_F7,          ID_IMAGE_OUTLINE,       VIRTKEY, NOINVERT
     VK_F9,          ID_IMAGE_RANDOM_PHASE,  VIRTKEY, NOINVERT
     VK_BACK,        ID_IMAGE_REVERSE,       VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_DELETE,      ID_WINDOW_CLEAR,        VIRTKEY, CONTROL, NOINVERT
     VK_F12,         ID_WINDOW_DETACH,       VIRTKEY, CONTROL, NOINVERT
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    "E",            ID_FILE_EXPORT,         VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
+    "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
 END
 
 
@@ -325,14 +333,42 @@ BEGIN
     EDITTEXT        IDC_MAST_VAL_EDIT,126,0,40,12,ES_AUTOHSCROLL
 END
 
-IDD_PROGRESS DIALOG 0, 0, 186, 49
+IDD_OPTIONS DIALOGEX 0, 0, 311, 250
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_OPTIONS_GRID,"MfcPropertyGrid",WS_TABSTOP | 0x100,7,7,297,216
+    DEFPUSHBUTTON   "OK",IDOK,199,229,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,254,229,50,14
+    PUSHBUTTON      "&Reset All",IDC_OPTIONS_RESET_ALL,7,229,50,14
+END
+
+IDD_PROGRESS DIALOGEX 0, 0, 186, 49
 STYLE DS_SETFONT | DS_MODALFRAME | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Progress"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "Progress",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,7,7,172,14
     PUSHBUTTON      "Cancel",IDCANCEL,67,28,50,14
     RTEXT           "",IDC_PROGRESS_PERCENT,139,27,40,15,SS_CENTERIMAGE
+END
+
+IDD_EXPORT DIALOGEX 0, 0, 123, 136
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Export Options"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "&Use view size",IDC_EXPORT_USE_VIEW_SIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,32,7,69,10
+    RTEXT           "&Width:",IDC_STATIC,20,24,30,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EXPORT_WIDTH,54,24,40,14,ES_AUTOHSCROLL
+    RTEXT           "&Height:",IDC_STATIC,20,44,30,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EXPORT_HEIGHT,54,44,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Resizing",IDC_STATIC,23,66,77,41,WS_GROUP
+    CONTROL         "&Crop",IDC_EXPORT_RESIZING1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,35,77,31,10
+    CONTROL         "&Scale to fit",IDC_EXPORT_RESIZING2,"Button",BS_AUTORADIOBUTTON,35,90,49,10
+    PUSHBUTTON      "OK",IDOK,7,115,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,66,115,50,14
 END
 
 
@@ -367,8 +403,64 @@ BEGIN
     IDD_MASTER_ROW, DIALOG
     BEGIN
     END
+
+    IDD_OPTIONS, DIALOG
+    BEGIN
+    END
+
+    IDD_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
+
+    IDD_EXPORT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 116
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 129
+    END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_OPTIONS DLGINIT
+BEGIN
+    IDC_OPTIONS_GRID, 0x37c, 414, 0
+0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 0x6469, 0x485f, 
+0x6165, 0x6564, 0x4372, 0x7274, 0x3e6c, 0x5254, 0x4555, 0x2f3c, 0x464d, 
+0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 0x6972, 0x5f64, 0x6548, 0x6461, 
+0x7265, 0x7443, 0x6c72, 0x3c3e, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 
+0x4779, 0x6972, 0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 0x416e, 
+0x6572, 0x3e61, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x7250, 0x706f, 
+0x7265, 0x7974, 0x7247, 0x6469, 0x445f, 0x7365, 0x7263, 0x7069, 0x6974, 
+0x6e6f, 0x7241, 0x6165, 0x3c3e, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 
+0x4779, 0x6972, 0x5f64, 0x6c41, 0x6870, 0x6261, 0x7465, 0x6369, 0x6f4d, 
+0x6564, 0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 0x5043, 0x6f72, 0x6570, 
+0x7472, 0x4779, 0x6972, 0x5f64, 0x6c41, 0x6870, 0x6261, 0x7465, 0x6369, 
+0x6f4d, 0x6564, 0x3c3e, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 
+0x6972, 0x5f64, 0x6f4d, 0x6964, 0x6966, 0x6465, 0x7250, 0x706f, 0x7265, 
+0x6974, 0x7365, 0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 0x5043, 0x6f72, 
+0x6570, 0x7472, 0x4779, 0x6972, 0x5f64, 0x6f4d, 0x6964, 0x6966, 0x6465, 
+0x7250, 0x706f, 0x7265, 0x6974, 0x7365, 0x3c3e, 0x464d, 0x5043, 0x6f72, 
+0x6570, 0x7472, 0x4779, 0x6972, 0x5f64, 0x5356, 0x6f44, 0x4e74, 0x7465, 
+0x6f4c, 0x6b6f, 0x543e, 0x5552, 0x3c45, 0x4d2f, 0x4346, 0x7250, 0x706f, 
+0x7265, 0x7974, 0x7247, 0x6469, 0x565f, 0x4453, 0x746f, 0x654e, 0x4c74, 
+0x6f6f, 0x3e6b, 0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 
+0x6469, 0x445f, 0x7365, 0x7263, 0x7069, 0x6974, 0x6e6f, 0x6f52, 0x7377, 
+0x303e, 0x2f3c, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 0x6972, 
+0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 0x526e, 0x776f, 0x3e73, 
+
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -398,6 +490,7 @@ BEGIN
     IDS_EDIT_MENU           "Edit"
     IDS_EDIT_REDO_PREFIX    "&Redo"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
+    IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
     IDS_MAIN_Hue            "Hue"
@@ -405,18 +498,11 @@ BEGIN
     IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
     IDS_MAIN_OrgMotion      "Origin Motion"
+END
+
+STRINGTABLE
+BEGIN
     IDS_MAIN_Origin         "Origin"
-END
-
-STRINGTABLE
-BEGIN
-    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
-    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
-    ID_HELP_FINDER          "List help topics\nHelp Topics"
-END
-
-STRINGTABLE
-BEGIN
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
     IDS_MASTER_CanvasScale  "Canvas"
@@ -429,18 +515,35 @@ BEGIN
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
-    IDS_PARAM_AspectRatio   "Aspect Ratio"
-    IDS_PARAM_BkHue         "Bk Hue"
-    IDS_PARAM_BkLightness   "Bk Lightness"
-    IDS_PARAM_BkSaturation  "Bk Saturation"
+    IDS_OPT_DESC_Export_bScaleToFit 
+                            "If true, scale drawing to fit within image size, otherwise drawing is cropped"
+    IDS_OPT_DESC_Export_bUseViewSize 
+                            "If true, use view size as image size, otherwise get image size from options"
+    IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
+    IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
+    IDS_OPT_GROUP_Export    "Export"
+    IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
+    IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
+    IDS_OPT_NAME_Export_nImageHeight "Image Height"
+    IDS_OPT_NAME_Export_nImageWidth "Image Width"
+    IDS_OPT_NAME_Export_sImageFolder "Image Folder"
+    IDS_PARAM_AspectRatio   "Aspect Ratio"
+    IDS_PARAM_BkHue         "Bk Hue"
+    IDS_PARAM_BkLightness   "Bk Lightness"
+    IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
@@ -453,17 +556,26 @@ BEGIN
     IDS_PARAM_SkewAngle     "Skew Angle"
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
+    IDS_PROPS_MORE_COLORS   "More Colors..."
+    IDS_PROW_Amp            "Amplitude"
+    IDS_PROW_Freq           "Frequency"
+    IDS_PROW_NAME_STATIC    "Name"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_PROW_Amp            "Amplitude"
-    IDS_PROW_Freq           "Frequency"
-    IDS_PROW_NAME_STATIC    "Name"
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+    ID_HELP_FINDER          "List help topics\nHelp Topics"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
+    IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
@@ -473,14 +585,18 @@ BEGIN
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
+    IDS_WAVE_TRIANGLE       "Triangle"
+    IDS_WINDOW_RESET_LAYOUT_WARN 
+                            "Reset all windows to their default layout? This action can't be undone, and the application will restart."
 END
 
 STRINGTABLE
 BEGIN
-    IDS_WAVE_TRIANGLE       "Triangle"
-    IDS_WINDOW_RESET_LAYOUT_WARN 
-                            "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
+    IDS_OPT_DESC_Export_bPromptUser 
+                            "Prompt user for destination folder, filename, and options"
+    IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER "Invalid export image folder."
 END
 
 STRINGTABLE
@@ -498,18 +614,17 @@ BEGIN
     ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
     ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
     ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
-END
-
-STRINGTABLE
-BEGIN
     ID_STATUS_PANE_FRAME_RATE "000.00"
     ID_STATUS_PANE_RING_COUNT "00000"
-    ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
-    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
 END
 
 STRINGTABLE
 BEGIN
+    ID_VIEW_BAR_Master      "Show or hide the master pane\nMaster"
+    ID_VIEW_BAR_Params      "Show or hide the parameters pane\nParameters"
+    ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
+    ID_VIEW_OPTIONS         "Edit the options\nOptions"
+    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"

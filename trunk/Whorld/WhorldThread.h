@@ -16,6 +16,7 @@
 
 #include "Patch.h"
 #include "Oscillator.h"
+#include "D2DHelper.h"
 
 class CWhorldThread : protected CPatch, public CRenderThread {
 public:
@@ -52,7 +53,7 @@ protected:
 		bool	bSkipFill;		// true if ring should be skipped in fill mode
 		D2D1_COLOR_F	clrCur;	// current color
 		double	fPinwheel;		// additional rotation for odd vertices, in radians
-		float	fLineWidth;		// line width, in pixels
+		double	fLineWidth;		// line width, in pixels
 		DPOINT	ptOrigin;		// origin in client coords relative to window center
 		double	fEvenCurve;		// even vertex curvature, as multiple of radius
 		double	fOddCurve;		// odd vertex curvature, as multiple of radius
@@ -69,7 +70,7 @@ protected:
 		double	fOddCurve;		// odd vertex curvature, as multiple of radius
 		double	fEvenShear;		// even vertex curve point asymmetry ratio
 		double	fOddShear;		// odd vertex curve point asymmetry ratio
-		float	fLineWidth;		// line width, in pixels
+		double	fLineWidth;		// line width, in pixels
 		int		nPolySides;		// number of sides
 	};
 	struct STATE {
@@ -81,17 +82,6 @@ protected:
 		double	fHueLoopPos;	// hue loop position, in degrees
 		double	fHueLoopLength;	// length of hue loop, in degrees
 		double	fHueLoopBase;	// hue loop's base hue, in degrees
-	};
-	class CD2DRectFEx : public CD2DRectF {
-	public:
-		CD2DRectFEx(FLOAT fLeft = 0, FLOAT fTop = 0, FLOAT fRight = 0, FLOAT fBottom = 0) 
-			{ left = fLeft; top = fTop; right = fRight; bottom = fBottom; }
-		FLOAT	Width() const { return right - left; }
-		FLOAT	Height() const { return bottom - top; }
-		void	OffsetRect(float dx, float dy) { left += dx; top += dy; right += dx; bottom += dy; }
-		void	SetRectEmpty() { left = 0; top = 0; right = 0; bottom = 0; }
-		bool	PtInRect(const D2D_POINT_2F& pt) const
-			{ return(pt.x >= left && pt.y >= top && pt.x < right && pt.y < bottom); }
 	};
 
 // Constants
@@ -111,7 +101,7 @@ protected:
 	CComPtr<ID2D1SolidColorBrush>	m_pDrawBrush;	// drawing brush
 	PARAM_VALS	m_params;	// parameters
 	PARAM_VALS	m_globs;	// global parameters
-	GLOBRING	m_globRing;	// global ring data
+	GLOBRING	m_globRing;	// global ring offsets
 	STATE	m_st;			// current state
 	CList<RING, RING&>	m_aRing;	// array of rings
 	COscillator	m_aOsc[PARAM_COUNT];	// array of oscillators
@@ -120,10 +110,11 @@ protected:
 	UINT_PTR	m_nFrameCount;	// frame count
 	POSITION	m_posDel;	// if non-null, position of ring after last deletion
 	CD2DSizeF	m_szClient;	// size of our window in DIPs
-	CD2DRectFEx	m_rCanvas;	// ring dies when ALL its vertices are off canvas
+	CKD2DRectF	m_rCanvas;	// ring dies when ALL its vertices are off canvas
 	double	m_fNewGrowth;	// new ring growth, computed at start of TimerHook
 	int		m_nMaxRings;	// maximum number of rings
-	bool	m_bIsPaused;	// true if view is paused
+	bool	m_bIsPaused;	// if true, we're paused
+	bool	m_bCapturing;	// if true, we're capturing an image
 	bool	m_bFlushHistory;	// if true, next TimerHook won't interpolate
 	bool	m_bCopying;		// if true, add a rotating skew to new ring origins
 	int		m_nCopyCount;	// number of copies; must be > 0

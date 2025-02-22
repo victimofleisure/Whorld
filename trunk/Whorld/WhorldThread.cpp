@@ -70,6 +70,8 @@ CWhorldThread::CWhorldThread() : m_oscOrigin(DEFAULT_FRAME_RATE, 1)
 	m_rCanvas.SetRectEmpty();
 	m_fNewGrowth = 0;
 	m_nMaxRings = INT_MAX;
+	m_bIsPaused = false;
+	m_bCapturing = false;
 	m_bFlushHistory = false;
 	m_bCopying = false;
 	m_nCopyCount = 1;
@@ -156,7 +158,7 @@ inline void CWhorldThread::UpdateHue(double DeltaTick)
 void CWhorldThread::ResizeCanvas()
 {
 	double	fScale = m_master.fCanvasScale * m_master.fZoom;
-	CD2DRectFEx	rCanvas(0, 0, DTOF(m_szClient.width * fScale), DTOF(m_szClient.height * fScale));
+	CKD2DRectF	rCanvas(0, 0, DTOF(m_szClient.width * fScale), DTOF(m_szClient.height * fScale));
 	rCanvas.OffsetRect((m_szClient.width - rCanvas.Width()) / 2, (m_szClient.height - rCanvas.Height()) / 2);
 	m_rCanvas = rCanvas;
 }
@@ -369,7 +371,7 @@ void CWhorldThread::TimerHook()
 	bool	bReverse = m_params.fRingGrowth < 0;
 	POSITION	posCur = NULL;
 	m_posDel = NULL;
-	while (posNext != NULL) {
+	while (posNext != NULL) {	// ring loop
 		posCur = posNext;
 		// update ring origins
 		RING&	ring = m_aRing.GetNext(posNext);
@@ -381,11 +383,11 @@ void CWhorldThread::TimerHook()
 		ring.fRot += ring.fRotDelta * m_params.fRingGrowth;
 		ring.ptShift.x += ring.ptShiftDelta.x * m_params.fRingGrowth;
 		ring.ptShift.y += ring.ptShiftDelta.y * m_params.fRingGrowth;
-		if (bReverse) {
+		if (bReverse) {	// if reverse
 			if (ring.fRadius <= 0) {
 				m_aRing.RemoveAt(posCur);
 			}
-		} else {
+		} else {	// forward
 			if (ring.bDelete) {
 				m_aRing.RemoveAt(posCur);
 				m_posDel = posNext;	// save position after last deletion for cascade
@@ -463,7 +465,7 @@ bool CWhorldThread::OnDraw()
 //	CBenchmark b;//@@@
 	int	nRings = Round(m_master.fRings);
 	m_nMaxRings = nRings >= MAX_RINGS ? INT_MAX : nRings;
-	if (!m_bIsPaused) {
+	if (!m_bIsPaused) {	// if unpaused
 		TimerHook();
 	}
 	m_pD2DDeviceContext->Clear(m_st.clrBkgnd);	// clear to specified color
@@ -482,26 +484,30 @@ bool CWhorldThread::OnDraw()
 			bPrevSkipFill = ringTail.bSkipFill;
 		}
 	}
-	CD2DPointF	ptWndCenter(m_szClient.width / 2, m_szClient.height / 2);
+	DPoint	ptWndCenter(m_szClient.width / 2, m_szClient.height / 2);
 	int		nPoints = 0;			// number of points in current ring
 	int		nPrevPoints = 0;		// number of points in previous ring
 	int		nPrevVertices = 0;		// number of vertices in previous ring if it's curved
-	while (posNext != NULL) {
+	while (posNext != NULL) {	// ring loop
 		RING&	ring = bConvex ? m_aRing.GetPrev(posNext) : m_aRing.GetNext(posNext);
-		DPoint	ptOrg(ptWndCenter.x + ring.ptOrigin.x, ptWndCenter.y + ring.ptOrigin.y);
-		CD2DPointF	irorg(DTOF(ring.ptOrigin.x), DTOF(ring.ptOrigin.y));
-		CD2DRectFEx	rBounds(m_rCanvas);
-		rBounds.OffsetRect(irorg.x, irorg.y);
+		double	fLineWidth = ring.fLineWidth + m_globRing.fLineWidth;
+		DPoint	ptOrg(ring.ptOrigin);
+		if (m_bCapturing) {	// if capturing a bitmap
+			fLineWidth *= m_master.fZoom;	// apply special scaling
+			ptOrg *= m_master.fZoom;
+		}
+		CKD2DRectF	rBounds(m_rCanvas);
+		rBounds.OffsetRect(DTOF(ptOrg.x), DTOF(ptOrg.y));
 		int		nSides = ring.nSides + m_globRing.nPolySides;
 		nSides = max(nSides, 1);
-		float	fLineWidth = ring.fLineWidth + m_globRing.fLineWidth;
 		double	fRot = ring.fRot + m_globRing.fRot;
 		double	afRot[2] = {fRot, fRot + ring.fPinwheel + M_PI / nSides * m_globRing.fPinwheel};
 		double	fRad = ring.fRadius * m_master.fZoom;
 		double	arRad[2] = {fRad, fRad * ring.fStarRatio * m_globRing.fStarRatio};
 		DPoint	ptScale(DPoint(ring.ptScale) * m_globRing.ptScale);
 		DPoint	aptRad[2] = {ptScale * arRad[0], ptScale * arRad[1]};
-		DPoint	ptShift((DPoint(ring.ptShift) * m_master.fZoom + DPoint(m_globRing.ptShift) * fRad) + ptOrg);
+		DPoint	ptShift((DPoint(ring.ptShift) * m_master.fZoom + DPoint(m_globRing.ptShift) * fRad) 
+			+ ptOrg + ptWndCenter);
 		double	fDelta = M_PI / nSides;
 		int		nVertices = nSides * 2;	// two vertices per side
 		bool	bRingVisible = false;
@@ -518,7 +524,6 @@ bool CWhorldThread::OnDraw()
 			memcpy(m_aPt + nPoints, m_aPt, nPrevPoints * sizeof(D2D_POINT_2F));
 		}
 		if (bCurved) {	// if ring is curved
-			DPoint	ptCurveOrigin(ptShift);	// use skewed origin
 			double	fCurveLenCCW[2];
 			fCurveLenCCW[0] = fCurveLenCW[0] * (ring.fEvenShear + m_globRing.fEvenShear);
 			fCurveLenCCW[1] = fCurveLenCW[1] * (ring.fOddShear + m_globRing.fOddShear);
@@ -534,7 +539,7 @@ bool CWhorldThread::OnDraw()
 				CD2DPointF	spt(DTOF(pt.x), DTOF(pt.y));	// single precision
 				if (rBounds.PtInRect(spt))
 					bRingVisible = true;
-				DPoint	ptVec(pt - ptCurveOrigin);	// vector from vertex to origin
+				DPoint	ptVec(pt - ptShift);	// vector from vertex to origin
 				double	rLen = fCurveLenCW[bOdd];	// get clockwise curve vector length
 				// previous segment's second control point
 				*pPt++ = CD2DPointF(DTOF(pt.x - ptVec.y * rLen), DTOF(pt.y + ptVec.x * rLen));
@@ -558,7 +563,8 @@ bool CWhorldThread::OnDraw()
 					bRingVisible = true;
 			}
 		}
-		ring.bDelete = !bRingVisible;
+		if (!m_bIsPaused)	// if unpaused
+			ring.bDelete = !bRingVisible;	// mark invisible ring for deletion
 		if (ring.nDrawMode & DM_FILL) {	// if ring is filled
 			if (!ring.bSkipFill && !bPrevSkipFill) {	// if not skipping ring
 				if (!bConvex || nPrevPoints) {	// if concave or previous ring is valid
@@ -570,7 +576,7 @@ bool CWhorldThread::OnDraw()
 					CLOSE_GEOMETRY_SINK;
 					m_pDrawBrush->SetColor(bConvex ? clrPrev : ring.clrCur);
 					m_pD2DDeviceContext->FillGeometry(pPath, m_pDrawBrush);
-					DrawOutline(pPath, ring, fLineWidth);
+					DrawOutline(pPath, ring, DTOF(fLineWidth));
 				}
 				if (bConvex && posNext == NULL) {	// if convex and last ring, draw bullseye
 					OPEN_GEOMETRY_SINK;
@@ -578,7 +584,7 @@ bool CWhorldThread::OnDraw()
 					CLOSE_GEOMETRY_SINK;
 					m_pDrawBrush->SetColor(ring.clrCur);
 					m_pD2DDeviceContext->FillGeometry(pPath, m_pDrawBrush);
-					DrawOutline(pPath, ring, fLineWidth);
+					DrawOutline(pPath, ring, DTOF(fLineWidth));
 				}
 			}
 		} else {	// ring is straight
@@ -586,18 +592,20 @@ bool CWhorldThread::OnDraw()
 			DrawRing(pSink, D2D1_FIGURE_BEGIN_HOLLOW, 0, nPoints, nVertices, bCurved);
 			CLOSE_GEOMETRY_SINK;
 			m_pDrawBrush->SetColor(ring.clrCur);
-			m_pD2DDeviceContext->DrawGeometry(pPath, m_pDrawBrush, fLineWidth);
+			m_pD2DDeviceContext->DrawGeometry(pPath, m_pDrawBrush, DTOF(fLineWidth));
 		}
 		nPrevPoints = nPoints;
 		nPrevVertices = nVertices;
 		clrPrev = ring.clrCur;
 		bPrevSkipFill = ring.bSkipFill;
 	}
-	if (m_posDel != NULL) {
-		RING&	ring = m_aRing.GetNext(m_posDel);
-		ring.bDelete = true;	// cascade delete
+	if (!m_bIsPaused) {	// if unpaused
+		if (m_posDel != NULL) {  // if delete requested
+			RING&	ring = m_aRing.GetNext(m_posDel);
+			ring.bDelete = true;	// cascade delete
+		}
+		m_nFrameCount++;
 	}
-	m_nFrameCount++;
 //	stats.Print(b.Elapsed());//@@@
 	return true;
 }
@@ -792,8 +800,10 @@ DPoint CWhorldThread::GetOrigin() const
 
 bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)
 {
-	UNREFERENCED_PARAMETER(nFlags); // @@@ flags: same size as window, scale versus crop
 	pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
+	if (nFlags & EF_USE_VIEW_SIZE) {	// if using view size as image size
+		szImage = CSize(m_szClient);	// override specified image size
+	}
 	//
 	// 1) Create the capture bitmap, which can be a GPU target but isn't readable by the CPU.
 	//
@@ -807,10 +817,20 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 	// 2) Draw into the capture bitmap.
 	//
 	m_pD2DDeviceContext->SetTarget(pCaptureBitmap);	// make capture bitmap the render target
-	// pause state will be restored automatically when CSaveObj instance goes out of scope
-	CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set the pause state
 	m_pD2DDeviceContext->BeginDraw();	// start drawing
-	OnDraw();	// draw as usual; geometry is frozen because we're paused
+	{
+		CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set pause state
+		CSaveObj<bool>	saveCapturing(m_bCapturing, true);	// save and capturing state
+		CSaveObj<double>	saveZoom(m_master.fZoom);	// save zoom
+		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
+			double	fScaleWidth = szImage.width / m_szClient.width;
+			double	fScaleHeight = szImage.height / m_szClient.height;
+			double	fScaleToFit = min(fScaleWidth, fScaleHeight);
+			m_master.fZoom *= fScaleToFit; 
+		}
+		OnDraw();	// draw as usual; geometry is frozen because we're paused
+		// state is restored automatically when CSaveObj instances goes out of scope
+	}
 	m_pD2DDeviceContext->EndDraw();	// end drawing
 	m_pD2DDeviceContext->SetTarget(m_pTargetBitmap);	// restore the swap chain render target
 	//

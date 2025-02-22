@@ -46,7 +46,10 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
+// Helpers
 protected:
+	bool	PromptForExportData(CString& sExportPath);
+	bool	MakeExportPath(CString& sExportPath);
 
 // Generated message map functions
 protected:

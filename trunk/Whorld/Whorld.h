@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
         01      20feb25	add bitmap capture and write
+		02		21feb25	add options
 
 */
 
@@ -25,6 +26,7 @@
 #include "WinAppCK.h"
 #include "RenderWnd.h"
 #include "WhorldThread.h"
+#include "Options.h"
 
 // CWhorldApp:
 // See Whorld.cpp for the implementation of this class
@@ -73,7 +75,7 @@ public:
 	bool	HandleDlgKeyMsg(MSG* pMsg);
 	bool	UpdateFrameRate();
 	bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
-	static CString	GetTimestampFileName();
+	CString	GetTimestampFileName() const;
 
 // Overrides
 public:
@@ -84,6 +86,7 @@ public:
 	UINT  m_nAppLook;
 	BOOL  m_bHiColorIcons;
 	bool	m_bCleanStateOnExit;	// if true, clean state before exiting
+	COptions	m_options;
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
@@ -100,6 +103,8 @@ protected:
 	bool	m_bDetachedPreFullScreen;	// true if render window was already detached when full-screen started
 	bool	m_bIsDualMonitor;	// true if render window is on a different monitor than user interface
 	HHOOK	m_hKeyboardHook;	// handle to keyboard hook
+	int		m_nOldResourceVersion;	// previous resource version number
+	static const int	m_nNewResourceVersion;	// current resource version number
 
 // Helpers
 	static BOOL	GetNearestMonitorInfo(HWND hWnd, MONITORINFOEX& monInfo);

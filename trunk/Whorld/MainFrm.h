@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		20feb25	add bitmap capture and write
+		02		21feb25	add options
 
 */
 
@@ -123,6 +124,11 @@ public:
 	afx_msg LRESULT	OnDisplayChange(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnWindowResetLayout();
 	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
+	#define MAINDOCKBARDEF(name, width, height, style) \
+		afx_msg void OnViewBar##name(); \
+		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);
+	#include "MainDockBarDef.h"	// generate docking bar message handlers
+	afx_msg void OnViewOptions();
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

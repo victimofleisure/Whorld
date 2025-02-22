@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		20feb25	add bitmap capture and write
+		02		21feb25	add options
 
 */
 
@@ -21,6 +22,7 @@
 #include "MainFrm.h"
 #include "WhorldDoc.h"
 #include "WhorldView.h"
+#include "OptionsDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -263,8 +265,7 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	bool	bResetCustomizations = true;	// customizations are too confusing during development
 #else
 	// in Release only, reset customizations if resource version changed
-//	bool	bResetCustomizations = theApp.m_nNewResourceVersion != theApp.m_nOldResourceVersion;
-	bool	bResetCustomizations = true; // @@@ temporary until we have resource versions
+	bool	bResetCustomizations = theApp.m_nNewResourceVersion != theApp.m_nOldResourceVersion;
 #endif
 	if (bResetCustomizations) {	// if resetting UI to its default state
 #if _MFC_VER < 0xb00
@@ -365,6 +366,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
+	#define MAINDOCKBARDEF(name, width, height, style) \
+		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
+		ON_UPDATE_COMMAND_UI(ID_VIEW_BAR_##name, OnUpdateViewBar##name)
+	#include "MainDockBarDef.h"	// generate docking bar message map entries
+	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
 END_MESSAGE_MAP()
 
 // CMainFrame message handlers
@@ -592,4 +598,24 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 		pBitmap->Release();	// deletes itself when its reference count drops to zero
 	}
 	return 0;
+}
+
+#define MAINDOCKBARDEF(name, width, height, style) \
+	void CMainFrame::OnViewBar##name() \
+	{ \
+		if (!theApp.IsFullScreenSingleMonitor()) \
+			m_wnd##name##Bar.ToggleShowPane(); \
+	} \
+	void CMainFrame::OnUpdateViewBar##name(CCmdUI *pCmdUI) \
+	{ \
+		pCmdUI->SetCheck(m_wnd##name##Bar.IsVisible()); \
+	}
+#include "MainDockBarDef.h"	// generate docking bar message handlers
+
+void CMainFrame::OnViewOptions()
+{
+	COptionsDlg	dlg;
+	if (dlg.DoModal() == IDOK) {
+		// apply options
+	}
 }

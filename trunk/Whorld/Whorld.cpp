@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		21feb25	add options
 
 */
 
@@ -34,9 +35,12 @@
 #define new DEBUG_NEW
 #endif
 
-#define RK_RENDER_WND _T("RenderWnd")
-
 #define ON_ERROR(x) OnError(x, __FILE__, __LINE__, __DATE__);
+
+#define RK_RENDER_WND _T("RenderWnd")
+#define RK_RESOURCE_VERSION _T("nResourceVersion")
+
+const int CWhorldApp::m_nNewResourceVersion = 1;	// update if resource change breaks customization
 
 // CWhorldApp construction
 
@@ -103,6 +107,8 @@ BOOL CWhorldApp::InitInstance()
 	SetRegistryKey(_T("Anal Software"));
 	m_pszAppName = pPrevAppName;
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
+	m_nOldResourceVersion = theApp.GetProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, 0);
+	m_options.ReadProperties();	// get options from registry
 
 	InitContextMenuManager();
 
@@ -139,6 +145,11 @@ BOOL CWhorldApp::InitInstance()
 	// view flicker due to being painted twice; it's solved by moving show/update
 	// to CMainFrame::OnDelayedCreate which runs after the window sizes stabilize
 
+	// now that we're up, check for resource version change, and update profile if needed
+	if (m_nNewResourceVersion != m_nOldResourceVersion) {	// if resource version changed
+		theApp.WriteProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, m_nNewResourceVersion);
+	}
+
 	return TRUE;
 }
 
@@ -146,6 +157,7 @@ int CWhorldApp::ExitInstance()
 {
 	m_thrRender.DestroyThread();
 	m_wndRender.DestroyWindow();
+	m_options.WriteProperties();	// save options to registry
 	AfxOleTerm(FALSE);
 	if (m_bCleanStateOnExit) {
 		ResetWindowLayout();	// delete window layout keys
@@ -533,14 +545,14 @@ bool CWhorldApp::UpdateFrameRate()
 	return true;
 }
 
-CString CWhorldApp::GetTimestampFileName()
+CString CWhorldApp::GetTimestampFileName() const
 {
 	SYSTEMTIME	t;
 	GetSystemTime(&t);
 	CString	sFileName;
-	sFileName.Format(_T("%04d-%02d-%02d-%02d-%02d-%02d.%03d"),
+	sFileName.Format(_T("-%04d-%02d-%02d-%02d-%02d-%02d-%03d"),
 		t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
-	return sFileName;
+	return m_pszAppName + sFileName;
 }
 
 // CWhorldApp message map

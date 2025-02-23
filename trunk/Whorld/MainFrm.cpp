@@ -24,8 +24,6 @@
 #include "WhorldDoc.h"
 #include "WhorldView.h"
 #include "OptionsDlg.h"
-#include "Snapshot.h"
-#include "SmartPtr.h"
 #include "PathStr.h"
 
 #ifdef _DEBUG
@@ -605,7 +603,7 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 LRESULT	CMainFrame::OnSnapshotCapture(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
-	CSmartPtr<CSnapshot> pSnapshot(reinterpret_cast<CSnapshot*>(lParam));
+	CAutoPtr<CSnapshot> pSnapshot(reinterpret_cast<CSnapshot*>(lParam));
 	if (pSnapshot != NULL) {	// if capture succeeded
 		theApp.GetView()->WriteSnapshot(pSnapshot);
 	}

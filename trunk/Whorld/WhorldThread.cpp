@@ -83,8 +83,7 @@ void CWhorldThread::DestroyUserResources()
 
 void CWhorldThread::OnResize()
 {
-	m_szClient = m_pD2DDeviceContext->GetSize();
-	ResizeCanvas();
+	m_szTarget = m_pD2DDeviceContext->GetSize();
 }
 
 bool CWhorldThread::OnThreadCreate()
@@ -146,10 +145,9 @@ inline void CWhorldThread::UpdateHue(double DeltaTick)
 
 void CWhorldThread::ResizeCanvas()
 {
-	m_fZoom = m_master.fZoom;
 	double	fScale = m_master.fCanvasScale * m_fZoom;
-	CKD2DRectF	rCanvas(0, 0, DTOF(m_szClient.width * fScale), DTOF(m_szClient.height * fScale));
-	rCanvas.OffsetRect((m_szClient.width - rCanvas.Width()) / 2, (m_szClient.height - rCanvas.Height()) / 2);
+	CKD2DRectF	rCanvas(0, 0, DTOF(m_szTarget.width * fScale), DTOF(m_szTarget.height * fScale));
+	rCanvas.OffsetRect((m_szTarget.width - rCanvas.Width()) / 2, (m_szTarget.height - rCanvas.Height()) / 2);
 	m_rCanvas = rCanvas;
 }
 
@@ -272,7 +270,7 @@ void CWhorldThread::UpdateOrigin()
 				DPoint	pt = DPoint(ptCursor) / rClient.Size();	// normalize cursor position
 				pt.x = CLAMP(pt.x, 0, 1);	// limit to within client window
 				pt.y = CLAMP(pt.y, 0, 1);
-				m_ptOriginTarget = (pt - 0.5) * GetClientSize();	// convert to DIPs
+				m_ptOriginTarget = (pt - 0.5) * GetTargetSize();	// convert to DIPs
 			}
 		}
 		break;
@@ -280,7 +278,7 @@ void CWhorldThread::UpdateOrigin()
 		if (m_master.fTempo) {	// if non-zero tempo
 			if (m_oscOrigin.IsTrigger()) {	// if origin oscillator triggered
 				DPoint	ptRand(RandDouble(), RandDouble());	// generate normalized random point
-				m_ptOriginTarget = (ptRand - 0.5) * GetClientSize();	// convert to DIPs
+				m_ptOriginTarget = (ptRand - 0.5) * GetTargetSize();	// convert to DIPs
 			}
 		}
 		break;
@@ -455,6 +453,7 @@ __forceinline void CWhorldThread::DrawOutline(ID2D1PathGeometry* pPath, const RI
 bool CWhorldThread::OnDraw()
 {
 //	CBenchmark b;//@@@
+	ResizeCanvas();	// order matters: AddRing uses m_rCanvas
 	if (!m_bIsPaused) {	// if unpaused
 		TimerHook();
 	}
@@ -472,7 +471,7 @@ bool CWhorldThread::OnDraw()
 			bPrevSkipFill = ringTail.bSkipFill;
 		}
 	}
-	DPoint	ptWndCenter(m_szClient.width / 2, m_szClient.height / 2);
+	DPoint	ptWndCenter(m_szTarget.width / 2, m_szTarget.height / 2);
 	int		nPoints = 0;			// number of points in current ring
 	int		nPrevPoints = 0;		// number of points in previous ring
 	int		nPrevVertices = 0;		// number of vertices in previous ring if it's curved
@@ -607,7 +606,7 @@ void CWhorldThread::OnMasterPropChange(int iProp)
 		break;
 	case MASTER_CanvasScale:
 	case MASTER_Zoom:
-		ResizeCanvas();
+		m_fZoom = m_master.fZoom;
 		m_fZoomTarget = m_fZoom;	// disable damping
 		break;
 	case MASTER_Tempo:
@@ -741,6 +740,11 @@ bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
 void CWhorldThread::SetPause(bool bIsPaused)
 {
 	m_bIsPaused = bIsPaused;
+	if (!bIsPaused && m_pSnapshot != NULL) {
+		// snapshot will be deleted at end of scope
+		CAutoPtr<CSnapshot>	pSnapshot(m_pSnapshot);
+		SetSnapshot(pSnapshot);	// restore snapshot
+	}
 }
 
 void CWhorldThread::SingleStep()
@@ -772,7 +776,7 @@ void CWhorldThread::SetZoom(double fZoom, bool bDamping)
 
 void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
 {
-	DPoint	ptClientOrigin((ptOrigin - 0.5) * GetClientSize());
+	DPoint	ptClientOrigin((ptOrigin - 0.5) * GetTargetSize());
 	m_ptOriginTarget = ptClientOrigin;
 	if (!bDamping) {	// if not damping
 		m_ptOrigin = ptClientOrigin;	// go to target
@@ -781,17 +785,17 @@ void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
 
 DPoint CWhorldThread::GetOrigin() const
 {
-	if (!m_szClient.width || !m_szClient.height) {
+	if (!m_szTarget.width || !m_szTarget.height) {
 		return DPoint(0, 0);	// avoid divide by zero
 	}
-	return DPoint(m_ptOrigin) / GetClientSize() + 0.5;
+	return DPoint(m_ptOrigin) / GetTargetSize() + 0.5;
 }
 
 bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)
 {
 	pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
 	if (nFlags & EF_USE_VIEW_SIZE) {	// if using view size as image size
-		szImage = CSize(m_szClient);	// override specified image size
+		szImage = CSize(m_szTarget);	// override specified image size
 	}
 	//
 	// 1) Create the capture bitmap, which can be a GPU target but isn't readable by the CPU.
@@ -812,18 +816,16 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 		CSaveObj<bool>	saveCapturing(m_bCapturing, true);	// save and capturing state
 		CSaveObj<double>	saveZoom(m_fZoom);	// save zoom
 		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
-			double	fScaleWidth = szImage.width / m_szClient.width;
-			double	fScaleHeight = szImage.height / m_szClient.height;
+			double	fScaleWidth = szImage.width / m_szTarget.width;
+			double	fScaleHeight = szImage.height / m_szTarget.height;
 			double	fScaleToFit = min(fScaleWidth, fScaleHeight);
 			m_fZoom *= fScaleToFit; 
 		}
-		OnResize();	// handle size change
 		OnDraw();	// draw as usual; geometry is frozen because we're paused
 		// state is restored automatically when CSaveObj instances goes out of scope
 	}
 	m_pD2DDeviceContext->EndDraw();	// end drawing
 	m_pD2DDeviceContext->SetTarget(m_pTargetBitmap);	// restore the swap chain render target
-	OnResize();	// handle size change
 	//
 	// 3) Create the CPU-readable bitmap.
 	//
@@ -894,29 +896,51 @@ bool CWhorldThread::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImageP
 	return true;
 }
 
-bool CWhorldThread::CaptureSnapshot()
+CSnapshot* CWhorldThread::GetSnapshot() const
 {
-	CSnapshot *pSnapshot = new CSnapshot;
+	int	nRings = static_cast<int>(m_aRing.GetCount());
+	CSnapshot *pSnapshot = CSnapshot::Alloc(nRings);
 	if (pSnapshot == NULL) {	// if allocation failed
 		CHECK(E_OUTOFMEMORY);	// Ran out of memory
 	}
-	// save draw state members
-	pSnapshot->m_data.drawState.clrBkgnd = m_clrBkgnd;
-	pSnapshot->m_data.drawState.fZoom = m_fZoom;
-	pSnapshot->m_data.drawState.bConvex = m_main.bConvex;
-	// save ring list
-	CSnapshot::CRingArray&	aSnapRing = pSnapshot->m_aRing;
-	aSnapRing.FastSetSize(m_aRing.GetCount());
-	POSITION	posNext = m_aRing.GetHeadPosition();
-	int	iRing = 0;
-	while (posNext != NULL) {	// for each ring in list
-		aSnapRing[iRing] = m_aRing.GetNext(posNext);	// copy to snapshot ring array
-		iRing++;
-	}
+	// save fixed-length members
+	pSnapshot->m_state.clrBkgnd = m_clrBkgnd;
+	pSnapshot->m_state.fZoom = m_fZoom;
+	pSnapshot->m_state.nRings = nRings;
+	pSnapshot->m_state.bConvex = m_main.bConvex;
+	ZeroMemory(pSnapshot->m_state.baReserved, sizeof(pSnapshot->m_state.baReserved));
 	pSnapshot->m_globRing = m_globRing;	// save global ring data
-	LPARAM	lParam = reinterpret_cast<LPARAM>(pSnapshot);
+	// save ring list
+	RING	*pRing	= pSnapshot->m_aRing;
+	POSITION	posNext = m_aRing.GetHeadPosition();
+	while (posNext != NULL) {	// for each ring in list
+		*pRing++ = m_aRing.GetNext(posNext);	// copy to snapshot ring array
+	}
+	return pSnapshot;
+}
+
+bool CWhorldThread::CaptureSnapshot() const
+{
+	LPARAM	lParam = reinterpret_cast<LPARAM>(GetSnapshot());
 	AfxGetMainWnd()->PostMessage(UWM_SNAPSHOT_CAPTURE, 0, lParam);	// post pointer to main window
 	return true;
+}
+
+void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
+{
+	ASSERT(pSnapshot != NULL);
+	// restore fixed-length members
+	m_clrBkgnd = pSnapshot->m_state.clrBkgnd;
+	m_fZoom = pSnapshot->m_state.fZoom;
+	int	nRings = pSnapshot->m_state.nRings;
+	m_main.bConvex = pSnapshot->m_state.bConvex;
+	m_globRing = pSnapshot->m_globRing;
+	// restore ring list
+	m_aRing.RemoveAll();	// empty ring list
+	RING*	pRing = const_cast<RING*>(pSnapshot->m_aRing);
+	for (int iRing = 0; iRing < nRings; iRing++) {	// for each snapshot ring
+		m_aRing.AddTail(*pRing++);	// add ring to list
+	}
 }
 
 bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
@@ -924,18 +948,10 @@ bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
 	if (pSnapshot == NULL) {	// if null snapshot pointer
 		CHECK(E_INVALIDARG);	// One or more arguments are invalid
 	}
-	// restore draw state members
-	m_clrBkgnd = pSnapshot->m_data.drawState.clrBkgnd;
-	m_fZoom = pSnapshot->m_data.drawState.fZoom;
-	m_main.bConvex = pSnapshot->m_data.drawState.bConvex;
-	// restore ring list
-	m_aRing.RemoveAll();	// empty ring list
-	CSnapshot::CRingArray&	aSnapRing = const_cast<CSnapshot*>(pSnapshot)->m_aRing;
-	int	nRings = aSnapRing.GetSize();	// number of snapshot rings
-	for (int iRing = 0; iRing < nRings; iRing++) {	// for each snapshot ring
-		m_aRing.AddTail(aSnapRing[iRing]);	// add ring to list
+	if (m_pSnapshot == NULL) {
+		m_pSnapshot.Attach(GetSnapshot());
 	}
-	m_globRing = pSnapshot->m_globRing;	// restore global ring data
+	SetSnapshot(pSnapshot);
 	m_bIsPaused = true;	// pause display; pointless otherwise
 	delete pSnapshot;	// assume snapshot was allocated on heap
 	return true;

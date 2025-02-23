@@ -15,42 +15,42 @@
 
 #include "WhorldBase.h"
 
+// This class has a variable size due to the rings array.
+// Allocate instances of this class via its Alloc method.
+
 class CSnapshot : public CWhorldBase {
 public:
 // Types
-	struct SNAP_HEADER {
+	struct HEADER {
 		UINT	nFileID;		// file identifier
 		USHORT	nVersion;		// version number
-		USHORT	nDataSize;		// size of data struct
+		USHORT	nStateSize;		// size of STATE
+		USHORT	nGlobRingSize;	// size of GLOBRING in bytes
+		USHORT	nRingSize;		// size of RING in bytes
 	};
-	struct DRAW_STATE {
+	struct STATE {
 		D2D1_COLOR_F	clrBkgnd;	// background color
 		double	fZoom;			// current zoom, as a scaling factor
-		bool	bConvex;		// true if drawing in descending size order
-		BYTE	baReserved[7];	// reserved, must be zero	
-	};
-	struct SNAP_DATA {
-		USHORT	nRingSize;		// size of RING in bytes
-		USHORT	nGlobRingSize;	// size of GLOBRING in bytes
 		int		nRings;			// number of elements in ring array
-		DRAW_STATE	drawState;	// draw state; must be set by user
+		bool	bConvex;		// true if drawing in descending size order
+		BYTE	baReserved[3];	// reserved, must be zero	
 	};
-	typedef CArrayEx<RING, RING&> CRingArray;
 
 // Constants
 	static const UINT m_nFileID;
 	static const USHORT m_nFileVersion;
 
 // Public data
-	SNAP_HEADER	m_hdr;		// file header
-	SNAP_DATA	m_data;		// various data
-	CRingArray	m_aRing;	// array of rings
-	GLOBRING	m_globRing;	// global ring offsets
+	STATE		m_state;		// drawing state
+	GLOBRING	m_globRing;		// global ring offsets
+	RING		m_aRing[1];		// variable-length array of rings
 
 // Operations
-	void	Write(LPCTSTR pszPath);
-	void	Read(LPCTSTR pszPath);
+	static CSnapshot*	Alloc(int nRings);
+	static void	Write(const CSnapshot* pSnapshot, LPCTSTR pszPath);
+	static CSnapshot*	Read(LPCTSTR pszPath);
 
 // Helpers
 	static void	Read(CFile& file, void* lpBuf, UINT nCount);
+	static UINT	GetSize(int nRings);
 };

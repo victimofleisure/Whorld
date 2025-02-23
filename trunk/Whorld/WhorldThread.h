@@ -19,8 +19,7 @@
 #include "RenderThread.h"
 #include "Oscillator.h"
 #include "D2DHelper.h"
-
-class CSnapshot;
+#include "Snapshot.h"
 
 class CWhorldThread : protected CPatch, public CRenderThread {
 public:
@@ -62,7 +61,7 @@ protected:
 	D2D_POINT_2F	m_aPt[MAX_POINTS * 2];	// enough for two rings
 	UINT_PTR	m_nFrameCount;	// frame count
 	POSITION	m_posDel;	// if non-null, position of ring after last deletion
-	CD2DSizeF	m_szClient;	// size of our window in DIPs
+	CD2DSizeF	m_szTarget;	// size of render target in DIPs
 	CKD2DRectF	m_rCanvas;	// ring dies when ALL its vertices are off canvas
 	double	m_fNewGrowth;	// new ring growth, computed at start of TimerHook
 	int		m_nMaxRings;	// maximum number of rings
@@ -84,6 +83,7 @@ protected:
 	double	m_fZoom;		// current zoom, as a scaling factor
 	double	m_fZoomTarget;	// target zoom for damped zooming
 	DWORD	m_nFrameRate;	// current frame rate in Hertz
+	CAutoPtr<CSnapshot>	m_pSnapshot;	// saved state
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
@@ -113,7 +113,7 @@ protected:
 	void	SetOrigin(DPoint ptOrigin, bool bDamping);
 	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
 	void	CaptureBitmap(UINT nFlags, SIZE szImage);
-	bool	CaptureSnapshot();
+	bool	CaptureSnapshot() const;
 	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
 
 // Helpers
@@ -137,7 +137,9 @@ protected:
 	void	OnMainPropChange(int iProp);
 	void	OnMasterPropChange();
 	void	OnMainPropChange();
-	DPoint	GetClientSize() const;
+	DPoint	GetTargetSize() const;
+	CSnapshot*	GetSnapshot() const;
+	void	SetSnapshot(const CSnapshot* pSnapshot);
 	static CString	RenderCommandToString(const CRenderCmd& cmd);
 	static double	RandDouble();
 };
@@ -162,7 +164,7 @@ inline DWORD CWhorldThread::GetFrameRate() const
 	return m_nFrameRate;
 }
 
-inline DPoint CWhorldThread::GetClientSize() const
+inline DPoint CWhorldThread::GetTargetSize() const
 {
-	return DPoint(m_szClient.width, m_szClient.height);
+	return DPoint(m_szTarget.width, m_szTarget.height);
 }

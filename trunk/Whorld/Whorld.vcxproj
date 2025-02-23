@@ -215,7 +215,6 @@
     <ClInclude Include="PropertiesGrid.h" />
     <ClInclude Include="RegTempl.h" />
     <ClInclude Include="RegTemplTypes.h" />
-    <ClInclude Include="SmartPtr.h" />
     <ClInclude Include="Snapshot.h" />
     <ClInclude Include="StringTpl.h" />
     <ClInclude Include="VariantHelper.h" />

@@ -15,56 +15,73 @@
 #include "Snapshot.h"
 
 #ifndef MAKEFOURCC
-    #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
-                ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
-                ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
+	#define MAKEFOURCC(ch0, ch1, ch2, ch3) \
+		((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) | \
+		((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
 #endif //defined(MAKEFOURCC)
 
 const UINT CSnapshot::m_nFileID = MAKEFOURCC('W', 'H', 'S', '2');
 const USHORT CSnapshot::m_nFileVersion = 1;
 
-void CSnapshot::Write(LPCTSTR pszPath)
+UINT CSnapshot::GetSize(int nRings)
 {
-	// set m_aRing, m_globRing, and draw state before calling this method
-	CFile	fOut(pszPath, CFile::modeCreate | CFile::modeWrite);	// may throw
-	m_hdr.nFileID = m_nFileID;
-	m_hdr.nVersion = m_nFileVersion;
-	m_hdr.nDataSize = sizeof(SNAP_DATA);
-	fOut.Write(&m_hdr, sizeof(SNAP_HEADER));
-	m_data.nRingSize = sizeof(RING);
-	m_data.nGlobRingSize = sizeof(GLOBRING);
-	m_data.nRings = m_aRing.GetSize();
-	ZeroMemory(m_data.drawState.baReserved, sizeof(m_data.drawState.baReserved));
-	fOut.Write(&m_data, sizeof(SNAP_DATA));
-	fOut.Write(m_aRing.GetData(), m_data.nRings * sizeof(RING));
-	fOut.Write(&m_globRing, sizeof(GLOBRING));
+	return sizeof(STATE) + sizeof(GLOBRING) + nRings * sizeof(RING);
 }
 
-void CSnapshot::Read(LPCTSTR pszPath)
+CSnapshot* CSnapshot::Alloc(int nRings)
+{
+	UINT	nSnapSize = GetSize(nRings);
+	BYTE	*pData = new BYTE[nSnapSize];
+	return reinterpret_cast<CSnapshot*>(pData);
+}
+
+void CSnapshot::Write(const CSnapshot* pSnapshot, LPCTSTR pszPath)
+{
+	// set all members of pSnapshot before calling this method
+	CFile	fOut(pszPath, CFile::modeCreate | CFile::modeWrite);	// may throw
+	HEADER	hdr;
+	hdr.nFileID = m_nFileID;
+	hdr.nVersion = m_nFileVersion;
+	hdr.nStateSize = sizeof(STATE);
+	hdr.nGlobRingSize = sizeof(GLOBRING);
+	hdr.nRingSize = sizeof(RING);
+	fOut.Write(&hdr, sizeof(HEADER));
+	UINT	nSnapSize = GetSize(pSnapshot->m_state.nRings);
+	fOut.Write(pSnapshot, nSnapSize);
+}
+
+CSnapshot* CSnapshot::Read(LPCTSTR pszPath)
 {
 	CFile	fIn(pszPath, CFile::modeRead | CFile::shareDenyWrite);	// may throw
-	Read(fIn, &m_hdr, sizeof(SNAP_HEADER));
-	if (m_hdr.nFileID != m_nFileID) {
+	HEADER	hdr;
+	Read(fIn, &hdr, sizeof(HEADER));
+	if (hdr.nFileID != m_nFileID) {	// if invalid file ID
+		// throw invalid format exception
 		AfxThrowArchiveException(CArchiveException::badIndex, fIn.GetFilePath());
 	}
-	ZeroMemory(&m_data, sizeof(SNAP_DATA));
-	Read(fIn, &m_data, min(m_hdr.nDataSize, sizeof(SNAP_DATA)));
-	m_aRing.SetSize(m_data.nRings);
-	if (m_data.nRingSize == sizeof(RING)) {	// if ring is current size
-		Read(fIn, m_aRing.GetData(), m_data.nRings * m_data.nRingSize);
+	STATE	state;
+	ZeroMemory(&state, sizeof(STATE));
+	Read(fIn, &state, min(hdr.nStateSize, sizeof(STATE)));
+	CSnapshot*	pSnapshot = Alloc(state.nRings);
+	if (pSnapshot == NULL)	// if allocation failed
+		return NULL;	// can't proceed
+	pSnapshot->m_state = state;
+	ZeroMemory(&pSnapshot->m_globRing, sizeof(GLOBRING));
+	Read(fIn, &pSnapshot->m_globRing, min(hdr.nGlobRingSize, sizeof(GLOBRING)));
+	if (hdr.nRingSize == sizeof(RING)) {	// if ring is current size
+		Read(fIn, pSnapshot->m_aRing, sizeof(RING) * state.nRings);
 	} else {	// legacy ring size; must read rings one at a time
-		int	nRingSize = min(m_data.nRingSize, sizeof(RING));
-		for (int iRing = 0; iRing < m_data.nRings; iRing++) {
-			Read(fIn, &m_aRing[iRing], nRingSize);
+		int	nRingSize = min(hdr.nRingSize, sizeof(RING));
+		for (int iRing = 0; iRing < state.nRings; iRing++) {
+			Read(fIn, &pSnapshot->m_aRing[iRing], nRingSize);
 		}
 	}
-	ZeroMemory(&m_globRing, sizeof(GLOBRING));
-	Read(fIn, &m_globRing, min(m_data.nGlobRingSize, sizeof(GLOBRING)));
+	return pSnapshot;
 }
 
 void CSnapshot::Read(CFile& file, void* lpBuf, UINT nCount)
 {
-	// CFile handles system error, but not end of file
+	// CFile handles system errors, but not end of file
 	UINT	nBytesRead = file.Read(lpBuf, nCount);
 	if (nBytesRead != nCount) {	// if bytes read differs from bytes requested
 		AfxThrowFileException(CFileException::endOfFile, -1, file.GetFilePath());

@@ -25,8 +25,6 @@
 #include "MainFrm.h"
 #include "PathStr.h"
 #include "ExportDlg.h"
-#include "Snapshot.h"
-#include "SmartPtr.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -139,7 +137,7 @@ bool CWhorldView::WriteSnapshot(CSnapshot *pSnapshot)
 		if (!CWhorldView::MakeExportPath(sSnapshotPath, m_pszSnapshotExt))	// generate path
 			return false;	// unable to generate path
 	}
-	pSnapshot->Write(sSnapshotPath);
+	pSnapshot->Write(pSnapshot, sSnapshotPath);
 	return true;
 }
 
@@ -291,9 +289,10 @@ void CWhorldView::OnFileLoadSnapshot()
 	if (fd.DoModal() != IDOK) {	// display file dialog
 		return;	// user canceled
 	}
-	CSmartPtr<CSnapshot>	pSnapshot(new CSnapshot);
-	pSnapshot->Read(fd.GetPathName());
-	CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
-	cmd.m_prop.byref = pSnapshot.Detach();
-	theApp.PushRenderCommand(cmd);
+	CSnapshot	*pSnapshot = CSnapshot::Read(fd.GetPathName());
+	if (pSnapshot != NULL) {
+		CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
+		cmd.m_prop.byref = pSnapshot;
+		theApp.PushRenderCommand(cmd);
+	}
 }

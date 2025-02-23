@@ -13,6 +13,7 @@
 
 #include "stdafx.h"
 #include "Snapshot.h"
+#include "SnapshotV1.h"
 
 #ifndef MAKEFOURCC
 	#define MAKEFOURCC(ch0, ch1, ch2, ch3) \
@@ -56,13 +57,12 @@ CSnapshot* CSnapshot::Read(LPCTSTR pszPath)
 	HEADER	hdr;
 	Read(fIn, &hdr, sizeof(HEADER));
 	if (hdr.nFileID != m_nFileID) {	// if invalid file ID
-		// throw invalid format exception
-		AfxThrowArchiveException(CArchiveException::badIndex, fIn.GetFilePath());
+		return CSnapshotV1::Read(fIn);
 	}
 	STATE	state;
 	ZeroMemory(&state, sizeof(STATE));
 	Read(fIn, &state, min(hdr.nStateSize, sizeof(STATE)));
-	CSnapshot*	pSnapshot = Alloc(state.nRings);
+	CAutoPtr<CSnapshot>	pSnapshot(Alloc(state.nRings));
 	if (pSnapshot == NULL)	// if allocation failed
 		return NULL;	// can't proceed
 	pSnapshot->m_state = state;
@@ -76,7 +76,7 @@ CSnapshot* CSnapshot::Read(LPCTSTR pszPath)
 			Read(fIn, &pSnapshot->m_aRing[iRing], nRingSize);
 		}
 	}
-	return pSnapshot;
+	return pSnapshot.Detach();
 }
 
 void CSnapshot::Read(CFile& file, void* lpBuf, UINT nCount)

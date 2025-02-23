@@ -21,13 +21,6 @@
 class CSnapshot : public CWhorldBase {
 public:
 // Types
-	struct HEADER {
-		UINT	nFileID;		// file identifier
-		USHORT	nVersion;		// version number
-		USHORT	nStateSize;		// size of STATE
-		USHORT	nGlobRingSize;	// size of GLOBRING in bytes
-		USHORT	nRingSize;		// size of RING in bytes
-	};
 	struct STATE {
 		D2D1_COLOR_F	clrBkgnd;	// background color
 		double	fZoom;			// current zoom, as a scaling factor
@@ -45,12 +38,28 @@ public:
 	GLOBRING	m_globRing;		// global ring offsets
 	RING		m_aRing[1];		// variable-length array of rings
 
+// Attributes
+	int		GetSize() const;
+
 // Operations
 	static CSnapshot*	Alloc(int nRings);
 	static void	Write(const CSnapshot* pSnapshot, LPCTSTR pszPath);
 	static CSnapshot*	Read(LPCTSTR pszPath);
-
-// Helpers
 	static void	Read(CFile& file, void* lpBuf, UINT nCount);
 	static UINT	GetSize(int nRings);
+
+protected:
+// Types
+	struct HEADER {
+		UINT	nFileID;		// file identifier
+		USHORT	nVersion;		// version number
+		USHORT	nStateSize;		// size of STATE
+		USHORT	nGlobRingSize;	// size of GLOBRING in bytes
+		USHORT	nRingSize;		// size of RING in bytes
+	};
 };
+
+inline int CSnapshot::GetSize() const
+{
+	return GetSize(m_state.nRings);
+}

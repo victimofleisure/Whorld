@@ -216,6 +216,7 @@
     <ClInclude Include="RegTempl.h" />
     <ClInclude Include="RegTemplTypes.h" />
     <ClInclude Include="Snapshot.h" />
+    <ClInclude Include="SnapshotV1.h" />
     <ClInclude Include="StringTpl.h" />
     <ClInclude Include="VariantHelper.h" />
     <ClInclude Include="WhorldUndoTest.h" />
@@ -284,6 +285,7 @@
     <ClCompile Include="Properties.cpp" />
     <ClCompile Include="PropertiesGrid.cpp" />
     <ClCompile Include="Snapshot.cpp" />
+    <ClCompile Include="SnapshotV1.cpp" />
     <ClCompile Include="WhorldUndoTest.cpp" />
     <ClCompile Include="NumEdit.cpp" />
     <ClCompile Include="NumSpin.cpp" />

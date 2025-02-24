@@ -8,9 +8,6 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
-		01		20feb25	add file export
-		02		21feb25	add options
-        03      22feb25	add snapshot capture and load
 
 */
 
@@ -35,20 +32,12 @@ public:
 
 // Operations
 public:
-	bool	WriteSnapshot(CSnapshot *pSnapshot);
-	static bool	MakeExportPath(CString& sExportPath, LPCTSTR pszExt);
 
 // Overrides
 public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-protected:
-
-// Constants
-	static const LPCTSTR m_pszExportExt;
-	static const LPCTSTR m_pszExportFilter;
-	static const LPCTSTR m_pszSnapshotExt;
-	static const LPCTSTR m_pszSnapshotFilter;
+	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
 // Implementation
 public:
@@ -66,16 +55,6 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg LRESULT OnDelayedCreate(WPARAM wParam, LPARAM lParam);
-	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	afx_msg void OnWindowPause();
-	afx_msg void OnUpdateWindowPause(CCmdUI *pCmdUI);
-	afx_msg void OnWindowStep();
-	afx_msg void OnUpdateWindowStep(CCmdUI *pCmdUI);
-	afx_msg void OnWindowClear();
-	afx_msg void OnImageRandomPhase();
-	afx_msg void OnFileExport();
-	afx_msg void OnFileTakeSnapshot();
-	afx_msg void OnFileLoadSnapshot();
 };
 
 #ifndef _DEBUG  // debug version in WhorldView.cpp

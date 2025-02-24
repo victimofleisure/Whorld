@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
-		01		20feb25	add bitmap capture and write
+		01		20feb25	add file export
 		02		21feb25	add options
         03      22feb25	add snapshot capture and load
 
@@ -25,6 +25,7 @@
 #include "WhorldView.h"
 #include "OptionsDlg.h"
 #include "PathStr.h"
+#include "ExportDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -67,6 +68,11 @@ const UINT CMainFrame::m_arrDockingBarNameID[DOCKING_BARS] = {
 	#define MAINDOCKBARDEF(name, width, height, style) IDS_BAR_##name,
 	#include "MainDockBarDef.h"	// generate docking bar names
 };
+
+const LPCTSTR CMainFrame::m_pszExportExt = _T("png");
+const LPCTSTR CMainFrame::m_pszExportFilter = _T("PNG Files (*.png)|*.png|All Files (*.*)|*.*||");
+const LPCTSTR CMainFrame::m_pszSnapshotExt = _T("whs");
+const LPCTSTR CMainFrame::m_pszSnapshotFilter = _T("Snapshot Files (*.whs)|*.whs|All Files (*.*)|*.*||");
 
 // CMainFrame construction/destruction
 
@@ -327,9 +333,36 @@ bool CMainFrame::FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& 
 	return true;
 }
 
-void CMainFrame::AddOutputPath(CString sPath)
+bool CMainFrame::MakeExportPath(CString& sExportPath, LPCTSTR pszExt)
 {
-	m_saOutputPath.Add(sPath);
+	CPathStr	sPath(theApp.m_options.m_Export_sImageFolder);
+	if (!PathFileExists(sPath)) {	// if export image folder doesn't exist
+		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
+		return false;
+	}
+	// automatically assign a filename based on date and time
+	sPath.Append(theApp.GetTimestampFileName());	// append filename to folder
+	sExportPath = sPath + '.' + CString(pszExt);	// append file extension to filename
+	return true;
+}
+
+bool CMainFrame::WriteSnapshot(CSnapshot *pSnapshot)
+{
+	ASSERT(pSnapshot != NULL);
+	CString	sSnapshotPath;
+	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
+	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+		CFileDialog	fd(false, m_pszSnapshotExt, NULL, OFN_OVERWRITEPROMPT, m_pszSnapshotFilter);
+		if (fd.DoModal() != IDOK) {	// display file dialog
+			return false;	// user canceled
+		}
+		sSnapshotPath = fd.GetPathName();
+	} else {	// not prompting
+		if (!MakeExportPath(sSnapshotPath, m_pszSnapshotExt))	// generate path
+			return false;	// unable to generate path
+	}
+	pSnapshot->Write(pSnapshot, sSnapshotPath);
+	return true;
 }
 
 // CMainFrame diagnostics
@@ -374,6 +407,15 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 		ON_UPDATE_COMMAND_UI(ID_VIEW_BAR_##name, OnUpdateViewBar##name)
 	#include "MainDockBarDef.h"	// generate docking bar message map entries
 	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
+	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
+	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
+	ON_COMMAND(ID_WINDOW_STEP, OnWindowStep)
+	ON_UPDATE_COMMAND_UI(ID_WINDOW_STEP, OnUpdateWindowStep)
+	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
+	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, OnImageRandomPhase)
+	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
+	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
+	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
 END_MESSAGE_MAP()
 
 // CMainFrame message handlers
@@ -482,28 +524,6 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
 
-void CMainFrame::OnWindowDetach()
-{
-	theApp.SetDetached(!theApp.IsDetached());
-}
-
-void CMainFrame::OnUpdateWindowDetach(CCmdUI* pCmdUI)
-{
-	pCmdUI->SetCheck(theApp.IsDetached());
-	pCmdUI->Enable(!theApp.IsFullScreen());
-}
-
-void CMainFrame::OnWindowFullscreen()
-{
-	theApp.SetFullScreen(!theApp.IsFullScreen());
-}
-
-void CMainFrame::OnUpdateWindowFullscreen(CCmdUI* pCmdUI)
-{
-	pCmdUI->SetCheck(theApp.IsFullScreen());
-	pCmdUI->Enable(!theApp.IsFullScreenChanging());
-}
-
 LRESULT CMainFrame::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
@@ -513,6 +533,12 @@ LRESULT CMainFrame::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
 	theApp.GetView()->PostMessage(UWM_DELAYED_CREATE);
 	SetTimer(FRAME_RATE_TIMER_ID, FRAME_RATE_TIMER_PERIOD, NULL);
 	return 0;
+}
+
+LRESULT	CMainFrame::OnHandleDlgKey(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	return theApp.HandleDlgKeyMsg((MSG *)wParam);
 }
 
 LRESULT CMainFrame::OnRenderWndClosed(WPARAM wParam, LPARAM lParam)
@@ -530,10 +556,12 @@ LRESULT CMainFrame::OnFullScreenChanged(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-LRESULT	CMainFrame::OnHandleDlgKey(WPARAM wParam, LPARAM lParam)
+LRESULT	CMainFrame::OnDisplayChange(WPARAM wParam, LPARAM lParam)
 {
+	UNREFERENCED_PARAMETER(wParam);
 	UNREFERENCED_PARAMETER(lParam);
-	return theApp.HandleDlgKeyMsg((MSG *)wParam);
+	theApp.UpdateFrameRate();
+	return 0;
 }
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
@@ -557,31 +585,33 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	CFrameWndEx::OnTimer(nIDEvent);
 }
 
-void CMainFrame::OnEditCopy() //@@@ test only
+void CMainFrame::OnFileExport()
 {
-#if _DEBUG
-//	theApp.GetDocument()->SetParam(PARAM_AspectRatio, 0, 1.23);
-//	theApp.GetDocument()->SetMasterProp(MASTER_CanvasScale, 1.23);
-	AfxMessageBox(_T("TEST CMainFrame::OnEditCopy"));
-#endif
-}
-
-LRESULT	CMainFrame::OnDisplayChange(WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(wParam);
-	UNREFERENCED_PARAMETER(lParam);
-	theApp.UpdateFrameRate();
-	return 0;
-}
-
-void CMainFrame::OnWindowResetLayout()
-{
-	UINT	nType = MB_YESNO | MB_DEFBUTTON2 | MB_ICONWARNING;
-	if (AfxMessageBox(IDS_WINDOW_RESET_LAYOUT_WARN, nType) == IDYES) {	// get confirmation
-		// document overrides CanCloseFrame to reset flag if close is canceled
-		theApp.m_bCleanStateOnExit = true;
-		PostMessage(WM_CLOSE);
+	CString	sExportPath;
+	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
+	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+		// prompt user for export path
+		CFileDialog	fd(false, m_pszExportExt, NULL, OFN_OVERWRITEPROMPT, m_pszExportFilter);
+		if (fd.DoModal() != IDOK) {	// display file dialog
+			return;	// user canceled
+		}
+		sExportPath = fd.GetPathName();
+		// prompt user for export options
+		CExportDlg	dlg;
+		if (dlg.DoModal() != IDOK) {	// display export options dialog
+			return;	// user canceled
+		}
 	}
+	// render thread captures bitmap and posts it to our main window for writing
+	CRenderCmd	cmd(RC_CAPTURE_BITMAP, theApp.m_options.GetExportFlags());
+	cmd.m_prop.szVal = theApp.m_options.GetExportImageSize();
+	theApp.PushRenderCommand(cmd);	// start capture ASAP in case we're unpaused
+	if (sExportPath.IsEmpty()) {	// if export path is unspecified
+		if (!MakeExportPath(sExportPath, m_pszExportExt))	// generate path
+			return;	// unable to generate path
+	}
+	m_saOutputPath.Add(sExportPath);
+	// bitmap capture message may already be waiting for us in message queue
 }
 
 LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
@@ -600,14 +630,43 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+void CMainFrame::OnFileTakeSnapshot()
+{
+	CRenderCmd	cmd(RC_CAPTURE_SNAPSHOT);
+	theApp.PushRenderCommand(cmd);
+}
+
+void CMainFrame::OnFileLoadSnapshot()
+{
+	CFileDialog	fd(true, m_pszSnapshotExt, NULL, OFN_HIDEREADONLY, m_pszSnapshotFilter);
+	if (fd.DoModal() != IDOK) {	// display file dialog
+		return;	// user canceled
+	}
+	CSnapshot	*pSnapshot = CSnapshot::Read(fd.GetPathName());
+	if (pSnapshot != NULL) {
+		CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
+		cmd.m_prop.byref = pSnapshot;
+		theApp.PushRenderCommand(cmd);
+	}
+}
+
 LRESULT	CMainFrame::OnSnapshotCapture(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
 	CAutoPtr<CSnapshot> pSnapshot(reinterpret_cast<CSnapshot*>(lParam));
 	if (pSnapshot != NULL) {	// if capture succeeded
-		theApp.GetView()->WriteSnapshot(pSnapshot);
+		WriteSnapshot(pSnapshot);
 	}
 	return 0;
+}
+
+void CMainFrame::OnEditCopy() //@@@ test only
+{
+#if _DEBUG
+//	theApp.GetDocument()->SetParam(PARAM_AspectRatio, 0, 1.23);
+//	theApp.GetDocument()->SetMasterProp(MASTER_CanvasScale, 1.23);
+	AfxMessageBox(_T("TEST CMainFrame::OnEditCopy"));
+#endif
 }
 
 #define MAINDOCKBARDEF(name, width, height, style) \
@@ -627,5 +686,71 @@ void CMainFrame::OnViewOptions()
 	COptionsDlg	dlg;
 	if (dlg.DoModal() == IDOK) {
 		// apply options
+	}
+}
+
+void CMainFrame::OnImageRandomPhase()
+{
+	CRenderCmd	cmd(RC_RANDOM_PHASE);
+	theApp.PushRenderCommand(cmd);
+}
+
+void CMainFrame::OnWindowFullscreen()
+{
+	theApp.SetFullScreen(!theApp.IsFullScreen());
+}
+
+void CMainFrame::OnUpdateWindowFullscreen(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(theApp.IsFullScreen());
+	pCmdUI->Enable(!theApp.IsFullScreenChanging());
+}
+
+void CMainFrame::OnWindowDetach()
+{
+	theApp.SetDetached(!theApp.IsDetached());
+}
+
+void CMainFrame::OnUpdateWindowDetach(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(theApp.IsDetached());
+	pCmdUI->Enable(!theApp.IsFullScreen());
+}
+
+void CMainFrame::OnWindowPause()
+{
+	CRenderCmd	cmd(RC_SET_PAUSE, !theApp.IsPaused());
+	theApp.PushRenderCommand(cmd);
+}
+
+void CMainFrame::OnUpdateWindowPause(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(theApp.IsPaused());
+}
+
+void CMainFrame::OnWindowStep()
+{
+	CRenderCmd	cmd(RC_SINGLE_STEP);
+	theApp.PushRenderCommand(cmd);
+}
+
+void CMainFrame::OnUpdateWindowStep(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(theApp.IsPaused());
+}
+
+void CMainFrame::OnWindowClear()
+{
+	CRenderCmd	cmd(RC_SET_EMPTY, !theApp.IsPaused());
+	theApp.PushRenderCommand(cmd);
+}
+
+void CMainFrame::OnWindowResetLayout()
+{
+	UINT	nType = MB_YESNO | MB_DEFBUTTON2 | MB_ICONWARNING;
+	if (AfxMessageBox(IDS_WINDOW_RESET_LAYOUT_WARN, nType) == IDYES) {	// get confirmation
+		// document overrides CanCloseFrame to reset flag if close is canceled
+		theApp.m_bCleanStateOnExit = true;
+		PostMessage(WM_CLOSE);
 	}
 }

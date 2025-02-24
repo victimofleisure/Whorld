@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
-		01		20feb25	add bitmap capture and write
+		01		20feb25	add file export
 		02		21feb25	add options
         03      22feb25	add snapshot capture and load
 
@@ -61,7 +61,6 @@ public:
 
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	void	AddOutputPath(CString sPath);
 
 // Overrides
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -93,6 +92,10 @@ public:
 		FRAME_RATE_TIMER_ID = 2025,
 		FRAME_RATE_TIMER_PERIOD = 1000,
 	};
+	static const LPCTSTR m_pszExportExt;
+	static const LPCTSTR m_pszExportFilter;
+	static const LPCTSTR m_pszSnapshotExt;
+	static const LPCTSTR m_pszSnapshotFilter;
 
 // Data members
 	UINT_PTR	m_nPrevFrameCount;	// previous frame count, for measuring frame rate
@@ -104,6 +107,8 @@ public:
 // Helpers
 	BOOL	CreateDockingWindows();
 	bool	FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& sText, int& nCurTextLength);
+	bool	WriteSnapshot(CSnapshot *pSnapshot);
+	static bool	MakeExportPath(CString& sExportPath, LPCTSTR pszExt);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
@@ -131,6 +136,15 @@ public:
 		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);
 	#include "MainDockBarDef.h"	// generate docking bar message handlers
 	afx_msg void OnViewOptions();
+	afx_msg void OnWindowPause();
+	afx_msg void OnUpdateWindowPause(CCmdUI *pCmdUI);
+	afx_msg void OnWindowStep();
+	afx_msg void OnUpdateWindowStep(CCmdUI *pCmdUI);
+	afx_msg void OnWindowClear();
+	afx_msg void OnImageRandomPhase();
+	afx_msg void OnFileExport();
+	afx_msg void OnFileTakeSnapshot();
+	afx_msg void OnFileLoadSnapshot();
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

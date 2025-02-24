@@ -84,6 +84,7 @@ void CWhorldThread::DestroyUserResources()
 void CWhorldThread::OnResize()
 {
 	m_szTarget = m_pD2DDeviceContext->GetSize();
+//printf("aspect = %f\n", m_szTarget.width / m_szTarget.height);//@@@
 }
 
 bool CWhorldThread::OnThreadCreate()
@@ -430,7 +431,7 @@ __forceinline void CWhorldThread::DrawRing(
 {
 	pSink->BeginFigure(m_aPt[iFirstPoint], nBeginType);
 	if (bCurved) {	// if ring is curved
-		pSink->AddBeziers(reinterpret_cast<const D2D1_BEZIER_SEGMENT*>(&m_aPt[iFirstPoint]), nVertices);
+		pSink->AddBeziers(reinterpret_cast<const D2D1_BEZIER_SEGMENT*>(&m_aPt[iFirstPoint + 1]), nVertices);
 	} else {	// ring is straight
 		pSink->AddLines(&m_aPt[iFirstPoint + 1], nPoints - 1);
 	}
@@ -483,6 +484,7 @@ bool CWhorldThread::OnDraw()
 			fLineWidth *= m_fZoom;	// apply special scaling
 			ptOrg *= m_fZoom;
 		}
+		ptOrg += ptWndCenter; //@@@ unsure about this; may be causing flying chicken snapshot issue
 		CKD2DRectF	rBounds(m_rCanvas);
 		rBounds.OffsetRect(DTOF(ptOrg.x), DTOF(ptOrg.y));
 		int		nSides = ring.nSides + m_globRing.nPolySides;
@@ -493,8 +495,7 @@ bool CWhorldThread::OnDraw()
 		double	arRad[2] = {fRad, fRad * ring.fStarRatio * m_globRing.fStarRatio};
 		DPoint	ptScale(DPoint(ring.ptScale) * m_globRing.ptScale);
 		DPoint	aptRad[2] = {ptScale * arRad[0], ptScale * arRad[1]};
-		DPoint	ptShift((DPoint(ring.ptShift) * m_fZoom + DPoint(m_globRing.ptShift) * fRad) 
-			+ ptOrg + ptWndCenter);
+		DPoint	ptShift((DPoint(ring.ptShift) * m_fZoom + DPoint(m_globRing.ptShift) * fRad) + ptOrg);
 		double	fDelta = M_PI / nSides;
 		int		nVertices = nSides * 2;	// two vertices per side
 		bool	bRingVisible = false;
@@ -505,7 +506,7 @@ bool CWhorldThread::OnDraw()
 		if (bCurved) {	// if ring is curved
 			nPoints = nVertices * 3 + 1;	// three per Bezier plus one for start point
 		} else {	// ring is straight
-			nPoints = nVertices;
+			nPoints = nVertices + 1;	// one extra for end point, same as start point
 		}
 		if (ring.nDrawMode & DM_FILL) {	// if ring is filled
 			memcpy(m_aPt + nPoints, m_aPt, nPrevPoints * sizeof(D2D_POINT_2F));
@@ -549,6 +550,7 @@ bool CWhorldThread::OnDraw()
 				if (rBounds.PtInRect(pt))
 					bRingVisible = true;
 			}
+			m_aPt[nPoints - 1] = m_aPt[0];	// close figure
 		}
 		if (!m_bIsPaused)	// if unpaused
 			ring.bDelete = !bRingVisible;	// mark invisible ring for deletion
@@ -574,7 +576,7 @@ bool CWhorldThread::OnDraw()
 					DrawOutline(pPath, ring, DTOF(fLineWidth));
 				}
 			}
-		} else {	// ring is straight
+		} else {	// ring is line
 			OPEN_GEOMETRY_SINK;
 			DrawRing(pSink, D2D1_FIGURE_BEGIN_HOLLOW, 0, nPoints, nVertices, bCurved);
 			CLOSE_GEOMETRY_SINK;

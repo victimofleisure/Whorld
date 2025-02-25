@@ -10,6 +10,8 @@
         00      06feb25	initial version
         01      20feb25	add bitmap capture and write
         02      22feb25	add snapshot capture and load
+		03		25feb25	apply zoom to ring origins to match V1 trail behavior
+		04		25feb25	add previous curve flag to fix degenerate ring
 
 */
 
@@ -48,7 +50,7 @@ CWhorldThread::CWhorldThread()
 	m_fNewGrowth = 0;
 	m_nMaxRings = INT_MAX;
 	m_bIsPaused = false;
-	m_bCapturing = false;
+	m_bShowingSnapshot = false;
 	m_bFlushHistory = false;
 	m_bCopying = false;
 	m_fRingOffset = 0;
@@ -84,7 +86,6 @@ void CWhorldThread::DestroyUserResources()
 void CWhorldThread::OnResize()
 {
 	m_szTarget = m_pD2DDeviceContext->GetSize();
-//printf("aspect = %f\n", m_szTarget.width / m_szTarget.height);//@@@
 }
 
 bool CWhorldThread::OnThreadCreate()
@@ -289,7 +290,17 @@ void CWhorldThread::UpdateOrigin()
 
 void CWhorldThread::UpdateZoom()
 {
+	double	fPrevZoom = m_fZoom;	// save previous zoom
 	m_fZoom += (m_fZoomTarget - m_fZoom) * m_master.fDamping;
+	// apply zoom to ring origins to match V1 trail behavior
+	double	fDeltaZoom = m_fZoom / fPrevZoom;
+	DPoint	ptLeadOrg(m_ptOrigin);
+	POSITION	pos = m_aRing.GetHeadPosition();
+	while (pos != NULL) {	// for each ring
+		// subtract lead origin, scale by delta zoom, add lead origin
+		RING&	rp = m_aRing.GetNext(pos);
+		rp.ptOrigin = (DPoint(rp.ptOrigin) - ptLeadOrg) * fDeltaZoom + ptLeadOrg;
+	}
 }
 
 void CWhorldThread::TimerHook()
@@ -476,15 +487,15 @@ bool CWhorldThread::OnDraw()
 	int		nPoints = 0;			// number of points in current ring
 	int		nPrevPoints = 0;		// number of points in previous ring
 	int		nPrevVertices = 0;		// number of vertices in previous ring if it's curved
+	bool	bPrevCurved = false;	// true if previous ring is curved, else it's straight
 	while (posNext != NULL) {	// ring loop
 		RING&	ring = bConvex ? m_aRing.GetPrev(posNext) : m_aRing.GetNext(posNext);
 		double	fLineWidth = ring.fLineWidth + m_globRing.fLineWidth;
 		DPoint	ptOrg(ring.ptOrigin);
-		if (m_bCapturing) {	// if capturing a bitmap
+		if (m_bShowingSnapshot) {	// if displaying a snapshot
 			fLineWidth *= m_fZoom;	// apply special scaling
 			ptOrg *= m_fZoom;
 		}
-		ptOrg += ptWndCenter; //@@@ unsure about this; may be causing flying chicken snapshot issue
 		CKD2DRectF	rBounds(m_rCanvas);
 		rBounds.OffsetRect(DTOF(ptOrg.x), DTOF(ptOrg.y));
 		int		nSides = ring.nSides + m_globRing.nPolySides;
@@ -495,7 +506,8 @@ bool CWhorldThread::OnDraw()
 		double	arRad[2] = {fRad, fRad * ring.fStarRatio * m_globRing.fStarRatio};
 		DPoint	ptScale(DPoint(ring.ptScale) * m_globRing.ptScale);
 		DPoint	aptRad[2] = {ptScale * arRad[0], ptScale * arRad[1]};
-		DPoint	ptShift((DPoint(ring.ptShift) * m_fZoom + DPoint(m_globRing.ptShift) * fRad) + ptOrg);
+		DPoint	ptShift((DPoint(ring.ptShift) * m_fZoom + DPoint(m_globRing.ptShift) * fRad) 
+			+ ptOrg + ptWndCenter);
 		double	fDelta = M_PI / nSides;
 		int		nVertices = nSides * 2;	// two vertices per side
 		bool	bRingVisible = false;
@@ -515,7 +527,7 @@ bool CWhorldThread::OnDraw()
 			double	fCurveLenCCW[2];
 			fCurveLenCCW[0] = fCurveLenCW[0] * (ring.fEvenShear + m_globRing.fEvenShear);
 			fCurveLenCCW[1] = fCurveLenCW[1] * (ring.fOddShear + m_globRing.fOddShear);
-			// previous ring's start point clobbers current ring's final control point
+			// current ring's final control point clobbers previous ring's first point
 			D2D_POINT_2F	ptPrevRingStart = m_aPt[nPoints];	// so make a backup
 			D2D_POINT_2F	*pPt = &m_aPt[2];	// first two points are set after loop
 			for (int iVert = 0; iVert < nVertices; iVert++) {	// innermost loop
@@ -560,7 +572,7 @@ bool CWhorldThread::OnDraw()
 					OPEN_GEOMETRY_SINK;
 					DrawRing(pSink, D2D1_FIGURE_BEGIN_FILLED, 0, nPoints, nVertices, bCurved);
 					if (nPrevPoints) {	// if previous ring is valid
-						DrawRing(pSink, D2D1_FIGURE_BEGIN_FILLED, nPoints, nPrevPoints, nPrevVertices, bCurved);
+						DrawRing(pSink, D2D1_FIGURE_BEGIN_FILLED, nPoints, nPrevPoints, nPrevVertices, bPrevCurved);
 					}
 					CLOSE_GEOMETRY_SINK;
 					m_pDrawBrush->SetColor(bConvex ? clrPrev : ring.clrCur);
@@ -587,6 +599,7 @@ bool CWhorldThread::OnDraw()
 		nPrevVertices = nVertices;
 		clrPrev = ring.clrCur;
 		bPrevSkipFill = ring.bSkipFill;
+		bPrevCurved = bCurved;
 	}
 	if (!m_bIsPaused) {	// if unpaused
 		if (m_posDel != NULL) {  // if delete requested
@@ -606,10 +619,8 @@ void CWhorldThread::OnMasterPropChange(int iProp)
 	case MASTER_Spread:
 		OnCopiesChange();
 		break;
-	case MASTER_CanvasScale:
 	case MASTER_Zoom:
-		m_fZoom = m_master.fZoom;
-		m_fZoomTarget = m_fZoom;	// disable damping
+		SetZoom(m_master.fZoom, false);
 		break;
 	case MASTER_Tempo:
 		OnTempoChange();
@@ -743,6 +754,7 @@ void CWhorldThread::SetPause(bool bIsPaused)
 {
 	m_bIsPaused = bIsPaused;
 	if (!bIsPaused && m_pSnapshot != NULL) {
+		m_bShowingSnapshot = false;
 		// snapshot will be deleted at end of scope
 		CAutoPtr<CSnapshot>	pSnapshot(m_pSnapshot);
 		SetSnapshot(pSnapshot);	// restore snapshot
@@ -771,7 +783,7 @@ void CWhorldThread::RandomPhase()
 void CWhorldThread::SetZoom(double fZoom, bool bDamping)
 {
 	m_fZoomTarget = fZoom;
-	if (!bDamping) {	// if not damping
+	if (!bDamping || m_bShowingSnapshot) {	// if not damping
 		m_fZoom = fZoom;	// go to target
 	}
 }
@@ -780,7 +792,7 @@ void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
 {
 	DPoint	ptClientOrigin((ptOrigin - 0.5) * GetTargetSize());
 	m_ptOriginTarget = ptClientOrigin;
-	if (!bDamping) {	// if not damping
+	if (!bDamping || m_bShowingSnapshot) {	// if not damping
 		m_ptOrigin = ptClientOrigin;	// go to target
 	}
 }
@@ -815,7 +827,6 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 	m_pD2DDeviceContext->BeginDraw();	// start drawing
 	{
 		CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set pause state
-		CSaveObj<bool>	saveCapturing(m_bCapturing, true);	// save and capturing state
 		CSaveObj<double>	saveZoom(m_fZoom);	// save zoom
 		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
 			double	fScaleWidth = szImage.width / m_szTarget.width;
@@ -941,7 +952,12 @@ void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 	m_aRing.RemoveAll();	// empty ring list
 	RING*	pRing = const_cast<RING*>(pSnapshot->m_aRing);
 	for (int iRing = 0; iRing < nRings; iRing++) {	// for each snapshot ring
-		m_aRing.AddTail(*pRing++);	// add ring to list
+		POSITION	pos = m_aRing.AddTail(*pRing++);	// add ring to list
+		// ring origins include zoom, but that causes distorted
+		// zooming in snapshot mode, so unzoom the ring origin
+		RING&	ring = m_aRing.GetNext(pos);
+		ring.ptOrigin = DPoint(ring.ptOrigin) / m_fZoom;	// unzoom origin
+		ring.fLineWidth /= m_fZoom;	// unzoom line width too
 	}
 }
 
@@ -955,6 +971,7 @@ bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
 	}
 	SetSnapshot(pSnapshot);
 	m_bIsPaused = true;	// pause display; pointless otherwise
+	m_bShowingSnapshot = true;
 	delete pSnapshot;	// assume snapshot was allocated on heap
 	return true;
 }

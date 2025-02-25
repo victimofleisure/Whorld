@@ -53,7 +53,7 @@ void CSnapshot::Write(const CSnapshot* pSnapshot, LPCTSTR pszPath)
 
 CSnapshot* CSnapshot::Read(LPCTSTR pszPath)
 {
-	CFile	fIn(pszPath, CFile::modeRead | CFile::shareDenyWrite);	// may throw
+	CFile	fIn(pszPath, CFile::modeRead);	// may throw
 	HEADER	hdr;
 	Read(fIn, &hdr, sizeof(HEADER));
 	if (hdr.nFileID != m_nFileID) {	// if invalid file ID

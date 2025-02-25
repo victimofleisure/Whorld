@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      10feb25	initial version
+		01		25feb25	add edit precision for zoom, damping, and trail
 
 */
 
@@ -31,9 +32,9 @@ const CEditSliderCtrl::INFO CMasterRowDlg::m_arrSliderInfo[MASTER_COUNT] = {
 //	Range	Range	Log		Slider	Default	Tic		Edit	Edit
 //	Min		Max		Base	Scale	Pos		Count	Scale	Precision
 	{-100,	100,	20,		100,	0,		0,		.01f,	0},	// Speed
-	{-100,	100,	10,		100,	0,		0,		.01f,	0},	// Zoom
-	{0,		100,	20,		101,	50,		0,		100,	0},	// Damping
-	{0,		100,	10,		100,	0,		0,		.01f,	1},	// Trail
+	{-100,	100,	10,		100,	0,		0,		.01f,	2},	// Zoom
+	{0,		100,	20,		101,	50,		0,		100,	2},	// Damping
+	{0,		100,	10,		100,	0,		0,		.01f,	2},	// Trail
 	{0,		100,	30,		100,	100,	0,		1,		0},	// Rings
 	{0,		250,	0,		1,		100,	0,		1,		2},	// Tempo
 	{0,		360,	0,		1,		30,		0,		1,		0},	// Hue Loop
@@ -186,7 +187,7 @@ void CMasterRowDlg::CMyNumEdit::ValToStr(CString& Str)
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iProp];
 	switch (iProp) {
 	case MASTER_Damping:
-		Str.Format(_T("%.1f"), info.EditScale - m_fVal * info.EditScale);
+		Str.Format(_T("%.*f"), info.EditPrecision, info.EditScale - m_fVal * info.EditScale);
 		break;
 	default:
 		CNumEdit::ValToStr(Str);

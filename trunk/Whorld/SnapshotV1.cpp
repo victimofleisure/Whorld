@@ -45,13 +45,13 @@ CSnapshot* CSnapshotV1::Read(CFile& fIn)
 	ar >> nRings;
 	CAutoPtr<CSnapshot>	pSnapshot(CSnapshot::Alloc(nRings));
 	ZeroMemory(pSnapshot->m_aRing, sizeof(RING) * nRings);
-	RING_V1	Ring;
-	ZeroMemory(&Ring, sizeof(RING_V1));
+	RING_V1	ring;
+	ZeroMemory(&ring, sizeof(RING_V1));
 	if (nRingSize > sizeof(RING_V1))
 		ThrowBadFormat(ar);
-	for (int iRing = 0; iRing < nRings; iRing++) {
-		ar.Read(&Ring, nRingSize);
-		CvtRing(Ring, pSnapshot->m_aRing[iRing]);
+	for (int iRing = 0; iRing < nRings; iRing++) {	// for each ring
+		ar.Read(&ring, nRingSize);	// read ring into buffer
+		CvtRing(ring, pSnapshot->m_aRing[iRing]);	// convert to V2
 	}
 	if (nVersion > 3) {	// if video overlay is supported
 		CString	sVideoPath;

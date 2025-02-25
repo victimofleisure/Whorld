@@ -162,7 +162,7 @@ bool CPatch::ParseLine(CString sLine)
 
 bool CPatch::Read(LPCTSTR pszPath)
 {
-	CStdioFile	fIn(pszPath, CFile::modeRead | CFile::shareDenyWrite);
+	CStdioFile	fIn(pszPath, CFile::modeRead);	// may throw
 	CString	sLine;
 	int	nVersion;
 	if (!fIn.ReadString(sLine) || _stscanf_s(sLine, FILE_ID, &nVersion) != 1) {
@@ -178,7 +178,7 @@ bool CPatch::Read(LPCTSTR pszPath)
 
 bool CPatch::Write(LPCTSTR pszPath) const
 {
-	CStdioFile	fOut(pszPath, CFile::modeCreate | CFile::modeWrite);
+	CStdioFile	fOut(pszPath, CFile::modeCreate | CFile::modeWrite);	// may throw
 	CString	sLine;
 	sLine.Format(FILE_ID, FILE_VERSION);
 	fOut.WriteString(sLine + "\n");

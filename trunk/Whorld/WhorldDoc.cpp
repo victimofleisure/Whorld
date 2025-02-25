@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		24feb25	fix outline menu item not displaying check
 
 */
 
@@ -413,7 +414,7 @@ void CWhorldDoc::OnImageFill()
 
 void CWhorldDoc::OnUpdateImageFill(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_main.nDrawMode & DM_FILL);
+	pCmdUI->SetCheck((m_main.nDrawMode & DM_FILL) != 0);
 }
 
 void CWhorldDoc::OnImageOutline()
@@ -423,7 +424,7 @@ void CWhorldDoc::OnImageOutline()
 
 void CWhorldDoc::OnUpdateImageOutline(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_main.nDrawMode & DM_OUTLINE);
+	pCmdUI->SetCheck((m_main.nDrawMode & DM_OUTLINE) != 0);
 }
 
 void CWhorldDoc::OnImageMirror()

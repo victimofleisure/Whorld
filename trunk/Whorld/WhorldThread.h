@@ -66,7 +66,7 @@ protected:
 	double	m_fNewGrowth;	// new ring growth, computed at start of TimerHook
 	int		m_nMaxRings;	// maximum number of rings
 	bool	m_bIsPaused;	// if true, we're paused
-	bool	m_bCapturing;	// if true, we're capturing an image
+	bool	m_bShowingSnapshot;	// if true, we're displaying a snapshot
 	bool	m_bFlushHistory;	// if true, next TimerHook won't interpolate oscillators
 	bool	m_bCopying;		// if true, add a rotating skew to new ring origins
 	double	m_fRingOffset;	// size of gap since last ring, in pixels

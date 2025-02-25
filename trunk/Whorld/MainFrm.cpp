@@ -11,6 +11,8 @@
 		01		20feb25	add file export
 		02		21feb25	add options
         03      22feb25	add snapshot capture and load
+		04		25feb25	disable disruptive commands in full screen single monitor
+		05		25feb25	add frame min/max info handler for row view panes
 
 */
 
@@ -26,6 +28,7 @@
 #include "OptionsDlg.h"
 #include "PathStr.h"
 #include "ExportDlg.h"
+#include "RowDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -365,6 +368,51 @@ bool CMainFrame::WriteSnapshot(CSnapshot *pSnapshot)
 	return true;
 }
 
+BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	// if we're running full screen in a single monitor configuration,
+	// disable commands that steal focus and disrupt full screen mode
+	if (theApp.IsFullScreenSingleMonitor()) {
+		switch (nID) {
+		#define MAINDOCKBARDEF(name, width, height, style) case ID_VIEW_BAR_##name:
+		#include "MainDockBarDef.h"	// generate docking bar view commands
+		case ID_FILE_NEW:
+		case ID_FILE_OPEN:
+		case ID_FILE_SAVE:
+		case ID_FILE_SAVE_AS:
+		case ID_VIEW_CUSTOMIZE:
+		case ID_HELP_FINDER:
+		case ID_APP_HOME_PAGE:
+		case ID_APP_ABOUT:
+			return true;	// disable command
+		}
+	}
+	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+}
+
+void CMainFrame::OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINMAXINFO *pMMI)
+{
+	ASSERT(pPane != NULL);
+	ASSERT(hFrameWnd);
+	ASSERT(pMMI != NULL);
+	CRect	rFrame;
+	::GetWindowRect(hFrameWnd, rFrame);
+	CRect	rBar;
+	pPane->GetWindowRect(rBar);
+	CSize	szNCBrass = rFrame.Size() - rBar.Size();
+	CRowView*	pRowView = STATIC_DOWNCAST(CRowView, pPane->GetWindow(GW_CHILD));
+	int	iRow = pRowView->GetRows() - 1;
+	CRowDlg *pRowDlg = pRowView->GetRow(iRow);
+	CRect	rRowDlg;
+	pRowDlg->GetWindowRect(rRowDlg);
+	pPane->ScreenToClient(rRowDlg);
+	CPoint	ptBR(rRowDlg.BottomRight());
+	CSize	szScrollBars(GetSystemMetrics(SM_CXHSCROLL), GetSystemMetrics(SM_CXVSCROLL));
+	ptBR.Offset(szNCBrass + szScrollBars);
+	pMMI->ptMaxTrackSize = ptBR;
+	pMMI->ptMinTrackSize = CPoint(GetSystemMetrics(SM_CXMIN), GetSystemMetrics(SM_CYMIN));
+}
+
 // CMainFrame diagnostics
 
 #ifdef _DEBUG
@@ -672,8 +720,7 @@ void CMainFrame::OnEditCopy() //@@@ test only
 #define MAINDOCKBARDEF(name, width, height, style) \
 	void CMainFrame::OnViewBar##name() \
 	{ \
-		if (!theApp.IsFullScreenSingleMonitor()) \
-			m_wnd##name##Bar.ToggleShowPane(); \
+		m_wnd##name##Bar.ToggleShowPane(); \
 	} \
 	void CMainFrame::OnUpdateViewBar##name(CCmdUI *pCmdUI) \
 	{ \

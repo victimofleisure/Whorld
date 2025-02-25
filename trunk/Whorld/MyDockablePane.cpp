@@ -16,6 +16,7 @@
 		06		17dec21	add full screen mode
 		07		16feb24	override OnUpdateCmdUI to skip iterating child controls
 		08		08feb25	remove maximize/restore and full screen
+		09		25feb25	subclass parent mini-frame for get min/max info
 
 */
 
@@ -85,6 +86,22 @@ void CMyDockablePane::ToggleShowPane()
 		SetFocus();	// ShowPane's activate flag is unreliable
 }
 
+LRESULT CALLBACK CMyDockablePane::MiniFrameSubclassProc(HWND hWnd, UINT uMsg, 
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	if (uIdSubclass == ID_MINI_FRAME_SUBCLASS) {
+		if (uMsg == WM_GETMINMAXINFO) {
+			CMyDockablePane	*pPane = reinterpret_cast<CMyDockablePane*>(dwRefData);
+			MINMAXINFO*	pMMI = reinterpret_cast<MINMAXINFO*>(lParam);
+			ASSERT(pPane != NULL);
+			ASSERT(pMMI != NULL);
+			pPane->OnFrameGetMinMaxInfo(hWnd, pMMI);
+			return 0;
+		}
+	}
+	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
 class CMyPaneFrameWnd : public CPaneFrameWnd
 {
 	friend class CMyDockablePane;	// allow access to m_nCaptionHeight
@@ -148,7 +165,24 @@ LRESULT CMyDockablePane::OnShowChanging(WPARAM wParam, LPARAM lParam)
 		m_bFastIsVisible = bShow;	// update cached show state before notifying
 		OnShowChanged(bShow);	// notify derived class of debounced show change
 	}
+	CPaneFrameWnd* pMiniFrame = GetParentMiniFrame();
+	if (pMiniFrame != NULL) {	// if parent mini-frame exists
+		// if we didn't already subclass mini-frame
+		if (!GetWindowSubclass(pMiniFrame->m_hWnd, MiniFrameSubclassProc, ID_MINI_FRAME_SUBCLASS, NULL)) {
+			// subclass mini-frame, passing it pointer to our instance
+			DWORD_PTR	dwRefData = reinterpret_cast<DWORD_PTR>(this);
+			if (!SetWindowSubclass(pMiniFrame->m_hWnd, MiniFrameSubclassProc, ID_MINI_FRAME_SUBCLASS, dwRefData)) {
+				AfxThrowNotSupportedException();
+			}
+		}
+	}
 	return 0;
+}
+
+void CMyDockablePane::OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI)
+{
+	UNREFERENCED_PARAMETER(hFrameWnd);
+	UNREFERENCED_PARAMETER(pMMI);
 }
 
 void CMyDockablePane::OnUpdateCmdUI(class CFrameWnd *pTarget, int bDisableIfNoHndler)

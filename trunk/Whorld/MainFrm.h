@@ -11,6 +11,7 @@
 		01		20feb25	add file export
 		02		21feb25	add options
         03      22feb25	add snapshot capture and load
+		04		25feb25	add frame min/max info handler for row view panes
 
 */
 
@@ -61,6 +62,7 @@ public:
 
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	static void	OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINMAXINFO *pMMI);
 
 // Overrides
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -145,6 +147,7 @@ public:
 	afx_msg void OnFileExport();
 	afx_msg void OnFileTakeSnapshot();
 	afx_msg void OnFileLoadSnapshot();
+	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

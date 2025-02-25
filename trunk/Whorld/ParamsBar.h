@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      08feb25	initial version
+		01		25feb25	override frame min/max info handler
 
 */
 
@@ -74,6 +75,9 @@ public:
 
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+
+// Overrides
+	virtual void	OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI);
 
 protected:
 // Types

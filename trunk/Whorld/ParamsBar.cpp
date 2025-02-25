@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      08feb25	initial version
+		01		25feb25	override frame min/max info handler
 
 */
 
@@ -164,6 +165,12 @@ void CParamsBar::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	if (pSender != m_pView)	{	// if sender isn't us
 		m_pView->OnUpdate(pSender, lHint, pHint);
 	}
+}
+
+void CParamsBar::OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI)
+{
+	// delegate frame min/max to common handler for row view panes
+	CMainFrame::OnFrameGetMinMaxInfo(this, hFrameWnd, pMMI);
 }
 
 // CParamsBar message map

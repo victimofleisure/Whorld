@@ -14,6 +14,7 @@
 		04		17dec21	add full screen mode
 		05		16feb24	override OnUpdateCmdUI to skip iterating child controls
 		06		08feb25	remove maximize/restore and full screen
+		07		25feb25	subclass parent mini-frame for get min/max info
 
 */
 
@@ -41,6 +42,9 @@ public:
 // Overrides
 	virtual void OnUpdateCmdUI(class CFrameWnd *pTarget, int bDisableIfNoHndler);
 
+// Overridables
+	virtual void OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI);
+
 // Implementation
 public:
 	virtual ~CMyDockablePane();
@@ -48,7 +52,8 @@ public:
 protected:
 // Constants
 	enum {
-		ID_TOGGLE_MAXIMIZE = -1110	// don't conflict with IDs in CPane::OnShowControlBarMenu
+		ID_TOGGLE_MAXIMIZE = -1110,	// don't conflict with IDs in CPane::OnShowControlBarMenu
+		ID_MINI_FRAME_SUBCLASS = 1989,
 	};
 
 // Data members
@@ -59,6 +64,10 @@ protected:
 
 // Overridables
 	virtual	void	OnShowChanged(bool bShow);
+
+// Helpers
+	static LRESULT CALLBACK MiniFrameSubclassProc(HWND hWnd, UINT uMsg, 
+		WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()

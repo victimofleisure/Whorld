@@ -42,7 +42,7 @@ void COptionsDlg::UpdateMidiDevices()
 	int iType = CMidiDevices::INPUT;
 	int	iProp = COptions::PROP_Midi_iInputDevice + iType;
 	m_Grid.UpdateOptions(props, iProp);
-	int	iOption = theApp.m_midiDevs.GetIdx(iType) + 1;	// skip none option
+	int	iOption = theApp.m_midiMgr.GetDeviceIdx(iType) + 1;	// skip none option
 	CString	sName(props.GetOptionName(iProp, iOption));	
 	CMFCPropertyGridProperty	*pProp = m_Grid.GetValueProperty(iProp);
 	pProp->SetValue(sName);	// must also set current selection index

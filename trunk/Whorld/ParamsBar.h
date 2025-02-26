@@ -29,7 +29,6 @@ public:
 	virtual ~CParamsView();
 
 // Attributes
-	CWhorldDoc* GetDocument() const;
 	CParamsRowDlg*	GetRow(int iRow);
 
 // Constants
@@ -52,13 +51,6 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg int OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message);
 };
-
-#ifndef _DEBUG  // debug version in .cpp
-inline CWhorldDoc* CParamsView::GetDocument() const
-{ 
-	return reinterpret_cast<CWhorldDoc*>(m_pDocument);
-}
-#endif
 
 inline CParamsRowDlg* CParamsView::GetRow(int iRow)
 {

@@ -52,20 +52,12 @@ CRowDlg	*CMasterView::CreateRow(int Idx)
 
 void CMasterView::UpdateRow(int Idx)
 {
-	CWhorldDoc	*pDoc = GetDocument();
+	CWhorldDoc	*pDoc = theApp.GetDocument();
 	ASSERT(pDoc != NULL);
 	CMasterRowDlg	*pRow = STATIC_DOWNCAST(CMasterRowDlg, GetRow(Idx));
 	ASSERT(pRow != NULL);
 	pRow->Update(pDoc->m_master.a[Idx]);
 }
-
-#ifdef _DEBUG
-CWhorldDoc* CMasterView::GetDocument() const // non-debug version is inline
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CWhorldDoc)));
-	return (CWhorldDoc*)m_pDocument;
-}
-#endif //_DEBUG
 
 void CMasterView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {

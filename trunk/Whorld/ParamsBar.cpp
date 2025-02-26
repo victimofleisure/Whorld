@@ -78,20 +78,12 @@ CRowDlg	*CParamsView::CreateRow(int Idx)
 
 void CParamsView::UpdateRow(int Idx)
 {
-	CWhorldDoc	*pDoc = GetDocument();
+	CWhorldDoc	*pDoc = theApp.GetDocument();
 	ASSERT(pDoc != NULL);
 	CParamsRowDlg	*pRow = STATIC_DOWNCAST(CParamsRowDlg, GetRow(Idx));
 	ASSERT(pRow != NULL);
 	pRow->Update(pDoc->GetParamRow(Idx));
 }
-
-#ifdef _DEBUG
-CWhorldDoc* CParamsView::GetDocument() const // non-debug version is inline
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CWhorldDoc)));
-	return (CWhorldDoc*)m_pDocument;
-}
-#endif //_DEBUG
 
 void CParamsView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
@@ -107,7 +99,7 @@ void CParamsView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			CParamHint	*pParamHint = reinterpret_cast<CParamHint*>(pHint);
 			int	iParam = pParamHint->m_iParam;
 			int	iProp = pParamHint->m_iProp;
-			CWhorldDoc	*pDoc = GetDocument();
+			CWhorldDoc	*pDoc = theApp.GetDocument();
 			// update row's control for specified property only
 			GetRow(iParam)->Update(pDoc->GetParamRow(iParam), iProp);
 		}

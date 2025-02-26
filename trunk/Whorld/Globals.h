@@ -120,7 +120,8 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_BITMAP_CAPTURE,			// wParam: none, lParam: ID2D1Bitmap1*
 	UWM_SNAPSHOT_CAPTURE,		// wParam: none, lParam: CSnapshot*
 	UWM_DEVICE_NODE_CHANGE,		// wParam: none, lParam: none
-	UWM_MIDI_EVENT,				// wParam: timestamp, lParam: MIDI message
+	UWM_MASTER_PROP_CHANGE,		// wParam: iProp, lParam: double
+	UWM_PARAM_VAL_CHANGE,		// wParam: iParam, lParam: double
 };
 
 // undo natter should always be zero in a shipping version

@@ -48,13 +48,6 @@ inline CParamsView* CParamsRowDlg::GetView()
 	return pView;
 }
 
-inline CWhorldDoc* CParamsRowDlg::GetDocument()
-{
-	CWhorldDoc	*pDoc = GetView()->GetDocument();
-	ASSERT(pDoc != NULL);
-	return pDoc;
-}
-
 void CParamsRowDlg::Update(const PARAM_ROW& row)
 {
 	// update all child controls from row data
@@ -135,7 +128,7 @@ BOOL CParamsRowDlg::OnInitDialog()
 
 inline void CParamsRowDlg::SetParam(int iProp, const CComVariant& prop)
 {
-	GetDocument()->SetParam(m_RowIdx, iProp, prop, GetView());
+	theApp.GetDocument()->SetParam(m_RowIdx, iProp, prop, GetView());
 }
 
 // CParamsRowDlg message map

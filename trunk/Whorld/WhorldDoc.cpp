@@ -36,6 +36,7 @@ CString	CWhorldDoc::CMyUndoManager::m_sRedoPrefix;
 
 CWhorldDoc::CWhorldDoc()
 {
+	theApp.SetDocument(this);	// SDI shortcut
 	m_UndoMgr.SetRoot(this);
 	SetUndoManager(&m_UndoMgr);
 }

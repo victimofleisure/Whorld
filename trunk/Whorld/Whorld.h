@@ -28,8 +28,7 @@
 #include "RenderWnd.h"
 #include "WhorldThread.h"
 #include "Options.h"
-#include "MidiWrap.h"
-#include "MidiDevices.h"
+#include "MidiManager.h"
 
 // CWhorldApp:
 // See Whorld.cpp for the implementation of this class
@@ -48,6 +47,7 @@ public:
 // Attributes
 	CMainFrame	*GetMainFrame() const;
 	void	SetView(CWhorldView *pView);
+	void	SetDocument(CWhorldDoc *pDocument);
 	CWhorldView	*GetView();
 	CWhorldDoc	*GetDocument();
 	bool	IsDetached() const;
@@ -63,7 +63,6 @@ public:
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 	bool	ResourceVersionChanged() const;
-	bool	IsMidiInputDeviceOpen() const;
 
 // Operations
 	void	ApplyOptions(const COptions *pPrevOptions);
@@ -82,11 +81,7 @@ public:
 	bool	UpdateFrameRate();
 	bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
 	CString	GetTimestampFileName() const;
-	void	OnMidiError(MMRESULT nResult);
 	void	MidiInit();
-	void	OnDeviceChange();
-	bool	OpenMidiInputDevice(bool bEnable);
-	void	CloseMidiInputDevice();
 
 // Overrides
 public:
@@ -98,7 +93,7 @@ public:
 	BOOL  m_bHiColorIcons;
 	bool	m_bCleanStateOnExit;	// if true, clean state before exiting
 	COptions	m_options;			// options data
-	CMidiDevices	m_midiDevs;		// MIDI device information
+	CMidiManager	m_midiMgr;		// MIDI manager
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
@@ -107,6 +102,7 @@ public:
 protected:
 // Member data
 	CWhorldView	*m_pView;		// pointer to one and only view; app is SDI
+	CWhorldDoc	*m_pDocument;	// pointer to one and only document; app is SDI
 	CRenderWnd	m_wndRender;	// render window
 	CWhorldThread	m_thrRender;	// derived render thread
 	bool	m_bIsDetached;		// true if render window is detached
@@ -117,8 +113,6 @@ protected:
 	HHOOK	m_hKeyboardHook;	// handle to keyboard hook
 	int		m_nOldResourceVersion;	// previous resource version number
 	static const int	m_nNewResourceVersion;	// current resource version number
-	CMidiIn	m_midiIn;			// MIDI input device
-	bool	m_bInMsgBox;		// true if displaying message box
 
 // Helpers
 	static BOOL	GetNearestMonitorInfo(HWND hWnd, MONITORINFOEX& monInfo);
@@ -127,7 +121,6 @@ protected:
 	bool	RemoveKeyboardHook();
 	static LRESULT CALLBACK KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam);
 	void	ResetWindowLayout();
-	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2);
 
 // Message handlers
 	DECLARE_MESSAGE_MAP()
@@ -151,6 +144,16 @@ inline void CWhorldApp::SetView(CWhorldView *pView)
 inline CWhorldView *CWhorldApp::GetView()
 {
 	return m_pView;
+}
+
+inline void CWhorldApp::SetDocument(CWhorldDoc *pDocument)
+{
+	m_pDocument = pDocument;
+}
+
+inline CWhorldDoc *CWhorldApp::GetDocument()
+{
+	return m_pDocument;
 }
 
 inline bool CWhorldApp::IsDetached() const
@@ -221,9 +224,4 @@ inline bool CWhorldApp::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszIm
 inline bool	CWhorldApp::ResourceVersionChanged() const
 {
 	return m_nNewResourceVersion != m_nOldResourceVersion;
-}
-
-inline bool CWhorldApp::IsMidiInputDeviceOpen() const
-{
-	return m_midiIn.IsOpen();
 }

@@ -69,6 +69,7 @@ public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL DestroyWindow();
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
+	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 
 // Docking bars
 	CMFCMenuBar       m_wndMenuBar;
@@ -131,13 +132,14 @@ public:
 	afx_msg LRESULT	OnHandleDlgKey(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnEditCopy();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	LRESULT OnMidiEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnDisplayChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnDeviceNodeChange(WPARAM wParam, LPARAM lParam);
 	afx_msg BOOL OnDeviceChange(UINT nEventType, W64ULONG dwData);
 	afx_msg void OnWindowResetLayout();
 	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnSnapshotCapture(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnParamValChange(WPARAM wParam, LPARAM lParam);
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		afx_msg void OnViewBar##name(); \
 		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);
@@ -152,7 +154,6 @@ public:
 	afx_msg void OnFileExport();
 	afx_msg void OnFileTakeSnapshot();
 	afx_msg void OnFileLoadSnapshot();
-	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

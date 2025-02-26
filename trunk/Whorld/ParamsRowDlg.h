@@ -68,7 +68,6 @@ protected:
 
 // Helpers
 	CParamsView* GetView();
-	CWhorldDoc* GetDocument();
 	void	SetParam(int iProp, const CComVariant& prop);
 
 // Generated message map functions

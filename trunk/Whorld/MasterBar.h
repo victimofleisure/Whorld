@@ -28,7 +28,6 @@ public:
 	virtual ~CMasterView();
 
 // Attributes
-	CWhorldDoc* GetDocument() const;
 	CMasterRowDlg*	GetRow(int iRow);
 
 // Public data
@@ -44,13 +43,6 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg int OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message);
 };
-
-#ifndef _DEBUG  // debug version in .cpp
-inline CWhorldDoc* CMasterView::GetDocument() const
-{ 
-	return reinterpret_cast<CWhorldDoc*>(m_pDocument);
-}
-#endif
 
 inline CMasterRowDlg* CMasterView::GetRow(int iRow)
 {

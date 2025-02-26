@@ -87,7 +87,7 @@ int COptions::GetOptionCount(int iProp) const
 {
 	switch (iProp) {
 	case PROP_Midi_iInputDevice:
-		return theApp.m_midiDevs.GetCount(CMidiDevices::INPUT) + 1;	// add one for none option
+		return theApp.m_midiMgr.GetDeviceCount(CMidiDevices::INPUT) + 1;	// add one for none option
 	default:
 		return CProperties::GetOptionCount(iProp);
 	}
@@ -98,7 +98,7 @@ CString	COptions::GetOptionName(int iProp, int iOption) const
 	switch (iProp) {
 	case PROP_Midi_iInputDevice:
 		{
-			CString	sName(theApp.m_midiDevs.GetName(CMidiDevices::INPUT, iOption - 1));	// convert to zero-origin
+			CString	sName(theApp.m_midiMgr.GetDeviceName(CMidiDevices::INPUT, iOption - 1));	// convert to zero-origin
 			if (sName.IsEmpty())
 				sName.LoadString(IDS_NONE);
 			return sName;
@@ -161,5 +161,5 @@ UINT COptions::GetExportFlags() const
 
 void COptions::UpdateMidiDevices()
 {
-	m_Midi_iInputDevice = theApp.m_midiDevs.GetIdx(CMidiDevices::INPUT) + 1;	// add one for none option
+	m_Midi_iInputDevice = theApp.m_midiMgr.GetDeviceIdx(CMidiDevices::INPUT) + 1;	// add one for none option
 }

@@ -66,13 +66,6 @@ inline CMasterView* CMasterRowDlg::GetView()
 	return pView;
 }
 
-inline CWhorldDoc* CMasterRowDlg::GetDocument()
-{
-	CWhorldDoc	*pDoc = GetView()->GetDocument();
-	ASSERT(pDoc != NULL);
-	return pDoc;
-}
-
 void CMasterRowDlg::Update(double fVal)
 {
 	m_sliderVal.SetVal(fVal);
@@ -228,6 +221,6 @@ END_MESSAGE_MAP()
 void CMasterRowDlg::OnChangedVal(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	UNREFERENCED_PARAMETER(pNMHDR);
-	GetDocument()->SetMasterProp(m_RowIdx, m_editVal.GetVal());
+	theApp.GetDocument()->SetMasterProp(m_RowIdx, m_editVal.GetVal());
 	*pResult = 0;
 }

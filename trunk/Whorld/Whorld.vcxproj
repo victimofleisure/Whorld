@@ -209,6 +209,7 @@
     <ClInclude Include="Midi.h" />
     <ClInclude Include="MidiCtrlrDef.h" />
     <ClInclude Include="MidiDevices.h" />
+    <ClInclude Include="MidiManager.h" />
     <ClInclude Include="MidiWrap.h" />
     <ClInclude Include="MyDockablePane.h" />
     <ClInclude Include="Options.h" />
@@ -283,6 +284,7 @@
     <ClCompile Include="MasterBar.cpp" />
     <ClCompile Include="MasterRowDlg.cpp" />
     <ClCompile Include="MidiDevices.cpp" />
+    <ClCompile Include="MidiManager.cpp" />
     <ClCompile Include="MidiWrap.cpp" />
     <ClCompile Include="MyDockablePane.cpp" />
     <ClCompile Include="Options.cpp" />

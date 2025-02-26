@@ -22,7 +22,6 @@
 
 #include "stdafx.h"
 #include "Whorld.h"
-
 #include "MainFrm.h"
 #include "WhorldDoc.h"
 #include "WhorldView.h"
@@ -32,7 +31,6 @@
 #include "RowDlg.h"	// for row view frame min/max info
 #include "dbt.h"	// for device change types
 #include "Midi.h"	// for device change types
-#include "MasterRowDlg.h"	//@@@ arguably a sign of poor design
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -458,13 +456,14 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_HANDLE_DLG_KEY, OnHandleDlgKey)
 	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
 	ON_WM_TIMER()
-	ON_MESSAGE(UWM_MIDI_EVENT, OnMidiEvent)
 	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
 	ON_MESSAGE(UWM_DEVICE_NODE_CHANGE, OnDeviceNodeChange)
 	ON_WM_DEVICECHANGE()
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
 	ON_MESSAGE(UWM_SNAPSHOT_CAPTURE, OnSnapshotCapture)
+	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
+	ON_MESSAGE(UWM_PARAM_VAL_CHANGE, OnParamValChange)
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
 		ON_UPDATE_COMMAND_UI(ID_VIEW_BAR_##name, OnUpdateViewBar##name)
@@ -632,7 +631,7 @@ LRESULT	CMainFrame::OnDeviceNodeChange(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
 	UNREFERENCED_PARAMETER(lParam);
-	theApp.OnDeviceChange();
+	theApp.m_midiMgr.OnDeviceChange();
 	return(0);
 }
 
@@ -666,48 +665,6 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		return;	// don't relay timer message to base class
 	}
 	CFrameWndEx::OnTimer(nIDEvent);
-}
-
-LRESULT CMainFrame::OnMidiEvent(WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(wParam);
-	if (MIDI_IS_SHORT_MSG(lParam)) {	// if event is a short MIDI message
-		// hard-coded mapping for testing
-		// channel 1
-		// CCs 16..25 are master properties
-		// CCs 26..45 are parameters
-		int	iChan = MIDI_CHAN(lParam);
-		if (iChan == 0) {
-			UINT	nCmd = MIDI_CMD(lParam);
-			if (nCmd == CONTROL) {
-				int	nCtrl = MIDI_P1(lParam);
-				int	nVal = MIDI_P2(lParam);
-				const int	nCtrlStart = 16;
-				nCtrl -= nCtrlStart;
-				double	fNormVal = nVal / 127.0;
-				CWhorldDoc*	pDoc = theApp.GetDocument();
-				if (nCtrl >= 0 && nCtrl < MASTER_COUNT) {
-					int	iProp = nCtrl;
-					double	fVal = CMasterRowDlg::Denorm(iProp, fNormVal);
-					if (iProp == MASTER_Zoom) {
-						pDoc->SetZoom(fVal);
-					} else {
-						pDoc->SetMasterProp(iProp, fVal, NULL);
-					}
-				} else {
-					nCtrl -= MASTER_COUNT;
-					if (nCtrl >= 0 && nCtrl < PARAM_COUNT) {
-						int	iRow = nCtrl;
-						int	iProp = CParamsView::m_arrParamOrder[iRow];
-						const PARAM_INFO&	info = GetParamInfo(iProp);
-						double	fVal = fNormVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
-						pDoc->SetParam(iProp, PARAM_PROP_Val, fVal, NULL);
-					}
-				}
-			}
-		}
-	}
-	return 0;
 }
 
 void CMainFrame::OnFileExport()
@@ -782,6 +739,24 @@ LRESULT	CMainFrame::OnSnapshotCapture(WPARAM wParam, LPARAM lParam)
 	if (pSnapshot != NULL) {	// if capture succeeded
 		WriteSnapshot(pSnapshot);
 	}
+	return 0;
+}
+
+LRESULT	CMainFrame::OnMasterPropChange(WPARAM wParam, LPARAM lParam)
+{
+	int	iProp = static_cast<int>(wParam);
+	double	fVal = CMidiManager::LParamToFloat(lParam);
+	CWhorldDoc*	pDoc = theApp.GetDocument();
+	pDoc->SetMasterProp(iProp, fVal, theApp.GetView());
+	return 0;
+}
+
+LRESULT	CMainFrame::OnParamValChange(WPARAM wParam, LPARAM lParam)
+{
+	int	iParam = static_cast<int>(wParam);
+	double	fVal = CMidiManager::LParamToFloat(lParam);
+	CWhorldDoc*	pDoc = theApp.GetDocument();
+	pDoc->SetParam(iParam, PARAM_PROP_Val, fVal, theApp.GetView());
 	return 0;
 }
 

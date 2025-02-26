@@ -77,7 +77,6 @@ protected:
 
 // Helpers
 	CMasterView* GetView();
-	CWhorldDoc* GetDocument();
 	static double	Log(double Base, double x);
 	static double	LogNorm(double x, double Base, double Scale);
 	static double	ExpNorm(double x, double Base, double Scale);

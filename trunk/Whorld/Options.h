@@ -10,6 +10,7 @@
         00      27mar18	initial version
 		01		20feb19	rename option info vars
 		02		21feb25	customize for Whorld
+		03		26feb25	add MIDI input
 		
 */
 
@@ -46,6 +47,7 @@ public:
 // Operations
 	void	ReadProperties();
 	void	WriteProperties() const;
+	void	UpdateMidiDevices();
 
 // Public data
 	#define PROPDEF(group, subgroup, proptype, type, name, initval, minval, maxval, itemname, items) type m_##group##_##name;

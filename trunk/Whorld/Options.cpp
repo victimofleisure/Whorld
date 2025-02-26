@@ -10,13 +10,14 @@
         00      27mar18	initial version
 		01		20feb19	rename option info vars
 		02		21feb25	customize for Whorld
+		03		26feb25	add MIDI input
 		
 */
 
 #include "stdafx.h"
 #include "Whorld.h"
-#include "RegTempl.h"
 #include "Options.h"
+#include "RegTempl.h"
 #include "VariantHelper.h"
 
 const COptions::OPTION_INFO COptions::m_oiGroup[GROUPS] = {
@@ -84,12 +85,28 @@ CString COptions::GetGroupName(int iGroup) const
 
 int COptions::GetOptionCount(int iProp) const
 {
-	return CProperties::GetOptionCount(iProp);
+	switch (iProp) {
+	case PROP_Midi_iInputDevice:
+		return theApp.m_midiDevs.GetCount(CMidiDevices::INPUT) + 1;	// add one for none option
+	default:
+		return CProperties::GetOptionCount(iProp);
+	}
 }
 
 CString	COptions::GetOptionName(int iProp, int iOption) const
 {
-	return CProperties::GetOptionName(iProp, iOption);
+	switch (iProp) {
+	case PROP_Midi_iInputDevice:
+		{
+			CString	sName(theApp.m_midiDevs.GetName(CMidiDevices::INPUT, iOption - 1));	// convert to zero-origin
+			if (sName.IsEmpty())
+				sName.LoadString(IDS_NONE);
+			return sName;
+		}
+		break;
+	default:
+		return CProperties::GetOptionName(iProp, iOption);
+	}
 }
 
 void COptions::GetProperty(int iProp, CComVariant& var) const
@@ -140,4 +157,9 @@ UINT COptions::GetExportFlags() const
 		nFlags |= CWhorldBase::EF_SCALE_TO_FIT;
 	}
 	return nFlags;
+}
+
+void COptions::UpdateMidiDevices()
+{
+	m_Midi_iInputDevice = theApp.m_midiDevs.GetIdx(CMidiDevices::INPUT) + 1;	// add one for none option
 }

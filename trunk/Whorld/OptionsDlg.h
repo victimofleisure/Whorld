@@ -9,6 +9,7 @@
 		rev		date	comments
         00      27mar18	initial version
 		01		21feb25	customize for Whorld
+		02		26feb25	add MIDI input
 		
 */
 
@@ -23,16 +24,18 @@ class COptionsDlg : public CDialog
 {
 	DECLARE_DYNAMIC(COptionsDlg)
 
+// Construction
 public:
 	COptionsDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~COptionsDlg();
+
+// Operations
+	void	UpdateMidiDevices();
 
 protected:
 // Dialog Data
 	enum { IDD = IDD_OPTIONS };
 	CPropertiesGridCtrl	m_Grid;
-
-// Helpers
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

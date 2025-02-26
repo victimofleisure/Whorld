@@ -175,7 +175,7 @@ void CWhorldDoc::SetOrigin(DPoint ptOrigin, bool bDamped)
 	UpdateAllViews(NULL, HINT_ORIGIN, NULL);
 }
 
-bool CWhorldDoc::OffsetMasterProperty(int iProp, double fDelta, double& fVal)
+bool CWhorldDoc::OffsetMasterProp(int iProp, double fDelta, double& fVal)
 {
 	double	fOldVal = GetMasterProp(iProp);	// retrieve old value
 	fVal = CMasterRowDlg::Norm(iProp, fOldVal);	// normalize value
@@ -192,12 +192,12 @@ BOOL CWhorldDoc::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	double	fDelta = static_cast<double>(zDelta) / WHEEL_DELTA / fWheelSteps;
 	if (nFlags & MK_SHIFT) {
 		double	fDamping;
-		if (OffsetMasterProperty(MASTER_Damping, fDelta, fDamping)) {
+		if (OffsetMasterProp(MASTER_Damping, fDelta, fDamping)) {
 			SetMasterProp(MASTER_Damping, fDamping);
 		}
 	} else {
 		double	fZoom;
-		if (OffsetMasterProperty(MASTER_Zoom, fDelta, fZoom)) {
+		if (OffsetMasterProp(MASTER_Zoom, fDelta, fZoom)) {
 			SetZoom(fZoom);
 		}
 	}

@@ -9,6 +9,7 @@
 		rev		date	comments
         00      27mar18	initial version
 		01		21feb25	customize for Whorld
+		02		26feb25	add MIDI input
 		
 */
 
@@ -35,6 +36,19 @@ COptionsDlg::~COptionsDlg()
 {
 }
 
+void COptionsDlg::UpdateMidiDevices()
+{
+	const CProperties&	props = theApp.m_options;
+	int iType = CMidiDevices::INPUT;
+	int	iProp = COptions::PROP_Midi_iInputDevice + iType;
+	m_Grid.UpdateOptions(props, iProp);
+	int	iOption = theApp.m_midiDevs.GetIdx(iType) + 1;	// skip none option
+	CString	sName(props.GetOptionName(iProp, iOption));	
+	CMFCPropertyGridProperty	*pProp = m_Grid.GetValueProperty(iProp);
+	pProp->SetValue(sName);	// must also set current selection index
+	STATIC_DOWNCAST(CEnumPropertyGridProperty, pProp)->m_iCurSel = iOption;
+}
+
 void COptionsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
@@ -51,6 +65,8 @@ END_MESSAGE_MAP()
 BOOL COptionsDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	theApp.m_options.UpdateMidiDevices();
 
 	CRect	rc;
 	GetClientRect(rc);

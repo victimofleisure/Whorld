@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		21feb25	add options
+		02		26feb25	add MIDI input
 
 */
 
@@ -30,6 +31,8 @@
 #include "FocusEdit.h"
 #include "afxregpath.h"
 #include "AppRegKey.h"
+#include "OptionsDlg.h"
+#include "Midi.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -41,6 +44,8 @@
 #define RK_RESOURCE_VERSION _T("nResourceVersion")
 
 const int CWhorldApp::m_nNewResourceVersion = 1;	// update if resource change breaks customization
+
+#define CHECK_MIDI(x) { MMRESULT nResult = x; if (MIDI_FAILED(nResult)) { OnMidiError(nResult); return false; } }
 
 // CWhorldApp construction
 
@@ -158,6 +163,7 @@ int CWhorldApp::ExitInstance()
 	m_thrRender.DestroyThread();
 	m_wndRender.DestroyWindow();
 	m_options.WriteProperties();	// save options to registry
+	m_midiDevs.Write();	// save MIDI device state to registry
 	AfxOleTerm(FALSE);
 	if (m_bCleanStateOnExit) {
 		ResetWindowLayout();	// delete window layout keys
@@ -286,6 +292,18 @@ void CWhorldApp::LoadCustomState()
 
 void CWhorldApp::SaveCustomState()
 {
+}
+
+void CWhorldApp::ApplyOptions(const COptions *pPrevOptions)
+{
+	int	iPrevInputDev = m_midiDevs.GetIdx(CMidiDevices::INPUT);
+	m_midiDevs.SetIdx(CMidiDevices::INPUT, m_options.m_Midi_iInputDevice - 1);
+	if (pPrevOptions != NULL) {	// if during OnCreate, defer to delayed creation handler
+		if (m_midiDevs.GetIdx(CMidiDevices::INPUT) != iPrevInputDev) {	// if MIDI input device changed
+			CloseMidiInputDevice();	// force reopen
+			OpenMidiInputDevice(m_midiDevs.GetIdx(CMidiDevices::INPUT) >= 0);
+		}
+	}
 }
 
 void CWhorldApp::Log(CString sMsg)
@@ -553,6 +571,94 @@ CString CWhorldApp::GetTimestampFileName() const
 	sFileName.Format(_T("-%04d-%02d-%02d-%02d-%02d-%02d-%03d"),
 		t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
 	return m_pszAppName + sFileName;
+}
+
+void CWhorldApp::OnMidiError(MMRESULT nResult)
+{
+	if (!m_bInMsgBox) {	// if not already displaying message box
+		CSaveObj<bool>	save(m_bInMsgBox, true);	// save and set reentry guard
+		CString	sError;
+		int	nIDHelp;
+		sError.Format(LDS(IDS_SEQ_MIDI_ERROR), nResult);
+		sError += '\n' + CMidiOut::GetErrorString(nResult);
+		nIDHelp = -1;
+		AfxMessageBox(sError, MB_OK, nIDHelp);
+	}
+}
+
+void CWhorldApp::MidiInit()
+{
+	m_midiDevs.Read();	// get MIDI devices from registry
+	m_options.UpdateMidiDevices();	// copy MIDI devices to options
+	OpenMidiInputDevice(m_midiDevs.GetIdx(CMidiDevices::INPUT) >= 0);
+}
+
+bool CWhorldApp::OpenMidiInputDevice(bool bEnable)
+{
+	bool	bIsOpen = IsMidiInputDeviceOpen();
+	if (bEnable == bIsOpen)	// if already in requested state
+		return true;	// nothing to do
+	if (bEnable) {	// if opening device
+		int	iMidiInDev = m_midiDevs.GetIdx(CMidiDevices::INPUT);
+		if (iMidiInDev < 0)
+			return false;
+		CHECK_MIDI(m_midiIn.Open(iMidiInDev, reinterpret_cast<W64UINT>(MidiInProc), reinterpret_cast<W64UINT>(this), CALLBACK_FUNCTION));
+		CHECK_MIDI(m_midiIn.Start());
+	} else {	// closing device
+		CHECK_MIDI(m_midiIn.Close());
+	}
+	return true;
+}
+
+void CWhorldApp::CloseMidiInputDevice()
+{
+	m_midiIn.Close();
+}
+
+void CWhorldApp::OnDeviceChange()
+{
+	if (!m_bInMsgBox) {	// if not already displaying message box
+		CSaveObj<bool>	save(m_bInMsgBox, true);	// save and set reentry guard
+		UINT	nChangeMask;
+		bool	bResult = m_midiDevs.OnDeviceChange(nChangeMask);	// handle MIDI device change
+		if (nChangeMask & CMidiDevices::CM_INPUT) {	// if MIDI input device changed
+			CloseMidiInputDevice();	// force reopen
+			OpenMidiInputDevice(true);
+		}
+		if (nChangeMask & CMidiDevices::CM_OUTPUT) {	// if MIDI output device changed
+			if (!bResult && m_midiDevs.GetCount(CMidiDevices::OUTPUT)) {	// if user canceled and an output device is available
+				m_midiDevs.SetIdx(CMidiDevices::OUTPUT, 0);	// select first output device
+			}
+		}
+		if (nChangeMask & CMidiDevices::CM_CHANGE) {	// if MIDI device state changed
+			CWnd	*pPopupWnd = m_pMainWnd->GetLastActivePopup();
+			COptionsDlg	*pOptionsDlg = DYNAMIC_DOWNCAST(COptionsDlg, pPopupWnd);
+			if (pOptionsDlg != NULL)	// if options dialog is active
+				pOptionsDlg->UpdateMidiDevices();	// update dialog's MIDI device combos
+		}
+	}
+}
+
+void CALLBACK CWhorldApp::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2)
+{
+	// this callback function runs in a worker thread context; 
+	// data shared with main thread may require serialization
+	static CDWordArrayEx	arrMappedEvent;
+	UNREFERENCED_PARAMETER(hMidiIn);
+	UNREFERENCED_PARAMETER(dwInstance);
+//	_tprintf(_T("MidiInProc %d %d\n"), GetCurrentThreadId(), ::GetThreadPriority(GetCurrentThread()));
+	switch (wMsg) {
+	case MIM_DATA:
+		{
+//			_tprintf(_T("%x %d\n"), dwParam1, dwParam2);
+			CMainFrame	*pMainFrame = theApp.GetMainFrame();
+			if (MIDI_STAT(dwParam1) < SYSEX) {	// if channel voice message (exclude system status messages)
+				DWORD	dwEvent = static_cast<DWORD>(dwParam1);
+				pMainFrame->PostMessage(UWM_MIDI_EVENT, dwParam2, dwEvent);
+			}
+		}
+		break;
+	}
 }
 
 // CWhorldApp message map

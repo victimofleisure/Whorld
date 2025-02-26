@@ -92,7 +92,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib;winmm.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -115,7 +115,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib;winmm.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -141,7 +141,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib;winmm.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -168,7 +168,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;D2d1.lib;D3D11.lib;winmm.lib</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <Midl>
@@ -206,6 +206,10 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MasterBar.h" />
     <ClInclude Include="MasterRowDlg.h" />
+    <ClInclude Include="Midi.h" />
+    <ClInclude Include="MidiCtrlrDef.h" />
+    <ClInclude Include="MidiDevices.h" />
+    <ClInclude Include="MidiWrap.h" />
     <ClInclude Include="MyDockablePane.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="OptionsDef.h" />
@@ -278,6 +282,8 @@
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MasterBar.cpp" />
     <ClCompile Include="MasterRowDlg.cpp" />
+    <ClCompile Include="MidiDevices.cpp" />
+    <ClCompile Include="MidiWrap.cpp" />
     <ClCompile Include="MyDockablePane.cpp" />
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsDlg.cpp" />

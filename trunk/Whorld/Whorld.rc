@@ -520,35 +520,42 @@ BEGIN
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
-    IDS_OPT_DESC_Export_bPromptUser 
-                            "Prompt user for destination folder, filename, and options"
-    IDS_OPT_DESC_Export_bScaleToFit 
-                            "If true, scale drawing to fit within image size, otherwise drawing is cropped"
+    IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
+    IDS_MIDI_INPUT          "Input"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_OUTPUT         "Output"
+    IDS_NONE                "<None>"
+    IDS_OPT_DESC_Export_bPromptUser 
+                            "Prompt user for destination folder, filename, and options"
+    IDS_OPT_DESC_Export_bScaleToFit 
+                            "If true, scale drawing to fit within image size, otherwise drawing is cropped"
     IDS_OPT_DESC_Export_bUseViewSize 
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
+    IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
     IDS_OPT_GROUP_Export    "Export"
+    IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
+END
+
+STRINGTABLE
+BEGIN
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
+    IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
-END
-
-STRINGTABLE
-BEGIN
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
@@ -558,6 +565,10 @@ BEGIN
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PARAM_RingSpacing   "Ring Spacing"
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
@@ -565,10 +576,6 @@ BEGIN
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
-END
-
-STRINGTABLE
-BEGIN
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_NAME_STATIC    "Name"
@@ -578,6 +585,10 @@ BEGIN
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
+END
+
+STRINGTABLE
+BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
@@ -585,6 +596,12 @@ BEGIN
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
+    IDS_WAVE_SQUARE         "Square"
+    IDS_WAVE_TRIANGLE       "Triangle"
+    IDS_WINDOW_RESET_LAYOUT_WARN 
+                            "Reset all windows to their default layout? This action can't be undone, and the application will restart."
+    IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
 END
 
 STRINGTABLE
@@ -592,15 +609,6 @@ BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
     ID_HELP_FINDER          "List help topics\nHelp Topics"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_WAVE_SQUARE         "Square"
-    IDS_WAVE_TRIANGLE       "Triangle"
-    IDS_WINDOW_RESET_LAYOUT_WARN 
-                            "Reset all windows to their default layout? This action can't be undone, and the application will restart."
-    IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
 END
 
 STRINGTABLE

@@ -38,7 +38,7 @@ public:
 	void	SetMirror(bool bEnable);
 	void	SetZoom(double fZoom, bool bDamped = true);
 	void	SetOrigin(DPoint ptOrigin, bool bDamped = true);
-	bool	OffsetMasterProperty(int iProp, double fDelta, double& fVal);
+	bool	OffsetMasterProp(int iProp, double fDelta, double& fVal);
 	BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 
 // Operations

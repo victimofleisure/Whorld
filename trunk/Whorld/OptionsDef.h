@@ -9,11 +9,13 @@
 		rev		date	comments
         00      27mar18	initial version
 		01		21feb25	customize for Whorld
+		02		26feb25	add MIDI input
 
 */
 
 #ifdef GROUPDEF
 
+GROUPDEF(	Midi		)
 GROUPDEF(	Export		)
 
 #undef GROUPDEF
@@ -22,6 +24,7 @@ GROUPDEF(	Export		)
 #ifdef PROPDEF
 
 //			group		subgroup	proptype	type		name				initval		minval		maxval		itemname	items
+PROPDEF(	Midi,		NONE,		ENUM,		int,		iInputDevice,		0,			0,			0,			NULL,		0)
 PROPDEF(	Export,		NONE,		FOLDER,		CString,	sImageFolder,		"",			"",			"",			NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageWidth,		1920,		1,			UINT_MAX,	NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageHeight,		1080,		1,			UINT_MAX,	NULL,		0)

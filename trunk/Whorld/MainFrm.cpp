@@ -13,6 +13,7 @@
         03      22feb25	add snapshot capture and load
 		04		25feb25	disable disruptive commands in full screen single monitor
 		05		25feb25	add frame min/max info handler for row view panes
+		06		26feb25	add MIDI input
 
 */
 
@@ -28,7 +29,10 @@
 #include "OptionsDlg.h"
 #include "PathStr.h"
 #include "ExportDlg.h"
-#include "RowDlg.h"
+#include "RowDlg.h"	// for row view frame min/max info
+#include "dbt.h"	// for device change types
+#include "Midi.h"	// for device change types
+#include "MasterRowDlg.h"	//@@@ arguably a sign of poor design
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -217,6 +221,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// accept dropped files
 	DragAcceptFiles();
 
+	// apply initial options
+	ApplyOptions(NULL);
+
 	// do delayed initialization after message loop settles down
 	PostMessage(UWM_DELAYED_CREATE);
 
@@ -290,6 +297,11 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 		theApp.GetContextMenuManager()->ResetState();
 	}
 	return TRUE;
+}
+
+void CMainFrame::ApplyOptions(const COptions *pPrevOptions)
+{
+	theApp.ApplyOptions(pPrevOptions);
 }
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
@@ -446,7 +458,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_HANDLE_DLG_KEY, OnHandleDlgKey)
 	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
 	ON_WM_TIMER()
+	ON_MESSAGE(UWM_MIDI_EVENT, OnMidiEvent)
 	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
+	ON_MESSAGE(UWM_DEVICE_NODE_CHANGE, OnDeviceNodeChange)
+	ON_WM_DEVICECHANGE()
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
 	ON_MESSAGE(UWM_SNAPSHOT_CAPTURE, OnSnapshotCapture)
@@ -579,6 +594,7 @@ LRESULT CMainFrame::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
 	// The main window has been initialized, so show and update it
 	ShowWindow(theApp.m_nCmdShow);
 	theApp.GetView()->PostMessage(UWM_DELAYED_CREATE);
+	theApp.MidiInit();	// initialize MIDI devices
 	SetTimer(FRAME_RATE_TIMER_ID, FRAME_RATE_TIMER_PERIOD, NULL);
 	return 0;
 }
@@ -612,6 +628,25 @@ LRESULT	CMainFrame::OnDisplayChange(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+LRESULT	CMainFrame::OnDeviceNodeChange(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	theApp.OnDeviceChange();
+	return(0);
+}
+
+BOOL CMainFrame::OnDeviceChange(UINT nEventType, W64ULONG dwData)
+{
+//	_tprintf(_T("OnDeviceChange %x %x\n"), nEventType, dwData);
+	BOOL	retc = CFrameWnd::OnDeviceChange(nEventType, dwData);
+	if (nEventType == DBT_DEVNODES_CHANGED) {
+		// use post so device change completes before our handler runs
+		PostMessage(UWM_DEVICE_NODE_CHANGE);
+	}
+	return retc;	// true to allow device change
+}
+
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent) {
@@ -631,6 +666,48 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		return;	// don't relay timer message to base class
 	}
 	CFrameWndEx::OnTimer(nIDEvent);
+}
+
+LRESULT CMainFrame::OnMidiEvent(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(wParam);
+	if (MIDI_IS_SHORT_MSG(lParam)) {	// if event is a short MIDI message
+		// hard-coded mapping for testing
+		// channel 1
+		// CCs 16..25 are master properties
+		// CCs 26..45 are parameters
+		int	iChan = MIDI_CHAN(lParam);
+		if (iChan == 0) {
+			UINT	nCmd = MIDI_CMD(lParam);
+			if (nCmd == CONTROL) {
+				int	nCtrl = MIDI_P1(lParam);
+				int	nVal = MIDI_P2(lParam);
+				const int	nCtrlStart = 16;
+				nCtrl -= nCtrlStart;
+				double	fNormVal = nVal / 127.0;
+				CWhorldDoc*	pDoc = theApp.GetDocument();
+				if (nCtrl >= 0 && nCtrl < MASTER_COUNT) {
+					int	iProp = nCtrl;
+					double	fVal = CMasterRowDlg::Denorm(iProp, fNormVal);
+					if (iProp == MASTER_Zoom) {
+						pDoc->SetZoom(fVal);
+					} else {
+						pDoc->SetMasterProp(iProp, fVal, NULL);
+					}
+				} else {
+					nCtrl -= MASTER_COUNT;
+					if (nCtrl >= 0 && nCtrl < PARAM_COUNT) {
+						int	iRow = nCtrl;
+						int	iProp = CParamsView::m_arrParamOrder[iRow];
+						const PARAM_INFO&	info = GetParamInfo(iProp);
+						double	fVal = fNormVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
+						pDoc->SetParam(iProp, PARAM_PROP_Val, fVal, NULL);
+					}
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 void CMainFrame::OnFileExport()
@@ -730,9 +807,11 @@ void CMainFrame::OnEditCopy() //@@@ test only
 
 void CMainFrame::OnViewOptions()
 {
+	COptions	m_optsPrev(theApp.m_options);
 	COptionsDlg	dlg;
 	if (dlg.DoModal() == IDOK) {
-		// apply options
+		// apply new options, passing pointer to old ones
+		ApplyOptions(&m_optsPrev);
 	}
 }
 

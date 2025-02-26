@@ -12,6 +12,7 @@
 		02		21feb25	add options
         03      22feb25	add snapshot capture and load
 		04		25feb25	add frame min/max info handler for row view panes
+		05		26feb25	add MIDI input
 
 */
 
@@ -109,6 +110,7 @@ public:
 // Helpers
 	BOOL	CreateDockingWindows();
 	bool	FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& sText, int& nCurTextLength);
+	void	ApplyOptions(const COptions *pPrevOptions);
 	bool	WriteSnapshot(CSnapshot *pSnapshot);
 	static bool	MakeExportPath(CString& sExportPath, LPCTSTR pszExt);
 
@@ -129,7 +131,10 @@ public:
 	afx_msg LRESULT	OnHandleDlgKey(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnEditCopy();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	LRESULT OnMidiEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnDisplayChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnDeviceNodeChange(WPARAM wParam, LPARAM lParam);
+	afx_msg BOOL OnDeviceChange(UINT nEventType, W64ULONG dwData);
 	afx_msg void OnWindowResetLayout();
 	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnSnapshotCapture(WPARAM wParam, LPARAM lParam);

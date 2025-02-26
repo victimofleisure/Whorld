@@ -10,6 +10,7 @@
         00      06feb25	initial version
         01      20feb25	add bitmap capture and write
 		02		21feb25	add options
+		03		26feb25	add MIDI input
 
 */
 
@@ -27,6 +28,8 @@
 #include "RenderWnd.h"
 #include "WhorldThread.h"
 #include "Options.h"
+#include "MidiWrap.h"
+#include "MidiDevices.h"
 
 // CWhorldApp:
 // See Whorld.cpp for the implementation of this class
@@ -60,8 +63,10 @@ public:
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 	bool	ResourceVersionChanged() const;
+	bool	IsMidiInputDeviceOpen() const;
 
 // Operations
+	void	ApplyOptions(const COptions *pPrevOptions);
 	void	Log(CString sMsg);
 	void	PushRenderCommand(const CRenderCmd& cmd);
 	bool	SetDetached(bool bEnable);
@@ -77,6 +82,11 @@ public:
 	bool	UpdateFrameRate();
 	bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
 	CString	GetTimestampFileName() const;
+	void	OnMidiError(MMRESULT nResult);
+	void	MidiInit();
+	void	OnDeviceChange();
+	bool	OpenMidiInputDevice(bool bEnable);
+	void	CloseMidiInputDevice();
 
 // Overrides
 public:
@@ -87,7 +97,8 @@ public:
 	UINT  m_nAppLook;
 	BOOL  m_bHiColorIcons;
 	bool	m_bCleanStateOnExit;	// if true, clean state before exiting
-	COptions	m_options;
+	COptions	m_options;			// options data
+	CMidiDevices	m_midiDevs;		// MIDI device information
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
@@ -106,6 +117,8 @@ protected:
 	HHOOK	m_hKeyboardHook;	// handle to keyboard hook
 	int		m_nOldResourceVersion;	// previous resource version number
 	static const int	m_nNewResourceVersion;	// current resource version number
+	CMidiIn	m_midiIn;			// MIDI input device
+	bool	m_bInMsgBox;		// true if displaying message box
 
 // Helpers
 	static BOOL	GetNearestMonitorInfo(HWND hWnd, MONITORINFOEX& monInfo);
@@ -114,6 +127,7 @@ protected:
 	bool	RemoveKeyboardHook();
 	static LRESULT CALLBACK KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam);
 	void	ResetWindowLayout();
+	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2);
 
 // Message handlers
 	DECLARE_MESSAGE_MAP()
@@ -207,4 +221,9 @@ inline bool CWhorldApp::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszIm
 inline bool	CWhorldApp::ResourceVersionChanged() const
 {
 	return m_nNewResourceVersion != m_nOldResourceVersion;
+}
+
+inline bool CWhorldApp::IsMidiInputDeviceOpen() const
+{
+	return m_midiIn.IsOpen();
 }

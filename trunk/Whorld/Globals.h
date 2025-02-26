@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		20feb25	add bitmap capture message
 		02		22feb25	add snapshot capture message
+		03		26feb25	add device node change message
 
 */
 
@@ -118,6 +119,8 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_SHOW_CHANGING,			// wParam: none, lParam: none
 	UWM_BITMAP_CAPTURE,			// wParam: none, lParam: ID2D1Bitmap1*
 	UWM_SNAPSHOT_CAPTURE,		// wParam: none, lParam: CSnapshot*
+	UWM_DEVICE_NODE_CHANGE,		// wParam: none, lParam: none
+	UWM_MIDI_EVENT,				// wParam: timestamp, lParam: MIDI message
 };
 
 // undo natter should always be zero in a shipping version

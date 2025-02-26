@@ -131,12 +131,10 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 		int	iProp = nCtrl;
 		double	fVal = CMasterRowDlg::Denorm(iProp, fNormVal);
 		if (iProp == MASTER_Zoom) {	// if zoom
-			CRenderCmd	cmd(RC_SET_ZOOM, true);	// with damping
-			cmd.m_prop.dblVal = fVal;
+			MAKE_RENDER_CMD(cmd, RC_SET_ZOOM, true, dblVal, fVal);	// with damping
 			theApp.PushRenderCommand(cmd);
 		} else {	// generic case
-			CRenderCmd	cmd(RC_SET_MASTER, iProp);
-			cmd.m_prop.dblVal = fVal;
+			MAKE_RENDER_CMD(cmd, RC_SET_MASTER, iProp, dblVal, fVal);
 			theApp.PushRenderCommand(cmd);
 		}
 		LPARAM	lParam = FloatToLParam(fVal);
@@ -148,8 +146,7 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 			int	iProp = CParamsView::m_arrParamOrder[iRow];
 			const PARAM_INFO&	info = GetParamInfo(iProp);
 			double	fVal = fNormVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
-			CRenderCmd	cmd(RC_SET_PARAM_Val, iProp);
-			cmd.m_prop.dblVal = fVal;
+			MAKE_RENDER_CMD(cmd, RC_SET_PARAM_Val, iProp, dblVal, fVal);
 			theApp.PushRenderCommand(cmd);
 			LPARAM	lParam = FloatToLParam(fVal);
 			theApp.GetMainFrame()->PostMessage(UWM_PARAM_VAL_CHANGE, iProp, lParam);

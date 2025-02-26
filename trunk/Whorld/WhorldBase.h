@@ -18,6 +18,9 @@
 // macro to allocate and assign a variant property for supported types
 #define MAKE_VARIANT_PROP(type, val) VARIANT_PROP prop; prop.type = val;
 
+// macro to construct a render command object with a variant property value
+#define MAKE_RENDER_CMD(obj, cmd, param, type, val) CRenderCmd obj(cmd, param); obj.m_prop.type = val;
+
 class CWhorldBase : public CRenderThreadBase {
 public:
 // Construction

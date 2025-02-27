@@ -24,6 +24,7 @@
 #include "WhorldBase.h"
 #include "ParamsBar.h"
 #include "MasterBar.h"
+#include "MappingBar.h"
 
 // docking bar IDs are relative to AFX_IDW_CONTROLBAR_FIRST
 enum {	// docking bar IDs; don't change, else bar placement won't be restored
@@ -130,7 +131,6 @@ public:
 	afx_msg LRESULT OnRenderWndClosed(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnFullScreenChanged(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnHandleDlgKey(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnEditCopy();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg LRESULT	OnDisplayChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnDeviceNodeChange(WPARAM wParam, LPARAM lParam);

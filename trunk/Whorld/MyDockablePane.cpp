@@ -78,6 +78,16 @@ bool CMyDockablePane::FixContextMenuPoint(CWnd *pWnd, CPoint& point)
 	return false;
 }
 
+bool CMyDockablePane::FixListContextMenuPoint(CWnd *pWnd, CListCtrlExSel& list, CPoint& point)
+{
+	if (ShowDockingContextMenu(pWnd, point))
+		return true;	// context menu was displayed
+	if (ShowListColumnHeaderMenu(this, list, point))
+		return true;	// context menu was displayed
+	list.FixContextMenuPoint(point);
+	return false;
+}
+
 void CMyDockablePane::ToggleShowPane()
 {
 	bool	bShow = !IsVisible();

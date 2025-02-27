@@ -61,6 +61,7 @@ void UpdateMenu(CWnd *pWnd, CMenu *pMenu);
 void DoGenericContextMenu(UINT nIDResource, CPoint point, CWnd* pWnd);
 bool FormatNumberCommas(LPCTSTR pszSrc, CString& sDst, int nPrecision = 0);
 int StringReplaceNoCase(CString& str, LPCTSTR pszOld, LPCTSTR pszNew);
+bool ShowListColumnHeaderMenu(CWnd *pWnd, CListCtrl& list, CPoint point);
 
 // data validation method to flunk a control
 void DDV_Fail(CDataExchange* pDX, int nIDC);
@@ -71,6 +72,16 @@ template<typename T> inline void Swap(T& a, T& b)
 	T tmp = a;
 	a = b;
 	b = tmp;
+}
+
+// sort compare for values of any type that permits LT and GT
+template<class T> int SortCompareTpl(const T& a, const T& b)
+{
+	if (a < b)
+		return -1;
+	if (a > b)
+		return 1;
+	return 0;
 }
 
 // wrap dynamic object creation

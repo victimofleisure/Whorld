@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      09jan19	initial version
+		01		26feb25	add mapping
 
 */
 
@@ -16,5 +17,6 @@
 // Don't change or remove existing keys to avoid incompatibility.
 // All entries in MainDockBarDef.h must have a key definition here.
 
-#define RK_ParamsBar	_T("RK_ParamsBar")
-#define RK_MasterBar	_T("RK_MasterBar")
+#define RK_ParamsBar	_T("ParamsBar")
+#define RK_MasterBar	_T("MasterBar")
+#define RK_MappingBar	_T("MappingBar")

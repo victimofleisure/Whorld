@@ -16,6 +16,7 @@
 		06		13dec07	add even and odd shear
 		07		09feb25	consolidate various def files here
 		08		20feb25	add bitmap render commands
+		09		26feb25	unsnarl parameter order
 
         define parameter attributes
 
@@ -26,20 +27,20 @@
 //			name			minval	maxval	steps	scale	initval
 PARAMDEF(	RingGrowth,		0,		10,		1000,	1,		1		)	// pixels of ring growth per tick
 PARAMDEF(	RingSpacing,	1,		50,		1000,	1,		5		)	// gap between rings, in pixels
+PARAMDEF(	LineWidth,		1,		50,		1000,	1,		1		)	// line width, in pixels
 PARAMDEF(	PolySides,		3,		50,		47,		1,		5		)	// ring's number of sides, rounded to int
 PARAMDEF(	RotateSpeed,	DTR(-5),DTR(5),	1000,	DTR(1),	0		)	// ring rotation per tick, in radians
 PARAMDEF(	AspectRatio,	-3,		3,		1000,	1,		0		)	// 1 = double width, -1 = double height
 PARAMDEF(	SkewRadius,		0,		2,		1000,	1,		0		)	// size of origin offset, in pixels
 PARAMDEF(	SkewAngle,		-PI,	PI,		1000,	DTR(1),	0		)	// angle of origin offset, in radians
 PARAMDEF(	StarFactor,		-3,		3,		1000,	1,		0		)	// 0 = no star, > 1 = convex, < 1 = concave
+PARAMDEF(	Pinwheel,		-3,		3,		1000,	1,		0		)	// odd vertex rotation, in radians
 PARAMDEF(	ColorSpeed,		0,		10,		1000,	1,		0.5		)	// hue change per tick, in degrees
 PARAMDEF(	Lightness,		0,		1,		1000,	1,		0.5		)	// color lightness, from 0..1
 PARAMDEF(	Saturation,		0,		1,		1000,	1,		1		)	// color saturation, from 0..1
 PARAMDEF(	BkHue,			0,		360,	1000,	1,		0		)	// background color hue, in degrees
 PARAMDEF(	BkLightness,	0,		1,		1000,	1,		0		)	// background color lightness, from 0..1
 PARAMDEF(	BkSaturation,	0,		1,		1000,	1,		1		)	// background color saturation, from 0..1
-PARAMDEF(	Pinwheel,		-3,		3,		1000,	1,		0		)	// odd vertex rotation, in radians
-PARAMDEF(	LineWidth,		1,		50,		1000,	1,		1		)	// line width, in pixels
 PARAMDEF(	EvenCurve,		-3,		3,		1000,	1,		0		)	// even vertex curvature, as fraction of radius
 PARAMDEF(	OddCurve,		-3,		3,		1000,	1,		0		)	// odd vertex curvature, as fraction of radius
 PARAMDEF(	EvenShear,		-3,		3,		1000,	1,		0		)	// even vertex curvature asymmetry, as a ratio

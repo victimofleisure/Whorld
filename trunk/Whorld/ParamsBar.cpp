@@ -9,6 +9,7 @@
 		rev		date	comments
         00      08feb25	initial version
 		01		25feb25	override frame min/max info handler
+		02		26feb25	remove row reordering
 
 */
 
@@ -29,37 +30,8 @@ static char THIS_FILE[]=__FILE__;
 
 IMPLEMENT_DYNCREATE(CParamsView, CRowView)
 
-// parameters are displayed in a slightly different order
-// than they're defined, for legacy compatibility reasons
-const int CParamsView::m_arrParamOrder[PARAM_COUNT] = {
-	PARAM_RingGrowth,
-	PARAM_RingSpacing,
-	PARAM_LineWidth,	// different position
-	PARAM_PolySides,
-	PARAM_RotateSpeed,
-	PARAM_AspectRatio,
-	PARAM_SkewRadius,
-	PARAM_SkewAngle,
-	PARAM_StarFactor,
-	PARAM_Pinwheel,		// different position
-	PARAM_ColorSpeed,
-	PARAM_Lightness,
-	PARAM_Saturation,
-	PARAM_BkHue,
-	PARAM_BkLightness,
-	PARAM_BkSaturation,
-	PARAM_EvenCurve,
-	PARAM_OddCurve,
-	PARAM_EvenShear,
-	PARAM_OddShear,
-};
-
-int CParamsView::m_arrParamRowPos[PARAM_COUNT];
-
 CParamsView::CParamsView()
 {
-	m_Reorderable = true;
-	CreateRowPositionTable();
 }
 
 CParamsView::~CParamsView()
@@ -71,7 +43,6 @@ CRowDlg	*CParamsView::CreateRow(int Idx)
 	CParamsRowDlg	*pRow = new CParamsRowDlg;
 	ASSERT(pRow != NULL);
 	pRow->SetRowIndex(Idx);
-	pRow->SetRowPos(m_arrParamRowPos[Idx]);
 	pRow->Create(IDD_PARAM_ROW, m_pParent);
 	return(pRow);
 }
@@ -104,14 +75,6 @@ void CParamsView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			GetRow(iParam)->Update(pDoc->GetParamRow(iParam), iProp);
 		}
 		break;
-	}
-}
-
-void CParamsView::CreateRowPositionTable()
-{
-	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
-		int	iParamOrder =  m_arrParamOrder[iParam];
-		m_arrParamRowPos[iParamOrder] = iParam;	// reverse lookup
 	}
 }
 

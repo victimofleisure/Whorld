@@ -153,6 +153,9 @@ BEGIN
         MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert",                     ID_EDIT_INSERT
+        MENUITEM "&Delete",                     ID_EDIT_DELETE
     END
     POPUP "&Image"
     BEGIN
@@ -199,6 +202,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Master",                     ID_VIEW_BAR_Master
         MENUITEM "&Parameters",                 ID_VIEW_BAR_Params
+        MENUITEM "MI&DI Mapping",               ID_VIEW_BAR_Mapping
     END
     POPUP "&Window"
     BEGIN
@@ -244,6 +248,30 @@ BEGIN
     MENUITEM "Win&dows 7",                  ID_VIEW_APPLOOK_WINDOWS_7
 END
 
+IDR_LIST_COL_HDR MENU
+BEGIN
+    POPUP "List Header"
+    BEGIN
+        MENUITEM "&Reset",                      ID_LIST_COL_HDR_RESET
+    END
+END
+
+IDR_MAPPING_CTX MENU
+BEGIN
+    POPUP "Mapping"
+    BEGIN
+        MENUITEM "&Insert",                     ID_EDIT_INSERT
+        MENUITEM "&Delete",                     ID_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t",                        ID_EDIT_CUT
+        MENUITEM "&Copy",                       ID_EDIT_COPY
+        MENUITEM "&Paste",                      ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
+        MENUITEM "&Learn",                      ID_TOOLS_MIDI_LEARN
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -262,6 +290,7 @@ BEGIN
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
     "E",            ID_FILE_EXPORT,         VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_FILE_LOAD_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
@@ -275,6 +304,7 @@ BEGIN
     VK_F7,          ID_IMAGE_OUTLINE,       VIRTKEY, NOINVERT
     VK_F9,          ID_IMAGE_RANDOM_PHASE,  VIRTKEY, NOINVERT
     VK_BACK,        ID_IMAGE_REVERSE,       VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_VIEW_BAR_Mapping,    VIRTKEY, SHIFT, NOINVERT
     "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
     "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
     "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
@@ -283,7 +313,8 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    "L",            ID_FILE_LOAD_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
+    VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
 END
 
 
@@ -469,6 +500,14 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Cursor
+//
+
+IDC_CURSOR_DRAG_MULTI   CURSOR                  "res\\dragmulti.cur"
+IDC_CURSOR_DRAG_SINGLE  CURSOR                  "res\\dragsingle.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -489,8 +528,24 @@ BEGIN
     IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS "Too many render commands."
     IDS_APP_LICENSE         "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA."
     IDS_APP_UNKNOWN_SYSTEM_ERROR "Unknown system error %d (0x%X)"
+    IDS_BAR_Mapping         "Mapping"
     IDS_BAR_Master          "Master"
     IDS_BAR_Params          "Parameters"
+    IDS_CHAN_STAT_CHAN_AFT  "Channel Aftertouch"
+    IDS_CHAN_STAT_CONTROL   "Control"
+    IDS_CHAN_STAT_INTERNAL  "Internal"
+    IDS_CHAN_STAT_KEY_AFT   "Key Aftertouch"
+    IDS_CHAN_STAT_MODULATOR "Modulator"
+    IDS_CHAN_STAT_NOTE      "Note"
+    IDS_CHAN_STAT_NOTE_OFF  "Note Off"
+    IDS_CHAN_STAT_NOTE_ON   "Note On"
+    IDS_CHAN_STAT_PATCH     "Patch"
+    IDS_CHAN_STAT_TEMPO     "Tempo"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CHAN_STAT_WHEEL     "Wheel"
     IDS_DOC_BAD_FORMAT      "Unexpected file format."
     IDS_EDIT_MENU           "Edit"
     IDS_EDIT_REDO_PREFIX    "&Redo"
@@ -502,14 +557,21 @@ BEGIN
     IDS_MAIN_InvertColor    "Invert Color"
     IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
-END
-
-STRINGTABLE
-BEGIN
     IDS_MAIN_OrgMotion      "Origin Motion"
     IDS_MAIN_Origin         "Origin"
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MAPPING_COL_IN_CHANNEL "In Channel"
+    IDS_MAPPING_COL_IN_CONTROL "In Control"
+    IDS_MAPPING_COL_IN_EVENT "In Event"
+    IDS_MAPPING_COL_NUMBER  "#"
+    IDS_MAPPING_COL_OUT_EVENT "Out Event"
+    IDS_MAPPING_COL_RANGE_END "Range End"
+    IDS_MAPPING_COL_RANGE_START "Range Start"
     IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
@@ -519,14 +581,30 @@ BEGIN
     IDS_MASTER_Spread       "Spread"
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
-    IDS_MASTER_Zoom         "Zoom"
-    IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
-    IDS_MIDI_INPUT          "Input"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Zoom         "Zoom"
+    IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
+    IDS_MIDI_INPUT          "Input"
     IDS_MIDI_OUTPUT         "Output"
+    IDS_MIDI_SYS_STAT_ACTIVE_SENSING "Active Sensing"
+    IDS_MIDI_SYS_STAT_CLOCK "Clock"
+    IDS_MIDI_SYS_STAT_CONTINUE "Continue"
+    IDS_MIDI_SYS_STAT_EOX   "EOX"
+    IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
+    IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
+    IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
+    IDS_MIDI_SYS_STAT_START "Start"
+    IDS_MIDI_SYS_STAT_STOP  "Stop"
+    IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
+    IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
+    IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
+END
+
+STRINGTABLE
+BEGIN
     IDS_NONE                "<None>"
     IDS_OPT_DESC_Export_bPromptUser 
                             "Prompt user for destination folder, filename, and options"
@@ -545,11 +623,11 @@ BEGIN
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
+    IDS_OPT_NAME_Export_sImageFolder "Image Folder"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_OPT_NAME_Export_sImageFolder "Image Folder"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
@@ -565,11 +643,11 @@ BEGIN
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
+    IDS_PARAM_RingSpacing   "Ring Spacing"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_PARAM_RingSpacing   "Ring Spacing"
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
@@ -584,6 +662,7 @@ BEGIN
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
+    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
 END
 
@@ -601,7 +680,29 @@ BEGIN
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_BAR_Mapping     "Show or hide the MIDI mapping pane\nShow Mapping"
+    ID_VIEW_BAR_Master      "Show or hide the master pane\nShow Master"
+    ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
+    ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
+    ID_VIEW_OPTIONS         "Edit the options\nOptions"
+    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
+    ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
+    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
+    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
+    ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
+END
+
+STRINGTABLE
+BEGIN
+    ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
+    ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
+    ID_STATUS_PANE_FRAME_RATE "000.00"
+    ID_STATUS_PANE_RING_COUNT "00000"
+    ID_TOOLS_MIDI_LEARN     "Learn mappings from MIDI input\nMIDI Learn"
 END
 
 STRINGTABLE
@@ -614,8 +715,8 @@ END
 STRINGTABLE
 BEGIN
     ID_APP_HOME_PAGE        "Go to the Whorld home page\nHome page"
-    ID_EDIT_DELETE          "Delete"
-    ID_EDIT_INSERT          "Insert"
+    ID_EDIT_DELETE          "Delete the selection\nDelete"
+    ID_EDIT_INSERT          "Insert a new item\nInsert"
     ID_FILE_EXPORT          "Export an image file\nExport"
     ID_FILE_LOAD_SNAPSHOT   "Restore one or more captured images\nLoad Snapshot"
     ID_FILE_TAKE_SNAPSHOT   "Capture the current image\nTake Snapshot"
@@ -626,27 +727,6 @@ BEGIN
     ID_IMAGE_ORIGIN_DRAG    "Enable origin dragging\nDrag Origin"
     ID_IMAGE_ORIGIN_RANDOM  "Enable random origin\nRandom Origin"
     ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
-END
-
-STRINGTABLE
-BEGIN
-    ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
-    ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
-    ID_STATUS_PANE_FRAME_RATE "000.00"
-    ID_STATUS_PANE_RING_COUNT "00000"
-    ID_VIEW_BAR_Master      "Show or hide the master pane\nMaster"
-END
-
-STRINGTABLE
-BEGIN
-    ID_VIEW_BAR_Params      "Show or hide the parameters pane\nParameters"
-    ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
-    ID_VIEW_OPTIONS         "Edit the options\nOptions"
-    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
-    ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
-    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
-    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
-    ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
 STRINGTABLE

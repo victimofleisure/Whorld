@@ -37,6 +37,7 @@ public:
 public:
 	bool	ShowDockingContextMenu(CWnd* pWnd, CPoint point);
 	bool	FixContextMenuPoint(CWnd *pWnd, CPoint& point);
+	bool	FixListContextMenuPoint(CWnd *pWnd, CListCtrlExSel& list, CPoint& point);
 	void	ToggleShowPane();
 
 // Overrides

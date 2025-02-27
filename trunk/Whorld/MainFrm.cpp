@@ -28,9 +28,10 @@
 #include "OptionsDlg.h"
 #include "PathStr.h"
 #include "ExportDlg.h"
+#include "FocusEdit.h"
 #include "RowDlg.h"	// for row view frame min/max info
 #include "dbt.h"	// for device change types
-#include "Midi.h"	// for device change types
+#include "Midi.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -397,6 +398,33 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 			return true;	// disable command
 		}
 	}
+	switch (nID) {
+	case ID_EDIT_UNDO:
+	case ID_EDIT_COPY:
+	case ID_EDIT_CUT:
+	case ID_EDIT_PASTE:
+	case ID_EDIT_INSERT:
+	case ID_EDIT_DELETE:
+	case ID_EDIT_SELECT_ALL:
+		if (nCode == CN_COMMAND || nCode == CN_UPDATE_COMMAND_UI) {
+			HWND	hFocusWnd = ::GetFocus();
+			CEdit	*pEdit = CFocusEdit::GetEdit(hFocusWnd);
+			if (pEdit != NULL) {	// if edit control has focus, it has top priority
+				CFocusEdit::OnCmdMsg(nID, nCode, pExtra, pEdit);	// let edit control handle editing commands
+				return TRUE;
+			}
+			if (nID != ID_EDIT_UNDO) {
+				CMainFrame	*pFrame = theApp.GetMainFrame();
+				// if dockable bar that wants editing commands has focus and is visible, it has priority over framework
+				#define MAINDOCKBARDEF_WANTEDITCMDS(name) \
+					if (hFocusWnd == pFrame->m_wnd##name##Bar.GetListCtrl().m_hWnd && pFrame->m_wnd##name##Bar.FastIsVisible()) { \
+						return pFrame->m_wnd##name##Bar.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo); \
+					}
+				#include "MainDockBarDef.h"	// generate hooks for dockable bars that want editing commands
+			}
+		}
+		break;
+	}
 	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
 
@@ -454,7 +482,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_RENDER_WND_CLOSED, OnRenderWndClosed)
 	ON_MESSAGE(UWM_FULL_SCREEN_CHANGED, OnFullScreenChanged)
 	ON_MESSAGE(UWM_HANDLE_DLG_KEY, OnHandleDlgKey)
-	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
 	ON_WM_TIMER()
 	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
 	ON_MESSAGE(UWM_DEVICE_NODE_CHANGE, OnDeviceNodeChange)
@@ -758,15 +785,6 @@ LRESULT	CMainFrame::OnParamValChange(WPARAM wParam, LPARAM lParam)
 	CWhorldDoc*	pDoc = theApp.GetDocument();
 	pDoc->SetParam(iParam, PARAM_PROP_Val, fVal, theApp.GetView());
 	return 0;
-}
-
-void CMainFrame::OnEditCopy() //@@@ test only
-{
-#if _DEBUG
-//	theApp.GetDocument()->SetParam(PARAM_AspectRatio, 0, 1.23);
-//	theApp.GetDocument()->SetMasterProp(MASTER_CanvasScale, 1.23);
-	AfxMessageBox(_T("TEST CMainFrame::OnEditCopy"));
-#endif
 }
 
 #define MAINDOCKBARDEF(name, width, height, style) \

@@ -191,19 +191,26 @@
     <ClInclude Include="ArrayExAlgoDef.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="ClickSliderCtrl.h" />
+    <ClInclude Include="CritSec.h" />
     <ClInclude Include="D2DDevCtx.h" />
     <ClInclude Include="D2DHelper.h" />
     <ClInclude Include="DPoint.h" />
+    <ClInclude Include="DragVirtualListCtrl.h" />
     <ClInclude Include="EditSliderCtrl.h" />
     <ClInclude Include="ExportDlg.h" />
     <ClInclude Include="FocusEdit.h" />
     <ClInclude Include="FormatIO.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="GridCtrl.h" />
     <ClInclude Include="hls.h" />
     <ClInclude Include="ILockRingBuf.h" />
+    <ClInclude Include="IniFile.h" />
     <ClInclude Include="ListCtrlExSel.h" />
     <ClInclude Include="MainDockBarDef.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Mapping.h" />
+    <ClInclude Include="MappingBar.h" />
+    <ClInclude Include="MappingDef.h" />
     <ClInclude Include="MasterBar.h" />
     <ClInclude Include="MasterRowDlg.h" />
     <ClInclude Include="Midi.h" />
@@ -216,6 +223,9 @@
     <ClInclude Include="OptionsDef.h" />
     <ClInclude Include="OptionsDlg.h" />
     <ClInclude Include="Oscillator.h" />
+    <ClInclude Include="PopupCombo.h" />
+    <ClInclude Include="PopupEdit.h" />
+    <ClInclude Include="PopupNumEdit.h" />
     <ClInclude Include="Properties.h" />
     <ClInclude Include="PropertiesGrid.h" />
     <ClInclude Include="RegTempl.h" />
@@ -274,13 +284,18 @@
     <ClCompile Include="ClickSliderCtrl.cpp" />
     <ClCompile Include="D2DDevCtx.cpp" />
     <ClCompile Include="DPoint.cpp" />
+    <ClCompile Include="DragVirtualListCtrl.cpp" />
     <ClCompile Include="EditSliderCtrl.cpp" />
     <ClCompile Include="ExportDlg.cpp" />
     <ClCompile Include="FocusEdit.cpp" />
     <ClCompile Include="FormatIO.cpp" />
+    <ClCompile Include="GridCtrl.cpp" />
     <ClCompile Include="hls.cpp" />
+    <ClCompile Include="IniFile.cpp" />
     <ClCompile Include="ListCtrlExSel.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="Mapping.cpp" />
+    <ClCompile Include="MappingBar.cpp" />
     <ClCompile Include="MasterBar.cpp" />
     <ClCompile Include="MasterRowDlg.cpp" />
     <ClCompile Include="MidiDevices.cpp" />
@@ -290,6 +305,9 @@
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="Oscillator.cpp" />
+    <ClCompile Include="PopupCombo.cpp" />
+    <ClCompile Include="PopupEdit.cpp" />
+    <ClCompile Include="PopupNumEdit.cpp" />
     <ClCompile Include="Properties.cpp" />
     <ClCompile Include="PropertiesGrid.cpp" />
     <ClCompile Include="Snapshot.cpp" />
@@ -340,6 +358,8 @@
     <Image Include="UserImages.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\dragmulti.cur" />
+    <None Include="res\dragsingle.cur" />
     <None Include="res\Whorld.rc2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

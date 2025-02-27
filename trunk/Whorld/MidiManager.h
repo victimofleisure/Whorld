@@ -16,6 +16,7 @@
 #include "WhorldBase.h"
 #include "MidiWrap.h"
 #include "MidiDevices.h"
+#include "Mapping.h"
 
 class COptions;
 
@@ -29,17 +30,23 @@ public:
 	bool	IsInputDeviceOpen() const;
 
 // Operations
+	void	Initialize();
+	void	ReadDevices();
+	void	WriteDevices();
+	void	ReadMappings(LPCTSTR pszPath);
+	void	WriteMappings(LPCTSTR pszPath) const;
 	void	OnMidiError(MMRESULT nResult);
 	bool	OpenInputDevice(bool bEnable);
 	bool	OpenInputDevice();
 	void	CloseInputDevice();
 	bool	ReopenInputDevice();
 	void	OnDeviceChange();
-	void	ReadDevices();
-	void	WriteDevices();
 	void	OnMidiEvent(DWORD dwEvent);
 	static LPARAM	FloatToLParam(double fVal);
 	static double	LParamToFloat(LPARAM lParam);
+
+// Public data
+	CSeqMapping	m_midiMaps;		// MIDI mappings
 
 protected:
 // Data members

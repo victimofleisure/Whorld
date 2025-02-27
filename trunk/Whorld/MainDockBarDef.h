@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00		08feb25	initial version
-
+		01		26feb25	add mapping
 		
 */
 
@@ -17,8 +17,9 @@
 // Don't remove or reorder entries! Append only to avoid incompatibility.
 
 //			   name			width	height	style
-MAINDOCKBARDEF(Params,		200,	300,	dwBaseStyle | CBRS_LEFT | WS_VISIBLE | AFX_CBRS_FLOAT)
-MAINDOCKBARDEF(Master,		200,	300,	dwBaseStyle | CBRS_RIGHT | WS_VISIBLE | AFX_CBRS_FLOAT)
+MAINDOCKBARDEF(Params,		200,	300,	dwBaseStyle | CBRS_LEFT)
+MAINDOCKBARDEF(Master,		200,	300,	dwBaseStyle | CBRS_RIGHT)
+MAINDOCKBARDEF(Mapping,		300,	200,	dwBaseStyle | CBRS_BOTTOM)
 
 // After adding a new dockable bar here:
 // 1. Add a resource string IDS_BAR_Foo where Foo is the bar name.
@@ -34,7 +35,8 @@ MAINDOCKBARDEF(Master,		200,	300,	dwBaseStyle | CBRS_RIGHT | WS_VISIBLE | AFX_CB
 
 // list of dockable bars that handle standard editing commands
 #ifdef MAINDOCKBARDEF_WANTEDITCMDS
-#endif
+MAINDOCKBARDEF_WANTEDITCMDS(Mapping)
+#endif // MAINDOCKBARDEF_WANTEDITCMDS
 #undef MAINDOCKBARDEF_WANTEDITCMDS
 
 // list of dockable bar context menus to add to Customize

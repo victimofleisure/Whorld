@@ -31,10 +31,6 @@ public:
 // Attributes
 	CParamsRowDlg*	GetRow(int iRow);
 
-// Constants
-	static const int	m_arrParamOrder[PARAM_COUNT];	// parameter display order
-	static int	m_arrParamRowPos[PARAM_COUNT];	// row position of each parameter
-
 // Public data
 	CParamsBar	*m_pParent;
 
@@ -42,9 +38,6 @@ public:
 	virtual CRowDlg	*CreateRow(int Idx);
 	virtual void UpdateRow(int Idx);
 	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-
-// Helpers
-	static void	CreateRowPositionTable();
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()

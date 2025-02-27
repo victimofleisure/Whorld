@@ -245,3 +245,21 @@ CStdioFileEx::CStdioFileEx(LPCTSTR lpszFileName, UINT nOpenFlags, bool bUTF8)
 		CommonInit(lpszFileName, nOpenFlags, NULL);
 	}
 }
+
+bool ShowListColumnHeaderMenu(CWnd *pWnd, CListCtrl& list, CPoint point)
+{
+	if (point.x == -1 && point.y == -1)	// if menu triggered via keyboard
+		return false;
+	ASSERT(pWnd != NULL);
+	CPoint	ptGrid(point);
+	CHeaderCtrl	*pHdrCtrl = list.GetHeaderCtrl();
+	pHdrCtrl->ScreenToClient(&ptGrid);
+	HDHITTESTINFO	hti = {ptGrid};
+	pHdrCtrl->HitTest(&hti);
+	if (hti.flags & (HHT_ONHEADER | HHT_NOWHERE | HHT_ONDIVIDER)) {
+		CMenu	menu;
+		VERIFY(menu.LoadMenu(IDR_LIST_COL_HDR));
+		return menu.GetSubMenu(0)->TrackPopupMenu(0, point.x, point.y, pWnd) != 0;
+	}
+	return false;
+}

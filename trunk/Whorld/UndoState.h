@@ -23,6 +23,7 @@
 		13		25apr18	standardize names
 		14		19feb25	add point float
         15      22feb25 replace header guard with pragma
+		16		27feb25	update return style
 
         undo state container
  
@@ -37,9 +38,9 @@ class CUndoManager;
 // create accessors for an undo state value member
 #define CUNDOSTATE_VAL(alias, type, member)						\
 	inline static const type& alias(const CUndoState& State)	\
-		{ return(State.m_Val.member); }							\
+		{ return State.m_Val.member; }							\
 	inline static type& alias(CUndoState& State)				\
-		{ return(State.m_Val.member); }
+		{ return State.m_Val.member; }
 
 // reserved control ID for insignificant edits
 #define UNDO_CTRL_ID_INSIGNIFICANT INT_MAX
@@ -129,22 +130,22 @@ inline CUndoState::CUndoState(int nCtrlID, int nCode)
 
 inline int CUndoState::GetCtrlID() const
 {
-	return(m_nCtrlID);
+	return m_nCtrlID;
 }
 
 inline int CUndoState::GetCode() const
 {
-	return(m_nCode);
+	return m_nCode;
 }
 
 inline bool CUndoState::IsMatch(int nCtrlID, int nCode) const
 {
-	return(nCtrlID == m_nCtrlID && nCode == m_nCode);
+	return nCtrlID == m_nCtrlID && nCode == m_nCode;
 }
 
 inline bool CUndoState::IsSignificant() const
 {
-	return(m_nCtrlID != UNDO_CTRL_ID_INSIGNIFICANT);
+	return m_nCtrlID != UNDO_CTRL_ID_INSIGNIFICANT;
 }
 
 inline void CUndoState::Empty()

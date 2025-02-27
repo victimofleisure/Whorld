@@ -10,6 +10,7 @@
         00      06feb25	initial version
         01      20feb25	add bitmap capture and write
         02      22feb25	add snapshot capture and load
+		03		27feb25	add snapshot mode accessor
 
 */
 
@@ -30,6 +31,7 @@ public:
 	UINT_PTR	GetRingCount() const;
 	UINT_PTR	GetFrameCount() const;
 	bool	IsPaused() const;
+	bool	IsSnapshotMode() const;
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 
@@ -66,7 +68,7 @@ protected:
 	double	m_fNewGrowth;	// new ring growth, computed at start of TimerHook
 	int		m_nMaxRings;	// maximum number of rings
 	bool	m_bIsPaused;	// if true, we're paused
-	bool	m_bShowingSnapshot;	// if true, we're displaying a snapshot
+	bool	m_bSnapshotMode;	// if true, we're displaying a snapshot
 	bool	m_bFlushHistory;	// if true, next TimerHook won't interpolate oscillators
 	bool	m_bCopying;		// if true, add a rotating skew to new ring origins
 	double	m_fRingOffset;	// size of gap since last ring, in pixels
@@ -83,7 +85,7 @@ protected:
 	double	m_fZoom;		// current zoom, as a scaling factor
 	double	m_fZoomTarget;	// target zoom for damped zooming
 	DWORD	m_nFrameRate;	// current frame rate in Hertz
-	CAutoPtr<CSnapshot>	m_pSnapshot;	// saved state
+	CAutoPtr<CSnapshot>	m_pPrevSnapshot;	// render state before snapshot mode
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
@@ -94,6 +96,35 @@ protected:
 	virtual bool	OnDraw();
 	virtual void	OnRenderCommand(const CRenderCmd& cmd);
 	virtual void	Log(CString sMsg);
+
+// Helpers
+	static void		HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
+	static double	Wrap(double fVal, double fLimit);
+	static double	Reflect(double fVal, double fLimit);
+	void	UpdateHue(double fDeltaTick);
+	void	OnLoopHueChange();
+	void	ResizeCanvas();
+	void	OnCopiesChange();
+	void	AddRing();
+	void	OnTempoChange();
+	void	OnOriginMotionChange();
+	void	UpdateOrigin();
+	void	UpdateZoom();
+	void	TimerHook();
+	void	DrawRing(
+		ID2D1GeometrySink* pSink, D2D1_FIGURE_BEGIN nBeginType, 
+		int iFirstPoint, int nPoints, int nVertices, bool bCurved) const;
+	void	DrawOutline(ID2D1PathGeometry* pPath, const RING& ring, float fLineWidth) const;
+	void	OnMasterPropChange(int iProp);
+	void	OnMainPropChange(int iProp);
+	void	OnMasterPropChange();
+	void	OnMainPropChange();
+	DPoint	GetTargetSize() const;
+	CSnapshot*	GetSnapshot() const;
+	void	SetSnapshot(const CSnapshot* pSnapshot);
+	void	ExitSnapshotMode();
+	static CString	RenderCommandToString(const CRenderCmd& cmd);
+	static double	RandDouble();
 
 // Command handlers
 	void	SetParam(int iParam, double fVal);
@@ -115,33 +146,6 @@ protected:
 	void	CaptureBitmap(UINT nFlags, SIZE szImage);
 	bool	CaptureSnapshot() const;
 	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
-
-// Helpers
-	static void		HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
-	static double	Wrap(double Val, double Limit);
-	static double	Reflect(double Val, double Limit);
-	void	UpdateHue(double DeltaTick);
-	void	AddRing();
-	void	ResizeCanvas();
-	void	OnCopiesChange();
-	void	OnTempoChange();
-	void	OnOriginMotionChange();
-	void	UpdateOrigin();
-	void	UpdateZoom();
-	void	TimerHook();
-	void	DrawRing(
-		ID2D1GeometrySink* pSink, D2D1_FIGURE_BEGIN nBeginType, 
-		int iFirstPoint, int nPoints, int nVertices, bool bCurved) const;
-	void	DrawOutline(ID2D1PathGeometry* pPath, const RING& ring, float fLineWidth) const;
-	void	OnMasterPropChange(int iProp);
-	void	OnMainPropChange(int iProp);
-	void	OnMasterPropChange();
-	void	OnMainPropChange();
-	DPoint	GetTargetSize() const;
-	CSnapshot*	GetSnapshot() const;
-	void	SetSnapshot(const CSnapshot* pSnapshot);
-	static CString	RenderCommandToString(const CRenderCmd& cmd);
-	static double	RandDouble();
 };
 
 inline UINT_PTR CWhorldThread::GetRingCount() const
@@ -157,6 +161,11 @@ inline UINT_PTR CWhorldThread::GetFrameCount() const
 inline bool CWhorldThread::IsPaused() const
 {
 	return m_bIsPaused;
+}
+
+inline bool CWhorldThread::IsSnapshotMode() const
+{
+	return m_bSnapshotMode;
 }
 
 inline DWORD CWhorldThread::GetFrameRate() const

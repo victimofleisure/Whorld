@@ -101,7 +101,8 @@ BEGIN
     BUTTON      ID_EDIT_UNDO
     BUTTON      ID_EDIT_REDO
     SEPARATOR
-    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_WINDOW_PAUSE
+    SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
 
@@ -118,7 +119,8 @@ BEGIN
     BUTTON      ID_EDIT_UNDO
     BUTTON      ID_EDIT_REDO
     SEPARATOR
-    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_WINDOW_PAUSE
+    SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
 
@@ -159,6 +161,8 @@ BEGIN
     END
     POPUP "&Image"
     BEGIN
+        MENUITEM "&Loop Hue",                   ID_IMAGE_LOOP_HUE
+        MENUITEM SEPARATOR
         MENUITEM "&Mirror",                     ID_IMAGE_MIRROR
         MENUITEM "&Fill",                       ID_IMAGE_FILL
         MENUITEM "&Outline",                    ID_IMAGE_OUTLINE
@@ -315,6 +319,7 @@ BEGIN
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
     VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
     VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
+    VK_F2,          ID_IMAGE_LOOP_HUE,      VIRTKEY, NOINVERT
 END
 
 
@@ -698,6 +703,7 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
     ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
     ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
     ID_STATUS_PANE_FRAME_RATE "000.00"
@@ -722,11 +728,11 @@ BEGIN
     ID_FILE_TAKE_SNAPSHOT   "Capture the current image\nTake Snapshot"
     ID_IMAGE_CONVEX         "Draw rings in descending size order\nConvex"
     ID_IMAGE_FILL           "Fill area between rings\nFill"
+    ID_IMAGE_LOOP_HUE       "Limit hue cycling\nLoop Hue"
     ID_IMAGE_MIRROR         "Mirror image\nMirror"
     ID_IMAGE_ORIGIN_CENTER  "Center origin within window\nCenter Origin"
     ID_IMAGE_ORIGIN_DRAG    "Enable origin dragging\nDrag Origin"
     ID_IMAGE_ORIGIN_RANDOM  "Enable random origin\nRandom Origin"
-    ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
 END
 
 STRINGTABLE

@@ -14,6 +14,7 @@
 		04		01may14	widen CtrlID and Code to 32-bit
 		05		25apr18	standardize names
         06      22feb25	replace header guard with pragma
+		07		27feb25	update return style
 
         undoable edit interface
  
@@ -67,7 +68,7 @@ inline CUndoable::CUndoable()
 
 inline CUndoManager *CUndoable::GetUndoManager() const
 {
-	return(m_UndoManager);
+	return m_UndoManager;
 }
 
 inline void CUndoable::SetUndoManager(CUndoManager *pMgr)
@@ -87,22 +88,22 @@ inline void CUndoable::CancelUndoableEdit(int nCtrlID, int nCode)
 
 inline int CUndoable::GetUndoAction() const
 {
-	return(m_UndoManager->GetAction());
+	return m_UndoManager->GetAction();
 }
 
 inline bool CUndoable::UndoMgrIsIdle() const
 {
-	return(m_UndoManager->IsIdle());
+	return m_UndoManager->IsIdle();
 }
 
 inline bool CUndoable::IsUndoing() const
 {
-	return(m_UndoManager->IsUndoing());
+	return m_UndoManager->IsUndoing();
 }
 
 inline bool CUndoable::IsRedoing() const
 {
-	return(m_UndoManager->IsRedoing());
+	return m_UndoManager->IsRedoing();
 }
 
 inline void CUndoable::ClearUndoHistory()

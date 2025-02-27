@@ -56,7 +56,7 @@ public:
 // Operations
 	void	TimerHook();
 
-private:
+protected:
 // Member data
 	double	m_fTimerFreq;	// frequency at which timer hook runs, in Hz
 	int		m_nWaveform;	// type of waveform to generate; see enum above

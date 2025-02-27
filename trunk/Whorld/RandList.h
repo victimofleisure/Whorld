@@ -29,7 +29,7 @@ public:
 	int		GetSize() const;
 	int		GetAvail() const;
 
-private:
+protected:
 	CDWordArray	m_List;	// array of randomly generated elements
 	int		m_Avail;	// number of elements that haven't been used
 };

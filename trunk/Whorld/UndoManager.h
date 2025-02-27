@@ -21,6 +21,7 @@
 		11		19apr20	return const string reference from title accessors
 		12		05nov20	overload cancel edit
         13      22feb25	replace header guard with pragma
+		14		27feb25	update return style
 
         undoable edit interface
  
@@ -80,7 +81,6 @@ protected:
 	virtual	void	OnModify(bool bModified);
 	virtual	void	OnUpdateTitles();
 
-private:
 // Types
 	typedef	CArrayEx<CUndoState, CUndoState&> CUndoStateArray;
 
@@ -112,37 +112,37 @@ private:
 
 inline bool CUndoManager::CanUndo() const
 {
-	return(m_bCanUndo);
+	return m_bCanUndo;
 }
 
 inline bool CUndoManager::CanRedo() const
 {
-	return(m_bCanRedo);
+	return m_bCanRedo;
 }
 
 inline int CUndoManager::GetAction() const
 {
-	return(m_nAction);
+	return m_nAction;
 }
 
 inline bool CUndoManager::IsIdle() const
 {
-	return(m_nAction == UA_NONE);
+	return m_nAction == UA_NONE;
 }
 
 inline bool CUndoManager::IsUndoing() const
 {
-	return(m_nAction == UA_UNDO);
+	return m_nAction == UA_UNDO;
 }
 
 inline bool CUndoManager::IsRedoing() const
 {
-	return(m_nAction == UA_REDO);
+	return m_nAction == UA_REDO;
 }
 
 inline bool CUndoManager::IsModified() const
 {
-	return(m_nEdits > 0);
+	return m_nEdits > 0;
 }
 
 inline void CUndoManager::ResetModifiedFlag()
@@ -152,17 +152,17 @@ inline void CUndoManager::ResetModifiedFlag()
 
 inline int CUndoManager::GetLevels() const
 {
-	return(m_nLevels);
+	return m_nLevels;
 }
 
 inline const CString& CUndoManager::GetUndoTitle()
 {
-	return(m_sUndoTitle);
+	return m_sUndoTitle;
 }
 
 inline const CString& CUndoManager::GetRedoTitle()
 {
-	return(m_sRedoTitle);
+	return m_sRedoTitle;
 }
 
 inline void CUndoManager::SetRoot(CUndoable *pRoot)
@@ -172,20 +172,20 @@ inline void CUndoManager::SetRoot(CUndoable *pRoot)
 
 inline int CUndoManager::GetSize() const
 {
-	return(m_arrState.GetSize());
+	return m_arrState.GetSize();
 }
 
 inline int CUndoManager::GetPos() const
 {
-	return(m_iPos);
+	return m_iPos;
 }
 
 inline const CUndoState& CUndoManager::GetState(int iPos) const
 {
-	return(m_arrState[iPos]);
+	return m_arrState[iPos];
 }
 
 inline CUndoState& CUndoManager::GetState(int iPos)
 {
-	return(m_arrState[iPos]);
+	return m_arrState[iPos];
 }

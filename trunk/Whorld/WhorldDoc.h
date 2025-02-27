@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		27feb25	customize undo notify to support disabling
 
 */
 
@@ -32,6 +33,7 @@ public:
 	void	SetMasterProp(int iProp, double fProp, CView *pSender = NULL);
 	void	SetMainProp(int iProp, const VARIANT_PROP& prop, CView *pSender = NULL);
 	void	SetOriginMotion(int iMotionType);
+	void	SetLoopHue(bool bEnable);
 	void	SetDrawMode(UINT nDrawMode);
 	void	SetReverse(bool bEnable);
 	void	SetConvex(bool bEnable);
@@ -40,8 +42,10 @@ public:
 	void	SetOrigin(DPoint ptOrigin, bool bDamped = true);
 	bool	OffsetMasterProp(int iProp, double fDelta, double& fVal);
 	BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	CPatch&	GetPatch();
 
 // Operations
+	void	NotifyUndoableEdit(int nCtrlID, int nCode, UINT nFlags = 0);
 
 // Overrides
 	virtual BOOL 	OnNewDocument();
@@ -95,7 +99,13 @@ protected:
 	afx_msg void OnUpdateImageOriginDrag(CCmdUI *pCmdUI);
 	afx_msg void OnImageOriginRandom();
 	afx_msg void OnUpdateImageOriginRandom(CCmdUI *pCmdUI);
-public:
 	afx_msg void OnImageMirror();
 	afx_msg void OnUpdateImageMirror(CCmdUI *pCmdUI);
+	afx_msg void OnImageLoopHue();
+	afx_msg void OnUpdateImageLoopHue(CCmdUI *pCmdUI);
 };
+
+inline CPatch& CWhorldDoc::GetPatch()
+{
+	return *this;	// upcast to patch data base class
+}

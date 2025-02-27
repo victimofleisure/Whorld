@@ -12,6 +12,7 @@
         02      22feb25	add snapshot capture and load
 		03		25feb25	apply zoom to ring origins to match V1 trail behavior
 		04		25feb25	add previous curve flag to fix degenerate ring
+		05		27feb25	implement hue loop
 
 */
 
@@ -50,7 +51,7 @@ CWhorldThread::CWhorldThread()
 	m_fNewGrowth = 0;
 	m_nMaxRings = INT_MAX;
 	m_bIsPaused = false;
-	m_bShowingSnapshot = false;
+	m_bSnapshotMode = false;
 	m_bFlushHistory = false;
 	m_bCopying = false;
 	m_fRingOffset = 0;
@@ -118,31 +119,41 @@ void CWhorldThread::Log(CString sMsg)
 	theApp.Log(sMsg);
 }
 
-inline double CWhorldThread::Wrap(double Val, double Limit)
+inline double CWhorldThread::Wrap(double fVal, double fLimit)
 {
-	double	r = fmod(Val, Limit);
-	return(Val < 0 ? r + Limit : r);
+	double	r = fmod(fVal, fLimit);
+	return fVal < 0 ? r + fLimit : r;
 }
 
-inline double CWhorldThread::Reflect(double Val, double Limit)
+inline double CWhorldThread::Reflect(double fVal, double fLimit)
 {
-	double	m = Limit * 2;
-	double	r = Wrap(Val, m);
-	return(r < Limit ? r : m - r);
+	double	m = fLimit * 2;
+	double	r = Wrap(fVal, m);
+	return r < fLimit ? r : m - r;
 }
 
-inline void CWhorldThread::UpdateHue(double DeltaTick)
+inline void CWhorldThread::UpdateHue(double fDeltaTick)
 {
-	if (m_main.bLoopHue) {
-		if (m_master.fHueLoopLength) {
-			m_fHueLoopPos += m_params.fColorSpeed * DeltaTick;
-			m_fHue = m_fHueLoopBase + 
+	if (m_main.bLoopHue) {	// if looping hue
+		if (m_master.fHueLoopLength) {	// if non-zero loop length
+			m_fHueLoopPos += m_params.fColorSpeed * fDeltaTick;
+			m_fHue = m_fHueLoopBase -
 				Reflect(m_fHueLoopPos, m_master.fHueLoopLength);
-		} else
+		} else {	// avoid divide by zero
 			m_fHue = m_fHueLoopBase;
-	} else
-		m_fHue += m_params.fColorSpeed * DeltaTick;
+		}
+	} else {	// not looping hue
+		m_fHue += m_params.fColorSpeed * fDeltaTick;
+	}
 	m_fHue = Wrap(m_fHue, 360);
+}
+
+void CWhorldThread::OnLoopHueChange()
+{
+	if (m_main.bLoopHue) {	// if looping hue
+		m_fHueLoopPos = 0;
+		m_fHueLoopBase = m_fHue;
+	}
 }
 
 void CWhorldThread::ResizeCanvas()
@@ -492,7 +503,7 @@ bool CWhorldThread::OnDraw()
 		RING&	ring = bConvex ? m_aRing.GetPrev(posNext) : m_aRing.GetNext(posNext);
 		double	fLineWidth = ring.fLineWidth + m_globRing.fLineWidth;
 		DPoint	ptOrg(ring.ptOrigin);
-		if (m_bShowingSnapshot) {	// if displaying a snapshot
+		if (m_bSnapshotMode) {	// if we're displaying a snapshot
 			fLineWidth *= m_fZoom;	// apply special scaling
 			ptOrg *= m_fZoom;
 		}
@@ -625,6 +636,9 @@ void CWhorldThread::OnMasterPropChange(int iProp)
 	case MASTER_Tempo:
 		OnTempoChange();
 		break;
+	case MASTER_HueLoopLength:
+		OnLoopHueChange();
+		break;
 	}
 }
 
@@ -633,6 +647,9 @@ void CWhorldThread::OnMainPropChange(int iProp)
 	switch (iProp) {
 	case MAIN_OrgMotion:
 		OnOriginMotionChange();
+		break;
+	case MAIN_LoopHue:
+		OnLoopHueChange();
 		break;
 	}
 }
@@ -753,11 +770,8 @@ bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
 void CWhorldThread::SetPause(bool bIsPaused)
 {
 	m_bIsPaused = bIsPaused;
-	if (!bIsPaused && m_pSnapshot != NULL) {
-		m_bShowingSnapshot = false;
-		// snapshot will be deleted at end of scope
-		CAutoPtr<CSnapshot>	pSnapshot(m_pSnapshot);
-		SetSnapshot(pSnapshot);	// restore snapshot
+	if (!bIsPaused) {	// if unpausing
+		ExitSnapshotMode();
 	}
 }
 
@@ -783,8 +797,8 @@ void CWhorldThread::RandomPhase()
 void CWhorldThread::SetZoom(double fZoom, bool bDamping)
 {
 	m_fZoomTarget = fZoom;
-	if (!bDamping || m_bShowingSnapshot) {	// if not damping
-		m_fZoom = fZoom;	// go to target
+	if (!bDamping || m_bSnapshotMode) {	// if not damping
+		m_fZoom = fZoom;	// go directly to target
 	}
 }
 
@@ -792,8 +806,8 @@ void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
 {
 	DPoint	ptClientOrigin((ptOrigin - 0.5) * GetTargetSize());
 	m_ptOriginTarget = ptClientOrigin;
-	if (!bDamping || m_bShowingSnapshot) {	// if not damping
-		m_ptOrigin = ptClientOrigin;	// go to target
+	if (!bDamping || m_bSnapshotMode) {	// if not damping
+		m_ptOrigin = ptClientOrigin;	// go directly to target
 	}
 }
 
@@ -966,14 +980,24 @@ bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
 	if (pSnapshot == NULL) {	// if null snapshot pointer
 		CHECK(E_INVALIDARG);	// One or more arguments are invalid
 	}
-	if (m_pSnapshot == NULL) {
-		m_pSnapshot.Attach(GetSnapshot());
+	if (m_pPrevSnapshot == NULL) {
+		m_pPrevSnapshot.Attach(GetSnapshot());
 	}
 	SetSnapshot(pSnapshot);
 	m_bIsPaused = true;	// pause display; pointless otherwise
-	m_bShowingSnapshot = true;
+	m_bSnapshotMode = true;
 	delete pSnapshot;	// assume snapshot was allocated on heap
 	return true;
+}
+
+void CWhorldThread::ExitSnapshotMode()
+{
+	m_bSnapshotMode = false;
+	if (m_pPrevSnapshot != NULL) {	// if previous snapshot exists
+		// snapshot is deleted when smart pointer goes out of scope
+		CAutoPtr<CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
+		SetSnapshot(pSnapshot);	// restore snapshot
+	}
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)

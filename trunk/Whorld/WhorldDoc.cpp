@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		24feb25	fix outline menu item not displaying check
+		02		27feb25	disable undo/redo while in snapshot mode
 
 */
 
@@ -88,6 +89,14 @@ BOOL CWhorldDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	return true;
 }
 
+BOOL CWhorldDoc::CanCloseFrame(CFrameWnd* pFrame)
+{
+	BOOL	bRet = CDocument::CanCloseFrame(pFrame);
+	if (!bRet)	// if close was canceled
+		theApp.m_bCleanStateOnExit = false;	// reset clean on exit flag
+	return bRet;
+}
+
 void CWhorldDoc::SetParam(int iParam, int iProp, const CComVariant& prop, CView *pSender)
 {
 	NotifyUndoableEdit(MAKELONG(iParam, iProp), UCODE_PARAM, UE_COALESCE);
@@ -115,6 +124,12 @@ void CWhorldDoc::SetMainProp(int iProp, const VARIANT_PROP& prop, CView *pSender
 	SetModifiedFlag();
 	CParamHint	hint(iProp);	// master property index
 	UpdateAllViews(pSender, HINT_MAIN, &hint);
+}
+
+void CWhorldDoc::SetLoopHue(bool bEnable)
+{
+	MAKE_VARIANT_PROP(boolVal, bEnable);
+	SetMainProp(MAIN_LoopHue, prop);
 }
 
 void CWhorldDoc::SetDrawMode(UINT nDrawMode)
@@ -338,6 +353,14 @@ CString	CWhorldDoc::GetUndoTitle(const CUndoState& State)
 	return sTitle;
 }
 
+void CWhorldDoc::NotifyUndoableEdit(int nCtrlID, int nCode, UINT nFlags)
+{
+	if (theApp.IsSnapshotMode()) {	// if we're in snapshot mode
+		return;	// disable undo notification
+	}
+	CUndoable::NotifyUndoableEdit(nCtrlID, nCode, nFlags);
+}
+
 // CWhorldDoc message map
 
 BEGIN_MESSAGE_MAP(CWhorldDoc, CDocument)
@@ -360,6 +383,8 @@ BEGIN_MESSAGE_MAP(CWhorldDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_ORIGIN_RANDOM, OnUpdateImageOriginRandom)
 	ON_COMMAND(ID_IMAGE_MIRROR, &CWhorldDoc::OnImageMirror)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_MIRROR, &CWhorldDoc::OnUpdateImageMirror)
+	ON_COMMAND(ID_IMAGE_LOOP_HUE, &CWhorldDoc::OnImageLoopHue)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_LOOP_HUE, &CWhorldDoc::OnUpdateImageLoopHue)
 END_MESSAGE_MAP()
 
 // CWhorldDoc message handlers
@@ -373,7 +398,7 @@ void CWhorldDoc::OnEditUndo()
 void CWhorldDoc::OnUpdateEditUndo(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetText(m_UndoMgr.m_sUndoMenuItem);
-	pCmdUI->Enable(m_UndoMgr.CanUndo());
+	pCmdUI->Enable(m_UndoMgr.CanUndo() && !theApp.IsSnapshotMode());
 }
 
 void CWhorldDoc::OnEditRedo()
@@ -385,27 +410,17 @@ void CWhorldDoc::OnEditRedo()
 void CWhorldDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetText(m_UndoMgr.m_sRedoMenuItem);
-	pCmdUI->Enable(m_UndoMgr.CanRedo());
+	pCmdUI->Enable(m_UndoMgr.CanRedo() && !theApp.IsSnapshotMode());
 }
 
-void CWhorldDoc::OnImageConvex()
+void CWhorldDoc::OnImageLoopHue()
 {
-	SetConvex(!m_main.bConvex);
+	SetLoopHue(!m_main.bLoopHue);
 }
 
-void CWhorldDoc::OnUpdateImageConvex(CCmdUI *pCmdUI)
+void CWhorldDoc::OnUpdateImageLoopHue(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_main.bConvex);
-}
-
-void CWhorldDoc::OnImageReverse()
-{
-	SetReverse(!m_main.bReverse);
-}
-
-void CWhorldDoc::OnUpdateImageReverse(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_main.bReverse);
+	pCmdUI->SetCheck(m_main.bLoopHue);
 }
 
 void CWhorldDoc::OnImageFill()
@@ -438,12 +453,24 @@ void CWhorldDoc::OnUpdateImageMirror(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(m_main.bMirror);
 }
 
-BOOL CWhorldDoc::CanCloseFrame(CFrameWnd* pFrame)
+void CWhorldDoc::OnImageConvex()
 {
-	BOOL	bRet = CDocument::CanCloseFrame(pFrame);
-	if (!bRet)	// if close was canceled
-		theApp.m_bCleanStateOnExit = false;	// reset clean on exit flag
-	return bRet;
+	SetConvex(!m_main.bConvex);
+}
+
+void CWhorldDoc::OnUpdateImageConvex(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_main.bConvex);
+}
+
+void CWhorldDoc::OnImageReverse()
+{
+	SetReverse(!m_main.bReverse);
+}
+
+void CWhorldDoc::OnUpdateImageReverse(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_main.bReverse);
 }
 
 void CWhorldDoc::OnImageOriginCenter()

@@ -13,6 +13,7 @@
         03      22feb25	add snapshot capture and load
 		04		25feb25	add frame min/max info handler for row view panes
 		05		26feb25	add MIDI input
+		06		27feb25	add pre-snapshot mode patch member
 
 */
 
@@ -108,6 +109,7 @@ public:
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
 	CStringArrayEx	m_saOutputPath;	// array of output paths
+	CAutoPtr<CPatch> m_pPreSnapshotModePatch;	// backup of patch before we entered snapshot mode
 
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -118,6 +120,10 @@ public:
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
+	#define MAINDOCKBARDEF(name, width, height, style) \
+		afx_msg void OnViewBar##name(); \
+		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);
+	#include "MainDockBarDef.h"	// generate docking bar message handlers
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCustomize();
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
@@ -140,10 +146,6 @@ public:
 	afx_msg LRESULT	OnSnapshotCapture(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnParamValChange(WPARAM wParam, LPARAM lParam);
-	#define MAINDOCKBARDEF(name, width, height, style) \
-		afx_msg void OnViewBar##name(); \
-		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);
-	#include "MainDockBarDef.h"	// generate docking bar message handlers
 	afx_msg void OnViewOptions();
 	afx_msg void OnWindowPause();
 	afx_msg void OnUpdateWindowPause(CCmdUI *pCmdUI);

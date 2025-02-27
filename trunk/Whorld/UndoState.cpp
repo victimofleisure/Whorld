@@ -15,6 +15,7 @@
  		05		09sep14	use default memberwise copy
 		06		09apr18	add value accessors
 		07		25apr18	standardize names
+		08		27feb25	update return style
 
         undo state container
  
@@ -28,7 +29,7 @@ CString CUndoState::DumpState() const
 	CString	s;
 	s.Format(_T("CtrlID=%d Code=%d a=0x%x b=0x%x"), 
 		m_nCtrlID, m_nCode, m_Val.p.x.i, m_Val.p.y.i);
-	return(s);
+	return s;
 }
 
 void CUndoState::GetVal(CString& val) const

@@ -42,7 +42,7 @@
 #define RK_RENDER_WND _T("RenderWnd")
 #define RK_RESOURCE_VERSION _T("nResourceVersion")
 
-const int CWhorldApp::m_nNewResourceVersion = 2;	// update if resource change breaks customization
+const int CWhorldApp::m_nNewResourceVersion = 3;	// increment if resource change breaks customization
 
 #define WHORLD_MIDI_MAPPING_PATH _T("WhorldMidiMappings.ini")	//@@@ temporary fix for testing
 

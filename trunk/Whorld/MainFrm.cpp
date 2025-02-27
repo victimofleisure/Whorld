@@ -14,6 +14,7 @@
 		04		25feb25	disable disruptive commands in full screen single monitor
 		05		25feb25	add frame min/max info handler for row view panes
 		06		26feb25	add MIDI input
+		07		27feb25	restore patch on exiting snapshot mode
 
 */
 
@@ -409,19 +410,17 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 		if (nCode == CN_COMMAND || nCode == CN_UPDATE_COMMAND_UI) {
 			HWND	hFocusWnd = ::GetFocus();
 			CEdit	*pEdit = CFocusEdit::GetEdit(hFocusWnd);
-			if (pEdit != NULL) {	// if edit control has focus, it has top priority
+			if (pEdit != NULL && nID != ID_EDIT_UNDO) {	// if edit control has focus, it has top priority
 				CFocusEdit::OnCmdMsg(nID, nCode, pExtra, pEdit);	// let edit control handle editing commands
 				return TRUE;
 			}
-			if (nID != ID_EDIT_UNDO) {
-				CMainFrame	*pFrame = theApp.GetMainFrame();
-				// if dockable bar that wants editing commands has focus and is visible, it has priority over framework
-				#define MAINDOCKBARDEF_WANTEDITCMDS(name) \
-					if (hFocusWnd == pFrame->m_wnd##name##Bar.GetListCtrl().m_hWnd && pFrame->m_wnd##name##Bar.FastIsVisible()) { \
-						return pFrame->m_wnd##name##Bar.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo); \
-					}
-				#include "MainDockBarDef.h"	// generate hooks for dockable bars that want editing commands
-			}
+			CMainFrame	*pFrame = theApp.GetMainFrame();
+			// if dockable bar that wants editing commands has focus and is visible, it has priority over framework
+			#define MAINDOCKBARDEF_WANTEDITCMDS(name) \
+				if (hFocusWnd == pFrame->m_wnd##name##Bar.GetListCtrl().m_hWnd && pFrame->m_wnd##name##Bar.FastIsVisible()) { \
+					return pFrame->m_wnd##name##Bar.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo); \
+				}
+			#include "MainDockBarDef.h"	// generate hooks for dockable bars that want editing commands
 		}
 		break;
 	}
@@ -491,10 +490,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_SNAPSHOT_CAPTURE, OnSnapshotCapture)
 	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
 	ON_MESSAGE(UWM_PARAM_VAL_CHANGE, OnParamValChange)
-	#define MAINDOCKBARDEF(name, width, height, style) \
-		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
-		ON_UPDATE_COMMAND_UI(ID_VIEW_BAR_##name, OnUpdateViewBar##name)
-	#include "MainDockBarDef.h"	// generate docking bar message map entries
 	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
 	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
@@ -505,6 +500,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
 	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
+	// dock bar handlers confuse code completion, so keep them last
+	#define MAINDOCKBARDEF(name, width, height, style) \
+		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
+		ON_UPDATE_COMMAND_UI(ID_VIEW_BAR_##name, OnUpdateViewBar##name)
+	#include "MainDockBarDef.h"	// generate docking bar message map entries
 END_MESSAGE_MAP()
 
 // CMainFrame message handlers
@@ -753,6 +753,15 @@ void CMainFrame::OnFileLoadSnapshot()
 	}
 	CSnapshot	*pSnapshot = CSnapshot::Read(fd.GetPathName());
 	if (pSnapshot != NULL) {
+		CWhorldDoc*	pDoc = theApp.GetDocument();
+		if (m_pPreSnapshotModePatch == NULL) {	// if pre-snapshot mode backup unmade
+			CPatch&	patch = *pDoc;	// upcast from document to patch data
+			// create copy of current patch on heap and attach copy to member pointer
+			m_pPreSnapshotModePatch.Attach(new CPatch(patch));
+		}
+		pDoc->m_master.fZoom = pSnapshot->m_state.fZoom;
+		CWhorldDoc::CParamHint	hint(MASTER_Zoom);	// master property index
+		pDoc->UpdateAllViews(theApp.GetView(), HINT_MASTER, &hint);
 		CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
 		cmd.m_prop.byref = pSnapshot;
 		theApp.PushRenderCommand(cmd);
@@ -840,6 +849,13 @@ void CMainFrame::OnWindowPause()
 {
 	CRenderCmd	cmd(RC_SET_PAUSE, !theApp.IsPaused());
 	theApp.PushRenderCommand(cmd);
+	if (m_pPreSnapshotModePatch != NULL) {
+		// snapshot is deleted when smart pointer goes out of scope
+		CAutoPtr<CPatch> pOldPatch(m_pPreSnapshotModePatch);	// take ownership
+		CWhorldDoc*	pDoc = theApp.GetDocument();
+		pDoc->GetPatch() = *pOldPatch;	// copy previously saved patch to document
+		pDoc->UpdateAllViews(NULL);
+	}
 }
 
 void CMainFrame::OnUpdateWindowPause(CCmdUI *pCmdUI)

@@ -60,6 +60,7 @@ public:
 	UINT_PTR	GetRingCount() const;
 	UINT_PTR	GetFrameCount() const;
 	bool	IsPaused() const;
+	bool	IsSnapshotMode() const;
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 	bool	ResourceVersionChanged() const;
@@ -204,6 +205,11 @@ inline UINT_PTR CWhorldApp::GetFrameCount() const
 inline bool CWhorldApp::IsPaused() const
 {
 	return m_thrRender.IsPaused();
+}
+
+inline bool CWhorldApp::IsSnapshotMode() const
+{
+	return m_thrRender.IsSnapshotMode();
 }
 
 inline DWORD CWhorldApp::GetFrameRate() const

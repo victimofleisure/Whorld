@@ -30,6 +30,7 @@
 		20		19apr20	remove unused resource header
 		21		05nov20	overload cancel edit
 		22		08jun21	fix warning for CString as variadic argument
+		23		27feb25	update return style
 
         undoable edit interface
  
@@ -48,8 +49,8 @@
 CUndoManager::CUndoManager(CUndoable *pRoot) :
 	m_pRoot(pRoot)
 {
-	m_bCanUndo = FALSE;
-	m_bCanRedo = FALSE;
+	m_bCanUndo = false;
+	m_bCanRedo = false;
 	m_iPos = 0;
 	m_nLevels = INT_MAX;
 	m_nEdits = 0;
@@ -62,7 +63,7 @@ CUndoManager::~CUndoManager()
 
 inline CString CUndoManager::GetTitle(int iPos)
 {
-	return(m_pRoot->GetUndoTitle(m_arrState[iPos]));
+	return m_pRoot->GetUndoTitle(m_arrState[iPos]);
 }
 
 int CUndoManager::FindUndoable() const
@@ -71,9 +72,9 @@ int CUndoManager::FindUndoable() const
 	while (iPos > 0) {
 		iPos--;
 		if (m_arrState[iPos].IsSignificant())
-			return(iPos);
+			return iPos;
 	}
-	return(-1);
+	return -1;
 }
 
 int CUndoManager::FindRedoable() const
@@ -81,10 +82,10 @@ int CUndoManager::FindRedoable() const
 	int	iPos = m_iPos;
 	while (iPos < GetSize()) {
 		if (m_arrState[iPos].IsSignificant())
-			return(iPos);
+			return iPos;
 		iPos++;
 	}
-	return(-1);
+	return -1;
 }
 
 void CUndoManager::Undo()
@@ -154,7 +155,7 @@ void CUndoManager::NotifyEdit(int nCtrlID, int nCode, UINT nFlags)
 			nCtrlID = UNDO_CTRL_ID_INSIGNIFICANT;
 		else {
 			if (!m_nEdits++)			// if first modification
-				OnModify(TRUE);		// call derived handler
+				OnModify(true);		// call derived handler
 		}
 		// if coalesce requested and notifier's key matches top of stack
 		if ((nFlags & CUndoable::UE_COALESCE) && m_iPos 
@@ -203,23 +204,23 @@ bool CUndoManager::CancelEdit(int nCtrlID, int nCode)
 		m_arrState.RemoveAt(iState);
 		m_iPos--;
 		if (!--m_nEdits)			// if last modification
-			OnModify(FALSE);	// call derived handler
+			OnModify(false);	// call derived handler
 		UpdateTitles();
 	}
 #if UNDO_NATTER
 	if (iState < 0)
 		_tprintf(_T("Can't cancel edit.\n"));
 #endif
-	return(iState >= 0);
+	return iState >= 0;
 }
 
 bool CUndoManager::CancelEdit()
 {
 	if (m_iPos > 0 && m_iPos <= GetSize()) {
 		const CUndoState&	state = m_arrState[m_iPos - 1];
-		return(CancelEdit(state.m_nCtrlID, state.m_nCode));	// cancel last edit
+		return CancelEdit(state.m_nCtrlID, state.m_nCode);	// cancel last edit
 	}
-	return(false);
+	return false;
 }
 
 void CUndoManager::DiscardAllEdits()
@@ -228,12 +229,12 @@ void CUndoManager::DiscardAllEdits()
 	_tprintf(_T("DiscardAllEdits\n"));
 #endif
 	m_arrState.SetSize(0);
-	m_bCanUndo = FALSE;
-	m_bCanRedo = FALSE;
+	m_bCanUndo = false;
+	m_bCanRedo = false;
 	m_iPos = 0;
 	m_nEdits = 0;
 	m_nAction = UA_NONE;
-	OnModify(FALSE);	// call derived handler
+	OnModify(false);	// call derived handler
 	UpdateTitles();
 }
 

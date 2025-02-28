@@ -10,6 +10,7 @@
         00      27mar18	initial version
 		01		21feb25	customize for Whorld
 		02		26feb25	add MIDI input
+		03		28feb25	add general group
 
 */
 
@@ -17,6 +18,7 @@
 
 GROUPDEF(	Midi		)
 GROUPDEF(	Export		)
+GROUPDEF(	General		)
 
 #undef GROUPDEF
 #endif
@@ -31,6 +33,7 @@ PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageHeight,		1080,		1,			UINT_MAX,	NULL,
 PROPDEF(	Export,		NONE,		VAR,		bool,		bUseViewSize,		1,			0,			0,			NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bScaleToFit,		0,			0,			0,			NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bPromptUser,		1,			0,			0,			NULL,		0)
+PROPDEF(	General,	NONE,		VAR,		int,		nMRUItems,			4,			0,			16,			NULL,		0)
 
 #undef PROPDEF
 #endif

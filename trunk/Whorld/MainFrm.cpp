@@ -643,6 +643,8 @@ LRESULT CMainFrame::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
 	ShowWindow(theApp.m_nCmdShow);
 	theApp.GetView()->PostMessage(UWM_DELAYED_CREATE);
 	theApp.MidiInit();	// initialize MIDI devices
+	ASSERT(theApp.m_pPlaylist != NULL);
+	theApp.m_pPlaylist->New();	// create initial playlist
 	SetTimer(FRAME_RATE_TIMER_ID, FRAME_RATE_TIMER_PERIOD, NULL);
 	return 0;
 }

@@ -568,6 +568,7 @@ STRINGTABLE
 BEGIN
     IDS_CHAN_STAT_WHEEL     "Wheel"
     IDS_DOC_BAD_FORMAT      "Unexpected file format."
+    IDS_DOC_NEWER_VERSION   "'%1' is from a newer document version. Some of its features may not be supported"
     IDS_EDIT_CUT            "Cut"
     IDS_EDIT_DELETE         "Delete"
     IDS_EDIT_INSERT         "Insert"
@@ -581,11 +582,11 @@ BEGIN
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
     IDS_MAIN_Hue            "Hue"
-    IDS_MAIN_InvertColor    "Invert Color"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_InvertColor    "Invert Color"
     IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
     IDS_MAIN_OrgMotion      "Origin Motion"
@@ -601,11 +602,11 @@ BEGIN
     IDS_MAPPING_COL_RANGE_START "Range Start"
     IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
-    IDS_MASTER_Damping      "Damping"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueLoopLength "Hue Loop"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
@@ -621,11 +622,11 @@ BEGIN
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
     IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
-    IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
@@ -642,33 +643,37 @@ BEGIN
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
+    IDS_OPT_DESC_General_nMRUItems 
+                            "Maximum number of items in recently used lists"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
-    IDS_OPT_GROUP_Export    "Export"
-    IDS_OPT_GROUP_Midi      "MIDI"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_GROUP_Export    "Export"
+    IDS_OPT_GROUP_General   "General"
+    IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
+    IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
-    IDS_PARAM_EvenCurve     "Even Curve"
-    IDS_PARAM_EvenShear     "Even Shear"
-    IDS_PARAM_Lightness     "Lightness"
-    IDS_PARAM_LineWidth     "Line Width"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_EvenCurve     "Even Curve"
+    IDS_PARAM_EvenShear     "Even Shear"
+    IDS_PARAM_Lightness     "Lightness"
+    IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
@@ -681,14 +686,14 @@ BEGIN
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
-    IDS_PROW_Amp            "Amplitude"
-    IDS_PROW_Freq           "Frequency"
-    IDS_PROW_NAME_STATIC    "Name"
-    IDS_PROW_PW             "Pulse Width"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_Amp            "Amplitude"
+    IDS_PROW_Freq           "Frequency"
+    IDS_PROW_NAME_STATIC    "Name"
+    IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
@@ -701,17 +706,16 @@ BEGIN
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
+END
+
+STRINGTABLE
+BEGIN
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
-END
-
-STRINGTABLE
-BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_DOC_NEWER_VERSION   "'%1' is from a newer document version. Some of its features may not be supported"
 END
 
 STRINGTABLE
@@ -721,14 +725,14 @@ BEGIN
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
-END
-
-STRINGTABLE
-BEGIN
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
+END
+
+STRINGTABLE
+BEGIN
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
@@ -738,9 +742,25 @@ BEGIN
     ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
     ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
     ID_PLAYLIST_MRU_FILE1   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE10  "Open this playlist"
+    ID_PLAYLIST_MRU_FILE11  "Open this playlist"
+    ID_PLAYLIST_MRU_FILE12  "Open this playlist"
+    ID_PLAYLIST_MRU_FILE13  "Open this playlist"
+    ID_PLAYLIST_MRU_FILE14  "Open this playlist"
+    ID_PLAYLIST_MRU_FILE15  "Open this playlist"
+    ID_PLAYLIST_MRU_FILE16  "Open this playlist"
     ID_PLAYLIST_MRU_FILE2   "Open this playlist"
     ID_PLAYLIST_MRU_FILE3   "Open this playlist"
     ID_PLAYLIST_MRU_FILE4   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE5   "Open this playlist"
+END
+
+STRINGTABLE
+BEGIN
+    ID_PLAYLIST_MRU_FILE6   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE7   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE8   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE9   "Open this playlist"
     ID_STATUS_PANE_FRAME_RATE "000.00"
     ID_STATUS_PANE_RING_COUNT "00000"
     ID_TOOLS_MIDI_LEARN     "Learn mappings from MIDI input\nMIDI Learn"

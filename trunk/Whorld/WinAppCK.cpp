@@ -24,6 +24,7 @@
 		14		11nov21	add FindMenuItem and InsertNumericMenuItems
 		15		16feb25	add restart app method
 		16		19feb25	add goto URL
+		17		28feb25	add methods to set size of recent file list
 
         enhanced application
  
@@ -235,6 +236,34 @@ bool CWinAppCK::GotoUrl(LPCTSTR Url)
 {
 	INT_PTR	retc = (INT_PTR)ShellExecute(NULL, NULL, Url, NULL, NULL, SW_SHOWNORMAL);
 	return(retc > HINSTANCE_ERROR);
+}
+
+void CWinAppCK::SetRecentFileListSize(int nSize)
+{
+	if (m_pRecentFileList != NULL) {
+		SetRecentFileListSize(*m_pRecentFileList, nSize);
+	}
+}
+
+void CWinAppCK::SetRecentFileListSize(CRecentFileList& list, int nSize)
+{
+	ASSERT(nSize >= 0);
+	if (nSize == list.m_nSize)	// if size is unchanged
+		return;	// nothing to do
+	CStringArray	arrName;
+	int	nSavedNames = min(nSize, list.m_nSize);
+	arrName.SetSize(nSavedNames);
+	// save names that can be saved
+	for (int iName = 0; iName < nSavedNames; iName++) {
+		arrName[iName] = list.m_arrNames[iName];
+	}
+	delete [] list.m_arrNames;	// delete old list
+	list.m_arrNames = new CString[nSize];	// create new list
+	// restore saved names
+	for (int iName = 0; iName < nSavedNames; iName++) {
+		list.m_arrNames[iName] = arrName[iName];
+	}
+	list.m_nSize = nSize;	// update size
 }
 
 CTempFilePath::~CTempFilePath()

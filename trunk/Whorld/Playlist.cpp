@@ -56,7 +56,7 @@ const LPCTSTR CPlaylist::m_pszPlaylistFilter = _T("Playlist Files (*.whl)|*.whl|
 #define RK_FILE_ID			_T("FileID")
 #define RK_FILE_VERSION		_T("FileVersion")
 
-CPlaylist::CPlaylist() : CAuxiliaryDoc(IDR_PLAYLIST, 0, _T("Recent Playlist"), _T("Playlist%d"), MRU_ENTRIES)
+CPlaylist::CPlaylist() : CAuxiliaryDoc(IDR_PLAYLIST, 0, _T("Recent Playlist"), _T("Playlist%d"), theApp.m_options.m_General_nMRUItems)
 {
 	m_bModified = false;
 }

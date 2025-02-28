@@ -129,7 +129,6 @@ protected:
 // Message handlers
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnAppAbout();
-public:
 	afx_msg void OnAppHomePage();
 };
 

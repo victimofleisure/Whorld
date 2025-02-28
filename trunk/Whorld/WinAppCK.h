@@ -29,6 +29,7 @@
 		19		24feb23	add template to count set bits
 		20		16feb25	add restart app method
 		21		19feb25	add goto URL
+		22		28feb25	add methods to set size of recent file list
 
         enhanced application
  
@@ -54,6 +55,8 @@ public:
 	static	CString GetAppPath();
 	static	CString GetAppFolder();
 	static	CString GetVersionString();
+	void	SetRecentFileListSize(int nSize);
+	static	void	SetRecentFileListSize(CRecentFileList& list, int nSize);
 
 // Operations
 	static	bool	CreateFolder(LPCTSTR Path);

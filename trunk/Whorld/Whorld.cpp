@@ -43,7 +43,7 @@
 #define RK_RENDER_WND _T("RenderWnd")
 #define RK_RESOURCE_VERSION _T("nResourceVersion")
 
-const int CWhorldApp::m_nNewResourceVersion = 3;	// increment if resource change breaks customization
+const int CWhorldApp::m_nNewResourceVersion = 4;	// increment if resource change breaks customization
 
 // CWhorldApp construction
 
@@ -110,11 +110,13 @@ BOOL CWhorldApp::InitInstance()
 	m_pszAppName = _T("Whorld2");	// create new profile for version 2
 	SetRegistryKey(_T("Anal Software"));
 	m_pszAppName = pPrevAppName;
-	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 	m_nOldResourceVersion = theApp.GetProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, 0);
 	m_options.ReadProperties();	// get options from registry
+	LoadStdProfileSettings(m_options.m_General_nMRUItems);  // Load standard INI file options (including MRU)
 	m_midiMgr.Initialize();
 	m_pPlaylist.Attach(new CPlaylist);
+	if (m_pPlaylist == NULL)	// if can't create playlist
+		return FALSE;
 
 	InitContextMenuManager();
 
@@ -294,6 +296,11 @@ void CWhorldApp::ApplyOptions(const COptions *pPrevOptions)
 	if (pPrevOptions != NULL) {
 		if (m_midiMgr.GetDeviceIdx(CMidiDevices::INPUT) != iPrevInputDev) {	// if MIDI input device changed
 			m_midiMgr.ReopenInputDevice();
+		}
+		// if maximum number of recently used items changed
+		if (m_options.m_General_nMRUItems != pPrevOptions->m_General_nMRUItems) {
+			SetRecentFileListSize(m_options.m_General_nMRUItems);
+			SetRecentFileListSize(m_pPlaylist->m_listRecentFile, m_options.m_General_nMRUItems);
 		}
 	}
 }

@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      26feb25	initial version
+		01		28feb25	add center epsilon
 
 */
 
@@ -133,6 +134,10 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 			int	nDeltaRange = map.m_nRangeEnd - map.m_nRangeStart;	// can be negative if start > end
 			double	fTargVal = nTargVal / 127.0 * nDeltaRange + map.m_nRangeStart;	// offset by start of range
 			double	fNormTargVal = fTargVal / 127.0;	// normalized target value
+			const double	fCenterEpsilon = 0.005;	// half a percent
+			if (fabs(fNormTargVal - 0.5) < fCenterEpsilon) {	// if within epsilon of center
+				fNormTargVal = 0.5;	// call it center
+			}
 			int	iProp = map.m_nOutEvent;
 			if (iProp < MASTER_COUNT) {	// if target is master property
 				double	fVal = CMasterRowDlg::Denorm(iProp, fNormTargVal);

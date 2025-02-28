@@ -38,6 +38,9 @@ public:
 	BOOL	OpenRecent(int iFile);
 	void	UpdateMruMenu(CCmdUI* pCmdUI);
 
+// Public data
+	CRecentFileList	m_listRecentFile;	// array of recently used files
+
 // Overrides
 	public:
 	virtual void SetPathName(LPCTSTR lpszPathName, BOOL bAddToMRU = TRUE);
@@ -51,7 +54,6 @@ public:
 #endif
 
 protected:
-
 // Types
 	class CAuxDocTemplate : public CSingleDocTemplate {
 	public:
@@ -61,7 +63,6 @@ protected:
 
 // Data members
 	CAuxDocTemplate	m_tplDoc;	// auxiliary document template
-	CRecentFileList	m_listRecentFile;	// array of recently used files
 
 // Generated message map functions
 protected:

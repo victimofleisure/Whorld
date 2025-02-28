@@ -50,18 +50,18 @@
 <TD>02/27/25</TD>
 <TD>&nbsp;</TD>
 <TD>bug</TD>
-<TD>mapped parameter changes are undoable; could lead to trouble, at least make it optional</TD>
+<TD>edits made via MIDI are undoable; could cause excessive history, make it optional</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
-<TH>49</TH>
-<TD>02/27/25</TD>
+<TH>52</TH>
+<TD>02/28/25</TD>
 <TD>&nbsp;</TD>
 <TD>bug</TD>
-<TD>message box appears in unexpected location if floating pane has focus</TD>
+<TD>some mapped parameters can't be set back to exactly zero</TD>
 <TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
+<TD>JM</TD>
 </TR>
 <TR VALIGN=TOP>
 <TH>1</TH>
@@ -262,20 +262,38 @@
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
+<TH>25</TH>
+<TD>02/25/25</TD>
+<TD>02/28/25</TD>
+<TD>done</TD>
+<TD>new playlist format; use INI file this time</TD>
+<TD>2.0.04.001</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>42</TH>
+<TD>02/27/25</TD>
+<TD>02/28/25</TD>
+<TD>done</TD>
+<TD>mapping pane should support undo</TD>
+<TD>2.0.04.001</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>43</TH>
+<TD>02/27/25</TD>
+<TD>02/28/25</TD>
+<TD>done</TD>
+<TD>mapping persistence, in playlist as before</TD>
+<TD>2.0.04.001</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
 <TH>14</TH>
 <TD>02/18/25</TD>
 <TD>&nbsp;</TD>
 <TD>hold</TD>
 <TD>master dialog should have spin controls</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
-<TH>25</TH>
-<TD>02/25/25</TD>
-<TD>&nbsp;</TD>
-<TD>hold</TD>
-<TD>new playlist format; use INI file this time</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>
@@ -406,24 +424,6 @@
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
-<TH>42</TH>
-<TD>02/27/25</TD>
-<TD>&nbsp;</TD>
-<TD>hold</TD>
-<TD>mapping pane should support undo</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
-<TH>43</TH>
-<TD>02/27/25</TD>
-<TD>&nbsp;</TD>
-<TD>hold</TD>
-<TD>mappings need to be persist somewhere; current arrangement is temporary</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
 <TH>44</TH>
 <TD>02/27/25</TD>
 <TD>&nbsp;</TD>
@@ -456,6 +456,24 @@
 <TD>&nbsp;</TD>
 <TD>hold</TD>
 <TD>global parameters; implemented in drawing but not in UI</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>51</TH>
+<TD>02/27/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>undo and redo should be mappable</TD>
+<TD>&nbsp;</TD>
+<TD>JM</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>49</TH>
+<TD>02/27/25</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>message box appears in unexpected location if floating pane has focus; standard behavior, live with it</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>

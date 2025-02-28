@@ -33,8 +33,9 @@ public:
 	void	Initialize();
 	void	ReadDevices();
 	void	WriteDevices();
-	void	ReadMappings(LPCTSTR pszPath);
-	void	WriteMappings(LPCTSTR pszPath) const;
+	void	RemoveAllMappings();
+	void	ReadMappings(CIniFile& fIn);
+	void	WriteMappings(CIniFile& fOut) const;
 	void	OnMidiError(MMRESULT nResult);
 	bool	OpenInputDevice(bool bEnable);
 	bool	OpenInputDevice();
@@ -91,6 +92,21 @@ inline void CMidiManager::ReadDevices()
 inline void CMidiManager::WriteDevices()
 {
 	m_midiDevs.Write();
+}
+
+inline void CMidiManager::RemoveAllMappings()
+{
+	m_midiMaps.RemoveAll();
+}
+
+inline void CMidiManager::ReadMappings(CIniFile& fIn)
+{
+	m_midiMaps.Read(fIn);
+}
+
+inline void CMidiManager::WriteMappings(CIniFile& fOut) const
+{
+	m_midiMaps.Write(fOut);
 }
 
 inline LPARAM CMidiManager::FloatToLParam(double fVal)

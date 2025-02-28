@@ -391,7 +391,7 @@ END_MESSAGE_MAP()
 
 void CWhorldDoc::OnEditUndo()
 {
-	GetUndoManager()->Undo();
+	m_UndoMgr.Undo();
 	SetModifiedFlag();	// undo counts as modification
 }
 
@@ -403,7 +403,7 @@ void CWhorldDoc::OnUpdateEditUndo(CCmdUI *pCmdUI)
 
 void CWhorldDoc::OnEditRedo()
 {
-	GetUndoManager()->Redo();
+	m_UndoMgr.Redo();
 	SetModifiedFlag();	// redo counts as modification
 }
 

@@ -189,6 +189,7 @@
     <ClInclude Include="AppRegKey.h" />
     <ClInclude Include="ArrayEx.h" />
     <ClInclude Include="ArrayExAlgoDef.h" />
+    <ClInclude Include="AuxiliaryDoc.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="ClickSliderCtrl.h" />
     <ClInclude Include="CritSec.h" />
@@ -223,6 +224,7 @@
     <ClInclude Include="OptionsDef.h" />
     <ClInclude Include="OptionsDlg.h" />
     <ClInclude Include="Oscillator.h" />
+    <ClInclude Include="Playlist.h" />
     <ClInclude Include="PopupCombo.h" />
     <ClInclude Include="PopupEdit.h" />
     <ClInclude Include="PopupNumEdit.h" />
@@ -280,6 +282,7 @@
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ArrayEx.cpp" />
+    <ClCompile Include="AuxiliaryDoc.cpp" />
     <ClCompile Include="Benchmark.cpp" />
     <ClCompile Include="ClickSliderCtrl.cpp" />
     <ClCompile Include="D2DDevCtx.cpp" />
@@ -305,6 +308,7 @@
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="Oscillator.cpp" />
+    <ClCompile Include="Playlist.cpp" />
     <ClCompile Include="PopupCombo.cpp" />
     <ClCompile Include="PopupEdit.cpp" />
     <ClCompile Include="PopupNumEdit.cpp" />

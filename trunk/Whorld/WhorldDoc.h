@@ -51,10 +51,21 @@ public:
 	virtual BOOL 	OnNewDocument();
 	virtual BOOL	OnOpenDocument(LPCTSTR lpszPathName);
 	virtual BOOL	OnSaveDocument(LPCTSTR lpszPathName);
+	virtual BOOL	CanCloseFrame(CFrameWnd* pFrame);
 	virtual	void	SaveUndoState(CUndoState& State);
 	virtual	void	RestoreUndoState(const CUndoState& State);
 	virtual	CString	GetUndoTitle(const CUndoState& State);
-	virtual BOOL	CanCloseFrame(CFrameWnd* pFrame);
+
+// Public types
+	class CMyUndoManager : public CUndoManager {
+	public:
+		CMyUndoManager();
+		virtual	void	OnUpdateTitles();
+		CString	m_sUndoMenuItem;	// undo's edit menu item string; prefixed undo title
+		CString	m_sRedoMenuItem;	// redo's edit menu item string; prefixed redo title
+		static	CString	m_sUndoPrefix;	// prefix for undo's edit menu item, from resource
+		static	CString	m_sRedoPrefix;	// prefix for redo's edit menu item, from resource
+	};
 
 // Implementation
 public:
@@ -65,16 +76,7 @@ public:
 #endif
 
 protected:
-// Types
-	class CMyUndoManager : public CUndoManager {
-	public:
-		CMyUndoManager();
-		virtual	void	OnUpdateTitles();
-		CString	m_sUndoMenuItem;	// undo's edit menu item string; prefixed undo title
-		CString	m_sRedoMenuItem;	// redo's edit menu item string; prefixed redo title
-		static	CString	m_sUndoPrefix;	// prefix for undo's edit menu item, from resource
-		static	CString	m_sRedoPrefix;	// prefix for redo's edit menu item, from resource
-	};
+// Data members
 	CMyUndoManager	m_UndoMgr;	// undo manager
 
 protected:

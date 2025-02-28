@@ -43,11 +43,6 @@
 #include "MasterRowDlg.h"
 
 #define TIMER_PERIOD 0			// timer period, in milliseconds
-#define TEST_PLAYING 0			// true to enable playback during test
-#define MAX_TRACKS 100			// maximum number of tracks
-#define MAX_STEPS 256			// maximum number of steps
-#define MAX_ROTATION_STEPS 16	// maximum number of rotation steps
-#define	RANDOM_BAR_ODDS 0		// N:0 odds of showing or hiding a bar, or zero to disable
 
 static CWhorldUndoTest gUndoTest(TRUE);	// one and only instance, initially running
 

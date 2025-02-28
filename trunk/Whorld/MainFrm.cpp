@@ -401,6 +401,7 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 	}
 	switch (nID) {
 	case ID_EDIT_UNDO:
+	case ID_EDIT_REDO:
 	case ID_EDIT_COPY:
 	case ID_EDIT_CUT:
 	case ID_EDIT_PASTE:
@@ -410,9 +411,15 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 		if (nCode == CN_COMMAND || nCode == CN_UPDATE_COMMAND_UI) {
 			HWND	hFocusWnd = ::GetFocus();
 			CEdit	*pEdit = CFocusEdit::GetEdit(hFocusWnd);
-			if (pEdit != NULL && nID != ID_EDIT_UNDO) {	// if edit control has focus, it has top priority
-				CFocusEdit::OnCmdMsg(nID, nCode, pExtra, pEdit);	// let edit control handle editing commands
-				return TRUE;
+			if (pEdit != NULL) {	// if edit control has focus, it has top priority
+				switch (nID) {
+				case ID_EDIT_UNDO:
+				case ID_EDIT_REDO:
+					break;	// but undo/redo are exceptions
+				default:
+					CFocusEdit::OnCmdMsg(nID, nCode, pExtra, pEdit);	// let edit control handle editing commands
+					return TRUE;
+				}
 			}
 			CMainFrame	*pFrame = theApp.GetMainFrame();
 			// if dockable bar that wants editing commands has focus and is visible, it has priority over framework
@@ -472,6 +479,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, OnToolbarCreateNew)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_FIRST, ID_VIEW_APPLOOK_LAST, OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_FIRST, ID_VIEW_APPLOOK_LAST, OnUpdateApplicationLook)
+	ON_WM_CLOSE()
 	ON_COMMAND(ID_WINDOW_FULLSCREEN, OnWindowFullscreen)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_FULLSCREEN, OnUpdateWindowFullscreen)
 	ON_COMMAND(ID_WINDOW_DETACH, OnWindowDetach)
@@ -500,6 +508,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
 	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
+	ON_COMMAND(ID_PLAYLIST_OPEN, OnPlaylistOpen)
+	ON_COMMAND(ID_PLAYLIST_SAVE, OnPlaylistSave)
+	ON_COMMAND(ID_PLAYLIST_SAVE_AS, OnPlaylistSaveAs)
+	ON_COMMAND(ID_PLAYLIST_NEW, OnPlaylistNew)
+	ON_COMMAND_RANGE(ID_PLAYLIST_MRU_FILE1, ID_PLAYLIST_MRU_FILE4, OnPlaylistMru)
+	ON_UPDATE_COMMAND_UI(ID_PLAYLIST_MRU_FILE1, OnUpdatePlaylistMru)
 	// dock bar handlers confuse code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
@@ -611,6 +625,14 @@ void CMainFrame::OnApplicationLook(UINT id)
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
+}
+
+void CMainFrame::OnClose()
+{
+	if (!theApp.m_pPlaylist->CanCloseFrame(this)) {	// if save check fails
+		return;	// cancel close
+	}
+	CFrameWndEx::OnClose();
 }
 
 LRESULT CMainFrame::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
@@ -888,4 +910,34 @@ void CMainFrame::OnWindowResetLayout()
 		theApp.m_bCleanStateOnExit = true;
 		PostMessage(WM_CLOSE);
 	}
+}
+
+void CMainFrame::OnPlaylistNew()
+{
+	theApp.m_pPlaylist->New();
+}
+
+void CMainFrame::OnPlaylistOpen()
+{
+	theApp.m_pPlaylist->OpenPrompt();
+}
+
+void CMainFrame::OnPlaylistSave()
+{
+	theApp.m_pPlaylist->DoFileSave();
+}
+
+void CMainFrame::OnPlaylistSaveAs()
+{
+	theApp.m_pPlaylist->DoSave(NULL);
+}
+
+void CMainFrame::OnPlaylistMru(UINT nID)
+{
+	theApp.m_pPlaylist->OpenRecent(nID - ID_PLAYLIST_MRU_FILE1);
+}
+
+void CMainFrame::OnUpdatePlaylistMru(CCmdUI* pCmdUI)
+{
+	theApp.m_pPlaylist->UpdateMruMenu(pCmdUI);
 }

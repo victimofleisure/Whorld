@@ -71,8 +71,8 @@ public:
 // Operations
 	static void	Initialize();
 	void	SetDefaults();
-	void	Read(CIniFile& fIni, LPCTSTR pszSection);
-	void	Write(CIniFile& fIni, LPCTSTR pszSection) const;
+	void	Read(CIniFile& fIn, LPCTSTR pszSection);
+	void	Write(CIniFile& fOut, LPCTSTR pszSection) const;
 
 protected:
 // Constants
@@ -101,8 +101,8 @@ inline int CMapping::FindInputEventTag(LPCTSTR pszName)
 
 class CMappingArray : public CArrayEx<CMapping, CMapping&> {
 public:
-	void	Read(CIniFile& fIni);
-	void	Write(CIniFile& fIni) const;
+	void	Read(CIniFile& fIn);
+	void	Write(CIniFile& fOut) const;
 };
 
 class CSeqMapping {
@@ -111,6 +111,8 @@ public:
 	WCritSec&	GetCritSec();
 	int		GetCount() const;
 	const CMapping&	GetAt(int iMapping) const;
+	const CMappingArray&	GetArray() const;
+	void	SetArray(const CMappingArray& arrMapping);
 	int		GetProperty(int iMapping, int iProp) const;
 	void	SetProperty(int iMapping, int iProp, int nVal);
 	void	GetProperty(const CIntArrayEx& arrSelection, int iProp, CIntArrayEx& arrProp) const;
@@ -124,6 +126,7 @@ public:
 	void	SetInputMidiMsg(const CIntArrayEx& arrSelection, const CIntArrayEx& arrInMidiMsg);
 
 // Operations
+	void	RemoveAll();
 	void	Insert(int iInsert, CMappingArray& arrMapping);
 	void	Insert(const CIntArrayEx& arrSelection, CMappingArray& arrMapping);
 	void	Delete(int iMapping, int nCount = 1);
@@ -131,8 +134,8 @@ public:
 	void	Move(const CIntArrayEx& arrSelection, int iDropPos);
 	void	Sort(int iProp, bool bDescending = false);
 	static	int		SortCompare(const void *arg1, const void *arg2);
-	void	Read(CIniFile& fIni);
-	void	Write(CIniFile& fIni) const;
+	void	Read(CIniFile& fIn);
+	void	Write(CIniFile& fOut) const;
 
 protected:
 // Data members
@@ -155,6 +158,11 @@ inline int CSeqMapping::GetCount() const
 inline const CMapping& CSeqMapping::GetAt(int iMapping) const
 {
 	return m_arrMapping[iMapping];
+}
+
+inline const CMappingArray& CSeqMapping::GetArray() const
+{
+	return m_arrMapping;
 }
 
 inline int CSeqMapping::GetProperty(int iMapping, int iProp) const

@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		21feb25	add options
 		02		26feb25	add MIDI input
+		03		28feb25	add playlist
 
 */
 
@@ -43,8 +44,6 @@
 #define RK_RESOURCE_VERSION _T("nResourceVersion")
 
 const int CWhorldApp::m_nNewResourceVersion = 3;	// increment if resource change breaks customization
-
-#define WHORLD_MIDI_MAPPING_PATH _T("WhorldMidiMappings.ini")	//@@@ temporary fix for testing
 
 // CWhorldApp construction
 
@@ -115,6 +114,7 @@ BOOL CWhorldApp::InitInstance()
 	m_nOldResourceVersion = theApp.GetProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, 0);
 	m_options.ReadProperties();	// get options from registry
 	m_midiMgr.Initialize();
+	m_pPlaylist.Attach(new CPlaylist);
 
 	InitContextMenuManager();
 
@@ -165,7 +165,6 @@ int CWhorldApp::ExitInstance()
 	m_wndRender.DestroyWindow();
 	m_options.WriteProperties();	// save options to registry
 	m_midiMgr.WriteDevices();	// save MIDI device state to registry
-	m_midiMgr.WriteMappings(WHORLD_MIDI_MAPPING_PATH);
 	AfxOleTerm(FALSE);
 	if (m_bCleanStateOnExit) {
 		ResetWindowLayout();	// delete window layout keys
@@ -569,9 +568,6 @@ CString CWhorldApp::GetTimestampFileName() const
 void CWhorldApp::MidiInit()
 {
 	m_midiMgr.ReadDevices();	// get MIDI devices from registry
-	if (PathFileExists(WHORLD_MIDI_MAPPING_PATH)) {
-		m_midiMgr.ReadMappings(WHORLD_MIDI_MAPPING_PATH);
-	}
 	theApp.m_options.UpdateMidiDevices();	// copy MIDI devices to options
 	m_midiMgr.OpenInputDevice();
 }

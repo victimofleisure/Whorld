@@ -129,6 +129,7 @@ public:
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
+	afx_msg void OnClose();
 	afx_msg void OnWindowFullscreen();
 	afx_msg void OnUpdateWindowFullscreen(CCmdUI* pCmdUI);
 	afx_msg void OnWindowDetach();
@@ -156,6 +157,12 @@ public:
 	afx_msg void OnFileExport();
 	afx_msg void OnFileTakeSnapshot();
 	afx_msg void OnFileLoadSnapshot();
+	afx_msg void OnPlaylistOpen();
+	afx_msg void OnPlaylistSave();
+	afx_msg void OnPlaylistSaveAs();
+	afx_msg void OnPlaylistNew();
+	afx_msg void OnPlaylistMru(UINT nID);
+	afx_msg void OnUpdatePlaylistMru(CCmdUI* pCmdUI);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

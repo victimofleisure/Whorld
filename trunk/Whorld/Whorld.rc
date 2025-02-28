@@ -143,6 +143,16 @@ BEGIN
         MENUITEM "&Take Snapshot...",           ID_FILE_TAKE_SNAPSHOT
         MENUITEM "&Load Snapshot...",           ID_FILE_LOAD_SNAPSHOT
         MENUITEM SEPARATOR
+        POPUP "&Playlist"
+        BEGIN
+            MENUITEM "&New",                        ID_PLAYLIST_NEW
+            MENUITEM "&Open...",                    ID_PLAYLIST_OPEN
+            MENUITEM "&Save",                       ID_PLAYLIST_SAVE
+            MENUITEM "Save &As",                    ID_PLAYLIST_SAVE_AS
+            MENUITEM SEPARATOR
+            MENUITEM "Recent File",                 ID_PLAYLIST_MRU_FILE1
+        END
+        MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
@@ -206,7 +216,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Master",                     ID_VIEW_BAR_Master
         MENUITEM "&Parameters",                 ID_VIEW_BAR_Params
-        MENUITEM "MI&DI Mapping",               ID_VIEW_BAR_Mapping
+        MENUITEM "M&IDI Mapping",               ID_VIEW_BAR_Mapping
     END
     POPUP "&Window"
     BEGIN
@@ -264,12 +274,15 @@ IDR_MAPPING_CTX MENU
 BEGIN
     POPUP "Mapping"
     BEGIN
-        MENUITEM "&Insert",                     ID_EDIT_INSERT
-        MENUITEM "&Delete",                     ID_EDIT_DELETE
+        MENUITEM "&Undo",                       ID_EDIT_UNDO
+        MENUITEM "&Redo",                       ID_EDIT_REDO
         MENUITEM SEPARATOR
         MENUITEM "Cu&t",                        ID_EDIT_CUT
         MENUITEM "&Copy",                       ID_EDIT_COPY
         MENUITEM "&Paste",                      ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert",                     ID_EDIT_INSERT
+        MENUITEM "&Delete",                     ID_EDIT_DELETE
         MENUITEM SEPARATOR
         MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
         MENUITEM "&Learn",                      ID_TOOLS_MIDI_LEARN
@@ -288,6 +301,8 @@ BEGIN
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
     "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
+    VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
@@ -301,6 +316,7 @@ BEGIN
     "T",            ID_FILE_TAKE_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
     VK_TAB,         ID_IMAGE_CONVEX,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_IMAGE_FILL,          VIRTKEY, NOINVERT
+    VK_F2,          ID_IMAGE_LOOP_HUE,      VIRTKEY, NOINVERT
     VK_F5,          ID_IMAGE_MIRROR,        VIRTKEY, NOINVERT
     "0",            ID_IMAGE_ORIGIN_CENTER, VIRTKEY, CONTROL, NOINVERT
     "D",            ID_IMAGE_ORIGIN_DRAG,   VIRTKEY, CONTROL, NOINVERT
@@ -308,18 +324,18 @@ BEGIN
     VK_F7,          ID_IMAGE_OUTLINE,       VIRTKEY, NOINVERT
     VK_F9,          ID_IMAGE_RANDOM_PHASE,  VIRTKEY, NOINVERT
     VK_BACK,        ID_IMAGE_REVERSE,       VIRTKEY, CONTROL, NOINVERT
-    "A",            ID_VIEW_BAR_Mapping,    VIRTKEY, SHIFT, NOINVERT
+    "N",            ID_PLAYLIST_NEW,        VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "O",            ID_PLAYLIST_OPEN,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "S",            ID_PLAYLIST_SAVE,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "I",            ID_VIEW_BAR_Mapping,    VIRTKEY, SHIFT, NOINVERT
     "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
     "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
-    "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, NOINVERT
     VK_DELETE,      ID_WINDOW_CLEAR,        VIRTKEY, CONTROL, NOINVERT
     VK_F12,         ID_WINDOW_DETACH,       VIRTKEY, CONTROL, NOINVERT
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
-    VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
-    VK_F2,          ID_IMAGE_LOOP_HUE,      VIRTKEY, NOINVERT
 END
 
 
@@ -552,24 +568,30 @@ STRINGTABLE
 BEGIN
     IDS_CHAN_STAT_WHEEL     "Wheel"
     IDS_DOC_BAD_FORMAT      "Unexpected file format."
+    IDS_EDIT_CUT            "Cut"
+    IDS_EDIT_DELETE         "Delete"
+    IDS_EDIT_INSERT         "Insert"
     IDS_EDIT_MENU           "Edit"
+    IDS_EDIT_MOVE           "Move"
+    IDS_EDIT_PASTE          "Paste"
     IDS_EDIT_REDO_PREFIX    "&Redo"
+    IDS_EDIT_SORT           "Sort"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
     IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
     IDS_MAIN_Hue            "Hue"
     IDS_MAIN_InvertColor    "Invert Color"
+END
+
+STRINGTABLE
+BEGIN
     IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
     IDS_MAIN_OrgMotion      "Origin Motion"
     IDS_MAIN_Origin         "Origin"
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
-END
-
-STRINGTABLE
-BEGIN
     IDS_MAPPING_COL_IN_CHANNEL "In Channel"
     IDS_MAPPING_COL_IN_CONTROL "In Control"
     IDS_MAPPING_COL_IN_EVENT "In Event"
@@ -580,16 +602,16 @@ BEGIN
     IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
+END
+
+STRINGTABLE
+BEGIN
     IDS_MASTER_HueLoopLength "Hue Loop"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
     IDS_MASTER_Spread       "Spread"
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
-END
-
-STRINGTABLE
-BEGIN
     IDS_MASTER_Zoom         "Zoom"
     IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
     IDS_MIDI_INPUT          "Input"
@@ -600,16 +622,16 @@ BEGIN
     IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
+END
+
+STRINGTABLE
+BEGIN
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
-END
-
-STRINGTABLE
-BEGIN
     IDS_NONE                "<None>"
     IDS_OPT_DESC_Export_bPromptUser 
                             "Prompt user for destination folder, filename, and options"
@@ -623,16 +645,16 @@ BEGIN
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_Midi      "MIDI"
+END
+
+STRINGTABLE
+BEGIN
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
-END
-
-STRINGTABLE
-BEGIN
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
@@ -643,16 +665,16 @@ BEGIN
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
     IDS_PARAM_RingSpacing   "Ring Spacing"
-END
-
-STRINGTABLE
-BEGIN
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
@@ -663,16 +685,16 @@ BEGIN
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
-END
-
-STRINGTABLE
-BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
@@ -684,7 +706,12 @@ BEGIN
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
+END
+
+STRINGTABLE
+BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_DOC_NEWER_VERSION   "'%1' is from a newer document version. Some of its features may not be supported"
 END
 
 STRINGTABLE
@@ -694,6 +721,10 @@ BEGIN
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
+END
+
+STRINGTABLE
+BEGIN
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
@@ -706,6 +737,10 @@ BEGIN
     ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
     ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
     ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
+    ID_PLAYLIST_MRU_FILE1   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE2   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE3   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE4   "Open this playlist"
     ID_STATUS_PANE_FRAME_RATE "000.00"
     ID_STATUS_PANE_RING_COUNT "00000"
     ID_TOOLS_MIDI_LEARN     "Learn mappings from MIDI input\nMIDI Learn"
@@ -738,6 +773,7 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Whorld\n\nWhorld\nWhorld Files (*.whp)\n.whp\nWhorld.Document\nWhorld Document"
+    IDR_PLAYLIST            "Playlist\n\nPlaylist\nPlaylist Files (*.whl)\n.whl\nWhorldPlaylist.Document\nWhorld Playlist"
 END
 
 STRINGTABLE

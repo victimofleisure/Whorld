@@ -11,6 +11,7 @@
         01      20feb25	add bitmap capture and write
 		02		21feb25	add options
 		03		26feb25	add MIDI input
+		04		28feb25	add playlist
 
 */
 
@@ -29,6 +30,7 @@
 #include "WhorldThread.h"
 #include "Options.h"
 #include "MidiManager.h"
+#include "Playlist.h"
 
 // CWhorldApp:
 // See Whorld.cpp for the implementation of this class
@@ -95,6 +97,7 @@ public:
 	bool	m_bCleanStateOnExit;	// if true, clean state before exiting
 	COptions	m_options;			// options data
 	CMidiManager	m_midiMgr;		// MIDI manager
+	CAutoPtr<CPlaylist>	m_pPlaylist;	// pointer to playlist
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();

@@ -134,15 +134,15 @@ inline int CMapping::FindOutputEventTag(LPCTSTR pszName)
 	return iPos;
 }
 
-void CMapping::Read(CIniFile& fIni, LPCTSTR pszSection)
+void CMapping::Read(CIniFile& fIn, LPCTSTR pszSection)
 {
 	CString	sName;
-	sName = fIni.GetString(pszSection, RK_MAPPING_IN_EVENT);
+	sName = fIn.GetString(pszSection, RK_MAPPING_IN_EVENT);
 	m_nInEvent = FindInputEventTag(sName);
 	ASSERT(m_nInEvent >= 0);	// check for unknown input event name
 	if (m_nInEvent < 0)	// if unknown input event name
 		m_nInEvent = 0;		// avoid range errors downstream
-	sName = fIni.GetString(pszSection, RK_MAPPING_OUT_EVENT);
+	sName = fIn.GetString(pszSection, RK_MAPPING_OUT_EVENT);
 	m_nOutEvent = FindOutputEventTag(sName);
 	ASSERT(m_nOutEvent >= 0);	// check for unknown output event name
 	if (m_nOutEvent < 0)	// if unknown output event name
@@ -150,29 +150,29 @@ void CMapping::Read(CIniFile& fIni, LPCTSTR pszSection)
 	// conditional to exclude events is optimized away in release build
 	#define MAPPINGDEF(name, align, width, member, minval, maxval) \
 		if (PROP_##name != PROP_IN_EVENT && PROP_##name != PROP_OUT_EVENT) \
-			m_n##member = fIni.GetInt(pszSection, _T(#member), 0);
+			m_n##member = fIn.GetInt(pszSection, _T(#member), 0);
 	#include "MappingDef.h"	// generate profile read for each member, excluding events
 }
 
-void CMapping::Write(CIniFile& fIni, LPCTSTR pszSection) const
+void CMapping::Write(CIniFile& fOut, LPCTSTR pszSection) const
 {
-	fIni.WriteString(pszSection, RK_MAPPING_IN_EVENT, GetInputEventTag(m_nInEvent));
-	fIni.WriteString(pszSection, RK_MAPPING_OUT_EVENT, GetOutputEventTag(m_nOutEvent));
+	fOut.WriteString(pszSection, RK_MAPPING_IN_EVENT, GetInputEventTag(m_nInEvent));
+	fOut.WriteString(pszSection, RK_MAPPING_OUT_EVENT, GetOutputEventTag(m_nOutEvent));
 	// conditional to exclude events is optimized away in release build
 	#define MAPPINGDEF(name, align, width, member, minval, maxval) \
 		if (PROP_##name != PROP_IN_EVENT && PROP_##name != PROP_OUT_EVENT) \
-			fIni.WriteInt(pszSection, _T(#member), m_n##member);
+			fOut.WriteInt(pszSection, _T(#member), m_n##member);
 	#include "MappingDef.h"	// generate profile write for each member, excluding events
 }
 
-void CMappingArray::Read(CIniFile& fIni)
+void CMappingArray::Read(CIniFile& fIn)
 {
 	CString	sSectionIdx;
-	int	nItems = fIni.GetInt(RK_MAPPING_SECTION, _T("Count"), 0);
+	int	nItems = fIn.GetInt(RK_MAPPING_SECTION, _T("Count"), 0);
 	SetSize(nItems);
 	for (int iItem = 0; iItem < nItems; iItem++) {	// for each mapping
 		sSectionIdx.Format(_T("%d"), iItem);
-		GetAt(iItem).Read(fIni, RK_MAPPING_SECTION _T("\\") + sSectionIdx);
+		GetAt(iItem).Read(fIn, RK_MAPPING_SECTION _T("\\") + sSectionIdx);
 	}
 }
 
@@ -212,20 +212,32 @@ int CMapping::IsInputMatch(DWORD nInMidiMsg) const
 	}
 }
 
-void CMappingArray::Write(CIniFile& fIni) const
+void CMappingArray::Write(CIniFile& fOut) const
 {
 	CString	sSectionIdx;
 	int	nItems = GetSize();
-	fIni.WriteInt(RK_MAPPING_SECTION, _T("Count"), nItems);
+	fOut.WriteInt(RK_MAPPING_SECTION, _T("Count"), nItems);
 	for (int iItem = 0; iItem < nItems; iItem++) {	// for each mapping
 		sSectionIdx.Format(_T("%d"), iItem);
-		GetAt(iItem).Write(fIni, RK_MAPPING_SECTION _T("\\") + sSectionIdx);
+		GetAt(iItem).Write(fOut, RK_MAPPING_SECTION _T("\\") + sSectionIdx);
 	}
+}
+
+void CSeqMapping::RemoveAll()
+{
+	LOCK_MAPPINGS; // exclusive write
+	m_arrMapping.RemoveAll();
+}
+
+void CSeqMapping::SetArray(const CMappingArray& arrMapping)
+{
+	LOCK_MAPPINGS; // exclusive write
+	m_arrMapping = arrMapping;
 }
 
 void CSeqMapping::SetProperty(int iMapping, int iProp, int nVal)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping[iMapping].SetProperty(iProp, nVal);
 }
 
@@ -236,7 +248,7 @@ void CSeqMapping::GetSelection(const CIntArrayEx& arrSelection, CMappingArray& a
 
 void CSeqMapping::SetInputMidiMsg(int iMapping, DWORD nInMidiMsg)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping[iMapping].SetInputMidiMsg(nInMidiMsg);
 }
 
@@ -252,7 +264,7 @@ void CSeqMapping::GetProperty(const CIntArrayEx& arrSelection, int iProp, CIntAr
 
 void CSeqMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, const CIntArrayEx& arrProp)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	int	nSels = arrSelection.GetSize();
 	for (int iSel = 0; iSel < nSels; iSel++) {	// for each selected mapping
 		int	iMapping = arrSelection[iSel];
@@ -262,7 +274,7 @@ void CSeqMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, const 
 
 void CSeqMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, int nVal)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	int	nSels = arrSelection.GetSize();
 	for (int iSel = 0; iSel < nSels; iSel++) {	// for each selected mapping
 		int	iMapping = arrSelection[iSel];
@@ -272,37 +284,37 @@ void CSeqMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, int nV
 
 void CSeqMapping::Insert(int iInsert, CMappingArray& arrMapping)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping.InsertAt(iInsert, &arrMapping);
 }
 
 void CSeqMapping::Insert(const CIntArrayEx& arrSelection, CMappingArray& arrMapping)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping.InsertSelection(arrSelection, arrMapping);
 }
 
 void CSeqMapping::Delete(int iMapping, int nCount)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping.RemoveAt(iMapping, nCount);
 }
 
 void CSeqMapping::Delete(const CIntArrayEx& arrSelection)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping.DeleteSelection(arrSelection);
 }
 
 void CSeqMapping::Move(const CIntArrayEx& arrSelection, int iDropPos)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping.MoveSelection(arrSelection, iDropPos);
 }
 
 void CSeqMapping::Sort(int iProp, bool bDescending)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	m_iSortProp = iProp;
 	m_bSortDescending = bDescending;
 	qsort(m_arrMapping.GetData(), m_arrMapping.GetSize(), sizeof(CMapping), SortCompare);
@@ -330,7 +342,7 @@ void CSeqMapping::GetInputMidiMsg(const CIntArrayEx& arrSelection, CIntArrayEx& 
 
 void CSeqMapping::SetInputMidiMsg(const CIntArrayEx& arrSelection, DWORD nInMidiMsg)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	int	nSels = arrSelection.GetSize();
 	for (int iSel = 0; iSel < nSels; iSel++) {	// for each selected mapping
 		int	iMapping = arrSelection[iSel];
@@ -340,7 +352,7 @@ void CSeqMapping::SetInputMidiMsg(const CIntArrayEx& arrSelection, DWORD nInMidi
 
 void CSeqMapping::SetInputMidiMsg(const CIntArrayEx& arrSelection, const CIntArrayEx& arrInMidiMsg)
 {
-	LOCK_MAPPINGS;
+	LOCK_MAPPINGS; // exclusive write
 	int	nSels = arrSelection.GetSize();
 	for (int iSel = 0; iSel < nSels; iSel++) {	// for each selected mapping
 		int	iMapping = arrSelection[iSel];
@@ -348,14 +360,13 @@ void CSeqMapping::SetInputMidiMsg(const CIntArrayEx& arrSelection, const CIntArr
 	}
 }
 
-void CSeqMapping::Read(CIniFile& fIni)
+void CSeqMapping::Read(CIniFile& fIn)
 {
-	LOCK_MAPPINGS;
-	m_arrMapping.Read(fIni);
-
+	LOCK_MAPPINGS; // exclusive write
+	m_arrMapping.Read(fIn);
 }
 
-void CSeqMapping::Write(CIniFile& fIni) const
+void CSeqMapping::Write(CIniFile& fOut) const
 {
-	m_arrMapping.Write(fIni);
+	m_arrMapping.Write(fOut);
 }

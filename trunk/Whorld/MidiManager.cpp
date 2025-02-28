@@ -19,27 +19,13 @@
 #include "OptionsDlg.h"
 #include "SaveObj.h"
 #include "IniFile.h"
-#include "MasterRowDlg.h"	//@@@ bad style
+#include "MasterRowDlg.h"	// for norm and denorm
 
 #define CHECK_MIDI(x) { MMRESULT nResult = x; if (MIDI_FAILED(nResult)) { OnMidiError(nResult); return false; } }
 
 void CMidiManager::Initialize()
 {
 	CMapping::Initialize();
-}
-
-void CMidiManager::ReadMappings(LPCTSTR pszPath)
-{
-	CIniFile	fIn(pszPath);
-	fIn.Read();
-	m_midiMaps.Read(fIn);
-}
-
-void CMidiManager::WriteMappings(LPCTSTR pszPath) const
-{
-	CIniFile	fOut(pszPath, true);
-	m_midiMaps.Write(fOut);
-	fOut.Write();
 }
 
 void CMidiManager::OnMidiError(MMRESULT nResult)

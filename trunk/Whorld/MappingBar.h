@@ -11,6 +11,7 @@
 		01		29mar20	add property name accessors; add previous selection
 		02		20jun21	add list accessor
 		03		26feb25	adapt for Whorld
+		04		27feb25	add undo
 
 */
 
@@ -19,8 +20,11 @@
 #include "MyDockablePane.h"
 #include "GridCtrl.h"
 #include "Mapping.h"
+#include "Undoable.h"
+#include "UndoManager.h"
+#include "WhorldDoc.h"	// for custom undo manager
 
-class CMappingBar : public CMyDockablePane
+class CMappingBar : public CMyDockablePane, public CUndoable
 {
 	DECLARE_DYNAMIC(CMappingBar)
 // Construction
@@ -52,6 +56,16 @@ protected:
 		virtual	CWnd*	CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID);
 		virtual	void	OnItemChange(LPCTSTR pszText);
 	};
+	class CUndoMultiIntegerProp : public CRefObj {
+	public:
+		CIntArrayEx	m_arrSelection;	// indices of selected items
+		CIntArrayEx	m_arrProp;	// array of integer property values
+	};
+	class CUndoSelectedMappings : public CRefObj {
+	public:
+		CIntArrayEx	m_arrSelection;	// indices of selected mappings
+		CMappingArray	m_arrMapping;	// array of mappings
+	};
 
 // Constants
 	enum {
@@ -70,20 +84,43 @@ protected:
 		int		nMax;
 	};
 	static const COL_RANGE m_arrColRange[COLUMNS];	// array of column ranges
+	enum {	// undo codes
+		#define MAPPINGUNDODEF(name) UCODE_##name,
+		#include "MappingDef.h"	// generate enum
+		MAPPING_UNDO_CODES
+	};
+	static const int m_arrUndoTitleId[MAPPING_UNDO_CODES];
 
 // Member data
 	CModGridCtrl	m_grid;		// grid control
 	CIntArrayEx		m_arrPrevSelection;	// previous selection during MIDI learn
 	CMappingArray	m_clipboard;	// for clipboard commands
+	CWhorldDoc::CMyUndoManager	m_UndoMgr;	// custom undo manager
+	static const CIntArrayEx	*m_parrSelection;	// pointer to selection array, used during undo
 
 // Helpers
 	void	InitEventNames();
 	void	UpdateGrid();
-	void	OnTrackArrayChange();
-	void	OnTrackNameChange(int iTrack);
+	void	UpdateGrid(int iMapping, int iProp);
+	void	UpdateGrid(const CIntArrayEx& arrSelection, int iProp);
+	void	SetModifiedFlag();
+	static void	MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems);
+
+// Undo
+	void	SaveProperty(CUndoState& State) const;
+	void	RestoreProperty(const CUndoState& State);
+	void	SaveMultiProperty(CUndoState& State) const;
+	void	RestoreMultiProperty(const CUndoState& State);
+	void	SaveSelectedMappings(CUndoState& State) const;
+	void	RestoreSelectedMappings(const CUndoState& State);
+	void	SaveMappings(CUndoState& State) const;
+	void	RestoreMappings(const CUndoState& State);
 
 // Overrides
 	virtual	void OnShowChanged(bool bShow);
+	virtual	void SaveUndoState(CUndoState& State);
+	virtual	void RestoreUndoState(const CUndoState& State);
+	virtual	CString	GetUndoTitle(const CUndoState& State);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
@@ -109,6 +146,10 @@ protected:
 	afx_msg void OnUpdateEditInsert(CCmdUI *pCmdUI);
 	afx_msg void OnToolsMidiLearn();
 	afx_msg void OnUpdateToolsMidiLearn(CCmdUI *pCmdUI);
+	afx_msg void OnEditUndo();
+	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
+	afx_msg void OnEditRedo();
+	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 };
 
 inline const int CMappingBar::GetPropertyNameID(int iProp)

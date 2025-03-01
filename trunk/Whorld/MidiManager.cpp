@@ -9,6 +9,7 @@
 		rev		date	comments
         00      26feb25	initial version
 		01		28feb25	add center epsilon
+		02		01mar25	add misc targets
 
 */
 
@@ -24,9 +25,15 @@
 
 #define CHECK_MIDI(x) { MMRESULT nResult = x; if (MIDI_FAILED(nResult)) { OnMidiError(nResult); return false; } }
 
+// macro to construct and push a render command object with a variant property value
+#define PUSH_RENDER_CMD(cmd, cmdidx, param, type, val) \
+	CRenderCmd cmd(cmdidx, param); \
+	cmd.m_prop.type = val; \
+	theApp.PushRenderCommand(cmd);
+
 void CMidiManager::Initialize()
 {
-	CMapping::Initialize();
+	CMapping::Initialize();	// initialize base class
 }
 
 void CMidiManager::OnMidiError(MMRESULT nResult)
@@ -117,6 +124,107 @@ void CALLBACK CMidiManager::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwIns
 	}
 }
 
+inline void CMidiManager::UpdateUI(int nMsg, WPARAM wParam, LPARAM lParam)
+{
+	theApp.GetMainFrame()->PostMessage(nMsg, wParam, lParam);	// saves some typing
+}
+
+void CMidiManager::PushMasterProperty(int iProp, double fNormVal)
+{
+	double	fVal = CMasterRowDlg::Denorm(iProp, fNormVal);
+	if (iProp == MASTER_Zoom) {	// if zoom
+		PUSH_RENDER_CMD(cmd, RC_SET_ZOOM, true, dblVal, fVal);	// zoom with damping
+	} else {	// generic case
+		PUSH_RENDER_CMD(cmd, RC_SET_MASTER, iProp, dblVal, fVal);
+	}
+	UpdateUI(UWM_MASTER_PROP_CHANGE, iProp, FloatToLParam(fVal));
+}
+
+void CMidiManager::PushParameter(int iParam, double fNormVal)
+{
+	const PARAM_INFO&	info = GetParamInfo(iParam);
+	double	fVal = fNormVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
+	PUSH_RENDER_CMD(cmd, RC_SET_PARAM_Val, iParam, dblVal, fVal);
+	UpdateUI(UWM_PARAM_VAL_CHANGE, iParam, FloatToLParam(fVal));
+}
+
+inline UINT CMidiManager::SetOrClear(UINT nDest, UINT nMask, bool bIsSet)
+{
+	return bIsSet ? (nDest | nMask) : (nDest & ~nMask);
+}
+
+void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
+{
+	switch (iMiscTarget) {
+	case MT_OriginX:
+	case MT_OriginY:
+		{
+			int	nCmdIdx = (iMiscTarget == MT_OriginX ? RC_SET_ORIGIN_X : RC_SET_ORIGIN_Y);
+			PUSH_RENDER_CMD(cmd, nCmdIdx, true, dblVal, fNormVal);	// origin motion with damping
+			// don't update UI as our knowledge of origin is incomplete
+		}
+		break;
+	case MT_Fill:
+		{
+			UINT nDrawMode = SetOrClear(theApp.GetDocument()->m_main.nDrawMode, DM_FILL, fNormVal != 0);
+			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_DrawMode, uintVal, nDrawMode);
+			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
+		}
+		break;
+	case MT_Outline:
+		{
+			UINT nDrawMode = SetOrClear(theApp.GetDocument()->m_main.nDrawMode, DM_OUTLINE, fNormVal != 0);
+			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_DrawMode, uintVal, nDrawMode);
+			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
+		}
+		break;
+	case MT_OriginDrag:
+		{
+			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_OrgMotion, intVal, fNormVal != 0 ? OM_DRAG : 0);
+			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
+		}
+		break;
+	case MT_OriginRandom:
+		{
+			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_OrgMotion, intVal, fNormVal != 0 ? OM_RANDOM : 0);
+			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
+		}
+		break;
+	case MT_Reverse:
+		{
+			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_Reverse, boolVal, fNormVal != 0);
+			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
+		}
+		break;
+	case MT_Convex:
+		{
+			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_Convex, boolVal, fNormVal != 0);
+			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
+		}
+		break;
+	case MT_LoopHue:
+		{
+			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_LoopHue, boolVal, fNormVal != 0);
+			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
+		}
+		break;
+	case MT_RandomPhase:
+		{
+			CRenderCmd	cmd(RC_RANDOM_PHASE);
+			theApp.PushRenderCommand(cmd);
+		}
+		break;
+	case MT_Clear:
+		{
+			CRenderCmd	cmd(RC_SET_EMPTY);
+			theApp.PushRenderCommand(cmd);
+		}
+		break;
+	default:
+		ASSERT(0);	// missing case
+	}
+}
+
 void CMidiManager::OnMidiEvent(DWORD dwEvent)
 {
 	if (!MIDI_IS_SHORT_MSG(dwEvent))	// if event is a short MIDI message
@@ -129,36 +237,29 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 	int	nMaps = m_midiMaps.GetCount();
 	for (int iMap = 0; iMap < nMaps; iMap++) {	// for each mapping
 		const CMapping&	map = m_midiMaps.GetAt(iMap);
-		int	nTargVal = map.IsInputMatch(dwEvent);	// try to map MIDI message
-		if (nTargVal >= 0) {	// if message was mapped, we have a target value
+		int	nMidiVal = map.IsInputMatch(dwEvent);	// try to map MIDI message
+		if (nMidiVal >= 0) {	// if message was mapped
+			// mapping result is a MIDI data value; account for range and then normalize it
 			int	nDeltaRange = map.m_nRangeEnd - map.m_nRangeStart;	// can be negative if start > end
-			double	fTargVal = nTargVal / 127.0 * nDeltaRange + map.m_nRangeStart;	// offset by start of range
-			double	fNormTargVal = fTargVal / 127.0;	// normalized target value
-			const double	fCenterEpsilon = 0.005;	// half a percent
-			if (fabs(fNormTargVal - 0.5) < fCenterEpsilon) {	// if within epsilon of center
-				fNormTargVal = 0.5;	// call it center
+			double	fMidiVal = nMidiVal / 127.0 * nDeltaRange + map.m_nRangeStart;	// offset by start of range
+			double	fNormVal = fMidiVal / 127.0;	// normalized target value
+			const double	fCenterEpsilon = 0.005;	// half a percent, determined empirically
+			if (fabs(fNormVal - 0.5) < fCenterEpsilon) {	// if within epsilon of center
+				fNormVal = 0.5;	// call it center
 			}
-			int	iProp = map.m_nOutEvent;
-			if (iProp < MASTER_COUNT) {	// if target is master property
-				double	fVal = CMasterRowDlg::Denorm(iProp, fNormTargVal);
-				if (iProp == MASTER_Zoom) {	// if zoom
-					MAKE_RENDER_CMD(cmd, RC_SET_ZOOM, true, dblVal, fVal);	// zoom with damping
-					theApp.PushRenderCommand(cmd);
-				} else {	// generic case
-					MAKE_RENDER_CMD(cmd, RC_SET_MASTER, iProp, dblVal, fVal);
-					theApp.PushRenderCommand(cmd);
-				}
-				LPARAM	lParam = FloatToLParam(fVal);
-				theApp.GetMainFrame()->PostMessage(UWM_MASTER_PROP_CHANGE, iProp, lParam);
-			} else {	// target isn't master property
-				iProp -= MASTER_COUNT;
-				if (iProp < PARAM_COUNT) {	// if target is parameter
-					const PARAM_INFO&	info = GetParamInfo(iProp);
-					double	fVal = fNormTargVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
-					MAKE_RENDER_CMD(cmd, RC_SET_PARAM_Val, iProp, dblVal, fVal);
-					theApp.PushRenderCommand(cmd);
-					LPARAM	lParam = FloatToLParam(fVal);
-					theApp.GetMainFrame()->PostMessage(UWM_PARAM_VAL_CHANGE, iProp, lParam);
+			// order must match order of ranges in mapping target enumeration
+			int	iTarget = map.m_iTarget;
+			if (iTarget < PARAM_COUNT) {	// if target is parameter
+				PushParameter(iTarget, fNormVal);
+			} else {	// target isn't parameter
+				iTarget -= PARAM_COUNT;
+				if (iTarget < MASTER_COUNT) {	// if target is master property
+					PushMasterProperty(iTarget, fNormVal);
+				} else {	// target isn't master property
+					iTarget -= MASTER_COUNT;
+					if (iTarget < MISC_TARGETS) {	// if miscellanous target
+						PushMiscTarget(iTarget, fNormVal);
+					}
 				}
 			}
 		}

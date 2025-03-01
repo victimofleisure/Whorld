@@ -439,22 +439,26 @@ void CMainFrame::OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINM
 	ASSERT(pPane != NULL);
 	ASSERT(hFrameWnd);
 	ASSERT(pMMI != NULL);
+	// apply minimum size to all panes
+	pMMI->ptMinTrackSize = CPoint(GetSystemMetrics(SM_CXMIN), GetSystemMetrics(SM_CYMIN));
 	CRect	rFrame;
 	::GetWindowRect(hFrameWnd, rFrame);
 	CRect	rBar;
 	pPane->GetWindowRect(rBar);
 	CSize	szNCBrass = rFrame.Size() - rBar.Size();
-	CRowView*	pRowView = STATIC_DOWNCAST(CRowView, pPane->GetWindow(GW_CHILD));
-	int	iRow = pRowView->GetRows() - 1;
-	CRowDlg *pRowDlg = pRowView->GetRow(iRow);
-	CRect	rRowDlg;
-	pRowDlg->GetWindowRect(rRowDlg);
-	pPane->ScreenToClient(rRowDlg);
-	CPoint	ptBR(rRowDlg.BottomRight());
-	CSize	szScrollBars(GetSystemMetrics(SM_CXHSCROLL), GetSystemMetrics(SM_CXVSCROLL));
-	ptBR.Offset(szNCBrass + szScrollBars);
-	pMMI->ptMaxTrackSize = ptBR;
-	pMMI->ptMinTrackSize = CPoint(GetSystemMetrics(SM_CXMIN), GetSystemMetrics(SM_CYMIN));
+	CWnd*	pWndChild = pPane->GetWindow(GW_CHILD);	// get pane's child
+	CRowView*	pRowView = DYNAMIC_DOWNCAST(CRowView, pWndChild);
+	if (pRowView != NULL) {	// if pane's child is a row view
+		int	iRow = pRowView->GetRows() - 1;
+		CRowDlg *pRowDlg = pRowView->GetRow(iRow);
+		CRect	rRowDlg;
+		pRowDlg->GetWindowRect(rRowDlg);
+		pPane->ScreenToClient(rRowDlg);
+		CPoint	ptBR(rRowDlg.BottomRight());
+		CSize	szScrollBars(GetSystemMetrics(SM_CXHSCROLL), GetSystemMetrics(SM_CXVSCROLL));
+		ptBR.Offset(szNCBrass + szScrollBars);
+		pMMI->ptMaxTrackSize = ptBR;
+	}
 }
 
 // CMainFrame diagnostics
@@ -496,8 +500,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
 	ON_MESSAGE(UWM_SNAPSHOT_CAPTURE, OnSnapshotCapture)
-	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
 	ON_MESSAGE(UWM_PARAM_VAL_CHANGE, OnParamValChange)
+	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
+	ON_MESSAGE(UWM_MAIN_PROP_CHANGE, OnMainPropChange)
 	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
 	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
@@ -514,6 +519,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_PLAYLIST_NEW, OnPlaylistNew)
 	ON_COMMAND_RANGE(ID_PLAYLIST_MRU_FILE1, ID_PLAYLIST_MRU_FILE4, OnPlaylistMru)
 	ON_UPDATE_COMMAND_UI(ID_PLAYLIST_MRU_FILE1, OnUpdatePlaylistMru)
+	ON_COMMAND(ID_VIEW_MIDI_LEARN, OnViewMidiLearn)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_MIDI_LEARN, OnUpdateViewMidiLearn)
 	// dock bar handlers confuse code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
@@ -811,6 +818,16 @@ LRESULT	CMainFrame::OnMasterPropChange(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
+{
+	int	iProp = static_cast<int>(wParam);
+	VARIANT_PROP var;
+	var.ullVal = lParam;
+	CWhorldDoc*	pDoc = theApp.GetDocument();
+	pDoc->SetMainProp(iProp, var, theApp.GetView());
+	return 0;
+}
+
 LRESULT	CMainFrame::OnParamValChange(WPARAM wParam, LPARAM lParam)
 {
 	int	iParam = static_cast<int>(wParam);
@@ -818,6 +835,42 @@ LRESULT	CMainFrame::OnParamValChange(WPARAM wParam, LPARAM lParam)
 	CWhorldDoc*	pDoc = theApp.GetDocument();
 	pDoc->SetParam(iParam, PARAM_PROP_Val, fVal, theApp.GetView());
 	return 0;
+}
+
+void CMainFrame::OnPlaylistNew()
+{
+	theApp.m_pPlaylist->New();
+}
+
+void CMainFrame::OnPlaylistOpen()
+{
+	theApp.m_pPlaylist->OpenPrompt();
+}
+
+void CMainFrame::OnPlaylistSave()
+{
+	theApp.m_pPlaylist->DoFileSave();
+}
+
+void CMainFrame::OnPlaylistSaveAs()
+{
+	theApp.m_pPlaylist->DoSave(NULL);
+}
+
+void CMainFrame::OnPlaylistMru(UINT nID)
+{
+	theApp.m_pPlaylist->OpenRecent(nID - ID_PLAYLIST_MRU_FILE1);
+}
+
+void CMainFrame::OnUpdatePlaylistMru(CCmdUI* pCmdUI)
+{
+	theApp.m_pPlaylist->UpdateMruMenu(pCmdUI);
+}
+
+void CMainFrame::OnImageRandomPhase()
+{
+	CRenderCmd	cmd(RC_RANDOM_PHASE);
+	theApp.PushRenderCommand(cmd);
 }
 
 #define MAINDOCKBARDEF(name, width, height, style) \
@@ -841,10 +894,14 @@ void CMainFrame::OnViewOptions()
 	}
 }
 
-void CMainFrame::OnImageRandomPhase()
+void CMainFrame::OnViewMidiLearn()
 {
-	CRenderCmd	cmd(RC_RANDOM_PHASE);
-	theApp.PushRenderCommand(cmd);
+	theApp.m_midiMgr.SetLearnMode(!theApp.m_midiMgr.IsLearnMode());
+}
+
+void CMainFrame::OnUpdateViewMidiLearn(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(theApp.m_midiMgr.IsLearnMode());
 }
 
 void CMainFrame::OnWindowFullscreen()
@@ -912,34 +969,4 @@ void CMainFrame::OnWindowResetLayout()
 		theApp.m_bCleanStateOnExit = true;
 		PostMessage(WM_CLOSE);
 	}
-}
-
-void CMainFrame::OnPlaylistNew()
-{
-	theApp.m_pPlaylist->New();
-}
-
-void CMainFrame::OnPlaylistOpen()
-{
-	theApp.m_pPlaylist->OpenPrompt();
-}
-
-void CMainFrame::OnPlaylistSave()
-{
-	theApp.m_pPlaylist->DoFileSave();
-}
-
-void CMainFrame::OnPlaylistSaveAs()
-{
-	theApp.m_pPlaylist->DoSave(NULL);
-}
-
-void CMainFrame::OnPlaylistMru(UINT nID)
-{
-	theApp.m_pPlaylist->OpenRecent(nID - ID_PLAYLIST_MRU_FILE1);
-}
-
-void CMainFrame::OnUpdatePlaylistMru(CCmdUI* pCmdUI)
-{
-	theApp.m_pPlaylist->UpdateMruMenu(pCmdUI);
 }

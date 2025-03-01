@@ -13,6 +13,7 @@
 		03		25feb25	apply zoom to ring origins to match V1 trail behavior
 		04		25feb25	add previous curve flag to fix degenerate ring
 		05		27feb25	implement hue loop
+		06		01mar25	add commands to set origin coords individually
 
 */
 
@@ -270,6 +271,15 @@ void CWhorldThread::OnOriginMotionChange()
 	}
 }
 
+void CWhorldThread::SetOriginTarget(DPoint ptOrigin, bool bDamping)
+{
+	// origin in render target coordinates (DIPs), NOT normalized
+	m_ptOriginTarget = ptOrigin;	// update target
+	if (!bDamping || m_bSnapshotMode) {	// if not damping
+		m_ptOrigin = ptOrigin;	// go directly to target
+	}
+}
+
 void CWhorldThread::UpdateOrigin()
 {
 	switch (m_main.nOrgMotion) {
@@ -318,9 +328,7 @@ void CWhorldThread::TimerHook()
 {
 	int	nRings = Round(m_master.fRings);
 	m_nMaxRings = nRings >= MAX_RINGS ? INT_MAX : nRings;
-	if (m_main.nOrgMotion) {
-		UpdateOrigin();
-	}
+	UpdateOrigin();
 	UpdateZoom();
 	double	fSpeed = m_main.bReverse ? -m_master.fSpeed : m_master.fSpeed;
 	double	afPrevClock[PARAM_COUNT];
@@ -804,11 +812,19 @@ void CWhorldThread::SetZoom(double fZoom, bool bDamping)
 
 void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
 {
-	DPoint	ptClientOrigin((ptOrigin - 0.5) * GetTargetSize());
-	m_ptOriginTarget = ptClientOrigin;
-	if (!bDamping || m_bSnapshotMode) {	// if not damping
-		m_ptOrigin = ptClientOrigin;	// go directly to target
-	}
+	SetOriginTarget(DPoint((ptOrigin - 0.5) * GetTargetSize()), bDamping);	// denormalize origin
+}
+
+void CWhorldThread::SetOriginX(double fOriginX, bool bDamping)
+{
+	SetOriginTarget(DPoint((fOriginX - 0.5) * GetTargetSize().x,	// denormalize x-coord
+		m_ptOriginTarget.y), bDamping);
+}
+
+void CWhorldThread::SetOriginY(double fOriginY, bool bDamping)
+{
+	SetOriginTarget(DPoint(m_ptOriginTarget.x, 
+		(fOriginY - 0.5) * GetTargetSize().y), bDamping);	// denormalize y-coord
 }
 
 DPoint CWhorldThread::GetOrigin() const
@@ -1051,6 +1067,12 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_SET_ORIGIN:
 		SetOrigin(cmd.m_prop.fltPt, cmd.m_nParam != 0);
+		break;
+	case RC_SET_ORIGIN_X:
+		SetOriginX(cmd.m_prop.dblVal, cmd.m_nParam != 0);
+		break;
+	case RC_SET_ORIGIN_Y:
+		SetOriginY(cmd.m_prop.dblVal, cmd.m_nParam != 0);
 		break;
 	case RC_CAPTURE_BITMAP:
 		CaptureBitmap(cmd.m_nParam, cmd.m_prop.szVal);

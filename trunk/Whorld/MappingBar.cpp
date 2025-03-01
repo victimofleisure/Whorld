@@ -43,15 +43,19 @@ static char THIS_FILE[]=__FILE__;
 
 IMPLEMENT_DYNAMIC(CMappingBar, CMyDockablePane)
 
+#define EVENTS CMapping::EVENTS
+#define TARGETS CMapping::TARGETS
+
 const CGridCtrl::COL_INFO CMappingBar::m_arrColInfo[COLUMNS] = {
 	#define MAPPINGDEF_INCLUDE_NUMBER
-	#define MAPPINGDEF(name, align, width, member, minval, maxval) {IDS_MAPPING_COL_##name, align, width},
+	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) \
+		{IDS_MAPPING_COL_##name, LVCFMT_##align, width},
 	#include "MappingDef.h"	// generate list column info
 };
 
 const CMappingBar::COL_RANGE CMappingBar::m_arrColRange[COLUMNS] = {
 	#define MAPPINGDEF_INCLUDE_NUMBER
-	#define MAPPINGDEF(name, align, width, member, minval, maxval) {minval, maxval},
+	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) {minval, maxval},
 	#include "MappingDef.h"	// generate list column info
 };
 
@@ -94,6 +98,11 @@ void CMappingBar::OnShowChanged(bool bShow)
 	// we only receive document updates if we're visible; see CMainFrame::OnUpdate
 	if (bShow)	// if showing bar
 		OnUpdate(NULL, CWhorldDoc::HINT_NONE);	// repopulate grid
+}
+
+void CMappingBar::OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI)
+{
+	CMainFrame::OnFrameGetMinMaxInfo(this, hFrameWnd, pMMI);	// delegate to common handler
 }
 
 void CMappingBar::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
@@ -153,30 +162,30 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 	UNREFERENCED_PARAMETER(nID);
 	int	nVal = midiMaps.GetProperty(m_iEditRow, m_iEditCol - 1);	// skip number column
 	switch (m_iEditCol) {
-	case COL_IN_EVENT:
-	case COL_IN_CHANNEL:
-	case COL_OUT_EVENT:
+	case COL_EVENT:
+	case COL_CHANNEL:
+	case COL_TARGET:
 		{
 			CPopupCombo	*pCombo = CPopupCombo::Factory(0, rect, this, 0, 100);
 			if (pCombo == NULL)
 				return NULL;
 			switch (m_iEditCol) {
-			case COL_IN_CHANNEL:
+			case COL_CHANNEL:
 				AddMidiChannelComboItems(*pCombo);
 				break;
-			case COL_IN_EVENT:
+			case COL_EVENT:
 				{
 					// start from one to exclude note off
-					for (int iEvent = 1; iEvent < CMapping::INPUT_EVENTS; iEvent++) {
-						pCombo->AddString(CMapping::GetInputEventName(iEvent));
+					for (int iEvent = 1; iEvent < EVENTS; iEvent++) {
+						pCombo->AddString(CMapping::GetEventName(iEvent));
 					}
 					nVal--;	// compensate for excluding note off
 				}
 				break;
-			case COL_OUT_EVENT:
+			case COL_TARGET:
 				{
-					for (int iEvent = 0; iEvent < CMapping::OUTPUT_EVENTS; iEvent++) {
-						pCombo->AddString(CMapping::GetOutputEventName(iEvent));
+					for (int iEvent = 0; iEvent < TARGETS; iEvent++) {
+						pCombo->AddString(CMapping::GetTargetName(iEvent));
 					}
 				}
 				break;
@@ -208,16 +217,16 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 	UNREFERENCED_PARAMETER(pszText);
 	int	nVal;
 	switch (m_iEditCol) {
-	case COL_IN_EVENT:
-	case COL_IN_CHANNEL:
-	case COL_OUT_EVENT:
+	case COL_EVENT:
+	case COL_CHANNEL:
+	case COL_TARGET:
 		{
 			CPopupCombo	*pCombo = STATIC_DOWNCAST(CPopupCombo, m_pEditCtrl);
 			int	iSelItem = pCombo->GetCurSel();	// index of changed item
 			if (iSelItem < 0)
 				return;
 			switch (m_iEditCol) {
-			case COL_IN_EVENT:
+			case COL_EVENT:
 				iSelItem++;	// compensate for excluding note off
 				break;
 			}
@@ -507,17 +516,17 @@ void CMappingBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 		case COL_NUMBER:
 			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), iItem + 1); // make one-based
 			break;
-		case COL_IN_EVENT:
-			_tcscpy_s(item.pszText, item.cchTextMax, CMapping::GetInputEventName(map.m_nInEvent)); 
+		case COL_EVENT:
+			_tcscpy_s(item.pszText, item.cchTextMax, CMapping::GetEventName(map.m_iEvent)); 
 			break;
-		case COL_IN_CHANNEL:
-			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nInChannel + 1);	// make one-based
+		case COL_CHANNEL:
+			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_iChannel + 1);	// make one-based
 			break;
-		case COL_IN_CONTROL:
-			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nInControl); 
+		case COL_CONTROL:
+			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_iControl); 
 			break;
-		case COL_OUT_EVENT:
-			_tcscpy_s(item.pszText, item.cchTextMax, CMapping::GetOutputEventName(map.m_nOutEvent)); 
+		case COL_TARGET:
+			_tcscpy_s(item.pszText, item.cchTextMax, CMapping::GetTargetName(map.m_iTarget)); 
 			break;
 		case COL_RANGE_START:
 			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nRangeStart); 

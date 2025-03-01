@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      26feb25	initial version
+		01		01mar25	add misc targets
 
 */
 
@@ -20,7 +21,7 @@
 
 class COptions;
 
-class CMidiManager : public CWhorldBase {
+class CMidiManager : public CMappingBase {
 public:
 // Attributes
 	int		GetDeviceCount(int iType) const;
@@ -28,6 +29,8 @@ public:
 	void	SetDeviceIdx(int iType, int iDev);
 	CString	GetDeviceName(int iType, int iDev) const;
 	bool	IsInputDeviceOpen() const;
+	bool	IsLearnMode() const;
+	void	SetLearnMode(bool bEnable);
 
 // Operations
 	void	Initialize();
@@ -43,17 +46,23 @@ public:
 	bool	ReopenInputDevice();
 	void	OnDeviceChange();
 	void	OnMidiEvent(DWORD dwEvent);
+	void	PushMasterProperty(int iProp, double fNormVal);
+	void	PushParameter(int iParam, double fNormVal);
+	void	PushMiscTarget(int iMiscTarget, double fNormVal);
+	void	UpdateUI(int nMsg, WPARAM wParam, LPARAM lParam);
 	static LPARAM	FloatToLParam(double fVal);
 	static double	LParamToFloat(LPARAM lParam);
+	static UINT	SetOrClear(UINT nDest, UINT nMask, bool bIsSet);
 
 // Public data
-	CSeqMapping	m_midiMaps;		// MIDI mappings
+	CSafeMapping	m_midiMaps;		// MIDI mappings
 
 protected:
 // Data members
 	CMidiDevices	m_midiDevs;	// MIDI device info
 	CMidiIn	m_midiIn;			// MIDI input device
 	bool	m_bInMsgBox;		// true if displaying message box
+	bool	m_bLearnMode;		// true if we're learning mappings
 
 // Helpers
 	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2);
@@ -107,6 +116,16 @@ inline void CMidiManager::ReadMappings(CIniFile& fIn)
 inline void CMidiManager::WriteMappings(CIniFile& fOut) const
 {
 	m_midiMaps.Write(fOut);
+}
+
+inline bool CMidiManager::IsLearnMode() const
+{
+	return m_bLearnMode;
+}
+
+inline void CMidiManager::SetLearnMode(bool bEnable)
+{
+	m_bLearnMode = bEnable;
 }
 
 inline LPARAM CMidiManager::FloatToLParam(double fVal)

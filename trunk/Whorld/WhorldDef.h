@@ -17,6 +17,7 @@
 		07		09feb25	consolidate various def files here
 		08		20feb25	add bitmap render commands
 		09		26feb25	unsnarl parameter order
+		10		01mar25	add commands to set origin coords individually
 
         define parameter attributes
 
@@ -85,12 +86,12 @@ MAINDEF(	Origin,			DPoint,	dpt,	INIT_ORIGIN,fltPt	)	// view origin, in normalize
 MAINDEF(	DrawMode,		UINT,	n,		0,			intVal	)	// draw mode bitmask; see enum in CWhorldBase
 MAINDEF(	OrgMotion,		INT,	n,		0,			intVal	)	// origin motion; see enum in CWhorldBase
 MAINDEF(	Hue,			DOUBLE,	f,		0,			dblVal	)	// current hue in degrees
-MAINDEF(	Mirror,			bool,	b,		FALSE,		boolVal	)	// true if mirroring
-MAINDEF(	Reverse,		bool,	b,		FALSE,		boolVal	)	// true if rings growing inward
-MAINDEF(	Convex,			bool,	b,		FALSE,		boolVal	)	// true if drawing in descending size order
-MAINDEF(	InvertColor,	bool,	b,		FALSE,		boolVal	)	// true if inverting color
-MAINDEF(	LoopHue,		bool,	b,		FALSE,		boolVal	)	// true if looping hue
-MAINDEF(	ZoomCenter,		bool,	b,		FALSE,		boolVal	)	// true if zoom is window-centered
+MAINDEF(	Mirror,			bool,	b,		false,		boolVal	)	// true if mirroring
+MAINDEF(	Reverse,		bool,	b,		false,		boolVal	)	// true if rings growing inward
+MAINDEF(	Convex,			bool,	b,		false,		boolVal	)	// true if drawing in descending size order
+MAINDEF(	InvertColor,	bool,	b,		false,		boolVal	)	// true if inverting color
+MAINDEF(	LoopHue,		bool,	b,		false,		boolVal	)	// true if looping hue
+MAINDEF(	ZoomCenter,		bool,	b,		false,		boolVal	)	// true if zoom is window-centered
 
 #undef MAINDEF
 #endif // MAINDEF
@@ -146,6 +147,8 @@ RENDERCMDDEF(SINGLE_STEP,		intVal	)	// single steps while paused; no parameters
 RENDERCMDDEF(RANDOM_PHASE,		intVal	)	// randomizes phase of all oscillators; no parameters
 RENDERCMDDEF(SET_ZOOM,			dblVal	)	// sets zoom; m_nParam: non-zero for damping, m_prop: double fZoom
 RENDERCMDDEF(SET_ORIGIN,		fltPt	)	// sets origin; m_nParam: non-zero for damping, m_prop: POINTFLOAT ptOrigin
+RENDERCMDDEF(SET_ORIGIN_X,		dblVal	)	// sets origin x-coord; m_nParam: non-zero for damping, m_prop: double
+RENDERCMDDEF(SET_ORIGIN_Y,		dblVal	)	// sets origin y-coord; m_nParam: non-zero for damping, m_prop: double
 RENDERCMDDEF(CAPTURE_BITMAP,	szVal	)	// capture a bitmap; m_nParam: image export flags, m_prop: SIZE szImage
 RENDERCMDDEF(CAPTURE_SNAPSHOT,	intVal	)	// capture a snapshot; no parameters
 RENDERCMDDEF(DISPLAY_SNAPSHOT,	byref	)	// display a snapshot; m_nParam: none, m_prop: CSnapshot* pSnapshot

@@ -102,6 +102,7 @@ BEGIN
     BUTTON      ID_EDIT_REDO
     SEPARATOR
     BUTTON      ID_WINDOW_PAUSE
+    BUTTON      ID_VIEW_MIDI_LEARN
     SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
@@ -120,6 +121,7 @@ BEGIN
     BUTTON      ID_EDIT_REDO
     SEPARATOR
     BUTTON      ID_WINDOW_PAUSE
+    BUTTON      ID_VIEW_MIDI_LEARN
     SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
@@ -217,6 +219,8 @@ BEGIN
         MENUITEM "&Master",                     ID_VIEW_BAR_Master
         MENUITEM "&Parameters",                 ID_VIEW_BAR_Params
         MENUITEM "M&IDI Mapping",               ID_VIEW_BAR_Mapping
+        MENUITEM SEPARATOR
+        MENUITEM "MIDI &Learn",                 ID_VIEW_MIDI_LEARN
     END
     POPUP "&Window"
     BEGIN
@@ -274,15 +278,15 @@ IDR_MAPPING_CTX MENU
 BEGIN
     POPUP "Mapping"
     BEGIN
-        MENUITEM "&Undo",                       ID_EDIT_UNDO
-        MENUITEM "&Redo",                       ID_EDIT_REDO
+        MENUITEM "&Insert",                     ID_EDIT_INSERT
+        MENUITEM "&Delete",                     ID_EDIT_DELETE
         MENUITEM SEPARATOR
         MENUITEM "Cu&t",                        ID_EDIT_CUT
         MENUITEM "&Copy",                       ID_EDIT_COPY
         MENUITEM "&Paste",                      ID_EDIT_PASTE
         MENUITEM SEPARATOR
-        MENUITEM "&Insert",                     ID_EDIT_INSERT
-        MENUITEM "&Delete",                     ID_EDIT_DELETE
+        MENUITEM "&Undo",                       ID_EDIT_UNDO
+        MENUITEM "&Redo",                       ID_EDIT_REDO
         MENUITEM SEPARATOR
         MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
         MENUITEM "&Learn",                      ID_TOOLS_MIDI_LEARN
@@ -336,6 +340,7 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
+    "L",            ID_VIEW_MIDI_LEARN,     VIRTKEY, SHIFT, NOINVERT
 END
 
 
@@ -593,25 +598,39 @@ BEGIN
     IDS_MAIN_Origin         "Origin"
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
-    IDS_MAPPING_COL_IN_CHANNEL "In Channel"
-    IDS_MAPPING_COL_IN_CONTROL "In Control"
-    IDS_MAPPING_COL_IN_EVENT "In Event"
+    IDS_MAPPING_COL_CHANNEL "Channel"
+    IDS_MAPPING_COL_CONTROL "Control"
+    IDS_MAPPING_COL_EVENT   "Event"
     IDS_MAPPING_COL_NUMBER  "#"
-    IDS_MAPPING_COL_OUT_EVENT "Out Event"
-    IDS_MAPPING_COL_RANGE_END "Range End"
-    IDS_MAPPING_COL_RANGE_START "Range Start"
-    IDS_MASTER_CanvasScale  "Canvas"
-    IDS_MASTER_Copies       "Copies"
+    IDS_MAPPING_COL_RANGE_END "End"
+    IDS_MAPPING_COL_RANGE_START "Start"
+    IDS_MAPPING_COL_TARGET  "Target"
+    IDS_MAP_TARGET_Convex   "Convex"
+    IDS_MAP_TARGET_Fill     "Fill"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_LoopHue  "Loop Hue"
+    IDS_MAP_TARGET_OriginDrag "Origin Drag"
+    IDS_MAP_TARGET_OriginRandom "Origin Random"
+    IDS_MAP_TARGET_OriginX  "Origin X"
+    IDS_MAP_TARGET_OriginY  "Origin Y"
+    IDS_MAP_TARGET_Outline  "Outline"
+    IDS_MAP_TARGET_RandomPhase "Random Phase"
+    IDS_MAP_TARGET_Reverse  "Reverse"
+    IDS_MASTER_CanvasScale  "Canvas"
+    IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueLoopLength "Hue Loop"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
     IDS_MASTER_Spread       "Spread"
     IDS_MASTER_Tempo        "Tempo"
+END
+
+STRINGTABLE
+BEGIN
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
     IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
@@ -622,16 +641,16 @@ BEGIN
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
     IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
-END
-
-STRINGTABLE
-BEGIN
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
+END
+
+STRINGTABLE
+BEGIN
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
     IDS_NONE                "<None>"
     IDS_OPT_DESC_Export_bPromptUser 
@@ -646,16 +665,16 @@ BEGIN
     IDS_OPT_DESC_General_nMRUItems 
                             "Maximum number of items in recently used lists"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
-END
-
-STRINGTABLE
-BEGIN
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
+END
+
+STRINGTABLE
+BEGIN
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
@@ -666,16 +685,16 @@ BEGIN
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
-END
-
-STRINGTABLE
-BEGIN
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
@@ -686,16 +705,16 @@ BEGIN
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
-END
-
-STRINGTABLE
-BEGIN
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
@@ -706,16 +725,13 @@ BEGIN
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
-END
-
-STRINGTABLE
-BEGIN
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_MAP_TARGET_Clear    "Clear"
 END
 
 STRINGTABLE
@@ -724,15 +740,16 @@ BEGIN
     ID_VIEW_BAR_Master      "Show or hide the master pane\nShow Master"
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
+    ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
-    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
 END
 
 STRINGTABLE
 BEGIN
+    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 

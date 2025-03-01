@@ -124,8 +124,7 @@ void CParamsBar::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 void CParamsBar::OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI)
 {
-	// delegate frame min/max to common handler for row view panes
-	CMainFrame::OnFrameGetMinMaxInfo(this, hFrameWnd, pMMI);
+	CMainFrame::OnFrameGetMinMaxInfo(this, hFrameWnd, pMMI);	// delegate to common handler
 }
 
 // CParamsBar message map

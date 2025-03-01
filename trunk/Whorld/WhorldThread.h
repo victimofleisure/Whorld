@@ -11,6 +11,7 @@
         01      20feb25	add bitmap capture and write
         02      22feb25	add snapshot capture and load
 		03		27feb25	add snapshot mode accessor
+		04		01mar25	add commands to set origin coords individually
 
 */
 
@@ -108,6 +109,7 @@ protected:
 	void	AddRing();
 	void	OnTempoChange();
 	void	OnOriginMotionChange();
+	void	SetOriginTarget(DPoint ptOrigin, bool bDamping);
 	void	UpdateOrigin();
 	void	UpdateZoom();
 	void	TimerHook();
@@ -142,6 +144,8 @@ protected:
 	void	RandomPhase();
 	void	SetZoom(double fZoom, bool bDamping);
 	void	SetOrigin(DPoint ptOrigin, bool bDamping);
+	void	SetOriginX(double fOriginX, bool bDamping);
+	void	SetOriginY(double rOriginY, bool bDamping);
 	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
 	void	CaptureBitmap(UINT nFlags, SIZE szImage);
 	bool	CaptureSnapshot() const;

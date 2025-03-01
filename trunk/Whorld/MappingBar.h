@@ -74,7 +74,7 @@ protected:
 	};
 	enum {	// grid columns
 		#define MAPPINGDEF_INCLUDE_NUMBER
-		#define MAPPINGDEF(name, align, width, member, minval, maxval) COL_##name,
+		#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) COL_##name,
 		#include "MappingDef.h"	// generate column enumeration
 		COLUMNS
 	};
@@ -121,6 +121,7 @@ protected:
 	virtual	void SaveUndoState(CUndoState& State);
 	virtual	void RestoreUndoState(const CUndoState& State);
 	virtual	CString	GetUndoTitle(const CUndoState& State);
+	virtual void OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()

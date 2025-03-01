@@ -15,6 +15,7 @@
 		05		25oct21	add optional sort direction
 		06		19feb22	use INI file class directly instead of via profile
 		07		26feb25	adapt for Whorld
+		08		01mar25	add misc targets
 
 */
 
@@ -26,34 +27,140 @@
 
 class CIniFile;
 
-class CMapping : public CWhorldBase {
+class CMappingBase : public CWhorldBase {
 public:
-// Public data
-	int		m_nInEvent;			// input event type
-	int		m_nOutEvent;		// output event type
-	int		m_nInChannel;		// input MIDI channel
-	int		m_nInControl;		// input controller number
-	int		m_nRangeStart;		// range start
-	int		m_nRangeEnd;		// range end
-
 // Constants
-	enum {
-		#define MAPPINGDEF(name, align, width, member, minval, maxval) PROP_##name,
+	enum {	// properties, corresponding to mapping columns
+		#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) PROP_##name,
 		#include "MappingDef.h"	// generate member var enumeration
 		PROPERTIES
 	};
-	enum {	// input events
-		#define MIDICHANSTATDEF(name) IN_##name,
-		#include "MidiCtrlrDef.h"	// enumerate MIDI channel voice messages
-		INPUT_EVENTS
+	enum {	// events, equivalent to MIDI channel voice messages
+		#define MIDICHANSTATDEF(name) EVENT_##name,
+		#include "MidiCtrlrDef.h"	// generate enumeration
+		EVENTS
 	};
-	enum {
-		#define MASTERDEF(name, type, prefix, initval) OUT_##name,
-		#include "WhorldDef.h"	// generate enumeration
-		#define PARAMDEF(name, minval, maxval, steps, scale, initval) OUT_##name,
-		#include "WhorldDef.h"	// generate enumeration
-		OUTPUT_EVENTS
+	enum {	// mapping targets, in a series of ranges
+		#define PARAMDEF(name, minval, maxval, steps, scale, initval) TARGET_##name,
+		#include "WhorldDef.h"	// generate parameter range
+		#define MASTERDEF(name, type, prefix, initval) TARGET_##name,
+		#include "WhorldDef.h"	// generate master property range
+		#define MAPPINGDEF_MISC_TARGET(name) TARGET_##name,
+		#include "MappingDef.h"	// generate miscellaneous target range
+		TARGETS
 	};
+	enum {	// miscellaneous targets
+		#define MAPPINGDEF_MISC_TARGET(name) MT_##name,
+		#include "MappingDef.h"	// generate enumeration
+		MISC_TARGETS
+	};
+
+// Attributes
+	static bool		IsValidEvent(int iEvent);
+	static bool		IsValidTarget(int iTarget);
+	static LPCTSTR	GetChannelStatusTag(int iChanStat);
+	static CString	GetChannelStatusName(int iChanStat);
+	static LPCTSTR	GetSystemStatusTag(int iSysStat);
+	static CString	GetSystemStatusName(int iSysStat);
+	static LPCTSTR	GetEventTag(int iEvent);
+	static CString	GetEventName(int iEvent);
+	static LPCTSTR	GetTargetTag(int iTarget);
+	static CString	GetTargetName(int iTarget);
+	static int		FindEventTag(LPCTSTR pszName);
+	static int		FindTargetTag(LPCTSTR pszName);
+
+// Operations
+	static void	Initialize();
+
+protected:
+// Constants
+	static const LPCTSTR m_arrChanStatTag[MIDI_CHANNEL_VOICE_MESSAGES];
+	static const LPCTSTR m_arrSysStatTag[MIDI_SYSTEM_STATUS_MESSAGES];
+	static const int m_arrChanStatID[MIDI_CHANNEL_VOICE_MESSAGES];
+	static const int m_arrSysStatID[MIDI_SYSTEM_STATUS_MESSAGES];
+	static CString m_arrChanStatName[MIDI_CHANNEL_VOICE_MESSAGES];
+	static CString m_arrSysStatName[MIDI_SYSTEM_STATUS_MESSAGES];
+	static LPCTSTR m_arrTargetTag[TARGETS];
+	static CString m_arrTargetName[TARGETS];
+	static const LPCTSTR m_arrMiscTargetTag[MISC_TARGETS];
+	static const int m_arrMiscTargetID[MISC_TARGETS];
+};
+
+inline bool CMappingBase::IsValidEvent(int iEvent)
+{
+	return iEvent >= 0 && iEvent < EVENTS;
+}
+
+inline bool CMappingBase::IsValidTarget(int iTarget)
+{
+	return iTarget >= 0 && iTarget < TARGETS;
+}
+
+inline LPCTSTR CMappingBase::GetChannelStatusTag(int iChanStat)
+{
+	ASSERT(iChanStat >= 0 && iChanStat < MIDI_CHANNEL_VOICE_MESSAGES);
+	return m_arrChanStatTag[iChanStat];
+}
+
+inline CString CMappingBase::GetChannelStatusName(int iChanStat)
+{
+	ASSERT(iChanStat >= 0 && iChanStat < MIDI_CHANNEL_VOICE_MESSAGES);
+	return m_arrChanStatName[iChanStat];
+}
+
+inline LPCTSTR CMappingBase::GetSystemStatusTag(int iSysStat)
+{
+	ASSERT(iSysStat >= 0 && iSysStat < MIDI_SYSTEM_STATUS_MESSAGES);
+	return m_arrSysStatTag[iSysStat];
+}
+
+inline CString CMappingBase::GetSystemStatusName(int iSysStat)
+{
+	ASSERT(iSysStat >= 0 && iSysStat < MIDI_SYSTEM_STATUS_MESSAGES);
+	return m_arrSysStatName[iSysStat];
+}
+
+inline LPCTSTR CMappingBase::GetEventTag(int iEvent)
+{
+	return GetChannelStatusTag(iEvent);
+}
+
+inline CString CMappingBase::GetEventName(int iEvent)
+{
+	return GetChannelStatusName(iEvent);
+}
+
+inline int CMappingBase::FindEventTag(LPCTSTR pszName)
+{
+	return ARRAY_FIND(m_arrChanStatTag, pszName);
+}
+
+inline LPCTSTR CMappingBase::GetTargetTag(int iTarget)
+{
+	ASSERT(IsValidTarget(iTarget));
+	return m_arrTargetTag[iTarget];
+}
+
+inline CString CMappingBase::GetTargetName(int iTarget)
+{
+	ASSERT(IsValidTarget(iTarget));
+	return m_arrTargetName[iTarget];
+}
+
+inline int CMappingBase::FindTargetTag(LPCTSTR pszName)
+{
+	return ARRAY_FIND(m_arrTargetTag, pszName);
+}
+
+class CMapping : public CMappingBase {
+public:
+// Public data
+	int		m_iEvent;			// input event type
+	int		m_iChannel;			// input MIDI channel
+	int		m_iControl;			// input controller number
+	int		m_iTarget;			// mapping target
+	int		m_nRangeStart;		// range start
+	int		m_nRangeEnd;		// range end
 
 // Attributes
 	int		GetProperty(int iProp) const;
@@ -61,43 +168,12 @@ public:
 	DWORD	GetInputMidiMsg() const;
 	void	SetInputMidiMsg(DWORD nInMidiMsg);
 	int		IsInputMatch(DWORD nInMidiMsg) const;
-	static CString	GetInputEventName(int nInEvent);
-	static CString	GetOutputEventName(int nOutEvent);
-	static LPCTSTR	GetInputEventTag(int nInEvent);
-	static LPCTSTR	GetOutputEventTag(int nOutEvent);
-	static int		FindInputEventTag(LPCTSTR pszName);
-	static int		FindOutputEventTag(LPCTSTR pszName);
 
 // Operations
-	static void	Initialize();
 	void	SetDefaults();
 	void	Read(CIniFile& fIn, LPCTSTR pszSection);
 	void	Write(CIniFile& fOut, LPCTSTR pszSection) const;
-
-protected:
-// Constants
-	static const LPCTSTR m_arrChanStatTag[MIDI_CHANNEL_VOICE_MESSAGES];
-	static const LPCTSTR m_arrSysStatTag[MIDI_SYSTEM_STATUS_MESSAGES];
-	static const int	m_arrChanStatID[MIDI_CHANNEL_VOICE_MESSAGES];	// channel status message string resource IDs
-	static const int	m_arrSysStatID[MIDI_SYSTEM_STATUS_MESSAGES];	// system status message string resource IDs
-	static CStringArrayEx	m_arrChanStatName;	// array of channel status message name strings
-	static CStringArrayEx	m_arrSysStatName;	// array of system status message name strings
 };
-
-inline CString CMapping::GetInputEventName(int nInEvent)
-{
-	return m_arrChanStatName[nInEvent];
-}
-
-inline LPCTSTR CMapping::GetInputEventTag(int nInEvent)
-{
-	return m_arrChanStatTag[nInEvent];
-}
-
-inline int CMapping::FindInputEventTag(LPCTSTR pszName)
-{
-	return ARRAY_FIND(m_arrChanStatTag, pszName);
-}
 
 class CMappingArray : public CArrayEx<CMapping, CMapping&> {
 public:
@@ -105,7 +181,7 @@ public:
 	void	Write(CIniFile& fOut) const;
 };
 
-class CSeqMapping {
+class CSafeMapping {
 public:
 // Attributes
 	WCritSec&	GetCritSec();
@@ -145,32 +221,32 @@ protected:
 	static bool	m_bSortDescending;	// true if sort should be descending
 };
 
-inline WCritSec& CSeqMapping::GetCritSec()
+inline WCritSec& CSafeMapping::GetCritSec()
 {
 	return m_csMapping;
 }
 
-inline int CSeqMapping::GetCount() const
+inline int CSafeMapping::GetCount() const
 {
 	return m_arrMapping.GetSize();
 }
 
-inline const CMapping& CSeqMapping::GetAt(int iMapping) const
+inline const CMapping& CSafeMapping::GetAt(int iMapping) const
 {
 	return m_arrMapping[iMapping];
 }
 
-inline const CMappingArray& CSeqMapping::GetArray() const
+inline const CMappingArray& CSafeMapping::GetArray() const
 {
 	return m_arrMapping;
 }
 
-inline int CSeqMapping::GetProperty(int iMapping, int iProp) const
+inline int CSafeMapping::GetProperty(int iMapping, int iProp) const
 {
 	return m_arrMapping[iMapping].GetProperty(iProp);
 }
 
-inline void CSeqMapping::GetRange(int iFirstMapping, int nMappings, CMappingArray& arrMapping) const
+inline void CSafeMapping::GetRange(int iFirstMapping, int nMappings, CMappingArray& arrMapping) const
 {
 	m_arrMapping.GetRange(iFirstMapping, nMappings, arrMapping);
 }

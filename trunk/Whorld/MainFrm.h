@@ -145,8 +145,9 @@ public:
 	afx_msg void OnWindowResetLayout();
 	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnSnapshotCapture(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnParamValChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnMainPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnViewOptions();
 	afx_msg void OnWindowPause();
 	afx_msg void OnUpdateWindowPause(CCmdUI *pCmdUI);
@@ -163,6 +164,8 @@ public:
 	afx_msg void OnPlaylistNew();
 	afx_msg void OnPlaylistMru(UINT nID);
 	afx_msg void OnUpdatePlaylistMru(CCmdUI* pCmdUI);
+	afx_msg void OnViewMidiLearn();
+	afx_msg void OnUpdateViewMidiLearn(CCmdUI *pCmdUI);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

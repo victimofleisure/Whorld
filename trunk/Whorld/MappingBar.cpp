@@ -18,6 +18,7 @@
 		08		25oct21	add descending sort via Shift key
 		09		26feb25	adapt for Whorld
 		10		27feb25	add undo
+		11		01mar25	add learn mode
 		
 */
 
@@ -125,6 +126,11 @@ void CMappingBar::UpdateGrid()
 	m_grid.SetItemCountEx(nMappings, 0);
 }
 
+void CMappingBar::UpdateGrid(int iMapping)
+{
+	m_grid.RedrawItem(iMapping);
+}
+
 void CMappingBar::UpdateGrid(int iMapping, int iProp)
 {
 	ASSERT(iProp >= 0 && iProp < CMapping::PROPERTIES);
@@ -136,7 +142,11 @@ void CMappingBar::UpdateGrid(const CIntArrayEx& arrSelection, int iProp)
 	int	nSels = arrSelection.GetSize();
 	for (int iSel = 0; iSel < nSels; iSel++) {
 		int	iItem = arrSelection[iSel];
-		m_grid.RedrawSubItem(iItem, iProp + 1);	// compensate for number column
+		if (iProp >= 0) {	// if property specified
+			m_grid.RedrawSubItem(iItem, iProp + 1);	// compensate for number column
+		} else {	// all properties
+			m_grid.RedrawItem(iItem);
+		}
 	}
 	m_grid.SetSelection(arrSelection);	// also restore selection
 }
@@ -144,14 +154,6 @@ void CMappingBar::UpdateGrid(const CIntArrayEx& arrSelection, int iProp)
 void CMappingBar::SetModifiedFlag()
 {
 	theApp.m_pPlaylist->SetModifiedFlag();
-}
-
-void CMappingBar::OnMidiLearn()
-{
-	m_grid.Invalidate();	// redraw all grid items
-/*@@@	if (!theApp.m_bIsMidiLearn)	// if learn disabled
-		m_arrPrevSelection.RemoveAll();
-		*/
 }
 
 CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID)
@@ -351,7 +353,7 @@ void CMappingBar::SaveMappings(CUndoState& State) const
 {
 	CRefPtr<CUndoSelectedMappings>	pInfo;
 	pInfo.CreateObj();
-	pInfo->m_arrMapping = theApp.m_midiMgr.m_midiMaps.GetArray();
+	pInfo->m_arrMapping = midiMaps.GetArray();
 	m_grid.GetSelection(pInfo->m_arrSelection);
 	State.SetObj(pInfo);
 }
@@ -359,9 +361,46 @@ void CMappingBar::SaveMappings(CUndoState& State) const
 void CMappingBar::RestoreMappings(const CUndoState& State)
 {
 	const CUndoSelectedMappings* pInfo = static_cast<CUndoSelectedMappings*>(State.GetObj());
-	theApp.m_midiMgr.m_midiMaps.SetArray(pInfo->m_arrMapping);
+	midiMaps.SetArray(pInfo->m_arrMapping);
 	UpdateGrid();
 	m_grid.SetSelection(pInfo->m_arrSelection);
+}
+
+void CMappingBar::SaveLearn(CUndoState& State) const
+{
+	int	iMapping = State.GetCtrlID();
+	State.m_Val.p.x.u = midiMaps.GetAt(iMapping).GetInputMidiMsg();
+}
+
+void CMappingBar::RestoreLearn(const CUndoState& State)
+{
+	int	iMapping = State.GetCtrlID();
+	midiMaps.SetInputMidiMsg(iMapping, State.m_Val.p.x.u);
+	UpdateGrid(iMapping);
+}
+
+void CMappingBar::SaveLearnMulti(CUndoState& State) const
+{
+	const CIntArrayEx	*parrSelection;
+	if (State.IsEmpty()) {	// if initial state
+		ASSERT(m_parrSelection != NULL);
+		parrSelection = m_parrSelection;	// get fresh selection
+	} else {	// undoing or redoing; selection may have changed, so don't rely on it
+		const CUndoMultiIntegerProp	*pInfo = static_cast<CUndoMultiIntegerProp*>(State.GetObj());
+		parrSelection = &pInfo->m_arrSelection;	// use edit's original selection
+	}
+	CRefPtr<CUndoMultiIntegerProp>	pInfo;
+	pInfo.CreateObj();
+	pInfo->m_arrSelection = *parrSelection;
+	midiMaps.GetInputMidiMsg(*parrSelection, pInfo->m_arrProp);
+	State.SetObj(pInfo);
+}
+
+void CMappingBar::RestoreLearnMulti(const CUndoState& State)
+{
+	const CUndoMultiIntegerProp	*pInfo = static_cast<CUndoMultiIntegerProp*>(State.GetObj());
+	midiMaps.SetInputMidiMsg(pInfo->m_arrSelection, pInfo->m_arrProp);
+	UpdateGrid(pInfo->m_arrSelection, -1);
 }
 
 void CMappingBar::SaveUndoState(CUndoState& State)
@@ -382,6 +421,12 @@ void CMappingBar::SaveUndoState(CUndoState& State)
 	case UCODE_MOVE:
 	case UCODE_SORT:
 		SaveMappings(State);
+		break;
+	case UCODE_LEARN:
+		SaveLearn(State);
+		break;
+	case UCODE_LEARN_MULTI:
+		SaveLearnMulti(State);
 		break;
 	default:
 		ASSERT(0);	// missing case
@@ -406,6 +451,12 @@ void CMappingBar::RestoreUndoState(const CUndoState& State)
 	case UCODE_MOVE:
 	case UCODE_SORT:
 		RestoreMappings(State);
+		break;
+	case UCODE_LEARN:
+		RestoreLearn(State);
+		break;
+	case UCODE_LEARN_MULTI:
+		RestoreLearnMulti(State);
 		break;
 	default:
 		ASSERT(0);	// missing case
@@ -440,6 +491,7 @@ BEGIN_MESSAGE_MAP(CMappingBar, CMyDockablePane)
 	ON_WM_SETFOCUS()
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_MAPPING_GRID, OnListGetdispinfo)
 	ON_WM_CONTEXTMENU()
+	ON_MESSAGE(UWM_MIDI_EVENT, OnMidiEvent)
 	ON_COMMAND(ID_LIST_COL_HDR_RESET, OnListColHdrReset)
 	ON_NOTIFY(ULVN_REORDER, IDC_MAPPING_GRID, OnListReorder)
 	ON_NOTIFY(LVN_COLUMNCLICK, IDC_MAPPING_GRID, OnListColumnClick)
@@ -455,12 +507,12 @@ BEGIN_MESSAGE_MAP(CMappingBar, CMyDockablePane)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_INSERT, OnUpdateEditInsert)
 	ON_COMMAND(ID_EDIT_DELETE, OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, OnUpdateEditDelete)
-	ON_COMMAND(ID_TOOLS_MIDI_LEARN, OnToolsMidiLearn)
-	ON_UPDATE_COMMAND_UI(ID_TOOLS_MIDI_LEARN, OnUpdateToolsMidiLearn)
 	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
 	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
+	ON_COMMAND(ID_VIEW_MIDI_LEARN, OnViewMidiLearn)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_MIDI_LEARN, OnUpdateViewMidiLearn)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -502,6 +554,41 @@ void CMappingBar::OnSetFocus(CWnd* pOldWnd)
 {
 	CMyDockablePane::OnSetFocus(pOldWnd);
 	m_grid.SetFocus();	// delegate focus to child control
+}
+
+LRESULT CMappingBar::OnMidiEvent(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	if (theApp.m_midiMgr.IsLearnMode()) {	// if in MIDI learn mode
+		DWORD	nInMidiMsg = static_cast<DWORD>(wParam);
+		int	iMapping = m_grid.GetSelection();
+		if (iMapping >= 0) {	// if item is selected
+			CIntArrayEx	arrSelection;
+			m_grid.GetSelection(arrSelection);
+			bool	bCoalesceEdit;
+			if (arrSelection != m_arrPrevSelection) {	// if selection changed
+				m_arrPrevSelection = arrSelection;
+				bCoalesceEdit = false;	// don't coalesce edit; create a new undo state
+			} else	// selection hasn't changed
+				bCoalesceEdit = true;	// coalesce edit to avoid a blizzard of undo states
+			UINT	nUndoFlags = bCoalesceEdit ? UE_COALESCE : 0;
+			if (arrSelection.GetSize() > 1) {	// if multiple selection
+				m_parrSelection = &arrSelection;
+				NotifyUndoableEdit(0, UCODE_LEARN_MULTI, nUndoFlags);
+				midiMaps.SetInputMidiMsg(arrSelection, nInMidiMsg);	// update selected mappings
+				SetModifiedFlag();
+				UpdateGrid(arrSelection, -1);
+			} else {	// not multiple selection
+				if (arrSelection.GetSize()) {	// if single selection
+					NotifyUndoableEdit(iMapping, UCODE_LEARN, nUndoFlags);
+					midiMaps.SetInputMidiMsg(iMapping, nInMidiMsg);
+					SetModifiedFlag();
+					UpdateGrid(iMapping);
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 void CMappingBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
@@ -693,14 +780,13 @@ void CMappingBar::OnUpdateEditSelectAll(CCmdUI *pCmdUI)
 	pCmdUI->Enable(midiMaps.GetCount());
 }
 
-void CMappingBar::OnToolsMidiLearn()
+void CMappingBar::OnViewMidiLearn()
 {
-//@@@	theApp.m_bIsMidiLearn ^= 1;
-	OnMidiLearn();
+	theApp.m_midiMgr.SetLearnMode(!theApp.m_midiMgr.IsLearnMode());
 }
 
-void CMappingBar::OnUpdateToolsMidiLearn(CCmdUI *pCmdUI)
+void CMappingBar::OnUpdateViewMidiLearn(CCmdUI *pCmdUI)
 {
-//@@@	pCmdUI->SetCheck(theApp.m_bIsMidiLearn);
-	pCmdUI->Enable(false);	// disable for now
+	pCmdUI->SetCheck(theApp.m_midiMgr.IsLearnMode());
+	pCmdUI->Enable(m_grid.GetItemCount());
 }

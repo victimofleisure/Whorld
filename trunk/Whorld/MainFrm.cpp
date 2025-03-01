@@ -902,6 +902,7 @@ void CMainFrame::OnViewMidiLearn()
 void CMainFrame::OnUpdateViewMidiLearn(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(theApp.m_midiMgr.IsLearnMode());
+	pCmdUI->Enable(m_wndMappingBar.FastIsVisible() && theApp.m_midiMgr.m_midiMaps.GetCount());
 }
 
 void CMainFrame::OnWindowFullscreen()

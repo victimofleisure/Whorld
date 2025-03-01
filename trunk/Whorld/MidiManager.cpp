@@ -10,6 +10,7 @@
         00      26feb25	initial version
 		01		28feb25	add center epsilon
 		02		01mar25	add misc targets
+		03		01mar25	add learn mode
 
 */
 
@@ -30,6 +31,12 @@
 	CRenderCmd cmd(cmdidx, param); \
 	cmd.m_prop.type = val; \
 	theApp.PushRenderCommand(cmd);
+
+CMidiManager::CMidiManager()
+{
+	m_bInMsgBox = false;
+	m_bLearnMode = false;
+}
 
 void CMidiManager::Initialize()
 {
@@ -232,6 +239,10 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 	// exclude system status messages
 	if (MIDI_STAT(dwEvent) >= SYSEX)	// if not channel voice message
 		return;	// ignore
+	if (m_bLearnMode) {	// if learning mappings
+		// post MIDI message to mapping bar
+		theApp.GetMainFrame()->m_wndMappingBar.PostMessage(UWM_MIDI_EVENT, dwEvent);
+	}
 	// lock the mapping array during iteration
 	WCritSec::Lock lock(m_midiMaps.GetCritSec());
 	int	nMaps = m_midiMaps.GetCount();

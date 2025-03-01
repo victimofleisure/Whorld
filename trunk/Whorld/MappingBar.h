@@ -12,6 +12,7 @@
 		02		20jun21	add list accessor
 		03		26feb25	adapt for Whorld
 		04		27feb25	add undo
+		05		01mar25	add learn mode
 
 */
 
@@ -40,7 +41,6 @@ public:
 // Operations
 public:
 	void	OnUpdate(CView* pSender, LPARAM lHint = 0, CObject* pHint = NULL);
-	void	OnMidiLearn();
 	static void	AddMidiChannelComboItems(CComboBox& wndCombo);
 
 // Overrides
@@ -101,6 +101,7 @@ protected:
 // Helpers
 	void	InitEventNames();
 	void	UpdateGrid();
+	void	UpdateGrid(int iMapping);
 	void	UpdateGrid(int iMapping, int iProp);
 	void	UpdateGrid(const CIntArrayEx& arrSelection, int iProp);
 	void	SetModifiedFlag();
@@ -115,6 +116,10 @@ protected:
 	void	RestoreSelectedMappings(const CUndoState& State);
 	void	SaveMappings(CUndoState& State) const;
 	void	RestoreMappings(const CUndoState& State);
+	void	SaveLearn(CUndoState& State) const;
+	void	RestoreLearn(const CUndoState& State);
+	void	SaveLearnMulti(CUndoState& State) const;
+	void	RestoreLearnMulti(const CUndoState& State);
 
 // Overrides
 	virtual	void OnShowChanged(bool bShow);
@@ -145,12 +150,12 @@ protected:
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnEditInsert();
 	afx_msg void OnUpdateEditInsert(CCmdUI *pCmdUI);
-	afx_msg void OnToolsMidiLearn();
-	afx_msg void OnUpdateToolsMidiLearn(CCmdUI *pCmdUI);
 	afx_msg void OnEditUndo();
 	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
 	afx_msg void OnEditRedo();
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
+	afx_msg void OnViewMidiLearn();
+	afx_msg void OnUpdateViewMidiLearn(CCmdUI *pCmdUI);
 };
 
 inline const int CMappingBar::GetPropertyNameID(int iProp)

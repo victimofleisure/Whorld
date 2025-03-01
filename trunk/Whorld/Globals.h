@@ -134,6 +134,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_PARAM_VAL_CHANGE,		// wParam: iParam, lParam: double
 	UWM_MASTER_PROP_CHANGE,		// wParam: iProp, lParam: double
 	UWM_MAIN_PROP_CHANGE,		// wParam: iProp, lParam: variant
+	UWM_MIDI_EVENT,				// wParam: MIDI event, lParam: none
 };
 
 // undo natter should always be zero in a shipping version

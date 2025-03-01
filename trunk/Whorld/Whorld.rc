@@ -289,7 +289,7 @@ BEGIN
         MENUITEM "&Redo",                       ID_EDIT_REDO
         MENUITEM SEPARATOR
         MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
-        MENUITEM "&Learn",                      ID_TOOLS_MIDI_LEARN
+        MENUITEM "&Learn",                      ID_VIEW_MIDI_LEARN
     END
 END
 
@@ -577,6 +577,7 @@ BEGIN
     IDS_EDIT_CUT            "Cut"
     IDS_EDIT_DELETE         "Delete"
     IDS_EDIT_INSERT         "Insert"
+    IDS_EDIT_LEARN          "Learn"
     IDS_EDIT_MENU           "Edit"
     IDS_EDIT_MOVE           "Move"
     IDS_EDIT_PASTE          "Paste"
@@ -586,11 +587,11 @@ BEGIN
     IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
-    IDS_MAIN_Hue            "Hue"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_Hue            "Hue"
     IDS_MAIN_InvertColor    "Invert Color"
     IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
@@ -605,12 +606,13 @@ BEGIN
     IDS_MAPPING_COL_RANGE_END "End"
     IDS_MAPPING_COL_RANGE_START "Start"
     IDS_MAPPING_COL_TARGET  "Target"
-    IDS_MAP_TARGET_Convex   "Convex"
-    IDS_MAP_TARGET_Fill     "Fill"
+    IDS_MAP_TARGET_Clear    "Clear"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_Convex   "Convex"
+    IDS_MAP_TARGET_Fill     "Fill"
     IDS_MAP_TARGET_LoopHue  "Loop Hue"
     IDS_MAP_TARGET_OriginDrag "Origin Drag"
     IDS_MAP_TARGET_OriginRandom "Origin Random"
@@ -625,12 +627,12 @@ BEGIN
     IDS_MASTER_HueLoopLength "Hue Loop"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
-    IDS_MASTER_Spread       "Spread"
-    IDS_MASTER_Tempo        "Tempo"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Spread       "Spread"
+    IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
     IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
@@ -645,12 +647,12 @@ BEGIN
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
-    IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
-    IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
+    IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
     IDS_NONE                "<None>"
     IDS_OPT_DESC_Export_bPromptUser 
@@ -669,12 +671,12 @@ BEGIN
     IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
-    IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
-    IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
+    IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
@@ -689,12 +691,12 @@ BEGIN
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
-    IDS_PARAM_OddCurve      "Odd Curve"
-    IDS_PARAM_OddShear      "Odd Shear"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_OddCurve      "Odd Curve"
+    IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
@@ -709,12 +711,12 @@ BEGIN
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
-    IDS_PROW_VAL_SLIDER     "Slider"
-    IDS_PROW_Val            "Value"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_VAL_SLIDER     "Slider"
+    IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
@@ -730,8 +732,12 @@ BEGIN
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
+END
+
+STRINGTABLE
+BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_MAP_TARGET_Clear    "Clear"
+    IDS_EDIT_LEARN_MULTI    "Learn Mappings"
 END
 
 STRINGTABLE
@@ -745,11 +751,11 @@ BEGIN
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
+    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
 END
 
 STRINGTABLE
 BEGIN
-    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
@@ -780,7 +786,6 @@ BEGIN
     ID_PLAYLIST_MRU_FILE9   "Open this playlist"
     ID_STATUS_PANE_FRAME_RATE "000.00"
     ID_STATUS_PANE_RING_COUNT "00000"
-    ID_TOOLS_MIDI_LEARN     "Learn mappings from MIDI input\nMIDI Learn"
 END
 
 STRINGTABLE

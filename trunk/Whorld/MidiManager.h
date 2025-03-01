@@ -9,6 +9,7 @@
 		rev		date	comments
         00      26feb25	initial version
 		01		01mar25	add misc targets
+		02		01mar25	add learn mode
 
 */
 
@@ -23,6 +24,9 @@ class COptions;
 
 class CMidiManager : public CMappingBase {
 public:
+// Construction
+	CMidiManager();
+
 // Attributes
 	int		GetDeviceCount(int iType) const;
 	int		GetDeviceIdx(int iType) const;
@@ -45,11 +49,6 @@ public:
 	void	CloseInputDevice();
 	bool	ReopenInputDevice();
 	void	OnDeviceChange();
-	void	OnMidiEvent(DWORD dwEvent);
-	void	PushMasterProperty(int iProp, double fNormVal);
-	void	PushParameter(int iParam, double fNormVal);
-	void	PushMiscTarget(int iMiscTarget, double fNormVal);
-	void	UpdateUI(int nMsg, WPARAM wParam, LPARAM lParam);
 	static LPARAM	FloatToLParam(double fVal);
 	static double	LParamToFloat(LPARAM lParam);
 	static UINT	SetOrClear(UINT nDest, UINT nMask, bool bIsSet);
@@ -65,6 +64,11 @@ protected:
 	bool	m_bLearnMode;		// true if we're learning mappings
 
 // Helpers
+	void	PushMasterProperty(int iProp, double fNormVal);
+	void	PushParameter(int iParam, double fNormVal);
+	void	PushMiscTarget(int iMiscTarget, double fNormVal);
+	void	UpdateUI(int nMsg, WPARAM wParam, LPARAM lParam);
+	void	OnMidiEvent(DWORD dwEvent);
 	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2);
 };
 

@@ -187,6 +187,7 @@ public:
 	WCritSec&	GetCritSec();
 	int		GetCount() const;
 	const CMapping&	GetAt(int iMapping) const;
+	void	SetAt(int iMapping, const CMapping& mapping);
 	const CMappingArray&	GetArray() const;
 	void	SetArray(const CMappingArray& arrMapping);
 	int		GetProperty(int iMapping, int iProp) const;

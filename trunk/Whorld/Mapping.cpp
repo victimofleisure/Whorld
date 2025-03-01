@@ -189,11 +189,15 @@ DWORD CMapping::GetInputMidiMsg() const
 void CMapping::SetInputMidiMsg(DWORD nInMidiMsg)
 {
 	// channel voice messages only; caller is responsible for ensuring this
-	int	iEvent = MIDI_CMD_IDX(nInMidiMsg);	// convert MIDI status to event index
-	ASSERT(iEvent >= 0 && iEvent < EVENTS);	// check event index range
-	m_iEvent = iEvent;
+	int	iCmd = MIDI_CMD_IDX(nInMidiMsg);	// convert MIDI status to event index
+	ASSERT(iCmd >= 0 && iCmd < EVENTS);	// check event index range
+	m_iEvent = iCmd;
 	m_iChannel = MIDI_CHAN(nInMidiMsg);
-	m_iControl = MIDI_P1(nInMidiMsg);
+	if (iCmd <= MIDI_CVM_CONTROL) {	// if command has a note/controller
+		m_iControl = MIDI_P1(nInMidiMsg);	// set note/controller number
+	} else {	// command doesn't have a note/controller
+		m_iControl = 0;	// zero note/controller number
+	}
 }
 
 int CMapping::IsInputMatch(DWORD nInMidiMsg) const
@@ -207,7 +211,7 @@ int CMapping::IsInputMatch(DWORD nInMidiMsg) const
 		return -1;	// fail
 	}
 	int	nP1 = MIDI_P1(nInMidiMsg);	// parameter 1
-	if (iCmd <= MIDI_CVM_CONTROL)	{	// if command has a note/controller
+	if (iCmd <= MIDI_CVM_CONTROL) {	// if command has a note/controller
 		if (nP1 != m_iControl) {	// if control doesn't match
 			return -1;	// fail
 		}
@@ -232,6 +236,12 @@ void CSafeMapping::RemoveAll()
 {
 	LOCK_MAPPINGS; // exclusive write
 	m_arrMapping.RemoveAll();
+}
+
+void CSafeMapping::SetAt(int iMapping, const CMapping& mapping)
+{
+	LOCK_MAPPINGS; // exclusive write
+	m_arrMapping[iMapping] = mapping;
 }
 
 void CSafeMapping::SetArray(const CMappingArray& arrMapping)

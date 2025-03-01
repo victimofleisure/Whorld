@@ -13,6 +13,7 @@
 		03		21jun06	add tag to MasterDef macro
 		04		28jan08	support Unicode
 		05		09feb25	refactor
+		06		01mar25	implement global parameters
 
 		patch container
  
@@ -45,6 +46,8 @@ public:
 	void	SetMasterProp(int iProp, double fVal);
 	void	GetMainProp(int iProp, VARIANT_PROP& prop) const;
 	void	SetMainProp(int iProp, const VARIANT_PROP& prop);
+	double	GetGlobalParam(int iParam) const;
+	void	SetGlobalParam(int iParam, double fVal);
 
 // Operations
 	static CString	ParamToString(int iProp, const VARIANT_PROP& prop);
@@ -56,7 +59,7 @@ public:
 protected:
 // Constants
 	enum {
-		FILE_VERSION = 2	// file format version number
+		FILE_VERSION = 3	// file format version number
 	};
 	static const LPCTSTR FILE_ID;		// file format signature
 
@@ -86,4 +89,16 @@ inline void CPatch::SetMasterProp(int iProp, double fVal)
 {
 	ASSERT(IsValidMasterProp(iProp));
 	m_master.a[iProp] = fVal;
+}
+
+inline double CPatch::GetGlobalParam(int iParam) const
+{
+	ASSERT(IsValidParamIdx(iParam));
+	return m_aParam.row[iParam].fGlobal;
+}
+
+inline void CPatch::SetGlobalParam(int iParam, double fVal)
+{
+	ASSERT(IsValidParamIdx(iParam));
+	m_aParam.row[iParam].fGlobal = fVal;
 }

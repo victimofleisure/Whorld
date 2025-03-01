@@ -53,14 +53,38 @@ PARAMDEF(	OddShear,		-3,		3,		1000,	1,		0		)	// odd vertex curvature asymmetry, 
 #ifdef PARAMPROPDEF	// parameter properties
 
 //				name	type	prefix	variant	
+#if !defined(PARAMPROPDEF_GLOBAL) || !PARAMPROPDEF_GLOBAL	// exclude global property
 PARAMPROPDEF(	Val,	DOUBLE,	f,		dblVal	)	// parameter's base value, to which modulation is applied
 PARAMPROPDEF(	Wave,	INT,	i,		intVal	)	// index of modulation waveform; see enum in COscillator.h
 PARAMPROPDEF(	Amp,	DOUBLE,	f,		dblVal	)	// modulation amplitude; can be negative for phase inversion
 PARAMPROPDEF(	Freq,	DOUBLE,	f,		dblVal	)	// modulation frequency, in Hertz
 PARAMPROPDEF(	PW,		DOUBLE,	f,		dblVal	)	// modulation pulse width, from 0..1; only meaningful for pulse waveform
+#endif
+#if !defined(PARAMPROPDEF_GLOBAL) || PARAMPROPDEF_GLOBAL	// exclude all except global property
+PARAMPROPDEF(	Global,	DOUBLE,	f,		dblVal	)	// parameter's global value, which is applied to all rings
+#endif
 
 #undef PARAMPROPDEF
+#undef PARAMPROPDEF_GLOBAL
 #endif // PARAMPROPDEF
+
+#ifdef GLOBALPARAMDEF	// global parameters
+
+GLOBALPARAMDEF(	LineWidth	)
+GLOBALPARAMDEF(	PolySides	)
+GLOBALPARAMDEF(	RotateSpeed	)
+GLOBALPARAMDEF(	AspectRatio	)
+GLOBALPARAMDEF(	SkewRadius	)
+GLOBALPARAMDEF(	SkewAngle	)
+GLOBALPARAMDEF(	StarFactor	)
+GLOBALPARAMDEF(	Pinwheel	)
+GLOBALPARAMDEF(	EvenCurve	)
+GLOBALPARAMDEF(	OddCurve	)
+GLOBALPARAMDEF(	EvenShear	)
+GLOBALPARAMDEF(	OddShear	)
+
+#undef GLOBALPARAMDEF
+#endif // GLOBALPARAMDEF
 
 #ifdef MASTERDEF	// master properties
 
@@ -108,6 +132,15 @@ PARAMCOLDEF(PW)
 
 #undef PARAMCOLDEF
 #endif // PARAMCOLDEF
+
+#ifdef GLOBALCOLDEF	// global parameter columns
+
+GLOBALCOLDEF(NAME_STATIC)
+GLOBALCOLDEF(VAL_SLIDER)
+GLOBALCOLDEF(Val)
+
+#undef GLOBALCOLDEF
+#endif // GLOBALCOLDEF
 
 #ifdef WAVEFORMDEF	// waveforms
 

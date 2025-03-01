@@ -9,6 +9,7 @@
 		rev		date	comments
         00      09jan19	initial version
 		01		26feb25	add mapping
+		02		01mar25	add globals
 
 */
 
@@ -20,3 +21,4 @@
 #define RK_ParamsBar	_T("ParamsBar")
 #define RK_MasterBar	_T("MasterBar")
 #define RK_MappingBar	_T("MappingBar")
+#define RK_GlobalsBar	_T("GlobalsBar")

@@ -49,14 +49,15 @@ IMPLEMENT_DYNAMIC(CMappingBar, CMyDockablePane)
 
 const CGridCtrl::COL_INFO CMappingBar::m_arrColInfo[COLUMNS] = {
 	#define MAPPINGDEF_INCLUDE_NUMBER
-	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) \
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
 		{IDS_MAPPING_COL_##name, LVCFMT_##align, width},
 	#include "MappingDef.h"	// generate list column info
 };
 
 const CMappingBar::COL_RANGE CMappingBar::m_arrColRange[COLUMNS] = {
 	#define MAPPINGDEF_INCLUDE_NUMBER
-	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) {minval, maxval},
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+		{minval, maxval},
 	#include "MappingDef.h"	// generate list column info
 };
 

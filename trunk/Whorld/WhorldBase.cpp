@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		01mar25	implement global parameters
 
 */
 
@@ -34,6 +35,11 @@ const int CWhorldBase::m_arrParamPropInfo[PARAM_PROP_COUNT] = {
 
 const int CWhorldBase::m_arrWaveformInfo[WAVEFORM_COUNT] = {
 	#define WAVEFORMDEF(name) IDS_WAVE_##name,
+	#include "WhorldDef.h"	// generate array init list
+};
+
+const int CWhorldBase::m_arrGlobalToParam[GLOBAL_COUNT] = {
+	#define GLOBALPARAMDEF(name) PARAM_##name,
 	#include "WhorldDef.h"	// generate array init list
 };
 
@@ -80,6 +86,7 @@ CString CWhorldBase::m_arrParamPropName[PARAM_PROP_COUNT];
 CString CWhorldBase::m_arrMasterName[MASTER_COUNT];
 CString CWhorldBase::m_arrMainName[MAIN_COUNT];
 CString CWhorldBase::m_arrWaveformName[WAVEFORM_COUNT];
+int CWhorldBase::m_arrParamToGlobal[PARAM_COUNT];
 
 const CWhorldBase::GLOBRING CWhorldBase::m_globalRingDefault = {
 	0,	// fRot
@@ -123,5 +130,10 @@ void CWhorldBase::InitWhorldBase()
 	}
 	for (int iWave = 0; iWave < WAVEFORM_COUNT; iWave++) {	// for each waveform
 		m_arrWaveformName[iWave].LoadString(m_arrWaveformInfo[iWave]);
+	}
+	// initialize reverse lookup table for mapping parameter index to global index
+	for (int iGlobal = 0; iGlobal < GLOBAL_COUNT; iGlobal++) {	// for each global parameter
+		int	iParam = m_arrGlobalToParam[iGlobal];	// map from global to its parameter
+		m_arrParamToGlobal[iParam] = iGlobal;	// store global's index in parameter's element
 	}
 }

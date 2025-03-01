@@ -14,6 +14,7 @@
 		04		25feb25	add frame min/max info handler for row view panes
 		05		26feb25	add MIDI input
 		06		27feb25	add pre-snapshot mode patch member
+		07		01mar25	add globals docking pane
 
 */
 
@@ -26,6 +27,7 @@
 #include "ParamsBar.h"
 #include "MasterBar.h"
 #include "MappingBar.h"
+#include "GlobalsBar.h"
 
 // docking bar IDs are relative to AFX_IDW_CONTROLBAR_FIRST
 enum {	// docking bar IDs; don't change, else bar placement won't be restored

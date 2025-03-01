@@ -31,7 +31,7 @@ class CMappingBase : public CWhorldBase {
 public:
 // Constants
 	enum {	// properties, corresponding to mapping columns
-		#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) PROP_##name,
+		#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) PROP_##name,
 		#include "MappingDef.h"	// generate member var enumeration
 		PROPERTIES
 	};

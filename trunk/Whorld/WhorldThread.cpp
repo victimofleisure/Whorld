@@ -14,6 +14,7 @@
 		04		25feb25	add previous curve flag to fix degenerate ring
 		05		27feb25	implement hue loop
 		06		01mar25	add commands to set origin coords individually
+		07		01mar25	implement global parameters
 
 */
 
@@ -740,6 +741,12 @@ void CWhorldThread::SetPulseWidth(int iParam, double fPW)
 	m_aOsc[iParam].SetFreq(fPW);
 }
 
+void CWhorldThread::SetGlobal(int iParam, double fGlobal)
+{
+	ASSERT(IsValidParamIdx(iParam));
+	m_globs.a[iParam] = fGlobal;
+}
+
 void CWhorldThread::SetMasterProp(int iProp, double fVal)
 {
 	CPatch::SetMasterProp(iProp, fVal);
@@ -1037,6 +1044,9 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_SET_PARAM_PW:
 		SetPulseWidth(cmd.m_nParam,  cmd.m_prop.dblVal);
+		break;
+	case RC_SET_PARAM_Global:
+		SetGlobal(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	case RC_SET_MASTER:
 		SetMasterProp(cmd.m_nParam, cmd.m_prop.dblVal);

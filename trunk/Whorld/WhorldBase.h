@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		01mar25	implement global parameters
 
 */
 
@@ -38,6 +39,11 @@ public:
 		#define MAINDEF(name, type, prefix, initval, variant) MAIN_##name,
 		#include "WhorldDef.h"	// generate enumeration
 		MAIN_COUNT
+	};
+	enum {	// global parameters
+		#define GLOBALPARAMDEF(name) GLOBAL_##name,
+		#include "WhorldDef.h"	// generate enumeration
+		GLOBAL_COUNT
 	};
 
 // Types
@@ -159,6 +165,7 @@ public:
 	static bool IsValidParamProp(int iProp);
 	static bool IsValidMasterProp(int iMaster);
 	static bool IsValidMainProp(int iMain);
+	static bool IsValidGlobalParam(int iGlobal);
 	static const PARAM_INFO& GetParamInfo(int iParam);
 	static const double GetParamDefault(int iParam);
 	static const CString GetParamName(int iParam);
@@ -167,6 +174,8 @@ public:
 	static const CString GetMasterName(int iMaster);
 	static const MAIN_INFO& GetMainInfo(int iMain);
 	static const CString GetMainName(int iMain);
+	static int MapGlobalToParam(int iGlobal);
+	static int MapParamToGlobal(int iParam);
 	static const CString GetWaveformName(int iWave);
 	static const LPCTSTR GetRenderCmdName(int nCmd);
 
@@ -218,6 +227,8 @@ private:
 	static const MASTER_INFO m_arrMasterInfo[MASTER_COUNT];
 	static const MAIN_INFO m_arrMainInfo[MAIN_COUNT];
 	static const int m_arrWaveformInfo[WAVEFORM_COUNT];
+	static const int m_arrGlobalToParam[GLOBAL_COUNT];
+	static int m_arrParamToGlobal[PARAM_COUNT];
 	static CString m_arrParamName[PARAM_COUNT];
 	static CString m_arrParamPropName[PARAM_PROP_COUNT];
 	static CString m_arrMasterName[MASTER_COUNT];
@@ -244,6 +255,11 @@ inline bool CWhorldBase::IsValidMasterProp(int iMaster)
 inline bool CWhorldBase::IsValidMainProp(int iMain)
 {
 	return iMain >= 0 && iMain < MAIN_COUNT;
+}
+
+inline bool CWhorldBase::IsValidGlobalParam(int iGlobal)
+{
+	return iGlobal >= 0 && iGlobal < GLOBAL_COUNT;
 }
 
 inline const CWhorldBase::PARAM_INFO& CWhorldBase::GetParamInfo(int iParam)
@@ -298,6 +314,18 @@ inline const CString CWhorldBase::GetWaveformName(int iWave)
 {
 	ASSERT(iWave >= 0 && iWave < WAVEFORM_COUNT);
 	return m_arrWaveformName[iWave];
+}
+
+inline int CWhorldBase::MapGlobalToParam(int iGlobal)
+{
+	ASSERT(IsValidGlobalParam(iGlobal));
+	return m_arrGlobalToParam[iGlobal];
+}
+
+inline int CWhorldBase::MapParamToGlobal(int iParam)
+{
+	ASSERT(IsValidParamIdx(iParam));
+	return m_arrParamToGlobal[iParam];
 }
 
 inline const LPCTSTR CWhorldBase::GetRenderCmdName(int nCmd)

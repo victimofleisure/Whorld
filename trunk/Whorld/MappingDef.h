@@ -10,6 +10,7 @@
 		00		20mar20	initial version
 		01		26feb25	adapt for Whorld
 		02		27feb25	add undo codes
+		03		01mar25	add optional category
  
 		mapping column and member definitions
 
@@ -17,19 +18,29 @@
 
 #ifdef MAPPINGDEF
 
-//			name			align	width	prefix	member			minval	maxval
+//			name			align	width	prefix	member			initval	minval	maxval
 #ifdef MAPPINGDEF_INCLUDE_NUMBER
-MAPPINGDEF(	NUMBER,			LEFT,	30,		n,		0,				0,		0)
+MAPPINGDEF(	NUMBER,			LEFT,	30,		n,		0,				0,		0,		0)
 #endif
-MAPPINGDEF(	EVENT,			LEFT,	100,	i,		Event,			0,		EVENTS - 1)			// MIDI event
-MAPPINGDEF(	CHANNEL,		LEFT,	60,		i,		Channel,		0,		MIDI_CHANNELS - 1)	// MIDI channel
-MAPPINGDEF(	CONTROL,		LEFT,	60,		i,		Control,		0,		MIDI_NOTE_MAX)		// MIDI controller
-MAPPINGDEF(	TARGET,			LEFT,	120,	i,		Target,			0,		TARGETS - 1)		// mapping target
-MAPPINGDEF(	RANGE_START,	LEFT,	60,		n,		RangeStart,		0,		0)					// range start
-MAPPINGDEF(	RANGE_END,		LEFT,	60,		n,		RangeEnd,		0,		0)					// range end
+#if !defined(MAPPINGDEF_OPTIONAL) || !MAPPINGDEF_OPTIONAL	// mandatory members
+#ifndef MAPPINGDEF_EXCLUDE_NAMES
+MAPPINGDEF(	EVENT,			LEFT,	100,	i,		Event,			MIDI_CVM_CONTROL,	0,	EVENTS - 1)	// MIDI event
+#endif
+MAPPINGDEF(	CHANNEL,		LEFT,	60,		i,		Channel,		0,		0,		MIDI_CHANNELS - 1)	// MIDI channel
+MAPPINGDEF(	CONTROL,		LEFT,	60,		i,		Control,		1,		0,		MIDI_NOTE_MAX)		// MIDI controller
+#ifndef MAPPINGDEF_EXCLUDE_NAMES
+MAPPINGDEF(	TARGET,			LEFT,	120,	i,		Target,			0,		0,		TARGETS - 1)		// mapping target
+#endif
+#endif
+#if !defined(MAPPINGDEF_OPTIONAL) || MAPPINGDEF_OPTIONAL	// optional members
+MAPPINGDEF(	RANGE_START,	LEFT,	60,		n,		RangeStart,		0,		0,		0)					// range start
+MAPPINGDEF(	RANGE_END,		LEFT,	60,		n,		RangeEnd,		127,	0,		0)					// range end
+#endif
 
 #undef MAPPINGDEF
 #undef MAPPINGDEF_INCLUDE_NUMBER
+#undef MAPPINGDEF_EXCLUDE_NAMES
+#undef MAPPINGDEF_OPTIONAL
 
 #endif // MAPPINGDEF
 

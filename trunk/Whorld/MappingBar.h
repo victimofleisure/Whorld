@@ -74,7 +74,7 @@ protected:
 	};
 	enum {	// grid columns
 		#define MAPPINGDEF_INCLUDE_NUMBER
-		#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) COL_##name,
+		#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) COL_##name,
 		#include "MappingDef.h"	// generate column enumeration
 		COLUMNS
 	};

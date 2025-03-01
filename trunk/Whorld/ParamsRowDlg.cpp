@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      08feb25	initial version
+		02		01mar25	exclude globals property
 
 */
 
@@ -51,6 +52,7 @@ inline CParamsView* CParamsRowDlg::GetView()
 void CParamsRowDlg::Update(const PARAM_ROW& row)
 {
 	// update all child controls from row data
+	#define	PARAMPROPDEF_GLOBAL 0	// exclude global property
 	#define PARAMPROPDEF(name, type, prefix, variant) m_##name.SetVal(row.prefix##name);
 	#include "WhorldDef.h"	// generate code to update controls
 }
@@ -59,9 +61,12 @@ void CParamsRowDlg::Update(const PARAM_ROW& row, int iProp)
 {
 	// update specified child control from row data
 	switch (iProp) {
+	#define	PARAMPROPDEF_GLOBAL 0	// exclude global property
 	#define PARAMPROPDEF(name, type, prefix, variant) \
 	case PARAM_PROP_##name: m_##name.SetVal(row.prefix##name); break;
 	#include "WhorldDef.h"	// generate code to update controls
+	case PARAM_PROP_Global:
+		break;	// ignore global property
 	default:
 		ASSERT(0);	// unknown parameter property; logic error
 	}

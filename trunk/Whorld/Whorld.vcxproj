@@ -202,6 +202,8 @@
     <ClInclude Include="FocusEdit.h" />
     <ClInclude Include="FormatIO.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="GlobalsBar.h" />
+    <ClInclude Include="GlobalsRowDlg.h" />
     <ClInclude Include="GridCtrl.h" />
     <ClInclude Include="hls.h" />
     <ClInclude Include="ILockRingBuf.h" />
@@ -292,6 +294,8 @@
     <ClCompile Include="ExportDlg.cpp" />
     <ClCompile Include="FocusEdit.cpp" />
     <ClCompile Include="FormatIO.cpp" />
+    <ClCompile Include="GlobalsBar.cpp" />
+    <ClCompile Include="GlobalsRowDlg.cpp" />
     <ClCompile Include="GridCtrl.cpp" />
     <ClCompile Include="hls.cpp" />
     <ClCompile Include="IniFile.cpp" />

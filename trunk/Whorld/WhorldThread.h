@@ -12,6 +12,7 @@
         02      22feb25	add snapshot capture and load
 		03		27feb25	add snapshot mode accessor
 		04		01mar25	add commands to set origin coords individually
+		05		01mar25	implement global parameters
 
 */
 
@@ -134,6 +135,7 @@ protected:
 	void	SetAmplitude(int iParam, double fAmp);
 	void	SetFrequency(int iParam, double fFreq);
 	void	SetPulseWidth(int iParam, double fPW);
+	void	SetGlobal(int iParam, double fGlobal);
 	void	SetMasterProp(int iProp, double fVal);
 	void	SetMainProp(int iProp, const VARIANT_PROP& prop);
 	void	SetPatch(const CPatch *pPatch);

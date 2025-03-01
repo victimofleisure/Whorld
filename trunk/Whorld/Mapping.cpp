@@ -106,19 +106,16 @@ void CMappingBase::Initialize()
 
 void CMapping::SetDefaults()
 {
-	m_iEvent = MIDI_CVM_CONTROL;
-	m_iChannel = 0;
-	m_iControl = 1;
-	m_iTarget = 0;
-	m_nRangeStart = 0;
-	m_nRangeEnd = 127;
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+		m_##prefix##member = initval;
+	#include "MappingDef.h"	// generate member var initialization
 }
 
 int CMapping::GetProperty(int iProp) const
 {
 	ASSERT(iProp >= 0 && iProp < PROPERTIES);
 	switch (iProp) {
-	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) \
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
 		case PROP_##name: return m_##prefix##member;
 	#include "MappingDef.h"	// generate cases for each member var
 	}
@@ -129,7 +126,7 @@ void CMapping::SetProperty(int iProp, int nVal)
 {
 	ASSERT(iProp >= 0 && iProp < PROPERTIES);
 	switch (iProp) {
-	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) \
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
 		case PROP_##name: m_##prefix##member = nVal; break;
 	#include "MappingDef.h"	// generate cases for each member
 	}
@@ -150,10 +147,9 @@ void CMapping::Read(CIniFile& fIn, LPCTSTR pszSection)
 	ASSERT(m_iTarget >= 0);	// check for unknown target name
 	if (m_iTarget < 0)	// if unknown target name
 		m_iTarget = 0;		// avoid range errors downstream
-	// conditional to exclude events and targets is optimized away in Release build
-	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) \
-		if (PROP_##name != PROP_EVENT && PROP_##name != PROP_TARGET) \
-			m_##prefix##member = fIn.GetInt(pszSection, _T(#member), 0);
+	#define MAPPINGDEF_EXCLUDE_NAMES	// names were already read above
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+		m_##prefix##member = fIn.GetInt(pszSection, _T(#member), initval);
 	#include "MappingDef.h"	// generate profile reads for remaining members
 }
 
@@ -163,11 +159,19 @@ void CMapping::Write(CIniFile& fOut, LPCTSTR pszSection) const
 	fOut.WriteString(pszSection, RK_MAPPING_EVENT, GetEventTag(m_iEvent));
 	// write target name
 	fOut.WriteString(pszSection, RK_MAPPING_TARGET, GetTargetTag(m_iTarget));
-	// conditional to exclude events and targets is optimized away in Release build
-	#define MAPPINGDEF(name, align, width, prefix, member, minval, maxval) \
-		if (PROP_##name != PROP_EVENT && PROP_##name != PROP_TARGET) \
+	#define MAPPINGDEF_EXCLUDE_NAMES	// names were already written above
+	// mandatory members are always written, regardless of their value
+	#define MAPPINGDEF_OPTIONAL 0	// include mandatory members, exclude optional ones
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+		fOut.WriteInt(pszSection, _T(#member), m_##prefix##member);
+	#include "MappingDef.h"	// generate profile writes for mandatory members
+	#define MAPPINGDEF_EXCLUDE_NAMES	// names were already written above
+	// optional members are only written if they differ from their initial value
+	#define MAPPINGDEF_OPTIONAL 1	// include optional members, exclude mandatory ones
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+		if (m_##prefix##member != initval) \
 			fOut.WriteInt(pszSection, _T(#member), m_##prefix##member);
-	#include "MappingDef.h"	// generate profile writes for remaining members
+	#include "MappingDef.h"	// generate profile writes for optional members
 }
 
 void CMappingArray::Read(CIniFile& fIn)

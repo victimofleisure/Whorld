@@ -218,6 +218,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Master",                     ID_VIEW_BAR_Master
         MENUITEM "&Parameters",                 ID_VIEW_BAR_Params
+        MENUITEM "&Globals",                    ID_VIEW_BAR_Globals
         MENUITEM "M&IDI Mapping",               ID_VIEW_BAR_Mapping
         MENUITEM SEPARATOR
         MENUITEM "MIDI &Learn",                 ID_VIEW_MIDI_LEARN
@@ -334,13 +335,14 @@ BEGIN
     "I",            ID_VIEW_BAR_Mapping,    VIRTKEY, SHIFT, NOINVERT
     "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
     "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
+    "L",            ID_VIEW_MIDI_LEARN,     VIRTKEY, SHIFT, NOINVERT
     "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, NOINVERT
     VK_DELETE,      ID_WINDOW_CLEAR,        VIRTKEY, CONTROL, NOINVERT
     VK_F12,         ID_WINDOW_DETACH,       VIRTKEY, CONTROL, NOINVERT
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    "L",            ID_VIEW_MIDI_LEARN,     VIRTKEY, SHIFT, NOINVERT
+    "G",            ID_VIEW_BAR_Globals,    VIRTKEY, SHIFT, NOINVERT
 END
 
 
@@ -350,7 +352,7 @@ END
 //
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 240, 100
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About Whorld"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
@@ -386,7 +388,7 @@ BEGIN
 END
 
 IDD_MASTER_ROW DIALOGEX 305, 0, 168, 14
-STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CLIPCHILDREN
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD | WS_CLIPCHILDREN
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     RTEXT           "",IDC_MAST_NAME_STATIC,3,0,36,12,SS_CENTERIMAGE
@@ -395,7 +397,7 @@ BEGIN
 END
 
 IDD_OPTIONS DIALOGEX 0, 0, 311, 250
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Options"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -416,7 +418,7 @@ BEGIN
 END
 
 IDD_EXPORT DIALOGEX 0, 0, 123, 136
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Export Options"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
@@ -430,6 +432,16 @@ BEGIN
     CONTROL         "&Scale to fit",IDC_EXPORT_RESIZING2,"Button",BS_AUTORADIOBUTTON,35,90,49,10
     PUSHBUTTON      "OK",IDOK,7,115,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,66,115,50,14
+END
+
+IDD_GLOBAL_ROW DIALOGEX 0, 0, 195, 14
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD | WS_CLIPCHILDREN
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    RTEXT           "",IDC_PROW_NAME_STATIC,0,0,54,12,SS_CENTERIMAGE
+    CONTROL         "",IDC_PROW_VAL_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,57,0,80,12
+    EDITTEXT        IDC_PROW_Val,140,0,50,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_PROW_VAL_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,181,0,11,12
 END
 
 
@@ -483,6 +495,10 @@ BEGIN
         RIGHTMARGIN, 116
         TOPMARGIN, 7
         BOTTOMMARGIN, 129
+    END
+
+    IDD_GLOBAL_ROW, DIALOG
+    BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -554,6 +570,7 @@ BEGIN
     IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS "Too many render commands."
     IDS_APP_LICENSE         "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA."
     IDS_APP_UNKNOWN_SYSTEM_ERROR "Unknown system error %d (0x%X)"
+    IDS_BAR_Globals         "Globals"
     IDS_BAR_Mapping         "Mapping"
     IDS_BAR_Master          "Master"
     IDS_BAR_Params          "Parameters"
@@ -566,11 +583,11 @@ BEGIN
     IDS_CHAN_STAT_NOTE_OFF  "Note Off"
     IDS_CHAN_STAT_NOTE_ON   "Note On"
     IDS_CHAN_STAT_PATCH     "Patch"
-    IDS_CHAN_STAT_TEMPO     "Tempo"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_CHAN_STAT_TEMPO     "Tempo"
     IDS_CHAN_STAT_WHEEL     "Wheel"
     IDS_DOC_BAD_FORMAT      "Unexpected file format."
     IDS_DOC_NEWER_VERSION   "'%1' is from a newer document version. Some of its features may not be supported"
@@ -578,6 +595,7 @@ BEGIN
     IDS_EDIT_DELETE         "Delete"
     IDS_EDIT_INSERT         "Insert"
     IDS_EDIT_LEARN          "Learn"
+    IDS_EDIT_LEARN_MULTI    "Learn Mappings"
     IDS_EDIT_MENU           "Edit"
     IDS_EDIT_MOVE           "Move"
     IDS_EDIT_PASTE          "Paste"
@@ -585,12 +603,12 @@ BEGIN
     IDS_EDIT_SORT           "Sort"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
     IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
-    IDS_MAIN_Convex         "Convex"
-    IDS_MAIN_DrawMode       "Draw Mode"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_Convex         "Convex"
+    IDS_MAIN_DrawMode       "Draw Mode"
     IDS_MAIN_Hue            "Hue"
     IDS_MAIN_InvertColor    "Invert Color"
     IDS_MAIN_LoopHue        "Loop Hue"
@@ -605,12 +623,12 @@ BEGIN
     IDS_MAPPING_COL_NUMBER  "#"
     IDS_MAPPING_COL_RANGE_END "End"
     IDS_MAPPING_COL_RANGE_START "Start"
-    IDS_MAPPING_COL_TARGET  "Target"
-    IDS_MAP_TARGET_Clear    "Clear"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAPPING_COL_TARGET  "Target"
+    IDS_MAP_TARGET_Clear    "Clear"
     IDS_MAP_TARGET_Convex   "Convex"
     IDS_MAP_TARGET_Fill     "Fill"
     IDS_MAP_TARGET_LoopHue  "Loop Hue"
@@ -625,12 +643,12 @@ BEGIN
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueLoopLength "Hue Loop"
-    IDS_MASTER_Rings        "Rings"
-    IDS_MASTER_Speed        "Speed"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Rings        "Rings"
+    IDS_MASTER_Speed        "Speed"
     IDS_MASTER_Spread       "Spread"
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
@@ -645,12 +663,12 @@ BEGIN
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
-    IDS_MIDI_SYS_STAT_START "Start"
-    IDS_MIDI_SYS_STAT_STOP  "Stop"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_START "Start"
+    IDS_MIDI_SYS_STAT_STOP  "Stop"
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
@@ -669,12 +687,12 @@ BEGIN
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
-    IDS_OPT_GROUP_Midi      "MIDI"
-    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_GROUP_Midi      "MIDI"
+    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
@@ -689,12 +707,12 @@ BEGIN
     IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
-    IDS_PARAM_Lightness     "Lightness"
-    IDS_PARAM_LineWidth     "Line Width"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_Lightness     "Lightness"
+    IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
@@ -709,12 +727,12 @@ BEGIN
     IDS_PROPS_MORE_COLORS   "More Colors..."
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
-    IDS_PROW_NAME_STATIC    "Name"
-    IDS_PROW_PW             "Pulse Width"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_NAME_STATIC    "Name"
+    IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
@@ -729,19 +747,20 @@ BEGIN
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
+END
+
+STRINGTABLE
+BEGIN
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
-END
-
-STRINGTABLE
-BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_EDIT_LEARN_MULTI    "Learn Mappings"
+    IDS_PROW_Global         "Global"
 END
 
 STRINGTABLE
 BEGIN
+    ID_VIEW_BAR_Globals     "Show or hide the global parameters pane\nShow Globals"
     ID_VIEW_BAR_Mapping     "Show or hide the MIDI mapping pane\nShow Mapping"
     ID_VIEW_BAR_Master      "Show or hide the master pane\nShow Master"
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
@@ -751,11 +770,11 @@ BEGIN
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
-    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
 END
 
 STRINGTABLE
 BEGIN
+    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 

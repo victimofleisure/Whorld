@@ -13,6 +13,7 @@
 		03		24jun06	add Copies and Spread
 		04		28jan08	support Unicode
 		05		09feb25	refactor
+		06		01mar25	implement global parameters
 
 		patch container
  

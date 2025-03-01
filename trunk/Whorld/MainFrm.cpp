@@ -15,6 +15,7 @@
 		05		25feb25	add frame min/max info handler for row view panes
 		06		26feb25	add MIDI input
 		07		27feb25	restore patch on exiting snapshot mode
+		08		01mar25	add globals docking pane
 
 */
 
@@ -310,6 +311,7 @@ void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	// other objects that need document updates must be added explicitly
 	m_wndParamsBar.OnUpdate(pSender, lHint, pHint);
 	m_wndMasterBar.OnUpdate(pSender, lHint, pHint);
+	m_wndGlobalsBar.OnUpdate(pSender, lHint, pHint);
 }
 
 bool CMainFrame::FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& sText, int& nCurTextLength)

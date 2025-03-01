@@ -81,7 +81,7 @@ BOOL CGlobalsRowDlg::OnInitDialog()
 	CRowDlg::OnInitDialog();
 
 	// initialize child controls
-	int	iParam = m_RowPos;	// map from row index to parameter index
+	int	iParam = m_iPos;	// map from row index to parameter index
 	const PARAM_INFO&	info = GetParamInfo(iParam);
 	m_staticName.SetWindowText(GetParamName(iParam));
 	m_editVal.SetRange(info.fMinVal, info.fMaxVal);
@@ -100,7 +100,7 @@ inline void CGlobalsRowDlg::SetParam(double fVal)
 	// get the parameter index from the row's position, not its index, 
 	// because the globals are a discontinuous subset of the parameters,
 	// and the position tells us to which row the parameter corresponds
-	theApp.GetDocument()->SetParam(m_RowPos, PARAM_PROP_Global, fVal, GetView());
+	theApp.GetDocument()->SetParam(m_iPos, PARAM_PROP_Global, fVal, GetView());
 }
 
 // CGlobalsRowDlg message map

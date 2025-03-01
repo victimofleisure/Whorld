@@ -199,7 +199,7 @@ BOOL CMasterRowDlg::OnInitDialog()
 {
 	CRowDlg::OnInitDialog();
 
-	int	iMaster = m_RowIdx;
+	int	iMaster = m_iRow;
 	m_staticName.SetWindowText(GetMasterName(iMaster));
 	DBL_RANGE	range;
 	GetPropEditRange(iMaster, range);
@@ -221,6 +221,6 @@ END_MESSAGE_MAP()
 void CMasterRowDlg::OnChangedVal(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	UNREFERENCED_PARAMETER(pNMHDR);
-	theApp.GetDocument()->SetMasterProp(m_RowIdx, m_editVal.GetVal());
+	theApp.GetDocument()->SetMasterProp(m_iRow, m_editVal.GetVal());
 	*pResult = 0;
 }

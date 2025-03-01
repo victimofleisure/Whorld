@@ -26,13 +26,6 @@
 #include "Resource.h"
 #include "RowForm.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
 // CRowForm
 
 IMPLEMENT_DYNCREATE(CRowForm, CFormView)
@@ -40,8 +33,6 @@ IMPLEMENT_DYNCREATE(CRowForm, CFormView)
 CRowForm::CRowForm() :
 	CFormView(IDD_ROW_FORM)
 {
-	//{{AFX_DATA_INIT(CRowForm)
-	//}}AFX_DATA_INIT
 }
 
 CRowForm::~CRowForm()
@@ -74,15 +65,12 @@ void CRowForm::OnDraw(CDC* pDC)
 }
 
 BEGIN_MESSAGE_MAP(CRowForm, CFormView)
-	//{{AFX_MSG_MAP(CRowForm)
 	ON_WM_MOUSEACTIVATE()
 	ON_WM_HSCROLL()
 	ON_WM_CREATE()
 	ON_WM_SETFOCUS()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
 // CRowForm diagnostics
 
 #ifdef _DEBUG
@@ -97,7 +85,6 @@ void CRowForm::Dump(CDumpContext& dc) const
 }
 #endif //_DEBUG
 
-/////////////////////////////////////////////////////////////////////////////
 // CRowForm message handlers
 
 int CRowForm::OnCreate(LPCREATESTRUCT lpCreateStruct) 
@@ -137,7 +124,7 @@ void CRowForm::OnSetFocus(CWnd* pOldWnd)
 	// if one of our child row dialogs is deleted while one of its controls
 	// has focus, we get focus, which causes UI bugs, e.g. opening a recent
 	// file causes an extra file menu popup; pass focus to parent row view
-	CWnd	*Parent = GetParent();
-	if (Parent != NULL)
+	CWnd	*pParent = GetParent();
+	if (pParent != NULL)
 		GetParent()->SetFocus();
 }

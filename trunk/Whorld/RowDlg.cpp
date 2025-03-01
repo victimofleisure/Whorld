@@ -32,33 +32,25 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
 // CRowDlg dialog
 
 IMPLEMENT_DYNAMIC(CRowDlg, CDialog);
 
-CRowDlg::CRowDlg(UINT Template, CWnd* pParent /*=NULL*/)
-	: CDialog(Template, pParent)
+CRowDlg::CRowDlg(UINT nTemplate, CWnd* pParent /*=NULL*/)
+	: CDialog(nTemplate, pParent)
 {
-	//{{AFX_DATA_INIT(CRowDlg)
-	//}}AFX_DATA_INIT
-	m_RowIdx = 0;
-	m_RowPos = 0;
+	m_iRow = 0;
+	m_iPos = 0;
 }
 
 void CRowDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CRowDlg)
-	//}}AFX_DATA_MAP
 }
 
 BEGIN_MESSAGE_MAP(CRowDlg, CDialog)
-	//{{AFX_MSG_MAP(CRowDlg)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
 // CRowDlg message handlers
 
 void CRowDlg::OnOK()
@@ -78,16 +70,16 @@ BOOL CRowDlg::PreTranslateMessage(MSG* pMsg)
 		if (pAccelWnd != NULL) {
 			if (hAccel != NULL) {
 				if (TranslateAccelerator(pAccelWnd->m_hWnd, hAccel, pMsg))
-					return(TRUE);
+					return true;
 			} else {
 				if (pAccelWnd->SendMessage(UWM_HANDLE_DLG_KEY, (WPARAM)pMsg))
-					return(TRUE);
+					return true;
 			}
 		}
 		if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ADD
 		&& (GetKeyState(VK_CONTROL) & GKS_DOWN)) {
 			pView->ResetColumnWidths();
-			return(TRUE);
+			return true;
 		}
 	}
 	// NOTE that the derived row dialog's resource is now assumed to have the

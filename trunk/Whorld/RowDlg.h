@@ -19,9 +19,6 @@
 // RowDlg.h : header file
 //
 
-/////////////////////////////////////////////////////////////////////////////
-// CRowDlg dialog
-
 #include "RowView.h"
 
 class CRowDlg : public CDialog
@@ -29,77 +26,67 @@ class CRowDlg : public CDialog
 	DECLARE_DYNAMIC(CRowDlg);
 // Construction
 public:
-	CRowDlg(UINT Template, CWnd* pParent = NULL);
+	CRowDlg(UINT nTemplate, CWnd* pParent = NULL);
 
 // Attributes
 	CRowView	*GetView() const;
 	CWnd	*GetNotifyWnd() const;
-	HACCEL	GetAccel(CWnd*& AccelWnd) const;
+	HACCEL	GetAccel(CWnd*& hAccelWnd) const;
 	int		GetRowIndex() const;
-	void	SetRowIndex(int Idx);
+	void	SetRowIndex(int iRow);
 	int		GetRowPos() const;
-	void	SetRowPos(int Pos);
+	void	SetRowPos(int iPos);
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CRowDlg)
 	public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual void OnOK();
 	virtual void OnCancel();
-	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
-// Generated message map functions
-	//{{AFX_MSG(CRowDlg)
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
-// Dialog Data
-	//{{AFX_DATA(CRowDlg)
-	//}}AFX_DATA
-
 // Member data
-	int		m_RowIdx;		// row's index in parent array
-	int		m_RowPos;		// row's display position; may differ from index
+	int		m_iRow;		// row's index in parent array
+	int		m_iPos;		// row's display position; may differ from index
 };
 
 inline CRowView *CRowDlg::GetView() const
 {
 	CWnd	*pForm = GetParent();
 	ASSERT(DYNAMIC_DOWNCAST(CRowView, pForm->GetParent()));
-	return((CRowView *)pForm->GetParent());
+	return (CRowView *)pForm->GetParent();
 }
 
 inline CWnd *CRowDlg::GetNotifyWnd() const
 {
-	return(GetView()->GetNotifyWnd());
+	return GetView()->GetNotifyWnd();
 }
 
-inline HACCEL CRowDlg::GetAccel(CWnd*& AccelWnd) const
+inline HACCEL CRowDlg::GetAccel(CWnd*& hAccelWnd) const
 {
-	return(GetView()->GetAccel(AccelWnd));
+	return GetView()->GetAccel(hAccelWnd);
 }
 
 inline int CRowDlg::GetRowIndex() const
 {
-	return(m_RowIdx);
+	return m_iRow;
 }
 
-inline void CRowDlg::SetRowIndex(int Idx)
+inline void CRowDlg::SetRowIndex(int iRow)
 {
-	m_RowIdx = Idx;
+	m_iRow = iRow;
 }
 
 inline int CRowDlg::GetRowPos() const
 {
-	return(m_RowPos);
+	return m_iPos;
 }
 
-inline void CRowDlg::SetRowPos(int Pos)
+inline void CRowDlg::SetRowPos(int iPos)
 {
-	m_RowPos = Pos;
+	m_iPos = iPos;
 }

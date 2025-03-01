@@ -113,6 +113,8 @@ protected:
 	void	SetOriginTarget(DPoint ptOrigin, bool bDamping);
 	void	UpdateOrigin();
 	void	UpdateZoom();
+	void	OnGlobalsChange();
+	void	UpdateGlobals();
 	void	TimerHook();
 	void	DrawRing(
 		ID2D1GeometrySink* pSink, D2D1_FIGURE_BEGIN nBeginType, 
@@ -135,7 +137,7 @@ protected:
 	void	SetAmplitude(int iParam, double fAmp);
 	void	SetFrequency(int iParam, double fFreq);
 	void	SetPulseWidth(int iParam, double fPW);
-	void	SetGlobal(int iParam, double fGlobal);
+	void	SetGlobalParam(int iParam, double fGlobal);
 	void	SetMasterProp(int iProp, double fVal);
 	void	SetMainProp(int iProp, const VARIANT_PROP& prop);
 	void	SetPatch(const CPatch *pPatch);

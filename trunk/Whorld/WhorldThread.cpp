@@ -325,12 +325,25 @@ void CWhorldThread::UpdateZoom()
 	}
 }
 
+void CWhorldThread::OnGlobalsChange()
+{
+	for (int iGlobal = 0; iGlobal < GLOBAL_COUNT; iGlobal++) {
+		m_globs.a[iGlobal] = m_aParam.row[iGlobal].fGlobal;
+	}
+}
+
+void CWhorldThread::UpdateGlobals()
+{
+	//@@@
+}
+
 void CWhorldThread::TimerHook()
 {
 	int	nRings = Round(m_master.fRings);
 	m_nMaxRings = nRings >= MAX_RINGS ? INT_MAX : nRings;
 	UpdateOrigin();
 	UpdateZoom();
+	UpdateGlobals();
 	double	fSpeed = m_main.bReverse ? -m_master.fSpeed : m_master.fSpeed;
 	double	afPrevClock[PARAM_COUNT];
 	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
@@ -741,9 +754,9 @@ void CWhorldThread::SetPulseWidth(int iParam, double fPW)
 	m_aOsc[iParam].SetFreq(fPW);
 }
 
-void CWhorldThread::SetGlobal(int iParam, double fGlobal)
+void CWhorldThread::SetGlobalParam(int iParam, double fGlobal)
 {
-	ASSERT(IsValidParamIdx(iParam));
+	GetParamRow(iParam).fGlobal = fGlobal;
 	m_globs.a[iParam] = fGlobal;
 }
 
@@ -768,6 +781,7 @@ void CWhorldThread::SetPatch(const CPatch *pPatch)
 	delete pPatch;	// delete patch data buffer
 	OnMasterPropChange();	// handle master property changes
 	OnMainPropChange();	// handle main property changes
+	OnGlobalsChange();	// handle global parameter changes
 	m_bFlushHistory = true;	// suppress interpolation to avoid glitch
 }
 
@@ -1046,7 +1060,7 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		SetPulseWidth(cmd.m_nParam,  cmd.m_prop.dblVal);
 		break;
 	case RC_SET_PARAM_Global:
-		SetGlobal(cmd.m_nParam, cmd.m_prop.dblVal);
+		SetGlobalParam(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	case RC_SET_MASTER:
 		SetMasterProp(cmd.m_nParam, cmd.m_prop.dblVal);

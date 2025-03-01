@@ -29,7 +29,6 @@
 // RowView.h : header file
 //
 
-/////////////////////////////////////////////////////////////////////////////
 // CRowView dialog
 
 #include "ArrayEx.h"
@@ -46,8 +45,8 @@ public:
 
 // Types
 	typedef struct tagCOLINFO {
-		int		CtrlID;
-		int		TitleID;
+		int		nCtrlID;
+		int		nTitleID;
 	} COLINFO; 
 
 // Constants
@@ -59,59 +58,55 @@ public:
 // Attributes
 	int		GetRows() const;
 	int		GetCols() const;
-	CRowDlg	*GetRow(int Idx) const;
+	CRowDlg	*GetRow(int iRow) const;
 	CHeaderCtrl&	GetHeader();
 	int		GetHeaderHeight() const;
 	int		GetTopMargin() const;
-	void	SetTopMargin(int Margin);
+	void	SetTopMargin(int nMargin);
 	int		GetActiveRow() const;
 	CWnd	*GetNotifyWnd() const;
-	void	SetNotifyWnd(CWnd *Wnd);
-	HACCEL	GetAccel(CWnd*& AccelWnd) const;
-	void	SetAccel(HACCEL Accel, CWnd *AccelWnd);
+	void	SetNotifyWnd(CWnd *pWnd);
+	HACCEL	GetAccel(CWnd*& pAccelWnd) const;
+	void	SetAccel(HACCEL hAccel, CWnd *pAccelWnd);
 	bool	GetReorderable() const;
-	void	SetReorderable(bool Enable);
+	void	SetReorderable(bool bEnable);
 	CPoint	GetScrollPos() const;
-	int		GetColumnWidth(int ColIdx) const;
-	void	SetColumnWidth(int ColIdx, int Width, UINT Flags = SCW_RESIZE_HEADER);
+	int		GetColumnWidth(int iColumn) const;
+	void	SetColumnWidth(int iColumn, int nWidth, UINT nFlags = SCW_RESIZE_HEADER);
 
 // Operations
-	bool	CreateCols(int Cols, const COLINFO *ColInfo, UINT RowDlgID);
-	bool	CreateRows(int Rows);
-	bool	CreateRows(int Rows, CPoint ScrollPos);
+	bool	CreateCols(int nCols, const COLINFO *pColInfo, UINT nRowDlgID);
+	bool	CreateRows(int nRows);
+	bool	CreateRows(int nRows, CPoint ptScrollPos);
 	void	RemoveAllRows();
 	bool	FixContextMenuPos(CPoint& point) const;
 	void	ResetColumnWidths();
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CRowView)
 	public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
 // Generated message map functions
-	//{{AFX_MSG(CRowView)
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnDestroy();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-	//}}AFX_MSG
 	afx_msg void OnHdrItemChanging(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnHdrDividerDblClick(NMHDR* pNMHDR, LRESULT* pResult);
 	DECLARE_MESSAGE_MAP()
 
 // Types
 	struct COL_STATE {
-		int		InitWidth;		// column's initial width
-		int		CurWidth;		// column's current width
-		int		CtrlInitWidth;	// initial width of column's control
-		int		SpinCtrlID;		// ID of attached spin control, if any
-		int		SpinInitWidth;	// initial width of attached spin control
+		int		nInitWidth;		// column's initial width
+		int		nCurWidth;		// column's current width
+		int		nCtrlInitWidth;	// initial width of column's control
+		int		nSpinCtrlID;	// ID of attached spin control, if any
+		int		nSpinInitWidth;	// initial width of attached spin control
 	};
 	struct CTRL_SPAN {
 		int		nID;			// control's resource ID
@@ -124,115 +119,115 @@ protected:
 	typedef CArrayEx<int, int> CColWidthArray;
 
 // Constants
-	static const CRect	m_Margin;	// extra margins around view
+	static const CRect	m_rMargin;	// extra margins around view
 	enum {
 		HEADER_ID = 0x1234,		// non-zero to distinguish from CListCtrl header
 		FORM_ID = 0x1235,		// form dialog's control ID
 		ROW_BASE_ID = 0x10,		// base control ID for row dialogs
-		HEADER_HEIGHT = 18,	// height of header control, in logical coords
+		HEADER_HEIGHT = 18,		// height of header control, in logical coords
 	};
 
 // Member data
-	int		m_Cols;				// number of columns in list
-	const	COLINFO	*m_ColInfo;	// array of information about each column
-	CRowForm	*m_Form;		// pointer to form view, parent of rows
-	CRowDlgArray	m_Row;		// array of pointers to row dialogs
-	CHeaderCtrl	m_Hdr;			// list's header control
-	int		m_TopMargin;		// extra top margin for derived controls
-	int		m_HdrHeight;		// height of header control
-	CWnd	*m_NotifyWnd;		// notifications are sent to this window
-	HACCEL	m_Accel;			// if non-null, row's keyboard accelerators
-	CWnd	*m_AccelWnd;		// accelerators are translated by this window
-	bool	m_Reorderable;		// true if rows can be reordered
-	bool	m_HaveScrollPos;	// true if target scroll position is valid
-	CPoint	m_ScrollPos;		// target scroll position if any
-	CSize	m_RowDlgSize;		// size of row dialog in client coords
-	CColStateArray	m_ColState;	// array of column states
-	int		m_RowFirstCtrlX;	// x-coord of row's first control
-	int		m_RowCtrlCount;		// total number of controls in row
+	int		m_nCols;			// number of columns in list
+	const	COLINFO	*m_pColInfo;	// array of information about each column
+	CRowForm	*m_pForm;		// pointer to form view, parent of rows
+	CRowDlgArray	m_aRow;		// array of pointers to row dialogs
+	CHeaderCtrl	m_wndHdr;		// list's header control
+	int		m_nTopMargin;		// extra top margin for derived controls
+	int		m_nHdrHeight;		// height of header control
+	CWnd	*m_pNotifyWnd;		// notifications are sent to this window
+	HACCEL	m_hAccel;			// if non-null, row's keyboard accelerators
+	CWnd	*m_pAccelWnd;		// accelerators are translated by this window
+	bool	m_bReorderable;		// true if rows can be reordered
+	bool	m_bHaveScrollPos;	// true if target scroll position is valid
+	CPoint	m_ptScrollPos;		// target scroll position if any
+	CSize	m_szRowDlg;			// size of row dialog in client coords
+	CColStateArray	m_aColState;	// array of column states
+	int		m_nRowFirstCtrlX;	// x-coord of row's first control
+	int		m_nRowCtrlCount;	// total number of controls in row
 
 // Overridables
-	virtual	CRowDlg	*CreateRow(int Idx);
-	virtual	void	UpdateRow(int Idx);
+	virtual	CRowDlg	*CreateRow(int iRow);
+	virtual	void	UpdateRow(int iRow);
 
 // Overrides
 
 // Helpers
 	void	MoveHeader();
-	void	MoveRow(HDWP DeferPos, CRowDlg& Row, int Pos);
-	void	ResizeColumn(int ColIdx, int Width, int FirstRow = 0);
-	bool	ReadColumnWidths(CColWidthArray& ColWidth) const;
+	void	MoveRow(HDWP DeferPos, CRowDlg& row, int iPos);
+	void	ResizeColumn(int iColumn, int nWidth, int iFirstRow = 0);
+	bool	ReadColumnWidths(CColWidthArray& aColWidth) const;
 	bool	WriteColumnWidths() const;
 };
 
 inline int CRowView::GetRows() const
 {
-	return(m_Row.GetSize());
+	return m_aRow.GetSize();
 }
 
 inline int CRowView::GetCols() const
 {
-	return(m_Cols);
+	return m_nCols;
 }
 
-inline CRowDlg *CRowView::GetRow(int Idx) const
+inline CRowDlg *CRowView::GetRow(int iRow) const
 {
-	return((CRowDlg *)m_Row[Idx]);
+	return (CRowDlg *)m_aRow[iRow];
 }
 
 inline CHeaderCtrl& CRowView::GetHeader()
 {
-	return(m_Hdr);
+	return m_wndHdr;
 }
 
 inline int CRowView::GetHeaderHeight() const
 {
-	return(m_HdrHeight);
+	return m_nHdrHeight;
 }
 
-inline void CRowView::SetTopMargin(int Margin)
+inline void CRowView::SetTopMargin(int nMargin)
 {
-	m_TopMargin = Margin;
+	m_nTopMargin = nMargin;
 }
 
 inline int CRowView::GetTopMargin() const
 {
-	return(m_TopMargin);
+	return m_nTopMargin;
 }
 
 inline CWnd *CRowView::GetNotifyWnd() const
 {
-	return(m_NotifyWnd);
+	return m_pNotifyWnd;
 }
 
-inline void CRowView::SetNotifyWnd(CWnd *Wnd)
+inline void CRowView::SetNotifyWnd(CWnd *pWnd)
 {
-	m_NotifyWnd = Wnd;
+	m_pNotifyWnd = pWnd;
 }
 
-inline HACCEL CRowView::GetAccel(CWnd*& AccelWnd) const
+inline HACCEL CRowView::GetAccel(CWnd*& pAccelWnd) const
 {
-	AccelWnd = m_AccelWnd;
-	return(m_Accel);
+	pAccelWnd = m_pAccelWnd;
+	return m_hAccel;
 }
 
-inline void CRowView::SetAccel(HACCEL Accel, CWnd *AccelWnd)
+inline void CRowView::SetAccel(HACCEL hAccel, CWnd *pAccelWnd)
 {
-	m_Accel = Accel;
-	m_AccelWnd = AccelWnd;
+	m_hAccel = hAccel;
+	m_pAccelWnd = pAccelWnd;
 }
 
 inline bool CRowView::GetReorderable() const
 {
-	return(m_Reorderable);
+	return m_bReorderable;
 }
 
-inline void CRowView::SetReorderable(bool Enable)
+inline void CRowView::SetReorderable(bool bEnable)
 {
-	m_Reorderable = Enable;
+	m_bReorderable = bEnable;
 }
 
-inline int CRowView::GetColumnWidth(int ColIdx) const
+inline int CRowView::GetColumnWidth(int iColumn) const
 {
-	return(m_ColState[ColIdx].CurWidth);
+	return m_aColState[iColumn].nCurWidth;
 }

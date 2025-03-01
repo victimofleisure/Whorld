@@ -143,8 +143,8 @@ bool CPatch::ParseLine(CString sLine)
 	int	iParam = FindParamByName(sName);
 	if (iParam >= 0) {	// if parameter found
 		PARAM_ROW&	row = m_aParam.row[iParam];
-		_stscanf_s(sArg, _T("%lf %d %lf %lf %lf"),
-			&row.fVal, &row.iWave, &row.fAmp, &row.fFreq, &row.fPW);
+		_stscanf_s(sArg, _T("%lf %d %lf %lf %lf %lf"),
+			&row.fVal, &row.iWave, &row.fAmp, &row.fFreq, &row.fPW, &row.fGlobal);
 		return true;
 	}
 	int	iMaster = FindMasterByName(sName);
@@ -186,8 +186,8 @@ bool CPatch::Write(LPCTSTR pszPath) const
 	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
 		const PARAM_ROW& row = m_aParam.row[iParam];
 		const PARAM_INFO& info = GetParamInfo(iParam); 
-		sLine.Format(_T("%s\t%g\t%d\t%g\t%g\t%g\n"), info.pszName,
-			row.fVal, row.iWave, row.fAmp, row.fFreq, row.fPW);
+		sLine.Format(_T("%s\t%g\t%d\t%g\t%g\t%g\t%g\n"), info.pszName,
+			row.fVal, row.iWave, row.fAmp, row.fFreq, row.fPW, row.fGlobal);
 		fOut.WriteString(sLine);
 	}
 	for (int iMaster = 0; iMaster < MASTER_COUNT; iMaster++) {	// for each master property

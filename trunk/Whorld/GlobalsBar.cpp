@@ -52,7 +52,8 @@ void CGlobalsView::UpdateRow(int Idx)
 	ASSERT(pDoc != NULL);
 	CGlobalsRowDlg	*pRow = STATIC_DOWNCAST(CGlobalsRowDlg, GetRow(Idx));
 	ASSERT(pRow != NULL);
-	pRow->Update(pDoc->GetGlobalParam(Idx));
+	int	iParam = MapGlobalToParam(Idx);
+	pRow->Update(pDoc->GetGlobalParam(iParam));
 }
 
 void CGlobalsView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)

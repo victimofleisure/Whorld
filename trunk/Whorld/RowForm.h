@@ -22,12 +22,7 @@
 // RowFormView.h : header file
 //
 
-/////////////////////////////////////////////////////////////////////////////
 // CRowForm form view
-
-#ifndef __AFXEXT_H__
-#include <afxext.h>
-#endif
 
 class CRowForm : public CFormView
 {
@@ -45,12 +40,10 @@ public:
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CRowForm)
 	public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
-	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
@@ -61,11 +54,9 @@ protected:
 #endif
 
 // Generated message map functions
-	//{{AFX_MSG(CRowForm)
 	afx_msg int OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

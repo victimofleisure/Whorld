@@ -109,7 +109,7 @@ BOOL CParamsRowDlg::OnInitDialog()
 	CRowDlg::OnInitDialog();
 
 	// initialize child controls
-	int	iParam = m_RowIdx;
+	int	iParam = m_iRow;
 	const PARAM_INFO&	info = GetParamInfo(iParam);
 	m_staticName.SetWindowText(GetParamName(iParam));
 	m_editVal.SetRange(info.fMinVal, info.fMaxVal);
@@ -133,7 +133,7 @@ BOOL CParamsRowDlg::OnInitDialog()
 
 inline void CParamsRowDlg::SetParam(int iProp, const CComVariant& prop)
 {
-	theApp.GetDocument()->SetParam(m_RowIdx, iProp, prop, GetView());
+	theApp.GetDocument()->SetParam(m_iRow, iProp, prop, GetView());
 }
 
 // CParamsRowDlg message map

@@ -54,8 +54,8 @@ double CGlobalsRowDlg::CMyEditSliderCtrl::Norm(double x) const
 	CGlobalsRowDlg	*pRowDlg = STATIC_DOWNCAST(CGlobalsRowDlg, GetParent());
 	int	iRow = pRowDlg->GetRowPos();
 	const PARAM_INFO&	info = GetParamInfo(iRow);
-	double	fMinVal = -info.fMaxVal;	// minimum is negative maximum
-	return (x - fMinVal) / (info.fMaxVal - fMinVal) * info.nSteps;
+	// use maximum value and its negation for symmetrical range
+	return (x + info.fMaxVal) / (info.fMaxVal * 2) * info.nSteps;
 }
 
 double CGlobalsRowDlg::CMyEditSliderCtrl::Denorm(double x) const
@@ -63,8 +63,8 @@ double CGlobalsRowDlg::CMyEditSliderCtrl::Denorm(double x) const
 	CGlobalsRowDlg	*pRowDlg = STATIC_DOWNCAST(CGlobalsRowDlg, GetParent());
 	int	iRow = pRowDlg->GetRowPos();
 	const PARAM_INFO&	info = GetParamInfo(iRow);
-	double	fMinVal = -info.fMaxVal;	// minimum is negative maximum
-	return x / info.nSteps * (info.fMaxVal - fMinVal) + fMinVal;
+	// use maximum value and its negation for symmetrical range
+	return x / info.nSteps * (info.fMaxVal * 2) - info.fMaxVal;
 }
 
 void CGlobalsRowDlg::DoDataExchange(CDataExchange* pDX)

@@ -73,7 +73,9 @@ void CGlobalsView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			if (iProp == PARAM_PROP_Global) {
 				CWhorldDoc	*pDoc = theApp.GetDocument();
 				int	iRow = MapParamToGlobal(iParam);
-				GetRow(iRow)->Update(pDoc->GetGlobalParam(iParam));
+				if (iRow >= 0) {	// if parameter has a global
+					GetRow(iRow)->Update(pDoc->GetGlobalParam(iParam));
+				}
 			}
 		}
 		break;

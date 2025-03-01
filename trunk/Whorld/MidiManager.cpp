@@ -147,12 +147,43 @@ void CMidiManager::PushMasterProperty(int iProp, double fNormVal)
 	UpdateUI(UWM_MASTER_PROP_CHANGE, iProp, FloatToLParam(fVal));
 }
 
-void CMidiManager::PushParameter(int iParam, double fNormVal)
+void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 {
 	const PARAM_INFO&	info = GetParamInfo(iParam);
-	double	fVal = fNormVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
-	PUSH_RENDER_CMD(cmd, RC_SET_PARAM_Val, iParam, dblVal, fVal);
-	UpdateUI(UWM_PARAM_VAL_CHANGE, iParam, FloatToLParam(fVal));
+	LPARAM	lParam;
+	switch (iProp) {
+	case PARAM_PROP_Wave:
+		{
+			int	iWaveform = Trunc(fNormVal * WAVEFORM_COUNT);
+			iWaveform = CLAMP(iWaveform, 0, WAVEFORM_COUNT - 1);
+			lParam = iWaveform;	// waveform is passed as integer
+			PUSH_RENDER_CMD(cmd, RC_SET_PARAM_Wave, iParam, intVal, iWaveform);
+		}
+		break;
+	default:
+		double	fVal;
+		switch (iProp) {
+		case PARAM_PROP_Val:
+		case PARAM_PROP_Amp:
+			fVal = fNormVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
+			break;
+		case PARAM_PROP_Global:
+			{
+				int	iGlobal = MapParamToGlobal(iParam);
+				if (iGlobal < 0) {	// if parameter lacks a global
+					return;	// avoid posting a useless update
+				}
+				fVal = (fNormVal - 0.5) * info.fMaxVal * 2;
+			}
+			break;
+		default:
+			fVal = fNormVal;
+		}
+		lParam = FloatToLParam(fVal);	// all other properties are passed as float
+		PUSH_RENDER_CMD(cmd, RC_SET_PARAM_Val + iProp, iParam, dblVal, fVal);
+	}
+	// using MAKELONG limits us to 64K parameters and 64K properties
+	UpdateUI(UWM_PARAM_CHANGE, MAKELONG(iParam, iProp), lParam);
 }
 
 inline UINT CMidiManager::SetOrClear(UINT nDest, UINT nMask, bool bIsSet)
@@ -228,7 +259,7 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 		}
 		break;
 	default:
-		ASSERT(0);	// missing case
+		NODEFAULTCASE;	// missing case
 	}
 }
 
@@ -251,8 +282,8 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 		int	nMidiVal = map.IsInputMatch(dwEvent);	// try to map MIDI message
 		if (nMidiVal >= 0) {	// if message was mapped
 			// mapping result is a MIDI data value; account for range and then normalize it
-			int	nDeltaRange = map.m_nRangeEnd - map.m_nRangeStart;	// can be negative if start > end
-			double	fMidiVal = nMidiVal / 127.0 * nDeltaRange + map.m_nRangeStart;	// offset by start of range
+			int	nRange = map.m_nEnd - map.m_nStart;	// can be negative if start > end
+			double	fMidiVal = nMidiVal / 127.0 * nRange + map.m_nStart;	// offset by start of range
 			double	fNormVal = fMidiVal / 127.0;	// normalized target value
 			const double	fCenterEpsilon = 0.005;	// half a percent, determined empirically
 			if (fabs(fNormVal - 0.5) < fCenterEpsilon) {	// if within epsilon of center
@@ -261,7 +292,7 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 			// order must match order of ranges in mapping target enumeration
 			int	iTarget = map.m_iTarget;
 			if (iTarget < PARAM_COUNT) {	// if target is parameter
-				PushParameter(iTarget, fNormVal);
+				PushParameter(iTarget, map.m_iProp, fNormVal);
 			} else {	// target isn't parameter
 				iTarget -= PARAM_COUNT;
 				if (iTarget < MASTER_COUNT) {	// if target is master property

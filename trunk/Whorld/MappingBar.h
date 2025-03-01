@@ -25,7 +25,7 @@
 #include "UndoManager.h"
 #include "WhorldDoc.h"	// for custom undo manager
 
-class CMappingBar : public CMyDockablePane, public CUndoable
+class CMappingBar : public CMyDockablePane, public CUndoable, public CMappingBase
 {
 	DECLARE_DYNAMIC(CMappingBar)
 // Construction
@@ -160,7 +160,7 @@ protected:
 
 inline const int CMappingBar::GetPropertyNameID(int iProp)
 {
-	ASSERT(iProp >= 0 && iProp < CMapping::PROPERTIES);
+	ASSERT(iProp >= 0 && iProp < PROPERTIES);
 	return m_arrColInfo[iProp + 1].nTitleID;	// account for number column
 }
 

@@ -39,13 +39,9 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
 // CMappingBar
 
 IMPLEMENT_DYNAMIC(CMappingBar, CMyDockablePane)
-
-#define EVENTS CMapping::EVENTS
-#define TARGETS CMapping::TARGETS
 
 const CGridCtrl::COL_INFO CMappingBar::m_arrColInfo[COLUMNS] = {
 	#define MAPPINGDEF_INCLUDE_NUMBER
@@ -134,7 +130,7 @@ void CMappingBar::UpdateGrid(int iMapping)
 
 void CMappingBar::UpdateGrid(int iMapping, int iProp)
 {
-	ASSERT(iProp >= 0 && iProp < CMapping::PROPERTIES);
+	ASSERT(iProp >= 0 && iProp < PROPERTIES);
 	m_grid.RedrawSubItem(iMapping, iProp + 1);	// compensate for number column
 }
 
@@ -168,6 +164,7 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 	case COL_EVENT:
 	case COL_CHANNEL:
 	case COL_TARGET:
+	case COL_PROPERTY:
 		{
 			CPopupCombo	*pCombo = CPopupCombo::Factory(0, rect, this, 0, 100);
 			if (pCombo == NULL)
@@ -180,7 +177,7 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 				{
 					// start from one to exclude note off
 					for (int iEvent = 1; iEvent < EVENTS; iEvent++) {
-						pCombo->AddString(CMapping::GetEventName(iEvent));
+						pCombo->AddString(GetEventName(iEvent));
 					}
 					nVal--;	// compensate for excluding note off
 				}
@@ -188,7 +185,14 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 			case COL_TARGET:
 				{
 					for (int iEvent = 0; iEvent < TARGETS; iEvent++) {
-						pCombo->AddString(CMapping::GetTargetName(iEvent));
+						pCombo->AddString(GetTargetName(iEvent));
+					}
+				}
+				break;
+			case COL_PROPERTY:
+				{
+					for (int iProp = 0; iProp < PARAM_PROP_COUNT; iProp++) {
+						pCombo->AddString(GetParamPropName(iProp));
 					}
 				}
 				break;
@@ -223,6 +227,7 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 	case COL_EVENT:
 	case COL_CHANNEL:
 	case COL_TARGET:
+	case COL_PROPERTY:
 		{
 			CPopupCombo	*pCombo = STATIC_DOWNCAST(CPopupCombo, m_pEditCtrl);
 			int	iSelItem = pCombo->GetCurSel();	// index of changed item
@@ -261,7 +266,6 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // CMappingBar undo
 
 void CMappingBar::MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems)
@@ -430,7 +434,7 @@ void CMappingBar::SaveUndoState(CUndoState& State)
 		SaveLearnMulti(State);
 		break;
 	default:
-		ASSERT(0);	// missing case
+		NODEFAULTCASE;	// missing case
 	}
 }
 
@@ -460,7 +464,7 @@ void CMappingBar::RestoreUndoState(const CUndoState& State)
 		RestoreLearnMulti(State);
 		break;
 	default:
-		ASSERT(0);	// missing case
+		NODEFAULTCASE;	// missing case
 	}
 }
 
@@ -482,7 +486,6 @@ CString	CMappingBar::GetUndoTitle(const CUndoState& State)
 	return sTitle;
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // CMappingBar message map
 
 BEGIN_MESSAGE_MAP(CMappingBar, CMyDockablePane)
@@ -516,7 +519,6 @@ BEGIN_MESSAGE_MAP(CMappingBar, CMyDockablePane)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_MIDI_LEARN, OnUpdateViewMidiLearn)
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
 // CMappingBar message handlers
 
 int CMappingBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -605,7 +607,7 @@ void CMappingBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), iItem + 1); // make one-based
 			break;
 		case COL_EVENT:
-			_tcscpy_s(item.pszText, item.cchTextMax, CMapping::GetEventName(map.m_iEvent)); 
+			_tcscpy_s(item.pszText, item.cchTextMax, GetEventName(map.m_iEvent)); 
 			break;
 		case COL_CHANNEL:
 			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_iChannel + 1);	// make one-based
@@ -614,14 +616,19 @@ void CMappingBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_iControl); 
 			break;
 		case COL_TARGET:
-			_tcscpy_s(item.pszText, item.cchTextMax, CMapping::GetTargetName(map.m_iTarget)); 
+			_tcscpy_s(item.pszText, item.cchTextMax, GetTargetName(map.m_iTarget)); 
 			break;
-		case COL_RANGE_START:
-			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nRangeStart); 
+		case COL_PROPERTY:
+			_tcscpy_s(item.pszText, item.cchTextMax, GetParamPropName(map.m_iProp)); 
 			break;
-		case COL_RANGE_END:
-			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nRangeEnd); 
+		case COL_START:
+			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nStart); 
 			break;
+		case COL_END:
+			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nEnd); 
+			break;
+		default:
+			NODEFAULTCASE;	// missing column
 		}
 	}
 }

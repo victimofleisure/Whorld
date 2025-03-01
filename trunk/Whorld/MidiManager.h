@@ -65,7 +65,7 @@ protected:
 
 // Helpers
 	void	PushMasterProperty(int iProp, double fNormVal);
-	void	PushParameter(int iParam, double fNormVal);
+	void	PushParameter(int iParam, int iProp, double fNormVal);
 	void	PushMiscTarget(int iMiscTarget, double fNormVal);
 	void	UpdateUI(int nMsg, WPARAM wParam, LPARAM lParam);
 	void	OnMidiEvent(DWORD dwEvent);

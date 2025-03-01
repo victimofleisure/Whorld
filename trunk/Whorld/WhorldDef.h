@@ -29,7 +29,7 @@
 PARAMDEF(	RingGrowth,		0,		10,		1000,	1,		1		)	// pixels of ring growth per tick
 PARAMDEF(	RingSpacing,	1,		50,		1000,	1,		5		)	// gap between rings, in pixels
 PARAMDEF(	LineWidth,		1,		50,		1000,	1,		1		)	// line width, in pixels
-PARAMDEF(	PolySides,		3,		50,		47,		1,		5		)	// ring's number of sides, rounded to int
+PARAMDEF(	PolySides,		3,		51,		48,		1,		5		)	// ring's number of sides, rounded to int
 PARAMDEF(	RotateSpeed,	DTR(-5),DTR(5),	1000,	DTR(1),	0		)	// ring rotation per tick, in radians
 PARAMDEF(	AspectRatio,	-3,		3,		1000,	1,		0		)	// 1 = double width, -1 = double height
 PARAMDEF(	SkewRadius,		0,		2,		1000,	1,		0		)	// size of origin offset, in pixels
@@ -95,7 +95,7 @@ MASTERDEF(	Damping,		DOUBLE,	f,		0.186261	)	// origin/zoom damping; 1 = none, 0 
 MASTERDEF(	Trail,			DOUBLE,	f,		0			)	// origin trail; 0 = none, 1 = stuck
 MASTERDEF(	Rings,			DOUBLE,	f,		MAX_RINGS	)	// maximum number of rings
 MASTERDEF(	Tempo,			DOUBLE,	f,		100			)	// tempo, in BMP
-MASTERDEF(	HueLoopLength,	DOUBLE,	f,		30			)	// if looping hue, loop length in degrees
+MASTERDEF(	HueSpan,		DOUBLE,	f,		30			)	// if looping hue, loop length in degrees
 MASTERDEF(	CanvasScale,	DOUBLE,	f,		1.4			)	// canvas size, as fraction of window size
 MASTERDEF(	Copies,			DOUBLE,	f,		1			)	// number of instances
 MASTERDEF(	Spread,			DOUBLE,	f,		100			)	// radius of instance origins, in pixels

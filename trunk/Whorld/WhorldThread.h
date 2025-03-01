@@ -104,7 +104,7 @@ protected:
 	static double	Wrap(double fVal, double fLimit);
 	static double	Reflect(double fVal, double fLimit);
 	void	UpdateHue(double fDeltaTick);
-	void	OnLoopHueChange();
+	void	OnHueSpanChange();
 	void	ResizeCanvas();
 	void	OnCopiesChange();
 	void	AddRing();

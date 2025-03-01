@@ -131,6 +131,8 @@ void CWhorldBase::InitWhorldBase()
 	for (int iWave = 0; iWave < WAVEFORM_COUNT; iWave++) {	// for each waveform
 		m_arrWaveformName[iWave].LoadString(m_arrWaveformInfo[iWave]);
 	}
+	// any parameter that lacks a global will have an index of -1
+	memset(m_arrParamToGlobal, -1, sizeof(m_arrParamToGlobal));	// due to this init
 	// initialize reverse lookup table for mapping parameter index to global index
 	for (int iGlobal = 0; iGlobal < GLOBAL_COUNT; iGlobal++) {	// for each global parameter
 		int	iParam = m_arrGlobalToParam[iGlobal];	// map from global to its parameter

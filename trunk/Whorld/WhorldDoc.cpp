@@ -274,7 +274,7 @@ void CWhorldDoc::SaveUndoState(CUndoState& State)
 		State.m_Val.pt = theApp.GetOrigin();
 		break;
 	default:
-		ASSERT(0);	// missing undo case
+		NODEFAULTCASE;	// missing undo case
 	}
 }
 
@@ -311,7 +311,7 @@ void CWhorldDoc::RestoreUndoState(const CUndoState& State)
 		SetOrigin(State.m_Val.pt, false);	// no damping
 		break;
 	default:
-		ASSERT(0);	// missing undo case
+		NODEFAULTCASE;	// missing undo case
 	}
 }
 
@@ -348,7 +348,7 @@ CString	CWhorldDoc::GetUndoTitle(const CUndoState& State)
 		sTitle = GetMainName(MAIN_Origin);
 		break;
 	default:
-		ASSERT(0);	// missing undo case
+		NODEFAULTCASE;	// missing undo case
 	}
 	return sTitle;
 }

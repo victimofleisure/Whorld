@@ -131,7 +131,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_BITMAP_CAPTURE,			// wParam: none, lParam: ID2D1Bitmap1*
 	UWM_SNAPSHOT_CAPTURE,		// wParam: none, lParam: CSnapshot*
 	UWM_DEVICE_NODE_CHANGE,		// wParam: none, lParam: none
-	UWM_PARAM_VAL_CHANGE,		// wParam: iParam, lParam: double
+	UWM_PARAM_CHANGE,			// wParam: MAKELONG(iParam, iProp), lParam: variant
 	UWM_MASTER_PROP_CHANGE,		// wParam: iProp, lParam: double
 	UWM_MAIN_PROP_CHANGE,		// wParam: iProp, lParam: variant
 	UWM_MIDI_EVENT,				// wParam: MIDI event, lParam: none

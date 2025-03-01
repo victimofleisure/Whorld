@@ -147,7 +147,7 @@ public:
 	afx_msg void OnWindowResetLayout();
 	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnSnapshotCapture(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT	OnParamValChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnParamChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMainPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnViewOptions();

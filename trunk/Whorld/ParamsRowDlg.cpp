@@ -68,7 +68,7 @@ void CParamsRowDlg::Update(const PARAM_ROW& row, int iProp)
 	case PARAM_PROP_Global:
 		break;	// ignore global property
 	default:
-		ASSERT(0);	// unknown parameter property; logic error
+		NODEFAULTCASE;	// unknown parameter property; logic error
 	}
 }
 

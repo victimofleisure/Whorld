@@ -137,10 +137,10 @@ inline double CWhorldThread::Reflect(double fVal, double fLimit)
 inline void CWhorldThread::UpdateHue(double fDeltaTick)
 {
 	if (m_main.bLoopHue) {	// if looping hue
-		if (m_master.fHueLoopLength) {	// if non-zero loop length
+		if (m_master.fHueSpan) {	// if non-zero loop length
 			m_fHueLoopPos += m_params.fColorSpeed * fDeltaTick;
 			m_fHue = m_fHueLoopBase -
-				Reflect(m_fHueLoopPos, m_master.fHueLoopLength);
+				Reflect(m_fHueLoopPos, m_master.fHueSpan);
 		} else {	// avoid divide by zero
 			m_fHue = m_fHueLoopBase;
 		}
@@ -150,7 +150,7 @@ inline void CWhorldThread::UpdateHue(double fDeltaTick)
 	m_fHue = Wrap(m_fHue, 360);
 }
 
-void CWhorldThread::OnLoopHueChange()
+void CWhorldThread::OnHueSpanChange()
 {
 	if (m_main.bLoopHue) {	// if looping hue
 		m_fHueLoopPos = 0;
@@ -327,14 +327,14 @@ void CWhorldThread::UpdateZoom()
 
 void CWhorldThread::OnGlobalsChange()
 {
-	for (int iGlobal = 0; iGlobal < GLOBAL_COUNT; iGlobal++) {
-		m_globs.a[iGlobal] = m_aParam.row[iGlobal].fGlobal;
+	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
+		m_globs.a[iParam] = m_aParam.row[iParam].fGlobal;
 	}
 }
 
 void CWhorldThread::UpdateGlobals()
 {
-	//@@@
+	//@@@ handle damping here!
 }
 
 void CWhorldThread::TimerHook()
@@ -658,8 +658,8 @@ void CWhorldThread::OnMasterPropChange(int iProp)
 	case MASTER_Tempo:
 		OnTempoChange();
 		break;
-	case MASTER_HueLoopLength:
-		OnLoopHueChange();
+	case MASTER_HueSpan:
+		OnHueSpanChange();
 		break;
 	}
 }
@@ -671,7 +671,7 @@ void CWhorldThread::OnMainPropChange(int iProp)
 		OnOriginMotionChange();
 		break;
 	case MAIN_LoopHue:
-		OnLoopHueChange();
+		OnHueSpanChange();
 		break;
 	}
 }
@@ -750,8 +750,8 @@ void CWhorldThread::SetFrequency(int iParam, double fFreq)
 
 void CWhorldThread::SetPulseWidth(int iParam, double fPW)
 {
-	GetParamRow(iParam).fFreq = fPW;
-	m_aOsc[iParam].SetFreq(fPW);
+	GetParamRow(iParam).fPW = fPW;
+	m_aOsc[iParam].SetPulseWidth(fPW);
 }
 
 void CWhorldThread::SetGlobalParam(int iParam, double fGlobal)
@@ -1108,6 +1108,6 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		DisplaySnapshot(static_cast<CSnapshot*>(cmd.m_prop.byref));
 		break;
 	default:
-		ASSERT(0);	// missing command case
+		NODEFAULTCASE;	// missing command case
 	};
 }

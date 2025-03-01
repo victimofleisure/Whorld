@@ -502,7 +502,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
 	ON_MESSAGE(UWM_SNAPSHOT_CAPTURE, OnSnapshotCapture)
-	ON_MESSAGE(UWM_PARAM_VAL_CHANGE, OnParamValChange)
+	ON_MESSAGE(UWM_PARAM_CHANGE, OnParamChange)
 	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
 	ON_MESSAGE(UWM_MAIN_PROP_CHANGE, OnMainPropChange)
 	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
@@ -830,12 +830,20 @@ LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-LRESULT	CMainFrame::OnParamValChange(WPARAM wParam, LPARAM lParam)
+LRESULT	CMainFrame::OnParamChange(WPARAM wParam, LPARAM lParam)
 {
-	int	iParam = static_cast<int>(wParam);
-	double	fVal = CMidiManager::LParamToFloat(lParam);
+	int	iParam = LOWORD(wParam);
+	int	iProp = HIWORD(wParam);
+	CComVariant	prop;
+	switch (iProp) {
+	case PARAM_PROP_Wave:	// waveform is assumed to be integer
+		prop = static_cast<int>(lParam);
+		break;
+	default:	// all other properties are assumed to be float
+		prop = CMidiManager::LParamToFloat(lParam);
+	}
 	CWhorldDoc*	pDoc = theApp.GetDocument();
-	pDoc->SetParam(iParam, PARAM_PROP_Val, fVal, theApp.GetView());
+	pDoc->SetParam(iParam, iProp, prop, theApp.GetView());
 	return 0;
 }
 

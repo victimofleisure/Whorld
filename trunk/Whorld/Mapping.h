@@ -155,12 +155,9 @@ inline int CMappingBase::FindTargetTag(LPCTSTR pszName)
 class CMapping : public CMappingBase {
 public:
 // Public data
-	int		m_iEvent;			// input event type
-	int		m_iChannel;			// input MIDI channel
-	int		m_iControl;			// input controller number
-	int		m_iTarget;			// mapping target
-	int		m_nRangeStart;		// range start
-	int		m_nRangeEnd;		// range end
+	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+		int	m_##prefix##member;
+	#include "MappingDef.h"	// generate member var definitions
 
 // Attributes
 	int		GetProperty(int iProp) const;

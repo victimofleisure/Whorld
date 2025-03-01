@@ -619,14 +619,15 @@ BEGIN
     IDS_MAIN_ZoomCenter     "Zoom Center"
     IDS_MAPPING_COL_CHANNEL "Channel"
     IDS_MAPPING_COL_CONTROL "Control"
+    IDS_MAPPING_COL_END     "End"
     IDS_MAPPING_COL_EVENT   "Event"
     IDS_MAPPING_COL_NUMBER  "#"
-    IDS_MAPPING_COL_RANGE_END "End"
-    IDS_MAPPING_COL_RANGE_START "Start"
+    IDS_MAPPING_COL_PROPERTY "Property"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAPPING_COL_START   "Start"
     IDS_MAPPING_COL_TARGET  "Target"
     IDS_MAP_TARGET_Clear    "Clear"
     IDS_MAP_TARGET_Convex   "Convex"
@@ -642,11 +643,11 @@ BEGIN
     IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
-    IDS_MASTER_HueLoopLength "Hue Loop"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_HueSpan      "Hue Span"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
     IDS_MASTER_Spread       "Spread"
@@ -662,11 +663,11 @@ BEGIN
     IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
-    IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
@@ -686,11 +687,11 @@ BEGIN
                             "Maximum number of items in recently used lists"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
     IDS_OPT_GROUP_Export    "Export"
-    IDS_OPT_GROUP_General   "General"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
@@ -706,11 +707,11 @@ BEGIN
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
-    IDS_PARAM_EvenShear     "Even Shear"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
@@ -726,11 +727,12 @@ BEGIN
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
     IDS_PROW_Amp            "Amplitude"
-    IDS_PROW_Freq           "Frequency"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_Freq           "Frequency"
+    IDS_PROW_Global         "Global"
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
@@ -745,17 +747,16 @@ BEGIN
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
-    IDS_WAVE_SINE           "Sine"
-    IDS_WAVE_SQUARE         "Square"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_WAVE_SINE           "Sine"
+    IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_PROW_Global         "Global"
 END
 
 STRINGTABLE

@@ -148,9 +148,101 @@ void CMappingBar::UpdateGrid(const CIntArrayEx& arrSelection, int iProp)
 	m_grid.SetSelection(arrSelection);	// also restore selection
 }
 
-void CMappingBar::SetModifiedFlag()
+void CMappingBar::SetModifiedFlag(bool bModified)
 {
-	theApp.m_pPlaylist->SetModifiedFlag();
+	theApp.m_pPlaylist->SetModifiedFlag(bModified);
+}
+
+void CMappingBar::SetProperty(int iMapping, int iProp, int nVal)
+{
+	NotifyUndoableEdit(iMapping, MAKELONG(UCODE_PROPERTY, iProp));
+	midiMaps.SetProperty(iMapping, iProp, nVal);
+	SetModifiedFlag();
+}
+
+void CMappingBar::SetProperty(const CIntArrayEx& arrSelection, int iProp, int nVal)
+{
+	m_parrSelection = &arrSelection;
+	NotifyUndoableEdit(iProp, UCODE_MULTI_PROPERTY);
+	m_parrSelection = NULL;
+	midiMaps.SetProperty(arrSelection, iProp, nVal);
+	SetModifiedFlag();
+}
+
+void CMappingBar::Copy(const CIntArrayEx& arrSelection)
+{
+	midiMaps.GetSelection(arrSelection, m_clipboard);
+}
+
+void CMappingBar::Cut(const CIntArrayEx& arrSelection)
+{
+	m_parrSelection = &arrSelection;
+	NotifyUndoableEdit(0, UCODE_CUT);
+	m_parrSelection = NULL;
+	midiMaps.GetSelection(arrSelection, m_clipboard);
+	midiMaps.Delete(arrSelection);
+	SetModifiedFlag();
+	UpdateGrid();
+	m_grid.Deselect();
+}
+
+void CMappingBar::Paste(int iInsert)
+{
+	midiMaps.Insert(iInsert, m_clipboard);
+	SetModifiedFlag();
+	UpdateGrid();
+	CIntArrayEx	arrSelection;
+	MakeSelectionRange(arrSelection, iInsert, m_clipboard.GetSize());
+	m_parrSelection = &arrSelection;
+	NotifyUndoableEdit(0, UCODE_PASTE);
+	m_parrSelection = NULL;
+}
+
+void CMappingBar::Insert(int iInsert)
+{
+	CMappingArray	arrMapping;
+	arrMapping.SetSize(1);
+	arrMapping[0].SetDefaults();
+	Insert(iInsert, arrMapping);
+}
+
+void CMappingBar::Insert(int iInsert, CMappingArray& arrMapping)
+{
+	midiMaps.Insert(iInsert, arrMapping);
+	SetModifiedFlag();
+	UpdateGrid();
+	CIntArrayEx	arrSelection;
+	MakeSelectionRange(arrSelection, iInsert, 1);
+	m_parrSelection = &arrSelection;
+	NotifyUndoableEdit(0, UCODE_INSERT);
+	m_parrSelection = NULL;
+}
+
+void CMappingBar::Delete(const CIntArrayEx& arrSelection)
+{
+	m_parrSelection = &arrSelection;
+	NotifyUndoableEdit(0, UCODE_DELETE);
+	m_parrSelection = NULL;
+	midiMaps.Delete(arrSelection);
+	SetModifiedFlag();
+	UpdateGrid();
+	m_grid.Deselect();
+}
+
+void CMappingBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
+{
+	NotifyUndoableEdit(iDropPos, UCODE_MOVE);
+	midiMaps.Move(arrSelection, iDropPos);
+	SetModifiedFlag();
+	UpdateGrid();
+	m_grid.SelectRange(iDropPos, arrSelection.GetSize());
+}
+
+void CMappingBar::Sort(int iProp, bool bDescending)
+{
+	NotifyUndoableEdit(0, UCODE_SORT);
+	midiMaps.Sort(iProp, bDescending);
+	UpdateGrid();
 }
 
 CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID)
@@ -266,15 +358,10 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 		GetSelection(arrSelection);
 		// if multiple mappings selected and edit is within selection
 		if (arrSelection.GetSize() > 1 && arrSelection.Find(m_iEditRow) >= 0) {
-			m_parrSelection = &arrSelection;
-			pParent->NotifyUndoableEdit(iProp, UCODE_MULTI_PROPERTY);
-			m_parrSelection = NULL;
-			midiMaps.SetProperty(arrSelection, iProp, nVal);
+			pParent->SetProperty(arrSelection, iProp, nVal);
 		} else {	// edit single mapping
-			pParent->NotifyUndoableEdit(iMapping, MAKELONG(UCODE_PROPERTY, iProp));
-			midiMaps.SetProperty(iMapping, iProp, nVal);
+			pParent->SetProperty(iMapping, iProp, nVal);
 		}
-		pParent->SetModifiedFlag();
 	}
 }
 
@@ -578,6 +665,25 @@ void CMappingBar::OnSetFocus(CWnd* pOldWnd)
 	m_grid.SetFocus();	// delegate focus to child control
 }
 
+void CMappingBar::LearnMapping(int iMapping, DWORD nInMidiMsg, bool bCoalesceEdit)
+{
+	UINT	nUndoFlags = bCoalesceEdit ? UE_COALESCE : 0;
+	NotifyUndoableEdit(iMapping, UCODE_LEARN, nUndoFlags);
+	midiMaps.SetInputMidiMsg(iMapping, nInMidiMsg);
+	SetModifiedFlag();
+	UpdateGrid(iMapping);
+}
+
+void CMappingBar::LearnMappings(const CIntArrayEx& arrSelection, DWORD nInMidiMsg, bool bCoalesceEdit)
+{
+	UINT	nUndoFlags = bCoalesceEdit ? UE_COALESCE : 0;
+	m_parrSelection = &arrSelection;
+	NotifyUndoableEdit(0, UCODE_LEARN_MULTI, nUndoFlags);
+	midiMaps.SetInputMidiMsg(arrSelection, nInMidiMsg);	// update selected mappings
+	SetModifiedFlag();
+	UpdateGrid(arrSelection, -1);
+}
+
 LRESULT CMappingBar::OnMidiEvent(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
@@ -594,19 +700,20 @@ LRESULT CMappingBar::OnMidiEvent(WPARAM wParam, LPARAM lParam)
 			} else {	// selection hasn't changed
 				bCoalesceEdit = true;	// coalesce edit to avoid a blizzard of undo states
 			}
-			UINT	nUndoFlags = bCoalesceEdit ? UE_COALESCE : 0;
-			if (arrSelection.GetSize() > 1) {	// if multiple selection
-				m_parrSelection = &arrSelection;
-				NotifyUndoableEdit(0, UCODE_LEARN_MULTI, nUndoFlags);
-				midiMaps.SetInputMidiMsg(arrSelection, nInMidiMsg);	// update selected mappings
-				SetModifiedFlag();
-				UpdateGrid(arrSelection, -1);
-			} else {	// not multiple selection
-				if (arrSelection.GetSize()) {	// if single selection
-					NotifyUndoableEdit(iMapping, UCODE_LEARN, nUndoFlags);
-					midiMaps.SetInputMidiMsg(iMapping, nInMidiMsg);
-					SetModifiedFlag();
-					UpdateGrid(iMapping);
+			int	iCmd = MIDI_CMD_IDX(nInMidiMsg);	// convert MIDI status to command index
+			if (iCmd >= 0 && iCmd < MIDI_CHANNEL_VOICE_MESSAGES) {	// if channel voice message
+				// remove data from message by clearing second or both parameters
+				if (iCmd <= MIDI_CVM_CONTROL) {	// if message has a note/controller
+					nInMidiMsg &= ~MIDI_P2_MASK;	// only clear its second parameter
+				} else {	// message doesn't have a note/controller; only status matters
+					nInMidiMsg &= ~(MIDI_P1_MASK | MIDI_P2_MASK);	// clear both parameters
+				}
+				if (arrSelection.GetSize() > 1) {	// if multiple selection
+					LearnMappings(arrSelection, nInMidiMsg, bCoalesceEdit);
+				} else {	// not multiple selection
+					if (arrSelection.GetSize()) {	// if single selection
+						LearnMapping(iMapping, nInMidiMsg, bCoalesceEdit);
+					}
 				}
 			}
 		}
@@ -682,11 +789,7 @@ void CMappingBar::OnListReorder(NMHDR* pNMHDR, LRESULT* pResult)
 	if (arrSelection.GetSize()) {	// if selection exists
 		int	iDropPos = m_grid.GetCompensatedDropPos();
 		if (iDropPos >= 0) {	// if items are actually moving
-			NotifyUndoableEdit(iDropPos, UCODE_MOVE);
-			midiMaps.Move(arrSelection, iDropPos);
-			SetModifiedFlag();
-			UpdateGrid();
-			m_grid.SelectRange(iDropPos, arrSelection.GetSize());
+			Move(arrSelection, iDropPos);
 		}
 	}
 }
@@ -697,9 +800,7 @@ void CMappingBar::OnListColumnClick(NMHDR* pNMHDR, LRESULT* pResult)
 	int	iProp = pListView->iSubItem - 1;	// skip number column
 	if (iProp >= 0) {
 		bool	bDescending = (GetKeyState(VK_SHIFT) & GKS_DOWN) != 0;
-		NotifyUndoableEdit(0, UCODE_SORT);
-		midiMaps.Sort(iProp, bDescending);
-		UpdateGrid();
+		Sort(iProp, bDescending);
 	}
 	pResult = 0;
 }
@@ -732,34 +833,20 @@ void CMappingBar::OnEditCopy()
 {
 	CIntArrayEx	arrSelection;
 	m_grid.GetSelection(arrSelection);
-	midiMaps.GetSelection(arrSelection, m_clipboard);
+	Copy(arrSelection);
 }
 
 void CMappingBar::OnEditCut()
 {
 	CIntArrayEx	arrSelection;
 	m_grid.GetSelection(arrSelection);
-	m_parrSelection = &arrSelection;
-	NotifyUndoableEdit(0, UCODE_CUT);
-	m_parrSelection = NULL;
-	midiMaps.GetSelection(arrSelection, m_clipboard);
-	midiMaps.Delete(arrSelection);
-	SetModifiedFlag();
-	UpdateGrid();
-	m_grid.Deselect();
+	Cut(arrSelection);
 }
 
 void CMappingBar::OnEditPaste()
 {
 	int	iInsert = m_grid.GetInsertPos();
-	midiMaps.Insert(iInsert, m_clipboard);
-	SetModifiedFlag();
-	UpdateGrid();
-	CIntArrayEx	arrSelection;
-	MakeSelectionRange(arrSelection, iInsert, m_clipboard.GetSize());
-	m_parrSelection = &arrSelection;
-	NotifyUndoableEdit(0, UCODE_PASTE);
-	m_parrSelection = NULL;
+	Paste(iInsert);
 }
 
 void CMappingBar::OnUpdateEditPaste(CCmdUI *pCmdUI)
@@ -769,18 +856,8 @@ void CMappingBar::OnUpdateEditPaste(CCmdUI *pCmdUI)
 
 void CMappingBar::OnEditInsert()
 {
-	CMappingArray	arrMapping;
-	arrMapping.SetSize(1);
-	arrMapping[0].SetDefaults();
 	int	iInsert = m_grid.GetInsertPos();
-	midiMaps.Insert(iInsert, arrMapping);
-	SetModifiedFlag();
-	UpdateGrid();
-	CIntArrayEx	arrSelection;
-	MakeSelectionRange(arrSelection, iInsert, 1);
-	m_parrSelection = &arrSelection;
-	NotifyUndoableEdit(0, UCODE_INSERT);
-	m_parrSelection = NULL;
+	Insert(iInsert);
 }
 
 void CMappingBar::OnUpdateEditInsert(CCmdUI *pCmdUI)
@@ -792,13 +869,7 @@ void CMappingBar::OnEditDelete()
 {
 	CIntArrayEx	arrSelection;
 	m_grid.GetSelection(arrSelection);
-	m_parrSelection = &arrSelection;
-	NotifyUndoableEdit(0, UCODE_DELETE);
-	m_parrSelection = NULL;
-	midiMaps.Delete(arrSelection);
-	SetModifiedFlag();
-	UpdateGrid();
-	m_grid.Deselect();
+	Delete(arrSelection);
 }
 
 void CMappingBar::OnUpdateEditDelete(CCmdUI *pCmdUI)

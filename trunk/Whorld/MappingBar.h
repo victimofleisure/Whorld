@@ -37,13 +37,28 @@ public:
 	static const int	GetPropertyNameID(int iProp);
 	static const CString	GetPropertyName(int iProp);
 	CGridCtrl&	GetListCtrl();
+	bool	CanPaste() const;
 
 // Operations
 public:
 	void	OnUpdate(CView* pSender, LPARAM lHint = 0, CObject* pHint = NULL);
 	static void	AddMidiChannelComboItems(CComboBox& wndCombo);
+	void	SetModifiedFlag(bool bModified = true);
+	void	SetProperty(int iMapping, int iProp, int nVal);
+	void	SetProperty(const CIntArrayEx& arrSelection, int iProp, int nVal);
+	void	Copy(const CIntArrayEx& arrSelection);
+	void	Cut(const CIntArrayEx& arrSelection);
+	void	Paste(int iInsert);
+	void	Insert(int iInsert);
+	void	Insert(int iInsert, CMappingArray& arrMapping);
+	void	Delete(const CIntArrayEx& arrSelection);
+	void	Move(const CIntArrayEx& arrSelection, int iDropPos);
+	void	Sort(int iProp, bool bDescending = false);
+	void	LearnMapping(int iMapping, DWORD nInMidiMsg, bool bCoalesceEdit = false);
+	void	LearnMappings(const CIntArrayEx& arrSelection, DWORD nInMidiMsg, bool bCoalesceEdit = false);
 
 // Overrides
+	virtual	CString	GetUndoTitle(const CUndoState& State);
 
 // Implementation
 public:
@@ -84,11 +99,6 @@ protected:
 		int		nMax;
 	};
 	static const COL_RANGE m_arrColRange[COLUMNS];	// array of column ranges
-	enum {	// undo codes
-		#define MAPPINGUNDODEF(name) UCODE_##name,
-		#include "MappingDef.h"	// generate enum
-		MAPPING_UNDO_CODES
-	};
 	static const int m_arrUndoTitleId[MAPPING_UNDO_CODES];
 
 // Member data
@@ -105,7 +115,6 @@ protected:
 	void	UpdateGrid(int iMapping);
 	void	UpdateGrid(int iMapping, int iProp);
 	void	UpdateGrid(const CIntArrayEx& arrSelection, int iProp);
-	void	SetModifiedFlag();
 	static void	MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems);
 
 // Undo
@@ -126,7 +135,6 @@ protected:
 	virtual	void OnShowChanged(bool bShow);
 	virtual	void SaveUndoState(CUndoState& State);
 	virtual	void RestoreUndoState(const CUndoState& State);
-	virtual	CString	GetUndoTitle(const CUndoState& State);
 	virtual void OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI);
 
 // Generated message map functions
@@ -173,4 +181,9 @@ inline const CString CMappingBar::GetPropertyName(int iProp)
 inline CGridCtrl& CMappingBar::GetListCtrl()
 {
 	return m_grid;
+}
+
+inline bool CMappingBar::CanPaste() const
+{
+	return !m_clipboard.IsEmpty();
 }

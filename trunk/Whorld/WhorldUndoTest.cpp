@@ -31,7 +31,9 @@
 
 #include "stdafx.h"
 
-#if UNDO_TEST
+// to enable this test, edit Globals.h and set UNDO_TEST to 1
+
+#if UNDO_TEST == 1	// do not change this unique identifier
 
 #include "Whorld.h"
 #include "WhorldUndoTest.h"
@@ -42,13 +44,14 @@
 #include "RandList.h"
 #include "MasterRowDlg.h"
 
-#define TIMER_PERIOD 0			// timer period, in milliseconds
+#define TIMER_PERIOD 0	// timer period, in milliseconds
 
 static CWhorldUndoTest gUndoTest(TRUE);	// one and only instance, initially running
 
 const CWhorldUndoTest::EDIT_INFO CWhorldUndoTest::m_EditInfo[] = {
 	{UCODE_PARAM,				1},
 	{UCODE_MASTER,				0.1f},
+	{UCODE_MAIN,				0.1f},
 };
 
 CWhorldUndoTest::CWhorldUndoTest(bool InitRunning) :
@@ -97,12 +100,10 @@ int CWhorldUndoTest::ApplyEdit(int UndoCode)
 			int	iParam = Random(PARAM_COUNT);
 			int	iProp = Random(PARAM_PROP_COUNT);
 			CComVariant	prop;
+			const PARAM_INFO& info = GetParamInfo(iParam);
 			switch (iProp) {
 			case PARAM_PROP_Val:
-				{
-					const PARAM_INFO& info = GetParamInfo(iParam);
-					prop = RandomFloat(info.fMaxVal - info.fMinVal) + info.fMinVal;
-				}
+				prop = RandomFloat(info.fMaxVal - info.fMinVal) + info.fMinVal;
 				break;
 			case PARAM_PROP_Wave:
 				prop = Random(WAVEFORM_COUNT);
@@ -116,6 +117,9 @@ int CWhorldUndoTest::ApplyEdit(int UndoCode)
 			case PARAM_PROP_PW:
 				prop = RandomFloat(1);
 				break;
+			case PARAM_PROP_Global:
+				prop = RandomFloat(info.fMaxVal * 2) - info.fMaxVal;
+				break;
 			}
 			m_pDoc->SetParam(iParam, iProp, prop);
 		}
@@ -124,9 +128,33 @@ int CWhorldUndoTest::ApplyEdit(int UndoCode)
 		{
 			int	iProp = Random(MASTER_COUNT);
 			CMasterRowDlg::DBL_RANGE	range;
-			CMasterRowDlg::GetPropRange(iProp, range);
+			CMasterRowDlg::GetPropEditRange(iProp, range);
 			double	prop = RandomFloat(range.fMaxVal - range.fMinVal) + range.fMinVal;
 			m_pDoc->SetMasterProp(iProp, prop);
+		}
+		break;
+	case UCODE_MAIN:
+		{
+			VARIANT_PROP	prop;
+			int	iProp = Random(MAIN_COUNT);
+			switch (iProp) {
+			case MAIN_Origin:
+				prop.fltPt.x = static_cast<float>(RandomFloat(1));
+				prop.fltPt.y = static_cast<float>(RandomFloat(1));
+				break;
+			case MAIN_DrawMode:
+				prop.intVal = Random(3);
+				break;
+			case MAIN_OrgMotion:
+				prop.intVal = Random(ORIGIN_MOTION_TYPES);
+				break;
+			case MAIN_Hue:
+				prop.dblVal = RandomFloat(360);
+				break;
+			default:
+				prop.boolVal = Random(2) != 0;	// assume boolean
+			}
+			m_pDoc->SetMainProp(iProp, prop);
 		}
 		break;
 	default:
@@ -138,6 +166,7 @@ int CWhorldUndoTest::ApplyEdit(int UndoCode)
 
 bool CWhorldUndoTest::Create()
 {
+	theApp.SetPause(true);
 	m_pDoc = theApp.GetDocument();
 	m_UndoMgr = m_pDoc->GetUndoManager();
 	m_UndoMgr->SetLevels(-1);	// unlimited undo

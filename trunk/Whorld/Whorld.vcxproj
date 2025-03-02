@@ -214,6 +214,7 @@
     <ClInclude Include="Mapping.h" />
     <ClInclude Include="MappingBar.h" />
     <ClInclude Include="MappingDef.h" />
+    <ClInclude Include="MappingUndoTest.h" />
     <ClInclude Include="MasterBar.h" />
     <ClInclude Include="MasterRowDlg.h" />
     <ClInclude Include="Midi.h" />
@@ -303,6 +304,7 @@
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="Mapping.cpp" />
     <ClCompile Include="MappingBar.cpp" />
+    <ClCompile Include="MappingUndoTest.cpp" />
     <ClCompile Include="MasterBar.cpp" />
     <ClCompile Include="MasterRowDlg.cpp" />
     <ClCompile Include="MidiDevices.cpp" />

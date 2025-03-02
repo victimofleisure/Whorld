@@ -31,7 +31,7 @@
 #define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { HandleError(hr, __FILE__, __LINE__, __DATE__); return false; }}
 #define DTOF(x) static_cast<float>(x)
 
-#define RENDER_CMD_NATTER 1	// set true to display render commands on console
+#define RENDER_CMD_NATTER 0	// set true to display render commands on console
 
 const double CWhorldThread::MIN_ASPECT_RATIO = 1e-9;
 const double CWhorldThread::MIN_STAR_RATIO = 1e-2;

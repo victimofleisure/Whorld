@@ -209,13 +209,9 @@ void CMapping::SetInputMidiMsg(DWORD nInMidiMsg)
 	// channel voice messages only; caller is responsible for ensuring this
 	int	iCmd = MIDI_CMD_IDX(nInMidiMsg);	// convert MIDI status to event index
 	ASSERT(iCmd >= 0 && iCmd < EVENTS);	// check event index range
-	m_iEvent = iCmd;
-	m_iChannel = MIDI_CHAN(nInMidiMsg);
-	if (iCmd <= MIDI_CVM_CONTROL) {	// if command has a note/controller
-		m_iControl = MIDI_P1(nInMidiMsg);	// set note/controller number
-	} else {	// command doesn't have a note/controller
-		m_iControl = 0;	// zero note/controller number
-	}
+	m_iEvent = iCmd;	// set event to channel voice command index
+	m_iChannel = MIDI_CHAN(nInMidiMsg);	// set channel index
+	m_iControl = MIDI_P1(nInMidiMsg);	// set note/controller number
 }
 
 int CMapping::IsInputMatch(DWORD nInMidiMsg) const

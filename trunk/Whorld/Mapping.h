@@ -54,6 +54,11 @@ public:
 		#include "MappingDef.h"	// generate enumeration
 		MISC_TARGETS
 	};
+	enum {	// undo codes
+		#define MAPPINGUNDODEF(name) UCODE_##name,
+		#include "MappingDef.h"	// generate enum
+		MAPPING_UNDO_CODES
+	};
 
 // Attributes
 	static bool		IsValidEvent(int iEvent);

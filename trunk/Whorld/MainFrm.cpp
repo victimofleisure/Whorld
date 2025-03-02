@@ -781,23 +781,8 @@ void CMainFrame::OnFileTakeSnapshot()
 void CMainFrame::OnFileLoadSnapshot()
 {
 	CFileDialog	fd(true, m_pszSnapshotExt, NULL, OFN_HIDEREADONLY, m_pszSnapshotFilter);
-	if (fd.DoModal() != IDOK) {	// display file dialog
-		return;	// user canceled
-	}
-	CSnapshot	*pSnapshot = CSnapshot::Read(fd.GetPathName());
-	if (pSnapshot != NULL) {
-		CWhorldDoc*	pDoc = theApp.GetDocument();
-		if (m_pPreSnapshotModePatch == NULL) {	// if pre-snapshot mode backup unmade
-			CPatch&	patch = *pDoc;	// upcast from document to patch data
-			// create copy of current patch on heap and attach copy to member pointer
-			m_pPreSnapshotModePatch.Attach(new CPatch(patch));
-		}
-		pDoc->m_master.fZoom = pSnapshot->m_state.fZoom;
-		CWhorldDoc::CParamHint	hint(MASTER_Zoom);	// master property index
-		pDoc->UpdateAllViews(theApp.GetView(), HINT_MASTER, &hint);
-		CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
-		cmd.m_prop.byref = pSnapshot;
-		theApp.PushRenderCommand(cmd);
+	if (fd.DoModal() == IDOK) {	// display file dialog
+		VERIFY(theApp.LoadSnapshot(fd.GetPathName()));
 	}
 }
 
@@ -898,7 +883,7 @@ void CMainFrame::OnViewOptions()
 {
 	COptions	m_optsPrev(theApp.m_options);
 	COptionsDlg	dlg;
-	if (dlg.DoModal() == IDOK) {
+	if (dlg.DoModal() == IDOK) {	// display options dialog
 		// apply new options, passing pointer to old ones
 		ApplyOptions(&m_optsPrev);
 	}
@@ -939,15 +924,7 @@ void CMainFrame::OnUpdateWindowDetach(CCmdUI* pCmdUI)
 
 void CMainFrame::OnWindowPause()
 {
-	CRenderCmd	cmd(RC_SET_PAUSE, !theApp.IsPaused());
-	theApp.PushRenderCommand(cmd);
-	if (m_pPreSnapshotModePatch != NULL) {
-		// snapshot is deleted when smart pointer goes out of scope
-		CAutoPtr<CPatch> pOldPatch(m_pPreSnapshotModePatch);	// take ownership
-		CWhorldDoc*	pDoc = theApp.GetDocument();
-		pDoc->GetPatch() = *pOldPatch;	// copy previously saved patch to document
-		pDoc->UpdateAllViews(NULL);
-	}
+	theApp.SetPause(!theApp.IsPaused());
 }
 
 void CMainFrame::OnUpdateWindowPause(CCmdUI *pCmdUI)

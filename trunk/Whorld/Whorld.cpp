@@ -58,6 +58,7 @@ CWhorldApp::CWhorldApp()
 	m_bIsFullScreenChanging = false;
 	m_bDetachedPreFullScreen = false;
 	m_bIsDualMonitor = false;
+	m_bIsPaused = false;
 	m_hKeyboardHook = NULL;
 }
 
@@ -110,7 +111,7 @@ BOOL CWhorldApp::InitInstance()
 	m_pszAppName = _T("Whorld2");	// create new profile for version 2
 	SetRegistryKey(_T("Anal Software"));
 	m_pszAppName = pPrevAppName;
-	m_nOldResourceVersion = theApp.GetProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, 0);
+	m_nOldResourceVersion = GetProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, 0);
 	m_options.ReadProperties();	// get options from registry
 	LoadStdProfileSettings(m_options.m_General_nMRUItems);  // Load standard INI file options (including MRU)
 	m_midiMgr.Initialize();
@@ -155,7 +156,7 @@ BOOL CWhorldApp::InitInstance()
 
 	// now that we're up, check for resource version change, and update profile if needed
 	if (m_nNewResourceVersion != m_nOldResourceVersion) {	// if resource version changed
-		theApp.WriteProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, m_nNewResourceVersion);
+		WriteProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, m_nNewResourceVersion);
 	}
 
 	return TRUE;
@@ -575,8 +576,53 @@ CString CWhorldApp::GetTimestampFileName() const
 void CWhorldApp::MidiInit()
 {
 	m_midiMgr.ReadDevices();	// get MIDI devices from registry
-	theApp.m_options.UpdateMidiDevices();	// copy MIDI devices to options
+	m_options.UpdateMidiDevices();	// copy MIDI devices to options
 	m_midiMgr.OpenInputDevice();
+}
+
+void CWhorldApp::SetPause(bool bEnable)
+{
+	// The app pause state is only valid from within the main thread;
+	// the render thread has its own paused state, which may differ.
+	if (bEnable == m_bIsPaused)	// if already in requested state
+		return;	// nothing to do
+	CRenderCmd	cmd(RC_SET_PAUSE, bEnable);
+	PushRenderCommand(cmd);	// request render thread to enter specified pause state
+	m_bIsPaused = bEnable;	// update our paused state
+	if (!bEnable) {	// if we're unpausing
+		if (m_pPreSnapshotModePatch != NULL) {	// if we're in snapshot mode
+			// snapshot is deleted when smart pointer goes out of scope
+			CAutoPtr<CPatch> pOldPatch(m_pPreSnapshotModePatch);	// take ownership
+			CWhorldDoc*	pDoc = GetDocument();
+			pDoc->GetPatch() = *pOldPatch;	// copy previously saved patch to document
+			pDoc->UpdateAllViews(NULL);	// notify views of new patch
+		}
+	}
+}
+
+bool CWhorldApp::LoadSnapshot(LPCTSTR pszPath)
+{
+	CSnapshot	*pSnapshot = CSnapshot::Read(pszPath);
+	if (pSnapshot == NULL) {	// if read failed
+		return false;	// error already handled
+	}
+	SetPause(true);	// pause render updates while showing snapshot
+	CWhorldDoc*	pDoc = GetDocument();
+	if (m_pPreSnapshotModePatch == NULL) {	// if pre-snapshot mode backup unmade
+		CPatch&	patch = *pDoc;	// upcast from document to patch data
+		// create copy of current patch on heap and attach copy to member pointer
+		m_pPreSnapshotModePatch.Attach(new CPatch(patch));
+	}
+	// update zoom in UI to snapshot's zoom
+	pDoc->m_master.fZoom = pSnapshot->m_state.fZoom;
+	CWhorldDoc::CParamHint	hint(MASTER_Zoom);	// master property index
+	// display snapshot command updates render thread's zoom, so specify
+	// view as sender to prevent view from pushing needless zoom command
+	pDoc->UpdateAllViews(GetView(), HINT_MASTER, &hint);
+	CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
+	cmd.m_prop.byref = pSnapshot;
+	PushRenderCommand(cmd);	// request render thread to display snapshot
+	return true;
 }
 
 // CWhorldApp message map
@@ -586,7 +632,7 @@ BEGIN_MESSAGE_MAP(CWhorldApp, CWinAppEx)
 	// Standard file based document commands
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
-	ON_COMMAND(ID_APP_HOME_PAGE, &CWhorldApp::OnAppHomePage)
+	ON_COMMAND(ID_APP_HOME_PAGE, OnAppHomePage)
 END_MESSAGE_MAP()
 
 // CWhorldApp message handlers

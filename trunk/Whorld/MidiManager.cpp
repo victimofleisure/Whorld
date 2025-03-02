@@ -114,8 +114,8 @@ void CMidiManager::OnDeviceChange()
 
 void CALLBACK CMidiManager::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2)
 {
-	// this callback function runs in a worker thread context; 
-	// data shared with main thread may require serialization
+	// This callback function runs in a worker thread context; 
+	// data shared with other threads may require serialization.
 	static CDWordArrayEx	arrMappedEvent;
 	UNREFERENCED_PARAMETER(hMidiIn);
 	UNREFERENCED_PARAMETER(dwInstance);
@@ -131,24 +131,28 @@ void CALLBACK CMidiManager::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwIns
 	}
 }
 
-inline void CMidiManager::UpdateUI(int nMsg, WPARAM wParam, LPARAM lParam)
+inline void CMidiManager::PostMainMsg(int nMsg, WPARAM wParam, LPARAM lParam)
 {
 	theApp.GetMainFrame()->PostMessage(nMsg, wParam, lParam);	// saves some typing
 }
 
 void CMidiManager::PushMasterProperty(int iProp, double fNormVal)
 {
+	// This method runs in the MIDI callback's worker thread context;
+	// only push render commands or post messages to the main thread.
 	double	fVal = CMasterRowDlg::Denorm(iProp, fNormVal);
 	if (iProp == MASTER_Zoom) {	// if zoom
 		PUSH_RENDER_CMD(cmd, RC_SET_ZOOM, true, dblVal, fVal);	// zoom with damping
 	} else {	// generic case
 		PUSH_RENDER_CMD(cmd, RC_SET_MASTER, iProp, dblVal, fVal);
 	}
-	UpdateUI(UWM_MASTER_PROP_CHANGE, iProp, FloatToLParam(fVal));
+	PostMainMsg(UWM_MASTER_PROP_CHANGE, iProp, FloatToLParam(fVal));
 }
 
 void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 {
+	// This method runs in the MIDI callback's worker thread context;
+	// only push render commands or post messages to the main thread.
 	const PARAM_INFO&	info = GetParamInfo(iParam);
 	LPARAM	lParam;
 	switch (iProp) {
@@ -184,8 +188,8 @@ void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 		lParam = FloatToLParam(fVal);	// all other properties are passed as float
 		PUSH_RENDER_CMD(cmd, iCmd, iParam, dblVal, fVal);
 	}
-	// using MAKELONG limits us to 64K parameters and 64K properties
-	UpdateUI(UWM_PARAM_CHANGE, MAKELONG(iParam, iProp), lParam);
+	// using MAKELONG limits us to 64K parameters and 64K properties, that's fine
+	PostMainMsg(UWM_PARAM_CHANGE, MAKELONG(iParam, iProp), lParam);
 }
 
 inline UINT CMidiManager::SetOrClear(UINT nDest, UINT nMask, bool bIsSet)
@@ -195,57 +199,61 @@ inline UINT CMidiManager::SetOrClear(UINT nDest, UINT nMask, bool bIsSet)
 
 void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 {
+	// This method runs in the MIDI callback's worker thread context;
+	// only push render commands or post messages to the main thread.
 	switch (iMiscTarget) {
 	case MT_OriginX:
 	case MT_OriginY:
 		{
 			int	nCmdIdx = (iMiscTarget == MT_OriginX ? RC_SET_ORIGIN_X : RC_SET_ORIGIN_Y);
 			PUSH_RENDER_CMD(cmd, nCmdIdx, true, dblVal, fNormVal);	// origin motion with damping
-			// don't update UI as our knowledge of origin is incomplete
+			// don't update UI as render thread's origin is indeterminate
 		}
 		break;
 	case MT_Fill:
 		{
+			// accessing document's draw mode risks a race condition
 			UINT nDrawMode = SetOrClear(theApp.GetDocument()->m_main.nDrawMode, DM_FILL, fNormVal != 0);
 			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_DrawMode, uintVal, nDrawMode);
-			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
+			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
 		}
 		break;
 	case MT_Outline:
 		{
+			// accessing document's draw mode risks a race condition
 			UINT nDrawMode = SetOrClear(theApp.GetDocument()->m_main.nDrawMode, DM_OUTLINE, fNormVal != 0);
 			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_DrawMode, uintVal, nDrawMode);
-			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
+			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
 		}
 		break;
 	case MT_OriginDrag:
 		{
 			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_OrgMotion, intVal, fNormVal != 0 ? OM_DRAG : 0);
-			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
+			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
 		}
 		break;
 	case MT_OriginRandom:
 		{
 			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_OrgMotion, intVal, fNormVal != 0 ? OM_RANDOM : 0);
-			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
+			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
 		}
 		break;
 	case MT_Reverse:
 		{
 			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_Reverse, boolVal, fNormVal != 0);
-			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
+			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
 		}
 		break;
 	case MT_Convex:
 		{
 			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_Convex, boolVal, fNormVal != 0);
-			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
+			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
 		}
 		break;
 	case MT_LoopHue:
 		{
 			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_LoopHue, boolVal, fNormVal != 0);
-			UpdateUI(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
+			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
 		}
 		break;
 	case MT_RandomPhase:
@@ -260,6 +268,10 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 			theApp.PushRenderCommand(cmd);
 		}
 		break;
+	case MT_Pause:
+		// let main thread handle pause as its pause state is canonical
+		PostMainMsg(WM_COMMAND, ID_WINDOW_PAUSE, 0);
+		break;
 	default:
 		NODEFAULTCASE;	// missing case
 	}
@@ -267,13 +279,15 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 
 void CMidiManager::OnMidiEvent(DWORD dwEvent)
 {
+	// This method runs in the MIDI callback's thread context;
+	// data shared with other threads may require serialization.
 	if (!MIDI_IS_SHORT_MSG(dwEvent))	// if event is a short MIDI message
 		return;	// ignore
 	// exclude system status messages
 	if (MIDI_STAT(dwEvent) >= SYSEX)	// if not channel voice message
 		return;	// ignore
 	if (m_bLearnMode) {	// if learning mappings
-		// post MIDI message to mapping bar
+		// post MIDI message to mapping bar; do NOT access bar's members directly
 		theApp.GetMainFrame()->m_wndMappingBar.PostMessage(UWM_MIDI_EVENT, dwEvent);
 	}
 	// lock the mapping array during iteration

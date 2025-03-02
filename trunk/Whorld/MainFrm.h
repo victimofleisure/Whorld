@@ -111,7 +111,6 @@ public:
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
 	CStringArrayEx	m_saOutputPath;	// array of output paths
-	CAutoPtr<CPatch> m_pPreSnapshotModePatch;	// backup of patch before we entered snapshot mode
 
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -174,4 +173,3 @@ inline HACCEL CMainFrame::GetAccelTable() const
 {
 	return m_hAccelTable;
 }
-

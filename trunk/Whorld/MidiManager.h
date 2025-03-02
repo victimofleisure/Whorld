@@ -67,7 +67,7 @@ protected:
 	void	PushMasterProperty(int iProp, double fNormVal);
 	void	PushParameter(int iParam, int iProp, double fNormVal);
 	void	PushMiscTarget(int iMiscTarget, double fNormVal);
-	void	UpdateUI(int nMsg, WPARAM wParam, LPARAM lParam);
+	void	PostMainMsg(int nMsg, WPARAM wParam, LPARAM lParam);
 	void	OnMidiEvent(DWORD dwEvent);
 	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2);
 };

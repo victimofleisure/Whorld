@@ -271,7 +271,7 @@ void CWhorldDoc::SaveUndoState(CUndoState& State)
 		State.m_Val.d = m_master.fZoom;
 		break;
 	case UCODE_ORIGIN:
-		State.m_Val.pt = theApp.GetOrigin();
+		State.m_Val.pt = theApp.GetOrigin();	// render thread writes origin
 		break;
 	default:
 		NODEFAULTCASE;	// missing undo case

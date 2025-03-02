@@ -62,6 +62,7 @@ public:
 	UINT_PTR	GetRingCount() const;
 	UINT_PTR	GetFrameCount() const;
 	bool	IsPaused() const;
+	void	SetPause(bool bEnable);
 	bool	IsSnapshotMode() const;
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
@@ -85,6 +86,7 @@ public:
 	bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
 	CString	GetTimestampFileName() const;
 	void	MidiInit();
+	bool	LoadSnapshot(LPCTSTR pszPath);
 
 // Overrides
 public:
@@ -114,6 +116,8 @@ protected:
 	bool	m_bIsFullScreenChanging;	// true if full-screen mode switch is in progress
 	bool	m_bDetachedPreFullScreen;	// true if render window was already detached when full-screen started
 	bool	m_bIsDualMonitor;	// true if render window is on a different monitor than user interface
+	bool	m_bIsPaused;		// true if render updates are paused from main thread's point of view
+	CAutoPtr<CPatch> m_pPreSnapshotModePatch;	// backup of patch before we entered snapshot mode
 	HHOOK	m_hKeyboardHook;	// handle to keyboard hook
 	int		m_nOldResourceVersion;	// previous resource version number
 	static const int	m_nNewResourceVersion;	// current resource version number
@@ -206,12 +210,12 @@ inline UINT_PTR CWhorldApp::GetFrameCount() const
 
 inline bool CWhorldApp::IsPaused() const
 {
-	return m_thrRender.IsPaused();
+	return m_bIsPaused;
 }
 
 inline bool CWhorldApp::IsSnapshotMode() const
 {
-	return m_thrRender.IsSnapshotMode();
+	return m_pPreSnapshotModePatch != NULL;
 }
 
 inline DWORD CWhorldApp::GetFrameRate() const

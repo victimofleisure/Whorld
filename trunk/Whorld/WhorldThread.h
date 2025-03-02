@@ -32,8 +32,6 @@ public:
 // Attributes
 	UINT_PTR	GetRingCount() const;
 	UINT_PTR	GetFrameCount() const;
-	bool	IsPaused() const;
-	bool	IsSnapshotMode() const;
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 
@@ -165,16 +163,6 @@ inline UINT_PTR CWhorldThread::GetRingCount() const
 inline UINT_PTR CWhorldThread::GetFrameCount() const
 {
 	return m_nFrameCount;
-}
-
-inline bool CWhorldThread::IsPaused() const
-{
-	return m_bIsPaused;
-}
-
-inline bool CWhorldThread::IsSnapshotMode() const
-{
-	return m_bSnapshotMode;
 }
 
 inline DWORD CWhorldThread::GetFrameRate() const

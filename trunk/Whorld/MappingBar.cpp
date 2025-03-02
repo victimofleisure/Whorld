@@ -572,8 +572,9 @@ LRESULT CMappingBar::OnMidiEvent(WPARAM wParam, LPARAM lParam)
 			if (arrSelection != m_arrPrevSelection) {	// if selection changed
 				m_arrPrevSelection = arrSelection;
 				bCoalesceEdit = false;	// don't coalesce edit; create a new undo state
-			} else	// selection hasn't changed
+			} else {	// selection hasn't changed
 				bCoalesceEdit = true;	// coalesce edit to avoid a blizzard of undo states
+			}
 			UINT	nUndoFlags = bCoalesceEdit ? UE_COALESCE : 0;
 			if (arrSelection.GetSize() > 1) {	// if multiple selection
 				m_parrSelection = &arrSelection;

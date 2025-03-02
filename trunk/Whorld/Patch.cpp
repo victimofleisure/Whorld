@@ -13,7 +13,7 @@
 		03		24jun06	add Copies and Spread
 		04		28jan08	support Unicode
 		05		09feb25	refactor
-		06		01mar25	implement global parameters
+		06		02mar25	implement global parameters
 
 		patch container
  
@@ -140,19 +140,19 @@ bool CPatch::ParseLine(CString sLine)
 	sLine.TrimLeft();
 	CString	sName = sLine.SpanExcluding(_T(" \t"));
 	CString	sArg = sLine.Mid(sName.GetLength());
-	int	iParam = FindParamByName(sName);
+	int	iParam = FindParamByTag(sName);
 	if (iParam >= 0) {	// if parameter found
 		PARAM_ROW&	row = m_aParam.row[iParam];
 		_stscanf_s(sArg, _T("%lf %d %lf %lf %lf %lf"),
 			&row.fVal, &row.iWave, &row.fAmp, &row.fFreq, &row.fPW, &row.fGlobal);
 		return true;
 	}
-	int	iMaster = FindMasterByName(sName);
+	int	iMaster = FindMasterByTag(sName);
 	if (iMaster >= 0) {	// if master property found
 		_stscanf_s(sArg, _T("%lf"), &m_master.a[iMaster]);
 		return true;
 	}
-	int	iMain = FindMainByName(sName);
+	int	iMain = FindMainByTag(sName);
 	if (iMain >= 0) {	// if main property found
 		const MAIN_INFO& info = GetMainInfo(iMain);
 		CFormatIO::StrToVal(info.nFIOType, sArg, ((BYTE *)&m_main) + info.nOffset);
@@ -186,19 +186,19 @@ bool CPatch::Write(LPCTSTR pszPath) const
 	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
 		const PARAM_ROW& row = m_aParam.row[iParam];
 		const PARAM_INFO& info = GetParamInfo(iParam); 
-		sLine.Format(_T("%s\t%g\t%d\t%g\t%g\t%g\t%g\n"), info.pszName,
+		sLine.Format(_T("%s\t%g\t%d\t%g\t%g\t%g\t%g\n"), info.pszTag,
 			row.fVal, row.iWave, row.fAmp, row.fFreq, row.fPW, row.fGlobal);
 		fOut.WriteString(sLine);
 	}
 	for (int iMaster = 0; iMaster < MASTER_COUNT; iMaster++) {	// for each master property
 		const MASTER_INFO& info = GetMasterInfo(iMaster);
-		sLine.Format(_T("%s\t%g\n"), info.pszName, m_master.a[iMaster]);
+		sLine.Format(_T("%s\t%g\n"), info.pszTag, m_master.a[iMaster]);
 		fOut.WriteString(sLine);
 	}
 	for (int iMain = 0; iMain < MAIN_COUNT; iMain++) {	// for each main property
 		const MAIN_INFO& info = GetMainInfo(iMain);
 		CFormatIO::ValToStr(info.nFIOType, ((BYTE *)&m_main) + info.nOffset, sLine);
-		fOut.WriteString(CString(info.pszName) + '\t' + sLine + '\n');
+		fOut.WriteString(CString(info.pszTag) + '\t' + sLine + '\n');
 	}
 	return(true);
 }

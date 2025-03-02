@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
-		01		01mar25	implement global parameters
+		01		02mar25	implement global parameters
 
 */
 
@@ -28,8 +28,8 @@ const CWhorldBase::PARAM_INFO CWhorldBase::m_arrParamInfo[PARAM_COUNT] = {
 	#include "WhorldDef.h"	// generate array init list
 };
 
-const int CWhorldBase::m_arrParamPropInfo[PARAM_PROP_COUNT] = {
-	#define PARAMPROPDEF(name, type, prefix, variant) IDS_PROW_##name,
+const CWhorldBase::PARAM_PROP_INFO CWhorldBase::m_arrParamPropInfo[PARAM_PROP_COUNT] = {
+#define PARAMPROPDEF(name, type, prefix, variant) {_T(#name), IDS_PROW_##name},
 	#include "WhorldDef.h"	// generate array init list
 };
 
@@ -120,7 +120,7 @@ void CWhorldBase::InitWhorldBase()
 		m_arrParamName[iParam].LoadString(m_arrParamInfo[iParam].nNameID);
 	}
 	for (int iProp = 0; iProp < PARAM_PROP_COUNT; iProp++) {	// for each parameter property
-		m_arrParamPropName[iProp].LoadString(m_arrParamPropInfo[iProp]);
+		m_arrParamPropName[iProp].LoadString(m_arrParamPropInfo[iProp].nNameID);
 	}
 	for (int iMaster = 0; iMaster < MASTER_COUNT; iMaster++) {	// for each master property
 		m_arrMasterName[iMaster].LoadString(m_arrMasterInfo[iMaster].nNameID);

@@ -9,7 +9,7 @@
 		rev		date	comments
         00      09jan19	initial version
 		01		26feb25	add mapping
-		02		01mar25	add globals
+		02		02mar25	add globals
 
 */
 

@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
-		01		01mar25	implement global parameters
+		01		02mar25	implement global parameters
 
 */
 
@@ -65,12 +65,16 @@ public:
 		__m128	sseVar;		// enables fast SSE copy by ensuring 16-byte alignment
 	};
 	struct PARAM_INFO {		// information about parameters
-		LPCTSTR	pszName;	// pointer to private name string
+		LPCTSTR	pszTag;		// pointer to private name string
 		int		nNameID;	// string resource ID of public name
 		int		nSteps;		// number of steps for slider
 		double	fMinVal;	// minimum value
 		double	fMaxVal;	// maximum value
 		double	fScale;		// slider control scaling factor
+	};
+	struct PARAM_PROP_INFO {	// information about parameter properties
+		LPCTSTR	pszTag;		// pointer to private name string
+		int		nNameID;	// string resource ID of public name
 	};
 	union MASTER_PROPS {	// master properties
 		struct {
@@ -80,7 +84,7 @@ public:
 		double	a[MASTER_COUNT];	// array of master properties
 	};
 	struct MASTER_INFO {	// information about master properties
-		LPCTSTR	pszName;	// pointer to private name string
+		LPCTSTR	pszTag;		// pointer to private name string
 		int		nNameID;	// string resource ID of public name
 	};
 	struct MAIN_PROPS {		// main properties
@@ -88,7 +92,7 @@ public:
 		#include "WhorldDef.h"	// generate member definitions
 	};
 	struct MAIN_INFO {		// information about main properties
-		LPCTSTR	pszName;	// pointer to private name string
+		LPCTSTR	pszTag;		// pointer to private name string
 		int		nNameID;	// string resource ID of public name
 		int		nFIOType;	// formatted I/O type
 		int		nOffset;	// byte offset within MAIN_PROPS
@@ -156,9 +160,10 @@ public:
 
 // Operations
 	void SetParamDefaults(PARAM_TABLE& aParam);
-	static int	FindParamByName(LPCTSTR pszName);
-	static int	FindMasterByName(LPCTSTR pszName);
-	static int	FindMainByName(LPCTSTR pszName);
+	static int	FindParamByTag(LPCTSTR pszTag);
+	static int	FindParamPropByTag(LPCTSTR pszTag);
+	static int	FindMasterByTag(LPCTSTR pszTag);
+	static int	FindMainByTag(LPCTSTR pszTag);
 
 // Attributes
 	static bool IsValidParamIdx(int iParam);
@@ -169,6 +174,7 @@ public:
 	static const PARAM_INFO& GetParamInfo(int iParam);
 	static const double GetParamDefault(int iParam);
 	static const CString GetParamName(int iParam);
+	static const PARAM_PROP_INFO& GetParamPropInfo(int iProp);
 	static const CString GetParamPropName(int iProp);
 	static const MASTER_INFO& GetMasterInfo(int iMaster);
 	static const CString GetMasterName(int iMaster);
@@ -223,7 +229,7 @@ protected:
 private:
 	// use attribute methods instead, for range-checking
 	static const PARAM_INFO m_arrParamInfo[PARAM_COUNT];
-	static const int m_arrParamPropInfo[PARAM_PROP_COUNT];
+	static const PARAM_PROP_INFO m_arrParamPropInfo[PARAM_PROP_COUNT];
 	static const MASTER_INFO m_arrMasterInfo[MASTER_COUNT];
 	static const MAIN_INFO m_arrMainInfo[MAIN_COUNT];
 	static const int m_arrWaveformInfo[WAVEFORM_COUNT];
@@ -280,6 +286,12 @@ inline const CString CWhorldBase::GetParamName(int iParam)
 	return m_arrParamName[iParam];
 }
 
+inline const CWhorldBase::PARAM_PROP_INFO& CWhorldBase::GetParamPropInfo(int iProp)
+{
+	ASSERT(IsValidParamProp(iProp));
+	return m_arrParamPropInfo[iProp];
+}
+
 inline const CString CWhorldBase::GetParamPropName(int iProp)
 {
 	ASSERT(IsValidParamProp(iProp));
@@ -334,29 +346,38 @@ inline const LPCTSTR CWhorldBase::GetRenderCmdName(int nCmd)
 	return m_arrRenderCmdName[nCmd];
 }
 
-inline int CWhorldBase::FindParamByName(LPCTSTR pszName)
+inline int CWhorldBase::FindParamByTag(LPCTSTR pszTag)
 {
 	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
-		if (!_tcscmp(pszName, m_arrParamInfo[iParam].pszName))
-			return iParam;
+		if (!_tcscmp(pszTag, m_arrParamInfo[iParam].pszTag))	// if tag found
+			return iParam;	// return parameter index
 	}
-	return -1;
+	return -1;	// tag not found
 }
 
-inline int CWhorldBase::FindMasterByName(LPCTSTR pszName)
+inline int CWhorldBase::FindParamPropByTag(LPCTSTR pszTag)
 {
-	for (int iMast = 0; iMast < MASTER_COUNT; iMast++) {	// for each master property
-		if (!_tcscmp(pszName, m_arrMasterInfo[iMast].pszName))
-			return iMast;
+	for (int iProp = 0; iProp < PARAM_PROP_COUNT; iProp++) {	// for each parameter property
+		if (!_tcscmp(pszTag, m_arrParamPropInfo[iProp].pszTag))	// if tag found
+			return iProp;	// return parameter property index
 	}
-	return -1;
+	return -1;	// tag not found
 }
 
-inline int CWhorldBase::FindMainByName(LPCTSTR pszName)
+inline int CWhorldBase::FindMasterByTag(LPCTSTR pszTag)
+{
+	for (int iMaster = 0; iMaster < MASTER_COUNT; iMaster++) {	// for each master property
+		if (!_tcscmp(pszTag, m_arrMasterInfo[iMaster].pszTag))	// if tag found
+			return iMaster;	// return master property index
+	}
+	return -1;	// tag not found
+}
+
+inline int CWhorldBase::FindMainByTag(LPCTSTR pszTag)
 {
 	for (int iMain = 0; iMain < MAIN_COUNT; iMain++) {	// for each main property
-		if (!_tcscmp(pszName, m_arrMainInfo[iMain].pszName))
-			return iMain;
+		if (!_tcscmp(pszTag, m_arrMainInfo[iMain].pszTag))	// if tag found
+			return iMain;	// return main property index
 	}
-	return -1;
+	return -1;	// tag not found
 }

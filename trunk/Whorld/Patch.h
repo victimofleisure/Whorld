@@ -13,7 +13,7 @@
 		03		21jun06	add tag to MasterDef macro
 		04		28jan08	support Unicode
 		05		09feb25	refactor
-		06		01mar25	implement global parameters
+		06		02mar25	implement global parameters
 
 		patch container
  

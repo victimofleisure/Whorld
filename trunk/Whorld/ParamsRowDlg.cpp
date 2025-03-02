@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00      08feb25	initial version
-		02		01mar25	exclude globals property
+		02		02mar25	exclude globals property
 
 */
 

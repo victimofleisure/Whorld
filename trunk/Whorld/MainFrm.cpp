@@ -15,7 +15,7 @@
 		05		25feb25	add frame min/max info handler for row view panes
 		06		26feb25	add MIDI input
 		07		27feb25	restore patch on exiting snapshot mode
-		08		01mar25	add globals pane
+		08		02mar25	add globals pane
 
 */
 

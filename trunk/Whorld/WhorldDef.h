@@ -185,6 +185,7 @@ RENDERCMDDEF(SET_ORIGIN_Y,		dblVal	)	// sets origin y-coord; m_nParam: non-zero 
 RENDERCMDDEF(CAPTURE_BITMAP,	szVal	)	// capture a bitmap; m_nParam: image export flags, m_prop: SIZE szImage
 RENDERCMDDEF(CAPTURE_SNAPSHOT,	intVal	)	// capture a snapshot; no parameters
 RENDERCMDDEF(DISPLAY_SNAPSHOT,	byref	)	// display a snapshot; m_nParam: none, m_prop: CSnapshot* pSnapshot
+RENDERCMDDEF(SET_DAMPED_GLOBAL,	dblVal	)	// sets a global parameter with damping; m_nParam: parameter index, m_prop: double
 
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF

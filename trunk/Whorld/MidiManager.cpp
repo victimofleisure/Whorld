@@ -161,6 +161,7 @@ void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 		}
 		break;
 	default:
+		int	iCmd = RC_SET_PARAM_Val + iProp;
 		double	fVal;
 		switch (iProp) {
 		case PARAM_PROP_Val:
@@ -174,13 +175,14 @@ void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 					return;	// avoid posting a useless update
 				}
 				fVal = (fNormVal - 0.5) * info.fMaxVal * 2;
+				iCmd = RC_SET_DAMPED_GLOBAL;
 			}
 			break;
 		default:
 			fVal = fNormVal;
 		}
 		lParam = FloatToLParam(fVal);	// all other properties are passed as float
-		PUSH_RENDER_CMD(cmd, RC_SET_PARAM_Val + iProp, iParam, dblVal, fVal);
+		PUSH_RENDER_CMD(cmd, iCmd, iParam, dblVal, fVal);
 	}
 	// using MAKELONG limits us to 64K parameters and 64K properties
 	UpdateUI(UWM_PARAM_CHANGE, MAKELONG(iParam, iProp), lParam);

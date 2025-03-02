@@ -12,7 +12,7 @@
         02      22feb25	add snapshot capture and load
 		03		27feb25	add snapshot mode accessor
 		04		01mar25	add commands to set origin coords individually
-		05		01mar25	implement global parameters
+		05		02mar25	implement global parameters
 
 */
 
@@ -154,6 +154,7 @@ protected:
 	void	CaptureBitmap(UINT nFlags, SIZE szImage);
 	bool	CaptureSnapshot() const;
 	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
+	void	SetDampedGlobal(int iParam, double fGlobal);
 };
 
 inline UINT_PTR CWhorldThread::GetRingCount() const

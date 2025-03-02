@@ -14,7 +14,7 @@
 		04		25feb25	add previous curve flag to fix degenerate ring
 		05		27feb25	implement hue loop
 		06		01mar25	add commands to set origin coords individually
-		07		01mar25	implement global parameters
+		07		02mar25	implement global parameters
 
 */
 
@@ -307,15 +307,17 @@ void CWhorldThread::UpdateOrigin()
 		}
 		break;
 	}
+	// increment origin by a fraction of its distance from target origin
 	m_ptOrigin += (m_ptOriginTarget - m_ptOrigin) * m_master.fDamping;
 }
 
 void CWhorldThread::UpdateZoom()
 {
 	double	fPrevZoom = m_fZoom;	// save previous zoom
+	// increment zoom by a fraction of its distance from target zoom
 	m_fZoom += (m_fZoomTarget - m_fZoom) * m_master.fDamping;
 	// apply zoom to ring origins to match V1 trail behavior
-	double	fDeltaZoom = m_fZoom / fPrevZoom;
+	double	fDeltaZoom = m_fZoom / fPrevZoom;	// delta is a scaling factor
 	DPoint	ptLeadOrg(m_ptOrigin);
 	POSITION	pos = m_aRing.GetHeadPosition();
 	while (pos != NULL) {	// for each ring
@@ -327,14 +329,22 @@ void CWhorldThread::UpdateZoom()
 
 void CWhorldThread::OnGlobalsChange()
 {
-	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
-		m_globs.a[iParam] = m_aParam.row[iParam].fGlobal;
+	// set damped global parameter values to their targets
+	for (int iGlobal = 0; iGlobal < GLOBAL_COUNT; iGlobal++) {	// for each global parameter
+		int	iParam = MapGlobalToParam(iGlobal);	// map from global index to parameter index
+		m_globs.a[iParam] = GetParamRow(iParam).fGlobal;	// set damped value from target
 	}
 }
 
 void CWhorldThread::UpdateGlobals()
 {
-	//@@@ handle damping here!
+	// increment damped global parameter values towards their targets
+	for (int iGlobal = 0; iGlobal < GLOBAL_COUNT; iGlobal++) {	// for each global parameter
+		int	iParam = MapGlobalToParam(iGlobal);	// map from global index to parameter index
+		const PARAM_ROW&	row = GetParamRow(iParam);	// dereference
+		// increment parameter by a fraction of its distance from target parameter
+		m_globs.a[iParam] += (row.fGlobal - m_globs.a[iParam]) * m_master.fDamping;
+	}
 }
 
 void CWhorldThread::TimerHook()
@@ -726,6 +736,18 @@ CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
 	return sRet;
 }
 
+void CWhorldThread::ExitSnapshotMode()
+{
+	m_bSnapshotMode = false;
+	if (m_pPrevSnapshot != NULL) {	// if previous snapshot exists
+		// snapshot is deleted when smart pointer goes out of scope
+		CAutoPtr<CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
+		SetSnapshot(pSnapshot);	// restore snapshot
+	}
+}
+
+// Command handlers
+
 void CWhorldThread::SetParam(int iParam, double fVal)
 {
 	GetParamRow(iParam).fVal = fVal;
@@ -1027,14 +1049,9 @@ bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
 	return true;
 }
 
-void CWhorldThread::ExitSnapshotMode()
+void CWhorldThread::SetDampedGlobal(int iParam, double fGlobal)
 {
-	m_bSnapshotMode = false;
-	if (m_pPrevSnapshot != NULL) {	// if previous snapshot exists
-		// snapshot is deleted when smart pointer goes out of scope
-		CAutoPtr<CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
-		SetSnapshot(pSnapshot);	// restore snapshot
-	}
+	GetParamRow(iParam).fGlobal = fGlobal;	// set target only
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
@@ -1106,6 +1123,9 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_DISPLAY_SNAPSHOT:
 		DisplaySnapshot(static_cast<CSnapshot*>(cmd.m_prop.byref));
+		break;
+	case RC_SET_DAMPED_GLOBAL:
+		SetDampedGlobal(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	default:
 		NODEFAULTCASE;	// missing command case

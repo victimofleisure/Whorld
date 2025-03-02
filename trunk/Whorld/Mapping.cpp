@@ -36,6 +36,7 @@
 #define RK_MAPPING_SECTION _T("Mapping")
 #define RK_MAPPING_EVENT _T("Event")
 #define RK_MAPPING_TARGET _T("Target")
+#define RK_MAPPING_PROPERTY _T("Prop")
 
 const LPCTSTR CMappingBase::m_arrChanStatTag[MIDI_CHANNEL_VOICE_MESSAGES] = {
 	#define MIDICHANSTATDEF(name) _T(#name),
@@ -89,12 +90,12 @@ void CMappingBase::Initialize()
 	int	iTarget = 0;
 	// parameters
 	for (int iParam = 0; iParam < PARAM_COUNT; iParam++, iTarget++) {
-		m_arrTargetTag[iTarget] = GetParamInfo(iParam).pszName;
+		m_arrTargetTag[iTarget] = GetParamInfo(iParam).pszTag;
 		m_arrTargetName[iTarget] = GetParamName(iParam);
 	}
 	// master properties
 	for (int iMaster = 0; iMaster < MASTER_COUNT; iMaster++, iTarget++) {
-		m_arrTargetTag[iTarget] = GetMasterInfo(iMaster).pszName;
+		m_arrTargetTag[iTarget] = GetMasterInfo(iMaster).pszTag;
 		m_arrTargetName[iTarget] = GetMasterName(iMaster);
 	}
 	// miscellaneous targets
@@ -132,22 +133,27 @@ void CMapping::SetProperty(int iProp, int nVal)
 	}
 }
 
+#define STAY_POSITIVE(x) x = max(x, 0)
+
 void CMapping::Read(CIniFile& fIn, LPCTSTR pszSection)
 {
-	CString	sName;
-	// read event name
-	sName = fIn.GetString(pszSection, RK_MAPPING_EVENT);
-	m_iEvent = FindEventTag(sName);
-	ASSERT(m_iEvent >= 0);	// check for unknown event name
-	if (m_iEvent < 0)	// if unknown event name
-		m_iEvent = 0;		// avoid range errors downstream
-	// read target name
-	sName = fIn.GetString(pszSection, RK_MAPPING_TARGET);
-	m_iTarget = FindTargetTag(sName);
-	ASSERT(m_iTarget >= 0);	// check for unknown target name
-	if (m_iTarget < 0)	// if unknown target name
-		m_iTarget = 0;		// avoid range errors downstream
-	#define MAPPINGDEF_EXCLUDE_NAMES	// names were already read above
+	CString	sTag;
+	// read event tag
+	sTag = fIn.GetString(pszSection, RK_MAPPING_EVENT);
+	m_iEvent = FindEventTag(sTag);
+	ASSERT(IsValidEvent(m_iEvent));	// validate event index
+	STAY_POSITIVE(m_iEvent);	// avoid downstream range error
+	// read target tag
+	sTag = fIn.GetString(pszSection, RK_MAPPING_TARGET);
+	m_iTarget = FindTargetTag(sTag);
+	ASSERT(IsValidTarget(m_iTarget));	// validate target index
+	STAY_POSITIVE(m_iTarget);	// avoid downstream range error
+	// read property tag
+	sTag = fIn.GetString(pszSection, RK_MAPPING_PROPERTY);
+	m_iProp = FindParamPropByTag(sTag);
+	ASSERT(IsValidParamProp(m_iProp));	// validate parameter index
+	STAY_POSITIVE(m_iProp);	// avoid downstream range error
+	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already read above
 	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
 		m_##prefix##member = fIn.GetInt(pszSection, _T(#member), initval);
 	#include "MappingDef.h"	// generate profile reads for remaining members
@@ -155,17 +161,19 @@ void CMapping::Read(CIniFile& fIn, LPCTSTR pszSection)
 
 void CMapping::Write(CIniFile& fOut, LPCTSTR pszSection) const
 {
-	// write event name
+	// write event tag
 	fOut.WriteString(pszSection, RK_MAPPING_EVENT, GetEventTag(m_iEvent));
-	// write target name
+	// write target tag
 	fOut.WriteString(pszSection, RK_MAPPING_TARGET, GetTargetTag(m_iTarget));
-	#define MAPPINGDEF_EXCLUDE_NAMES	// names were already written above
+	// write property tag
+	fOut.WriteString(pszSection, RK_MAPPING_PROPERTY, GetParamPropInfo(m_iProp).pszTag);
+	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already written above
 	// mandatory members are always written, regardless of their value
 	#define MAPPINGDEF_OPTIONAL 0	// include mandatory members, exclude optional ones
 	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
 		fOut.WriteInt(pszSection, _T(#member), m_##prefix##member);
 	#include "MappingDef.h"	// generate profile writes for mandatory members
-	#define MAPPINGDEF_EXCLUDE_NAMES	// names were already written above
+	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already written above
 	// optional members are only written if they differ from their initial value
 	#define MAPPINGDEF_OPTIONAL 1	// include optional members, exclude mandatory ones
 	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \

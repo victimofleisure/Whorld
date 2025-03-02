@@ -10,7 +10,7 @@
 		00		20mar20	initial version
 		01		26feb25	adapt for Whorld
 		02		27feb25	add undo codes
-		03		01mar25	add parameter property
+		03		02mar25	add parameter property
  
 		mapping column and member definitions
 
@@ -23,12 +23,12 @@
 MAPPINGDEF(	NUMBER,		LEFT,	30,		n,		0,				0,		0,		0)
 #endif
 #if !defined(MAPPINGDEF_OPTIONAL) || !MAPPINGDEF_OPTIONAL	// mandatory members
-#ifndef MAPPINGDEF_EXCLUDE_NAMES
+#ifndef MAPPINGDEF_EXCLUDE_TAGS
 MAPPINGDEF(	EVENT,		LEFT,	100,	i,		Event,			MIDI_CVM_CONTROL,	0,	EVENTS - 1)	// MIDI event
 #endif
 MAPPINGDEF(	CHANNEL,	LEFT,	60,		i,		Channel,		0,		0,		MIDI_CHANNELS - 1)	// MIDI channel
 MAPPINGDEF(	CONTROL,	LEFT,	60,		i,		Control,		1,		0,		MIDI_NOTE_MAX)		// MIDI controller
-#ifndef MAPPINGDEF_EXCLUDE_NAMES
+#ifndef MAPPINGDEF_EXCLUDE_TAGS
 MAPPINGDEF(	TARGET,		LEFT,	120,	i,		Target,			0,		0,		TARGETS - 1)		// mapping target
 MAPPINGDEF(	PROPERTY,	LEFT,	85,		i,		Prop,			0,		0,		PARAM_PROP_COUNT)	// parameter property
 #endif
@@ -40,7 +40,7 @@ MAPPINGDEF(	END,		LEFT,	60,		n,		End,			127,	0,		0)					// range end
 
 #undef MAPPINGDEF
 #undef MAPPINGDEF_INCLUDE_NUMBER
-#undef MAPPINGDEF_EXCLUDE_NAMES
+#undef MAPPINGDEF_EXCLUDE_TAGS
 #undef MAPPINGDEF_OPTIONAL
 
 #endif // MAPPINGDEF

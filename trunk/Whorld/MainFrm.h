@@ -14,7 +14,7 @@
 		04		25feb25	add frame min/max info handler for row view panes
 		05		26feb25	add MIDI input
 		06		27feb25	add pre-snapshot mode patch member
-		07		01mar25	add globals pane
+		07		02mar25	add globals pane
 
 */
 

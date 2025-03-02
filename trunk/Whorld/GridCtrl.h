@@ -88,7 +88,7 @@ protected:
 
 inline bool CGridCtrl::IsEditing() const
 {
-	return(m_pEditCtrl != NULL);
+	return m_pEditCtrl != NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////

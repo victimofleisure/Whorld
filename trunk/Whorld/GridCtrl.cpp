@@ -23,6 +23,7 @@
 		13		17nov20	in OnLButtonDown, set focus before editing subitem
 		14		29jan22	ensure item to be edited is horizontally visible
 		15		17dec22	in OnParentNotify, get cursor position from current message
+		16		02mar25	allow columns to be skipped during iteration
 
 		grid control
  
@@ -74,9 +75,9 @@ bool CGridCtrl::EditSubitem(int iRow, int iCol)
 	CString	text(GetItemText(iRow, iCol));	// get subitem text
 	m_pEditCtrl = CreateEditCtrl(text, style, rSubitem, this, IDC_POPUP_EDIT);
 	if (m_pEditCtrl == NULL)
-		return(FALSE);
+		return FALSE;
 	ASSERT(IsWindow(m_pEditCtrl->m_hWnd));
-	return(TRUE);
+	return TRUE;
 }
 
 void CGridCtrl::EndEdit()
@@ -98,33 +99,38 @@ void CGridCtrl::GotoSubitem(int nDeltaRow, int nDeltaCol)
 	ASSERT(IsEditing());
 	int	nCols = GetColumnCount();
 	int	iCol = m_iEditCol;
-	CIntArrayEx	arrOrder;
-	if (GetColumnOrder(arrOrder)) {	// get column order array
-		if (arrOrder[iCol] != iCol) {	// if item and column differ
-			int	iNewCol = INT64TO32(arrOrder.Find(iCol));	// find column's item
-			ASSERT(iNewCol >= 0);	// should always be found
-			if (iNewCol >= 0)	// if item found
-				iCol = iNewCol;	// convert item to column
+	int	nTries = 0;
+	while (nTries < nCols) {	// while columns remain untried
+		CIntArrayEx	arrOrder;
+		if (GetColumnOrder(arrOrder)) {	// get column order array
+			if (arrOrder[iCol] != iCol) {	// if item and column differ
+				int	iNewCol = INT64TO32(arrOrder.Find(iCol));	// find column's item
+				ASSERT(iNewCol >= 0);	// should always be found
+				if (iNewCol >= 0)	// if item found
+					iCol = iNewCol;	// convert item to column
+			}
 		}
+		iCol += nDeltaCol;	// offset column
+		if (iCol >= nCols) {	// if after last column
+			iCol = 1;	// wrap to first column
+			nDeltaRow = 1;	// next row
+		} else if (iCol < 1) {	// if before first column
+			iCol = nCols - 1;	// wrap to last column
+			nDeltaRow = -1;	// previous row
+		}
+		if (arrOrder.GetSize())	// if column order array valid
+			iCol = arrOrder[iCol];	// convert column back to item
+		int	nRows = GetItemCount();
+		int	iRow = m_iEditRow + nDeltaRow;	// offset row
+		if (iRow >= nRows) {	// if after last row
+			iRow = 0;	// wrap to first row
+		} else if (iRow < 0) {	// if before first row
+			iRow = nRows - 1;	// wrap to last row
+		}
+		if (EditSubitem(iRow, iCol))	// if edit succeeds
+			return;	// stop iterating
+		nTries++;	// otherwise keep trying
 	}
-	iCol += nDeltaCol;	// offset column
-	if (iCol >= nCols) {	// if after last column
-		iCol = 1;	// wrap to first column
-		nDeltaRow = 1;	// next row
-	} else if (iCol < 1) {	// if before first column
-		iCol = nCols - 1;	// wrap to last column
-		nDeltaRow = -1;	// previous row
-	}
-	if (arrOrder.GetSize())	// if column order array valid
-		iCol = arrOrder[iCol];	// convert column back to item
-	int	nRows = GetItemCount();
-	int	iRow = m_iEditRow + nDeltaRow;	// offset row
-	if (iRow >= nRows) {	// if after last row
-		iRow = 0;	// wrap to first row
-	} else if (iRow < 0) {	// if before first row
-		iRow = nRows - 1;	// wrap to last row
-	}
-	EditSubitem(iRow, iCol);
 }
 
 CWnd *CGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID)
@@ -133,11 +139,11 @@ CWnd *CGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect
 	CPopupEdit	*pEdit = new CPopupEdit;
 	if (!pEdit->Create(dwStyle, rect, this, nID)) {
 		delete pEdit;
-		return(NULL);
+		return NULL;
 	}
 	pEdit->SetWindowText(pszText);
 	pEdit->SetSel(0, -1);	// select entire text
-	return(pEdit);
+	return pEdit;
 }
 
 void CGridCtrl::OnItemChange(LPCTSTR pszText)
@@ -194,13 +200,13 @@ BOOL CGridCtrl::PreTranslateMessage(MSG* pMsg)
 			case VK_UP:
 				if (GetKeyState(VK_CONTROL) & GKS_DOWN) {	// if control key down
 					GotoSubitem(-1, 0);
-					return(TRUE);
+					return TRUE;
 				}
 				break;
 			case VK_DOWN:
 				if (GetKeyState(VK_CONTROL) & GKS_DOWN) {	// if control key down
 					GotoSubitem(1, 0);
-					return(TRUE);
+					return TRUE;
 				}
 				break;
 			case VK_TAB:
@@ -208,13 +214,13 @@ BOOL CGridCtrl::PreTranslateMessage(MSG* pMsg)
 					int	nDeltaCol = (GetKeyState(VK_SHIFT) & GKS_DOWN) ? -1 : 1;
 					GotoSubitem(0, nDeltaCol);
 				}
-				return(TRUE);
+				return TRUE;
 			case VK_RETURN:
 				EndEdit();
-				return(TRUE);
+				return TRUE;
 			case VK_ESCAPE:
 				CancelEdit();
-				return(TRUE);
+				return TRUE;
 			}
 		}
 	} else {	// not editing
@@ -229,7 +235,7 @@ BOOL CGridCtrl::PreTranslateMessage(MSG* pMsg)
 				if (GetColumnOrder(arrOrder))
 					iCol = arrOrder[iCol];
 				EditSubitem(iRow, iCol);	// edit row's first subitem
-				return(TRUE);
+				return TRUE;
 			}
 		}
 	}
@@ -284,5 +290,5 @@ LRESULT CGridCtrl::OnTextChange(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
 	OnItemChange(LPCTSTR(wParam));
-	return(0);
+	return 0;
 }

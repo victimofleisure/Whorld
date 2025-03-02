@@ -97,6 +97,7 @@ protected:
 	CMappingArray	m_clipboard;	// for clipboard commands
 	CWhorldDoc::CMyUndoManager	m_UndoMgr;	// custom undo manager
 	static const CIntArrayEx	*m_parrSelection;	// pointer to selection array, used during undo
+	CString	m_sNotApplicable;	// to avoid reloading string
 
 // Helpers
 	void	InitEventNames();

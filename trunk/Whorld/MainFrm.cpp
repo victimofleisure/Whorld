@@ -796,25 +796,6 @@ LRESULT	CMainFrame::OnSnapshotCapture(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-LRESULT	CMainFrame::OnMasterPropChange(WPARAM wParam, LPARAM lParam)
-{
-	int	iProp = static_cast<int>(wParam);
-	double	fVal = CMidiManager::LParamToFloat(lParam);
-	CWhorldDoc*	pDoc = theApp.GetDocument();
-	pDoc->SetMasterProp(iProp, fVal, theApp.GetView());
-	return 0;
-}
-
-LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
-{
-	int	iProp = static_cast<int>(wParam);
-	VARIANT_PROP var;
-	var.ullVal = lParam;
-	CWhorldDoc*	pDoc = theApp.GetDocument();
-	pDoc->SetMainProp(iProp, var, theApp.GetView());
-	return 0;
-}
-
 LRESULT	CMainFrame::OnParamChange(WPARAM wParam, LPARAM lParam)
 {
 	int	iParam = LOWORD(wParam);
@@ -828,7 +809,29 @@ LRESULT	CMainFrame::OnParamChange(WPARAM wParam, LPARAM lParam)
 		prop = CMidiManager::LParamToFloat(lParam);
 	}
 	CWhorldDoc*	pDoc = theApp.GetDocument();
+	CWhorldDoc::CDisableUndo	noUndo(pDoc);
 	pDoc->SetParam(iParam, iProp, prop, theApp.GetView());
+	return 0;
+}
+
+LRESULT	CMainFrame::OnMasterPropChange(WPARAM wParam, LPARAM lParam)
+{
+	int	iProp = static_cast<int>(wParam);
+	double	fVal = CMidiManager::LParamToFloat(lParam);
+	CWhorldDoc*	pDoc = theApp.GetDocument();
+	CWhorldDoc::CDisableUndo	noUndo(pDoc);
+	pDoc->SetMasterProp(iProp, fVal, theApp.GetView());
+	return 0;
+}
+
+LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
+{
+	int	iProp = static_cast<int>(wParam);
+	VARIANT_PROP var;
+	var.ullVal = lParam;
+	CWhorldDoc*	pDoc = theApp.GetDocument();
+	CWhorldDoc::CDisableUndo	noUndo(pDoc);
+	pDoc->SetMainProp(iProp, var, theApp.GetView());
 	return 0;
 }
 

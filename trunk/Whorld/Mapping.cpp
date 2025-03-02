@@ -148,11 +148,15 @@ void CMapping::Read(CIniFile& fIn, LPCTSTR pszSection)
 	m_iTarget = FindTargetTag(sTag);
 	ASSERT(IsValidTarget(m_iTarget));	// validate target index
 	STAY_POSITIVE(m_iTarget);	// avoid downstream range error
-	// read property tag
-	sTag = fIn.GetString(pszSection, RK_MAPPING_PROPERTY);
-	m_iProp = FindParamPropByTag(sTag);
-	ASSERT(IsValidParamProp(m_iProp));	// validate parameter index
-	STAY_POSITIVE(m_iProp);	// avoid downstream range error
+	if (TargetHasProperty()) {	// if target has a property
+		// read property tag
+		sTag = fIn.GetString(pszSection, RK_MAPPING_PROPERTY);
+		m_iProp = FindParamPropByTag(sTag);
+		ASSERT(IsValidParamProp(m_iProp));	// validate parameter index
+		STAY_POSITIVE(m_iProp);	// avoid downstream range error
+	} else {	// target doesn't have a property
+		m_iProp = PARAM_PROP_Val;	// set property to reasonable default
+	}
 	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already read above
 	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
 		m_##prefix##member = fIn.GetInt(pszSection, _T(#member), initval);
@@ -165,8 +169,10 @@ void CMapping::Write(CIniFile& fOut, LPCTSTR pszSection) const
 	fOut.WriteString(pszSection, RK_MAPPING_EVENT, GetEventTag(m_iEvent));
 	// write target tag
 	fOut.WriteString(pszSection, RK_MAPPING_TARGET, GetTargetTag(m_iTarget));
-	// write property tag
-	fOut.WriteString(pszSection, RK_MAPPING_PROPERTY, GetParamPropInfo(m_iProp).pszTag);
+	if (TargetHasProperty()) {	// if target has a property
+		// write property tag
+		fOut.WriteString(pszSection, RK_MAPPING_PROPERTY, GetParamPropInfo(m_iProp).pszTag);
+	}
 	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already written above
 	// mandatory members are always written, regardless of their value
 	#define MAPPINGDEF_OPTIONAL 0	// include mandatory members, exclude optional ones

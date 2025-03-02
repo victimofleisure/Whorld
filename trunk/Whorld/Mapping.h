@@ -58,6 +58,7 @@ public:
 // Attributes
 	static bool		IsValidEvent(int iEvent);
 	static bool		IsValidTarget(int iTarget);
+	static bool		TargetHasProperty(int iTarget);
 	static LPCTSTR	GetChannelStatusTag(int iChanStat);
 	static CString	GetChannelStatusName(int iChanStat);
 	static LPCTSTR	GetSystemStatusTag(int iSysStat);
@@ -94,6 +95,12 @@ inline bool CMappingBase::IsValidEvent(int iEvent)
 inline bool CMappingBase::IsValidTarget(int iTarget)
 {
 	return iTarget >= 0 && iTarget < TARGETS;
+}
+
+inline bool CMappingBase::TargetHasProperty(int iTarget)
+{
+	// assume parameters are first in target enumeration
+	return iTarget < PARAM_COUNT;
 }
 
 inline LPCTSTR CMappingBase::GetChannelStatusTag(int iChanStat)
@@ -165,12 +172,18 @@ public:
 	DWORD	GetInputMidiMsg() const;
 	void	SetInputMidiMsg(DWORD nInMidiMsg);
 	int		IsInputMatch(DWORD nInMidiMsg) const;
+	bool	TargetHasProperty() const;
 
 // Operations
 	void	SetDefaults();
 	void	Read(CIniFile& fIn, LPCTSTR pszSection);
 	void	Write(CIniFile& fOut, LPCTSTR pszSection) const;
 };
+
+inline bool CMapping::TargetHasProperty() const
+{
+	return CMappingBase::TargetHasProperty(m_iTarget);
+}
 
 class CMappingArray : public CArrayEx<CMapping, CMapping&> {
 public:

@@ -40,6 +40,7 @@ CWhorldDoc::CWhorldDoc()
 	theApp.SetDocument(this);	// SDI shortcut
 	m_UndoMgr.SetRoot(this);
 	SetUndoManager(&m_UndoMgr);
+	m_bIsUndoDisabled = false;
 }
 
 CWhorldDoc::~CWhorldDoc()
@@ -355,7 +356,8 @@ CString	CWhorldDoc::GetUndoTitle(const CUndoState& State)
 
 void CWhorldDoc::NotifyUndoableEdit(int nCtrlID, int nCode, UINT nFlags)
 {
-	if (theApp.IsSnapshotMode()) {	// if we're in snapshot mode
+	// if undo is disabled, or we're in snapshot mode
+	if (m_bIsUndoDisabled || theApp.IsSnapshotMode()) {
 		return;	// disable undo notification
 	}
 	CUndoable::NotifyUndoableEdit(nCtrlID, nCode, nFlags);

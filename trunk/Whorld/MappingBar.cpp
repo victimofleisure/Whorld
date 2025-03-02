@@ -166,6 +166,12 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 	case COL_TARGET:
 	case COL_PROPERTY:
 		{
+			if (m_iEditCol == COL_PROPERTY) {	// if property column
+				// target doesn't have a property, so property combo is inapplicable
+				if (!TargetHasProperty(midiMaps.GetProperty(m_iEditRow, PROP_TARGET))) {
+					return NULL;	// tell caller to skip this column
+				}
+			}
 			CPopupCombo	*pCombo = CPopupCombo::Factory(0, rect, this, 0, 100);
 			if (pCombo == NULL)
 				return NULL;
@@ -223,6 +229,9 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 {
 	UNREFERENCED_PARAMETER(pszText);
 	int	nVal;
+	int	iMapping = m_iEditRow;
+	int	iProp = m_iEditCol - 1;	// skip number column
+	int	nPrevVal = midiMaps.GetProperty(iMapping, iProp);
 	switch (m_iEditCol) {
 	case COL_EVENT:
 	case COL_CHANNEL:
@@ -237,6 +246,12 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 			case COL_EVENT:
 				iSelItem++;	// compensate for excluding note off
 				break;
+			case COL_TARGET:
+				// if target had a property and now doesn't, or vice versa
+				if (TargetHasProperty(iSelItem) != TargetHasProperty(nPrevVal)) {
+					RedrawSubItem(m_iEditRow, COL_PROPERTY);	// update property
+				}
+				break;
 			}
 			nVal = iSelItem;
 		}
@@ -245,9 +260,6 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 		CPopupNumEdit	*pEdit = STATIC_DOWNCAST(CPopupNumEdit, m_pEditCtrl);
 		nVal = pEdit->GetIntVal();
 	}
-	int	iMapping = m_iEditRow;
-	int	iProp = m_iEditCol - 1;	// skip number column
-	int	nPrevVal = midiMaps.GetProperty(iMapping, iProp);
 	if (nVal != nPrevVal) {	// if value actually changed
 		CMappingBar*	pParent = STATIC_DOWNCAST(CMappingBar, GetParent());
 		CIntArrayEx	arrSelection;
@@ -288,6 +300,9 @@ void CMappingBar::RestoreProperty(const CUndoState& State)
 	int	iProp = HIWORD(State.GetCode());
 	midiMaps.SetProperty(iMapping, iProp, State.m_Val.p.x.i);
 	UpdateGrid(iMapping, iProp);
+	if (iProp == PROP_TARGET) {	// if restoring target
+		UpdateGrid(iMapping, PROP_PROPERTY);	// target can affect property
+	}
 }
 
 void CMappingBar::SaveMultiProperty(CUndoState& State) const
@@ -315,6 +330,9 @@ void CMappingBar::RestoreMultiProperty(const CUndoState& State)
 	const CUndoMultiIntegerProp	*pInfo = static_cast<CUndoMultiIntegerProp*>(State.GetObj());
 	midiMaps.SetProperty(pInfo->m_arrSelection, iProp, pInfo->m_arrProp);
 	UpdateGrid(pInfo->m_arrSelection, iProp);
+	if (iProp == PROP_TARGET) {	// if restoring target
+		UpdateGrid(pInfo->m_arrSelection, PROP_PROPERTY);	// target can affect property
+	}
 }
 
 void CMappingBar::SaveSelectedMappings(CUndoState& State) const
@@ -537,6 +555,7 @@ int CMappingBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_grid.SendMessage(WM_SETFONT, WPARAM(GetStockObject(DEFAULT_GUI_FONT)));
 	m_grid.LoadColumnOrder(RK_MappingBar, RK_COL_ORDER);
 	m_grid.LoadColumnWidths(RK_MappingBar, RK_COL_WIDTH);
+	m_sNotApplicable.LoadString(IDS_NOT_APPLICABLE);
 	return 0;
 }
 
@@ -620,7 +639,15 @@ void CMappingBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 			_tcscpy_s(item.pszText, item.cchTextMax, GetTargetName(map.m_iTarget)); 
 			break;
 		case COL_PROPERTY:
-			_tcscpy_s(item.pszText, item.cchTextMax, GetParamPropName(map.m_iProp)); 
+			{
+				LPCTSTR	pszPropName;
+				if (map.TargetHasProperty()) {	// if target has a property
+					pszPropName = GetParamPropName(map.m_iProp);
+				} else {	// target doesn't have a property
+					pszPropName = m_sNotApplicable;
+				}
+				_tcscpy_s(item.pszText, item.cchTextMax, pszPropName); 
+			}
 			break;
 		case COL_START:
 			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nStart); 

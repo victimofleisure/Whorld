@@ -758,6 +758,7 @@ BEGIN
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
     IDS_MAP_TARGET_Pause    "Pause"
+    IDS_NOT_APPLICABLE      "N/A"
 END
 
 STRINGTABLE

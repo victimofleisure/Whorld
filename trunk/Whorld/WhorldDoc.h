@@ -66,6 +66,13 @@ public:
 		static	CString	m_sUndoPrefix;	// prefix for undo's edit menu item, from resource
 		static	CString	m_sRedoPrefix;	// prefix for redo's edit menu item, from resource
 	};
+	class CDisableUndo {
+	public:
+		CDisableUndo(CWhorldDoc *pDoc);
+		~CDisableUndo();
+		CWhorldDoc *m_pDoc;		// pointer to document
+		bool	m_bPrevState;	// previous state of undo disabled flag
+	};
 
 // Implementation
 public:
@@ -78,6 +85,7 @@ public:
 protected:
 // Data members
 	CMyUndoManager	m_UndoMgr;	// undo manager
+	bool	m_bIsUndoDisabled;	// true if undo is disabled
 
 protected:
 // Generated message map functions
@@ -110,4 +118,17 @@ protected:
 inline CPatch& CWhorldDoc::GetPatch()
 {
 	return *this;	// upcast to patch data base class
+}
+
+inline CWhorldDoc::CDisableUndo::CDisableUndo(CWhorldDoc *pDoc)
+{
+	ASSERT(pDoc != NULL);
+	m_pDoc = pDoc;
+	m_bPrevState = pDoc->m_bIsUndoDisabled;
+	pDoc->m_bIsUndoDisabled = true;
+}
+
+inline CWhorldDoc::CDisableUndo::~CDisableUndo()
+{
+	m_pDoc->m_bIsUndoDisabled = m_bPrevState;
 }

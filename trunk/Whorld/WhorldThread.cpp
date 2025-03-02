@@ -836,6 +836,7 @@ void CWhorldThread::SingleStep()
 void CWhorldThread::SetEmpty()
 {
 	m_aRing.RemoveAll();
+	m_posDel = NULL;	// avoid bogus delete
 }
 
 void CWhorldThread::RandomPhase()
@@ -1022,7 +1023,7 @@ void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 	m_main.bConvex = pSnapshot->m_state.bConvex;
 	m_globRing = pSnapshot->m_globRing;
 	// restore ring list
-	m_aRing.RemoveAll();	// empty ring list
+	SetEmpty();	// empty ring list
 	RING*	pRing = const_cast<RING*>(pSnapshot->m_aRing);
 	for (int iRing = 0; iRing < nRings; iRing++) {	// for each snapshot ring
 		POSITION	pos = m_aRing.AddTail(*pRing++);	// add ring to list

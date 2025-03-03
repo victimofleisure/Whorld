@@ -837,6 +837,7 @@ void CWhorldThread::SetEmpty()
 {
 	m_aRing.RemoveAll();
 	m_posDel = NULL;	// avoid bogus delete
+	m_fRingOffset = 0;	// add a ring ASAP
 }
 
 void CWhorldThread::RandomPhase()

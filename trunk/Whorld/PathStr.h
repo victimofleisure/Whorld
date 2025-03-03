@@ -10,6 +10,7 @@
         00      27jul05	initial version
 		01		23nov07	support Unicode
         02      22feb25	replace header guard with pragma
+		03		03mar25	modernize style
 
 		wrap useful shell path functions
  
@@ -22,12 +23,12 @@
 class CPathStr : public CString {
 public:
 	CPathStr();
-	CPathStr(const CString& stringSrc);
-	CPathStr(LPCTSTR lpsz);
-	BOOL	Append(LPCTSTR More);
+	CPathStr(const CString& sSrc);
+	CPathStr(LPCTSTR pszSrc);
+	BOOL	Append(LPCTSTR pszMore);
 	void	RemoveExtension();
 	BOOL	RemoveFileSpec();
-	BOOL	RenameExtension(LPCTSTR Ext);
+	BOOL	RenameExtension(LPCTSTR pszExt);
 	void	QuoteSpaces();
 };
 
@@ -35,10 +36,10 @@ inline CPathStr::CPathStr()
 {
 }
 
-inline CPathStr::CPathStr(const CString& stringSrc) : CString(stringSrc)
+inline CPathStr::CPathStr(const CString& sSrc) : CString(sSrc)
 {
 }
 
-inline CPathStr::CPathStr(LPCTSTR lpsz) : CString(lpsz)
+inline CPathStr::CPathStr(LPCTSTR pszSrc) : CString(pszSrc)
 {
 }

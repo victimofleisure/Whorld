@@ -15,6 +15,7 @@
 		05		30may11	in HScroll, handle all scroll-bar codes
 		06		09feb25	rename round function
 		07		19feb25	remove range shift from static norm/denorm
+		08		03mar25	modernize style
 
 		slider with buddy numeric edit control
  
@@ -41,10 +42,10 @@ IMPLEMENT_DYNAMIC(CEditSliderCtrl, CClickSliderCtrl);
 
 CEditSliderCtrl::CEditSliderCtrl()
 {
-	m_Edit = NULL;
-	m_Val = 0;
-	m_Scale = 1;
-	m_LogBase = 0;
+	m_pEdit = NULL;
+	m_fVal = 0;
+	m_fScale = 1;
+	m_fLogBase = 0;
 }
 
 CEditSliderCtrl::~CEditSliderCtrl()
@@ -53,79 +54,79 @@ CEditSliderCtrl::~CEditSliderCtrl()
 
 double CEditSliderCtrl::Norm(double x) const
 {
-	if (m_LogBase)
-		x = log(x) / log(m_LogBase);
-	return(x * m_Scale);
+	if (m_fLogBase)
+		x = log(x) / log(m_fLogBase);
+	return x * m_fScale;
 }
 
 double CEditSliderCtrl::Denorm(double x) const
 {
-	x /= m_Scale;
-	if (m_LogBase)
-		x = pow(m_LogBase, x);
-	return(x);
+	x /= m_fScale;
+	if (m_fLogBase)
+		x = pow(m_fLogBase, x);
+	return x;
 }
 
-void CEditSliderCtrl::SetVal(double Val)
+void CEditSliderCtrl::SetVal(double fVal)
 {
-	m_Val = Val;
-	SetPos(Round(Norm(m_Val)));
-	if (m_Edit != NULL)
-		m_Edit->SetVal(m_Val, CNumEdit::NTF_NONE);	// don't notify anyone
+	m_fVal = fVal;
+	SetPos(Round(Norm(m_fVal)));
+	if (m_pEdit != NULL)
+		m_pEdit->SetVal(m_fVal, CNumEdit::NTF_NONE);	// don't notify anyone
 }
 
-void CEditSliderCtrl::SetValNorm(double Val)
+void CEditSliderCtrl::SetValNorm(double fVal)
 {
 	int	nMin, nMax;
 	GetRange(nMin, nMax);
-	SetVal(Denorm(Val * (nMax - nMin) + nMin));
+	SetVal(Denorm(fVal * (nMax - nMin) + nMin));
 }
 
 double CEditSliderCtrl::GetValNorm() const
 {
 	int	nMin, nMax;
 	GetRange(nMin, nMax);
-	return((Norm(m_Val) - nMin) / (nMax - nMin));
+	return (Norm(m_fVal) - nMin) / (nMax - nMin);
 }
 
-double CEditSliderCtrl::Norm(const INFO& Info, double Val)
+double CEditSliderCtrl::Norm(const INFO& info, double fVal)
 {
-	if (Info.LogBase)
-		Val = log(Val) / log(double(Info.LogBase));
-	return(Val * Info.SliderScale);
+	if (info.fLogBase)
+		fVal = log(fVal) / log(double(info.fLogBase));
+	return fVal * info.fSliderScale;
 }
 
-double CEditSliderCtrl::Denorm(const INFO& Info, double Val)
+double CEditSliderCtrl::Denorm(const INFO& info, double fVal)
 {
-	Val /= Info.SliderScale;
-	if (Info.LogBase)
-		Val = pow(double(Info.LogBase), Val);
-	return(Val);
+	fVal /= info.fSliderScale;
+	if (info.fLogBase)
+		fVal = pow(double(info.fLogBase), fVal);
+	return fVal;
 }
 
 void CEditSliderCtrl::SetEditCtrl(CNumEdit *Edit)
 {
-	m_Edit = Edit;
+	m_pEdit = Edit;
 	Edit->SetAuxNotify(this);
 }
 
-void CEditSliderCtrl::SetInfo(const INFO& Info, CNumEdit *Edit)
+void CEditSliderCtrl::SetInfo(const INFO& info, CNumEdit *Edit)
 {
 	SetEditCtrl(Edit);
-	SetRange(Info.RangeMin, Info.RangeMax, TRUE);
-	SetLogBase(Info.LogBase);
-	SetScale(Info.SliderScale);
-	SetDefaultPos(Info.DefaultPos);
-	SetTicCount(Info.TicCount);
-	if (m_Edit != NULL) {
-		m_Edit->SetScale(Info.EditScale);
-		m_Edit->SetPrecision(Info.EditPrecision);
+	SetRange(info.nRangeMin, info.nRangeMax, TRUE);
+	SetfLogBase(info.fLogBase);
+	SetScale(info.fSliderScale);
+	SetDefaultPos(info.nDefaultPos);
+	SetTicCount(info.nTicCount);
+	if (m_pEdit != NULL) {
+		m_pEdit->SetScale(info.fEditScale);
+		m_pEdit->SetPrecision(info.nEditPrecision);
 	}
 }
 
 double CEditSliderCtrl::GetDefaultVal() const
 {
-	return(Denorm(GetDefaultPos()));
+	return Denorm(GetDefaultPos());
 }
 
 BEGIN_MESSAGE_MAP(CEditSliderCtrl, CClickSliderCtrl)
@@ -144,28 +145,28 @@ void CEditSliderCtrl::HScroll(UINT nSBCode, UINT nPos)
 	UNREFERENCED_PARAMETER(nPos);
 	int	pos = GetPos();
 	double	val = Denorm(pos);
-	if (val != m_Val) {	// if value changed
-		m_Val = val;
-		if (m_Edit != NULL)
-			m_Edit->SetVal(m_Val, CNumEdit::NTF_PARENT);	// notify parent only
+	if (val != m_fVal) {	// if value changed
+		m_fVal = val;
+		if (m_pEdit != NULL)
+			m_pEdit->SetVal(m_fVal, CNumEdit::NTF_PARENT);	// notify parent only
 	}
 }
 
 void CEditSliderCtrl::OnDestroy() 
 {
 	CClickSliderCtrl::OnDestroy();
-	if (m_Edit != NULL) {
-		m_Edit->SetAuxNotify(NULL);
-		m_Edit = NULL;
+	if (m_pEdit != NULL) {
+		m_pEdit->SetAuxNotify(NULL);
+		m_pEdit = NULL;
 	}
 }
 
 BOOL CEditSliderCtrl::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult) 
 {
 	NMHDR	*nmh = (NMHDR *)lParam;
-	if (m_Edit != NULL && nmh->hwndFrom == m_Edit->m_hWnd) {
-		m_Val = m_Edit->GetVal();
-		SetPos(Round(Norm(m_Val)));
+	if (m_pEdit != NULL && nmh->hwndFrom == m_pEdit->m_hWnd) {
+		m_fVal = m_pEdit->GetVal();
+		SetPos(Round(Norm(m_fVal)));
 	}
 	return CClickSliderCtrl::OnNotify(wParam, lParam, pResult);
 }

@@ -15,6 +15,7 @@
 		05		26feb25	add MIDI input
 		06		27feb25	add pre-snapshot mode patch member
 		07		02mar25	add globals pane
+		08		03mar25	add thread error message handler
 
 */
 
@@ -111,6 +112,7 @@ public:
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
 	CStringArrayEx	m_saOutputPath;	// array of output paths
+	bool	m_bInMsgBox;			// true if displaying message box; guards against reentrance
 
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -149,6 +151,7 @@ public:
 	afx_msg LRESULT	OnParamChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMainPropChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnThreadErrorMsg(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnViewOptions();
 	afx_msg void OnWindowPause();
 	afx_msg void OnUpdateWindowPause(CCmdUI *pCmdUI);

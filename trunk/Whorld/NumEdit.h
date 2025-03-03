@@ -120,12 +120,12 @@ protected:
 
 inline double CNumEdit::GetVal() const
 {
-	return(m_fVal);
+	return m_fVal;
 }
 
 inline int CNumEdit::GetIntVal() const
 {
-	return(Round(m_fVal));
+	return Round(m_fVal);
 }
 
 inline void CNumEdit::SetScale(double fScale)

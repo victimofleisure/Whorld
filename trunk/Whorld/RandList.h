@@ -11,6 +11,7 @@
         01      21nov11	add GetAvail
         02      01jul12	rename Rand argument
         03      06jan13	add cast to GetSize for x64
+		04		03mar25	modernize style
 
 		random sequence without duplicates
  
@@ -22,16 +23,16 @@
 class CRandList : public WObject {
 public:
 	CRandList();
-	CRandList(int Size);
-	static	int		Rand(int Vals);
-	void	Init(int Size);
+	CRandList(int nSize);
+	static	int		Rand(int nVals);
+	void	Init(int nSize);
 	int		GetNext();
 	int		GetSize() const;
 	int		GetAvail() const;
 
 protected:
 	CDWordArray	m_List;	// array of randomly generated elements
-	int		m_Avail;	// number of elements that haven't been used
+	int		m_nAvail;	// number of elements that haven't been used
 };
 
 inline int CRandList::GetSize() const
@@ -41,7 +42,7 @@ inline int CRandList::GetSize() const
 
 inline int CRandList::GetAvail() const
 {
-	return(m_Avail);
+	return(m_nAvail);
 }
 
 #endif

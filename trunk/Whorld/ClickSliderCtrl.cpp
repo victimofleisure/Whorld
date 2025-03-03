@@ -12,6 +12,7 @@
 		02		31jul05	add SetTicCount
 		03		18feb09	in OnLButtonDown, temporarily disable paging
 		04		10feb25	fix warnings on casting window handle
+		05		03mar25	modernize style
 
 		slider with jump to position and default
  
@@ -37,7 +38,7 @@ IMPLEMENT_DYNAMIC(CClickSliderCtrl, CSliderCtrl);
 
 CClickSliderCtrl::CClickSliderCtrl()
 {
-	m_DefPos = 0;
+	m_nDefPos = 0;
 }
 
 CClickSliderCtrl::~CClickSliderCtrl()
@@ -46,15 +47,15 @@ CClickSliderCtrl::~CClickSliderCtrl()
 
 int CClickSliderCtrl::PointToPos(CPoint point)
 {
-	int	rmin, rmax, rwid;
-	GetRange(rmin, rmax);
-	rwid = rmax - rmin;
-	CRect	cr, tr;
-	GetChannelRect(cr);
-	GetThumbRect(tr);
-	int pos = rmin + rwid * (point.x - cr.left - tr.Width() / 2)
-		/ (cr.Width() - tr.Width());
-	return(min(max(pos, rmin), rmax));	// clamp to range
+	int	nMin, nMax, nWidth;
+	GetRange(nMin, nMax);
+	nWidth = nMax - nMin;
+	CRect	rChan, rThumb;
+	GetChannelRect(rChan);
+	GetThumbRect(rThumb);
+	int nPos = nMin + nWidth * (point.x - rChan.left - rThumb.Width() / 2)
+		/ (rChan.Width() - rThumb.Width());
+	return(min(max(nPos, nMin), nMax));	// clamp to range
 }
 
 void CClickSliderCtrl::PostPos()
@@ -63,16 +64,16 @@ void CClickSliderCtrl::PostPos()
 		MAKELONG(SB_THUMBTRACK, GetPos()), reinterpret_cast<LPARAM>(this->m_hWnd));
 }
 
-void CClickSliderCtrl::PostNotification(int Code)
+void CClickSliderCtrl::PostNotification(int nCode)
 {
-	GetParent()->PostMessage(WM_HSCROLL, Code, reinterpret_cast<LPARAM>(this->m_hWnd));
+	GetParent()->PostMessage(WM_HSCROLL, nCode, reinterpret_cast<LPARAM>(this->m_hWnd));
 }
 
-void CClickSliderCtrl::SetTicCount(int Count)
+void CClickSliderCtrl::SetTicCount(int nCount)
 {
-	int	lo, hi;
-	GetRange(lo, hi);
-	SetTicFreq(Count > 0 ? ((hi - lo) / (Count - 1)) : 0);
+	int	nStart, nEnd;
+	GetRange(nStart, nEnd);
+	SetTicFreq(nCount > 0 ? ((nEnd - nStart) / (nCount - 1)) : 0);
 }
 
 BEGIN_MESSAGE_MAP(CClickSliderCtrl, CSliderCtrl)
@@ -89,28 +90,28 @@ END_MESSAGE_MAP()
 void CClickSliderCtrl::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	if (nFlags & MKU_DEFAULT_POS) {	// restore default position
-		SetPos(m_DefPos);
+		SetPos(m_nDefPos);
 		PostPos();	// post HScroll to parent window
 		SetFocus();	// must do this because we're not calling base class
 		return;
 	}
-	CRect	tr;
-	GetThumbRect(tr);
-	if (!tr.PtInRect(point))	// if click was within thumb, don't jump
+	CRect	rThumb;
+	GetThumbRect(rThumb);
+	if (!rThumb.PtInRect(point))	// if click was within thumb, don't jump
 		SetPos(PointToPos(point));
 	// We need to call the base class for capture and mouse move handling, but
 	// the base class also sets the current position, potentially altering the
 	// position we just set. The base class jumps to the nearest page boundary,
 	// so its position could differ significantly from ours, particularly for
 	// small ranges. We fix this by temporarily setting the page size to one.
-	int PageSize = GetPageSize();	// save page size
+	int nPageSize = GetPageSize();	// save page size
 	SetPageSize(1);	// disable paging so base class doesn't change position
 	CSliderCtrl::OnLButtonDown(nFlags, point);	// do base class behavior
-	SetPageSize(PageSize);	// restore page size
+	SetPageSize(nPageSize);	// restore page size
 	// if click was outside channel, MFC doesn't post HScroll
-	CRect	cr;
-	GetChannelRect(cr);
-	if (!cr.PtInRect(point))
+	CRect	rChan;
+	GetChannelRect(rChan);
+	if (!rChan.PtInRect(point))
 		PostPos();
 }
 
@@ -147,5 +148,5 @@ BOOL CClickSliderCtrl::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 		OnKeyDown(VK_UP, 0, 0);
 	else
 		OnKeyDown(VK_DOWN, 0, 0);
-	return(TRUE);
+	return TRUE;
 }

@@ -9,6 +9,7 @@
 		rev		date	comments
 		00		01sep13	initial version
 		01		07may14	in CMMTimer::Create, fix dwUser type
+		02		03mar25	modernize style
  
 		wrap system MIDI and multimedia timer APIs
  
@@ -57,42 +58,42 @@ protected:
 
 inline bool CMidiIn::IsOpen() const
 {
-	return(m_hMidiIn != NULL);
+	return m_hMidiIn != NULL;
 }
 
 inline HMIDIIN CMidiIn::GetHandle() const
 {
-	return(m_hMidiIn);
+	return m_hMidiIn;
 }
 
 inline MMRESULT CMidiIn::Reset()
 {
-	return(midiInReset(m_hMidiIn));
+	return midiInReset(m_hMidiIn);
 }
 
 inline MMRESULT CMidiIn::Start()
 {
-	return(midiInStart(m_hMidiIn));
+	return midiInStart(m_hMidiIn);
 }
 
 inline MMRESULT CMidiIn::Stop()
 {
-	return(midiInStop(m_hMidiIn));
+	return midiInStop(m_hMidiIn);
 }
 
 inline MMRESULT CMidiIn::AddBuffer(LPMIDIHDR lpMidiInHdr)
 {
-	return(midiInAddBuffer(m_hMidiIn, lpMidiInHdr, sizeof(MIDIHDR)));
+	return midiInAddBuffer(m_hMidiIn, lpMidiInHdr, sizeof(MIDIHDR));
 }
 
 inline MMRESULT CMidiIn::PrepareHeader(LPMIDIHDR lpMidiInHdr)
 {
-	return(midiInPrepareHeader(m_hMidiIn, lpMidiInHdr, sizeof(MIDIHDR)));
+	return midiInPrepareHeader(m_hMidiIn, lpMidiInHdr, sizeof(MIDIHDR));
 }
 
 inline MMRESULT CMidiIn::UnprepareHeader(LPMIDIHDR lpMidiInHdr)
 {
-	return(midiInUnprepareHeader(m_hMidiIn, lpMidiInHdr, sizeof(MIDIHDR)));
+	return midiInUnprepareHeader(m_hMidiIn, lpMidiInHdr, sizeof(MIDIHDR));
 }
 
 class CMidiOut : public WObject {
@@ -129,37 +130,37 @@ protected:
 
 inline bool CMidiOut::IsOpen() const
 {
-	return(m_hMidiOut != NULL);
+	return m_hMidiOut != NULL;
 }
 
 inline HMIDIOUT CMidiOut::GetHandle() const
 {
-	return(m_hMidiOut);
+	return m_hMidiOut;
 }
 
 inline MMRESULT CMidiOut::Reset()
 {
-	return(midiOutReset(m_hMidiOut));
+	return midiOutReset(m_hMidiOut);
 }
 
 inline MMRESULT CMidiOut::OutShortMsg(DWORD dwMsg)
 {
-	return(midiOutShortMsg(m_hMidiOut, dwMsg));
+	return midiOutShortMsg(m_hMidiOut, dwMsg);
 }
 
 inline MMRESULT CMidiOut::OutLongMsg(LPMIDIHDR lpMidiOutHdr)
 {
-	return(midiOutLongMsg(m_hMidiOut, lpMidiOutHdr, sizeof(MIDIHDR)));
+	return midiOutLongMsg(m_hMidiOut, lpMidiOutHdr, sizeof(MIDIHDR));
 }
 
 inline MMRESULT CMidiOut::PrepareHeader(LPMIDIHDR lpMidiOutHdr)
 {
-	return(midiOutPrepareHeader(m_hMidiOut, lpMidiOutHdr, sizeof(MIDIHDR)));
+	return midiOutPrepareHeader(m_hMidiOut, lpMidiOutHdr, sizeof(MIDIHDR));
 }
 
 inline MMRESULT CMidiOut::UnprepareHeader(LPMIDIHDR lpMidiOutHdr)
 {
-	return(midiOutUnprepareHeader(m_hMidiOut, lpMidiOutHdr, sizeof(MIDIHDR)));
+	return midiOutUnprepareHeader(m_hMidiOut, lpMidiOutHdr, sizeof(MIDIHDR));
 }
 
 class CMMTimerPeriod : public WObject {
@@ -183,12 +184,12 @@ protected:
 
 inline bool CMMTimerPeriod::IsCreated() const
 {
-	return(m_Period != 0);
+	return m_Period != 0;
 }
 
 inline UINT CMMTimerPeriod::GetPeriod() const
 {
-	return(m_Period);
+	return m_Period;
 }
 
 class CMMTimer : public WObject {
@@ -212,12 +213,12 @@ protected:
 
 inline bool CMMTimer::IsCreated() const
 {
-	return(m_ID != 0);
+	return m_ID != 0;
 }
 
 inline UINT CMMTimer::GetID() const
 {
-	return(m_ID);
+	return m_ID;
 }
 
 #endif

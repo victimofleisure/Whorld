@@ -16,6 +16,7 @@
 		06		26feb25	add MIDI input
 		07		27feb25	restore patch on exiting snapshot mode
 		08		02mar25	add globals pane
+		09		03mar25	add thread error message handler
 
 */
 
@@ -34,6 +35,7 @@
 #include "RowDlg.h"	// for row view frame min/max info
 #include "dbt.h"	// for device change types
 #include "Midi.h"
+#include "SaveObj.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -90,6 +92,7 @@ CMainFrame::CMainFrame()
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
 	theApp.m_pMainWnd = this;
 	m_nPrevFrameCount = 0;
+	m_bInMsgBox = false;
 }
 
 CMainFrame::~CMainFrame()
@@ -505,6 +508,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_PARAM_CHANGE, OnParamChange)
 	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
 	ON_MESSAGE(UWM_MAIN_PROP_CHANGE, OnMainPropChange)
+	ON_MESSAGE(UWM_THREAD_ERROR_MSG, OnThreadErrorMsg)
 	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
 	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
@@ -832,6 +836,18 @@ LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
 	CWhorldDoc*	pDoc = theApp.GetDocument();
 	CWhorldDoc::CDisableUndo	noUndo(pDoc);
 	pDoc->SetMainProp(iProp, var, theApp.GetView());
+	return 0;
+}
+
+LRESULT CMainFrame::OnThreadErrorMsg(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	UINT	nErrorMsgID = static_cast<UINT>(wParam);
+	ASSERT(nErrorMsgID);	// string resource ID of error message
+	if (!m_bInMsgBox) {	// if not already displaying message box
+		CSaveObj<bool>	save(m_bInMsgBox, true);	// save and set reentry guard
+		AfxMessageBox(nErrorMsgID);
+	}
 	return 0;
 }
 

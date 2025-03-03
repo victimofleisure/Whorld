@@ -11,6 +11,7 @@
 		01		20feb25	add bitmap capture message
 		02		22feb25	add snapshot capture message
 		03		26feb25	add device node change message
+		04		03mar25	add thread error message
 
 */
 
@@ -135,6 +136,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_MASTER_PROP_CHANGE,		// wParam: iProp, lParam: double
 	UWM_MAIN_PROP_CHANGE,		// wParam: iProp, lParam: variant
 	UWM_MIDI_EVENT,				// wParam: MIDI event, lParam: none
+	UWM_THREAD_ERROR_MSG,		// wParam: string resource ID, lParam: none
 };
 
 // undo natter should always be zero in a shipping version

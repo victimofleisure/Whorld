@@ -144,15 +144,15 @@ bool CNumEdit::IsValidChar(int nChar)
 	case '.':
 	case 'e':
 		if (m_nFormat & DF_INT)
-			return(FALSE);
+			return FALSE;
 		break;
 	case '/':
 		return (m_nFormat & DF_FRACTION) != 0;
 	default:
 		if (!(isdigit(nChar) || iscntrl(nChar)))
-			return(FALSE);
+			return FALSE;
 	}
-	return(TRUE);
+	return TRUE;
 }
 
 void CNumEdit::Notify(int nNotifyMask)
@@ -210,7 +210,7 @@ BOOL CNumEdit::OnKillfocus()
 		}
 		Notify();
 	}
-	return(FALSE);	// let parent handle notification too
+	return FALSE;	// let parent handle notification too
 }
 
 void CNumEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 

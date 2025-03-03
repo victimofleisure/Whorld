@@ -10,6 +10,7 @@
         00      23jul05	initial version
 		01		04mar09	add static norm/denorm functions
         02      22feb25	replace header guard with pragma
+		03		03mar25	modernize style
 
 		slider with buddy numeric edit control
  
@@ -35,33 +36,33 @@ public:
 
 // Types
 	typedef struct tagINFO {
-		int		RangeMin;		// range lower limit
-		int		RangeMax;		// range upper limit
-		float	LogBase;		// if non-zero, position is exponent of this base
-		float	SliderScale;	// slider position is scaled by this factor
-		int		DefaultPos;		// default position, in slider coordinates
-		int		TicCount;		// if non-zero, number of tics, evenly spaced
-		float	EditScale;		// edit control's value is scaled by this factor
-		int		EditPrecision;	// edit control's digits to right of decimal point
+		int		nRangeMin;		// range lower limit
+		int		nRangeMax;		// range upper limit
+		float	fLogBase;		// if non-zero, position is exponent of this base
+		float	fSliderScale;	// slider position is scaled by this factor
+		int		nDefaultPos;	// default position, in slider coordinates
+		int		nTicCount;		// if non-zero, number of tics, evenly spaced
+		float	fEditScale;		// edit control's value is scaled by this factor
+		int		nEditPrecision;	// edit control's digits to right of decimal point
 	} INFO;
 
 // Attributes
 public:
-	void	SetVal(double Val);
+	void	SetVal(double fVal);
 	double	GetVal() const;
-	void	SetValNorm(double Val);
+	void	SetValNorm(double fVal);
 	double	GetValNorm() const;
-	void	SetScale(double Scale);
-	void	SetLogBase(double Base);
-	void	SetEditCtrl(CNumEdit *Edit);
+	void	SetScale(double fScale);
+	void	SetfLogBase(double fBase);
+	void	SetEditCtrl(CNumEdit *pEdit);
 	CNumEdit	*GetEditCtrl() const;
-	void	SetInfo(const INFO& Info, CNumEdit *Edit);
+	void	SetInfo(const INFO& info, CNumEdit *pEdit);
 	double	GetDefaultVal() const;
 
 // Operations
 public:
-	static	double	Norm(const INFO& Info, double Val);
-	static	double	Denorm(const INFO& Info, double Val);
+	static	double	Norm(const INFO& info, double pVal);
+	static	double	Denorm(const INFO& info, double pVal);
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -83,10 +84,10 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 // Member data
-	CNumEdit	*m_Edit;	// pointer to numeric edit control; may be null
-	double	m_Val;			// slider's value, post scaling and optional log
-	double	m_Scale;		// slider's scale; slider pos is scaled by this
-	double	m_LogBase;		// slider's log base; if zero, slider is linear
+	CNumEdit	*m_pEdit;	// pointer to numeric edit control; may be null
+	double	m_fVal;			// slider's value, post scaling and optional log
+	double	m_fScale;		// slider's scale; slider pos is scaled by this
+	double	m_fLogBase;		// slider's log base; if zero, slider is linear
 
 // Helpers
 	virtual	double	Norm(double x) const;
@@ -95,20 +96,20 @@ protected:
 
 inline double CEditSliderCtrl::GetVal() const
 {
-	return(m_Val);
+	return m_fVal;
 }
 
-inline void CEditSliderCtrl::SetScale(double Scale)
+inline void CEditSliderCtrl::SetScale(double fScale)
 {
-	m_Scale = Scale;
+	m_fScale = fScale;
 }
 
-inline void CEditSliderCtrl::SetLogBase(double Base)
+inline void CEditSliderCtrl::SetfLogBase(double fBase)
 {
-	m_LogBase = Base;
+	m_fLogBase = fBase;
 }
 
 inline CNumEdit *CEditSliderCtrl::GetEditCtrl() const
 {
-	return(m_Edit);
+	return m_pEdit;
 }

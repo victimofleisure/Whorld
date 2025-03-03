@@ -11,6 +11,7 @@
 		01		21feb25	add options
 		02		26feb25	add MIDI input
 		03		28feb25	add playlist
+		04		03mar25	if command queue is full, worker thread now retries
 
 */
 
@@ -358,10 +359,26 @@ void CWhorldApp::ResizeRenderWnd(int cx, int cy)
 
 void CWhorldApp::PushRenderCommand(const CRenderCmd& cmd)
 {
-	while (!m_thrRender.PushCommand(cmd)) {
-		// command queue was full; give user a chance to retry
-		if (AfxMessageBox(IDS_APP_ERR_TOO_MANY_RENDER_COMMANDS, MB_RETRYCANCEL) != IDRETRY) {
-			break;
+	while (!m_thrRender.PushCommand(cmd)) {	// try to enqueue command
+		// command queue was full
+		if (IsMainThread()) {	// if we're the user-interface thread
+			// give the user a chance to retry
+			if (AfxMessageBox(IDS_APP_ERR_RENDER_QUEUE_FULL, MB_RETRYCANCEL) != IDRETRY) {
+				return;	// user canceled, so stop retrying
+			}
+		} else {	// we're a worker thread
+			// do a limited number of retries, separated by timeouts
+			const int	nMaxRetries = 10;
+			const int	nRetryTimeout = 10;	// in milliseconds
+			for (int iRetry = 0; iRetry < nMaxRetries; iRetry++) {	// for each retry
+				Sleep(nRetryTimeout);	// do a timeout
+				if (m_thrRender.PushCommand(cmd)) {	// try to enqueue command
+					return;	// retry succeeded
+				}
+			}
+			// relay the error to the main thread
+			theApp.GetMainFrame()->PostMessage(UWM_THREAD_ERROR_MSG, IDS_APP_ERR_RENDER_QUEUE_FULL);
+			return;	// retries failed, so give up
 		}
 	}
 }

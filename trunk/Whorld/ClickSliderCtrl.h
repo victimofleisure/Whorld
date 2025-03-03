@@ -10,6 +10,7 @@
         00      28sep04	initial version
 		01		22apr05	remove undo handling
         02      22feb25	replace header guard with pragma
+		03		03mar25	modernize style
 
 		slider with jump to position and default
  
@@ -33,8 +34,8 @@ public:
 // Attributes
 public:
 	int		GetDefaultPos() const;
-	void	SetDefaultPos(int Pos);
-	void	SetTicCount(int Count);
+	void	SetDefaultPos(int nPos);
+	void	SetTicCount(int nCount);
 
 // Operations
 public:
@@ -64,20 +65,20 @@ protected:
 	};
 
 // Member data
-	int		m_DefPos;	// default position, in slider coordinates
+	int		m_nDefPos;	// default position, in slider coordinates
 
 // Helpers
 	int		PointToPos(CPoint point);
 	void	PostPos();
-	void	PostNotification(int Code);
+	void	PostNotification(int nCode);
 };
 
 inline int CClickSliderCtrl::GetDefaultPos() const
 {
-	return(m_DefPos);
+	return m_nDefPos;
 }
 
-inline void CClickSliderCtrl::SetDefaultPos(int Pos)
+inline void CClickSliderCtrl::SetDefaultPos(int nPos)
 {
-	m_DefPos = Pos;
+	m_nDefPos = nPos;
 }

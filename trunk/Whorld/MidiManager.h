@@ -60,7 +60,7 @@ protected:
 // Data members
 	CMidiDevices	m_midiDevs;	// MIDI device info
 	CMidiIn	m_midiIn;			// MIDI input device
-	bool	m_bInMsgBox;		// true if displaying message box
+	bool	m_bInMsgBox;		// true if displaying message box; guards against reentrance
 	bool	m_bLearnMode;		// true if we're learning mappings
 
 // Helpers

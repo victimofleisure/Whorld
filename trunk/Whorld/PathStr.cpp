@@ -10,6 +10,7 @@
         00      27jul05	initial version
 		01		02sep05	add QuoteSpaces
 		02		23nov07	support Unicode
+		03		03mar25	modernize style
 
 		wrap useful shell path functions
  
@@ -18,10 +19,10 @@
 #include "stdafx.h"
 #include "PathStr.h"
 
-BOOL CPathStr::Append(LPCTSTR More)
+BOOL CPathStr::Append(LPCTSTR pszMore)
 {
 	LPTSTR	p = GetBuffer(MAX_PATH);
-	BOOL	retc = PathAppend(p, More);
+	BOOL	retc = PathAppend(p, pszMore);
 	ReleaseBuffer();
 	return(retc);
 }
@@ -41,10 +42,10 @@ BOOL CPathStr::RemoveFileSpec()
 	return(retc);
 }
 
-BOOL CPathStr::RenameExtension(LPCTSTR Ext)
+BOOL CPathStr::RenameExtension(LPCTSTR pszExt)
 {
 	LPTSTR	p = GetBuffer(MAX_PATH);
-	BOOL	retc = PathRenameExtension(p, Ext);
+	BOOL	retc = PathRenameExtension(p, pszExt);
 	ReleaseBuffer();
 	return(retc);
 }

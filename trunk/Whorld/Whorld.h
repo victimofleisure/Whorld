@@ -67,6 +67,7 @@ public:
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 	bool	ResourceVersionChanged() const;
+	static bool	IsMainThread();
 
 // Operations
 	void	ApplyOptions(const COptions *pPrevOptions);
@@ -236,4 +237,10 @@ inline bool CWhorldApp::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszIm
 inline bool	CWhorldApp::ResourceVersionChanged() const
 {
 	return m_nNewResourceVersion != m_nOldResourceVersion;
+}
+
+inline bool	CWhorldApp::IsMainThread()
+{
+	// assume app has only ONE user-interface thread
+	return GetCurrentThreadId() == theApp.m_nThreadID;
 }

@@ -77,8 +77,8 @@ void CMasterRowDlg::GetPropEditRange(int iProp, DBL_RANGE& range)
 	range = m_arrEditRange[iProp];
 	if (!range.fMinVal && !range.fMaxVal) {
 		const CEditSliderCtrl::INFO& info = m_arrSliderInfo[iProp];
-		range.fMinVal = info.RangeMin * info.EditScale;
-		range.fMaxVal = info.RangeMax * info.EditScale;
+		range.fMinVal = info.nRangeMin * info.fEditScale;
+		range.fMaxVal = info.nRangeMax * info.fEditScale;
 	}
 }
 
@@ -110,11 +110,11 @@ double CMasterRowDlg::SliderNorm(int iProp, double fVal)
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iProp];
 	switch (iProp) {
 	case MASTER_Damping:
-		return info.SliderScale - LogNorm(fVal, info.LogBase, info.SliderScale);
+		return info.fSliderScale - LogNorm(fVal, info.fLogBase, info.fSliderScale);
 	case MASTER_Trail:
-		return LogNorm(fVal, info.LogBase, info.SliderScale);
+		return LogNorm(fVal, info.fLogBase, info.fSliderScale);
 	case MASTER_Rings:
-		return LogNorm(fVal / CPatch::MAX_RINGS, info.LogBase, info.SliderScale);
+		return LogNorm(fVal / CPatch::MAX_RINGS, info.fLogBase, info.fSliderScale);
 	default:
 		return CEditSliderCtrl::Norm(info, fVal);
 	}
@@ -125,11 +125,11 @@ double CMasterRowDlg::SliderDenorm(int iProp, double fVal)
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iProp];
 	switch (iProp) {
 	case MASTER_Damping:
-		return ExpNorm(info.SliderScale - fVal, info.LogBase, info.SliderScale);
+		return ExpNorm(info.fSliderScale - fVal, info.fLogBase, info.fSliderScale);
 	case MASTER_Trail:
-		return ExpNorm(fVal, info.LogBase, info.SliderScale);
+		return ExpNorm(fVal, info.fLogBase, info.fSliderScale);
 	case MASTER_Rings:
-		return ExpNorm(fVal, info.LogBase, info.SliderScale) * CPatch::MAX_RINGS;
+		return ExpNorm(fVal, info.fLogBase, info.fSliderScale) * CPatch::MAX_RINGS;
 	default:
 		return CEditSliderCtrl::Denorm(info, fVal);
 	}
@@ -139,13 +139,13 @@ double CMasterRowDlg::Norm(int iProp, double fVal)
 {
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iProp];
 	fVal = SliderNorm(iProp, fVal);
-	return (fVal - info.RangeMin) / (info.RangeMax - info.RangeMin);
+	return (fVal - info.nRangeMin) / (info.nRangeMax - info.nRangeMin);
 }
 
 double CMasterRowDlg::Denorm(int iProp, double fVal)
 {
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iProp];
-	fVal = fVal * (info.RangeMax - info.RangeMin) + info.RangeMin;
+	fVal = fVal * (info.nRangeMax - info.nRangeMin) + info.nRangeMin;
 	return SliderDenorm(iProp, fVal);
 }
 
@@ -167,7 +167,7 @@ void CMasterRowDlg::CMyNumEdit::StrToVal(LPCTSTR Str)
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iProp];
 	switch (iProp) {
 	case MASTER_Damping:
-		m_fVal = (info.EditScale - _tstof(Str)) / info.EditScale;
+		m_fVal = (info.fEditScale - _tstof(Str)) / info.fEditScale;
 		break;
 	default:
 		CNumEdit::StrToVal(Str);
@@ -180,7 +180,7 @@ void CMasterRowDlg::CMyNumEdit::ValToStr(CString& Str)
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iProp];
 	switch (iProp) {
 	case MASTER_Damping:
-		Str.Format(_T("%.*f"), info.EditPrecision, info.EditScale - m_fVal * info.EditScale);
+		Str.Format(_T("%.*f"), info.nEditPrecision, info.fEditScale - m_fVal * info.fEditScale);
 		break;
 	default:
 		CNumEdit::ValToStr(Str);

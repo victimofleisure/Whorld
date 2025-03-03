@@ -638,15 +638,16 @@ BEGIN
     IDS_MAP_TARGET_OriginX  "Origin X"
     IDS_MAP_TARGET_OriginY  "Origin Y"
     IDS_MAP_TARGET_Outline  "Outline"
+    IDS_MAP_TARGET_Pause    "Pause"
     IDS_MAP_TARGET_RandomPhase "Random Phase"
     IDS_MAP_TARGET_Reverse  "Reverse"
     IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
-    IDS_MASTER_Damping      "Damping"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueSpan      "Hue Span"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
@@ -662,11 +663,11 @@ BEGIN
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
     IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
-    IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
@@ -674,6 +675,7 @@ BEGIN
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
     IDS_NONE                "<None>"
+    IDS_NOT_APPLICABLE      "N/A"
     IDS_OPT_DESC_Export_bPromptUser 
                             "Prompt user for destination folder, filename, and options"
     IDS_OPT_DESC_Export_bScaleToFit 
@@ -685,12 +687,12 @@ BEGIN
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
     IDS_OPT_DESC_General_nMRUItems 
                             "Maximum number of items in recently used lists"
-    IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
-    IDS_OPT_GROUP_Export    "Export"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
+    IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
@@ -705,12 +707,12 @@ BEGIN
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
-    IDS_PARAM_ColorSpeed    "Color Speed"
-    IDS_PARAM_EvenCurve     "Even Curve"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_ColorSpeed    "Color Speed"
+    IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
@@ -725,12 +727,12 @@ BEGIN
     IDS_PARAM_SkewAngle     "Skew Angle"
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
-    IDS_PROPS_MORE_COLORS   "More Colors..."
-    IDS_PROW_Amp            "Amplitude"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROPS_MORE_COLORS   "More Colors..."
+    IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_Global         "Global"
     IDS_PROW_NAME_STATIC    "Name"
@@ -745,20 +747,18 @@ BEGIN
     IDS_WAVE_PULSE          "Pulse"
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
     IDS_WAVE_RAMP_UP        "Ramp Up"
-    IDS_WAVE_RANDOM         "Random"
-    IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_WAVE_RANDOM         "Random"
+    IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_MAP_TARGET_Pause    "Pause"
-    IDS_NOT_APPLICABLE      "N/A"
 END
 
 STRINGTABLE
@@ -772,11 +772,11 @@ BEGIN
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
-    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
 END
 
 STRINGTABLE
 BEGIN
+    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
@@ -797,11 +797,11 @@ BEGIN
     ID_PLAYLIST_MRU_FILE2   "Open this playlist"
     ID_PLAYLIST_MRU_FILE3   "Open this playlist"
     ID_PLAYLIST_MRU_FILE4   "Open this playlist"
-    ID_PLAYLIST_MRU_FILE5   "Open this playlist"
 END
 
 STRINGTABLE
 BEGIN
+    ID_PLAYLIST_MRU_FILE5   "Open this playlist"
     ID_PLAYLIST_MRU_FILE6   "Open this playlist"
     ID_PLAYLIST_MRU_FILE7   "Open this playlist"
     ID_PLAYLIST_MRU_FILE8   "Open this playlist"

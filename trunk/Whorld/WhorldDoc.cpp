@@ -224,11 +224,12 @@ BOOL CWhorldDoc::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 
 void CWhorldDoc::SetModifiedFlag(BOOL bModified)
 {
-	// If we're in snapshot mode, don't touch the modified flag, 
-	// because undo is disabled in snapshot mode, and any changes
-	// made to the document during snapshot mode are reversed when
-	// snapshot mode ends, by restoring a previously saved backup.
-	if (!theApp.IsSnapshotMode()) {	// if not in snapshot mode
+	// Don't touch the modified flag if undo is disabled, for
+	// example during remote edits. If we're in snapshot mode, 
+	// don't touch the modified flag then either, because any 
+	// changes made to the document during snapshot mode are 
+	// undone by restoring a backup when snapshot mode ends.
+	if (!(m_bIsUndoDisabled || theApp.IsSnapshotMode())) {
 		CDocument::SetModifiedFlag(bModified);	// do base class behavior
 	}
 }

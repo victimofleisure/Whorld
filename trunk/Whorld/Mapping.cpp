@@ -23,6 +23,7 @@
 		13		01sep24	add mapping target for duplicate note method
 		14		26feb25	adapt for Whorld
 		15		01mar25	add misc targets
+		16		03mar25	support full resolution pitch bend
 
 */
 
@@ -201,7 +202,7 @@ void CMappingArray::Read(CIniFile& fIn)
 
 DWORD CMapping::GetInputMidiMsg() const
 {
-	return MakeMidiMsg((m_iEvent + 8) << 4, m_iChannel, m_iControl, 0);
+	return MakeMidiMsg(MIDI_IDX_CMD(m_iEvent), m_iChannel, m_iControl, 0);
 }
 
 void CMapping::SetInputMidiMsg(DWORD nInMidiMsg)
@@ -225,13 +226,18 @@ int CMapping::IsInputMatch(DWORD nInMidiMsg) const
 		return -1;	// fail
 	}
 	int	nP1 = MIDI_P1(nInMidiMsg);	// parameter 1
+	int	nP2 = MIDI_P2(nInMidiMsg);	// parameter 2
 	if (iCmd <= MIDI_CVM_CONTROL) {	// if command has a note/controller
 		if (nP1 != m_iControl) {	// if control doesn't match
 			return -1;	// fail
 		}
-		return MIDI_P2(nInMidiMsg);	// success: parameter 2 is data value
+		return nP2;	// data is P2
 	} else {	// command doesn't have a note/controller
-		return nP1;	// success: parameter 1 is data value
+		if (iCmd == MIDI_CVM_WHEEL) {
+			return nP1 | (nP2 << 7);	// data is P1 and P2
+		} else {
+			return nP1;	// data is P1
+		}
 	}
 }
 

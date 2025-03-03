@@ -15,6 +15,7 @@
 		05		19mar20	add channel voice and system status messages
 		06		21jan22	add stream buffer event macros
 		07		23dec23	add message component bitmasks
+		08		03mar25	add inverse channel voice macro and pitch bend range
 
 		midi types and constants
 
@@ -53,6 +54,8 @@ enum {
 	MIDI_CHAN_MAX	= MIDI_CHANNELS - 1,
 	MIDI_NOTES		= 128,
 	MIDI_NOTE_MAX	= MIDI_NOTES - 1,
+	MIDI_PITCH_BEND_STEPS	= 0x4000,
+	MIDI_PITCH_BEND_MAX		= MIDI_PITCH_BEND_STEPS - 1,
 };
 
 enum {	// MIDI channel voice messages
@@ -84,6 +87,7 @@ enum {	// bitmasks for MIDI message components
 #define MIDI_CMD(msg)		(msg & 0xf0)
 #define MIDI_CHAN(msg)		(msg & 0x0f)
 #define MIDI_CMD_IDX(msg)	((MIDI_CMD(msg) >> 4) - 8)
+#define MIDI_IDX_CMD(idx)	((idx + 8) << 4)
 #define CHAN_MODE_MSG(ctrl)	(ctrl >= 120)
 #define MIDI_CLOCK_PPQ		24
 #define MIDI_BEAT_CLOCKS	6

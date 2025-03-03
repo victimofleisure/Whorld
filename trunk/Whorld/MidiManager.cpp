@@ -11,6 +11,7 @@
 		01		28feb25	add center epsilon
 		02		01mar25	add misc targets
 		03		01mar25	add learn mode
+		04		03mar25	support full resolution pitch bend
 
 */
 
@@ -298,10 +299,20 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 		int	nMidiVal = map.IsInputMatch(dwEvent);	// try to map MIDI message
 		if (nMidiVal >= 0) {	// if message was mapped
 			// mapping result is a MIDI data value; account for range and then normalize it
-			int	nRange = map.m_nEnd - map.m_nStart;	// can be negative if start > end
-			double	fMidiVal = nMidiVal / 127.0 * nRange + map.m_nStart;	// offset by start of range
-			double	fNormVal = fMidiVal / 127.0;	// normalized target value
-			const double	fCenterEpsilon = 0.005;	// half a percent, determined empirically
+			int	nMapRange = map.m_nEnd - map.m_nStart;	// can be negative if start > end
+			int	nMidiMax;
+			double	fCenterEpsilon;
+			if (map.m_iEvent == MIDI_CVM_WHEEL) {	// if pitch bend
+				nMidiMax = MIDI_PITCH_BEND_MAX;
+				fCenterEpsilon = 0.00005;	// 100 times more resolution
+			} else {	// not pitch bend
+				nMidiMax = MIDI_NOTE_MAX;
+				fCenterEpsilon = 0.005;	// determined empirically
+			}
+			// convert from MIDI to range coordinates and offset by start of range
+			double	fMidiVal = double(nMidiVal) / nMidiMax * nMapRange + map.m_nStart;
+			double	fNormVal = fMidiVal / MIDI_NOTE_MAX;	// normalized target value
+			// many targets are zero-centered, so we must avoid infinitesimal at center
 			if (fabs(fNormVal - 0.5) < fCenterEpsilon) {	// if within epsilon of center
 				fNormVal = 0.5;	// call it center
 			}

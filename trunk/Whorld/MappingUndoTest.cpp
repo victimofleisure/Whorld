@@ -231,7 +231,7 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 			int	iMapping = Random(midiMaps.GetCount());
 			if (iMapping < 0)
 				return(DISABLED);
-			int	nInMidiMsg = MakeMidiMsg((Random(MIDI_CHANNEL_VOICE_MESSAGES) + 8) << 4,
+			int	nInMidiMsg = MakeMidiMsg(MIDI_IDX_CMD(Random(MIDI_CHANNEL_VOICE_MESSAGES)),
 				Random(MIDI_CHANNELS), Random(MIDI_NOTES), Random(MIDI_NOTES));
 			midiPane.LearnMapping(iMapping, nInMidiMsg);
 			PRINTF(_T("%s %d %x\n"), sUndoTitle, iMapping, nInMidiMsg);
@@ -242,7 +242,7 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 			CIntArrayEx	arrSelection;
 			if (!MakeRandomSelection(midiMaps.GetCount(), arrSelection))
 				return(DISABLED);
-			int	nInMidiMsg = MakeMidiMsg((Random(MIDI_CHANNEL_VOICE_MESSAGES) + 8) << 4,
+			int	nInMidiMsg = MakeMidiMsg(MIDI_IDX_CMD(Random(MIDI_CHANNEL_VOICE_MESSAGES)),
 				Random(MIDI_CHANNELS), Random(MIDI_NOTES), Random(MIDI_NOTES));
 			midiPane.LearnMappings(arrSelection, nInMidiMsg);
 			PRINTF(_T("%s %s %x\n"), sUndoTitle, PrintSelection(arrSelection), nInMidiMsg);

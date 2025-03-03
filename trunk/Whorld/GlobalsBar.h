@@ -14,14 +14,14 @@
 #pragma once
 
 #include "MyDockablePane.h"
-#include "RowView.h"
+#include "MyRowView.h"
 #include "WhorldBase.h"
 
 class CGlobalsBar;
 class CGlobalsRowDlg;
 class CWhorldDoc;
 
-class CGlobalsView : public CRowView, public CWhorldBase {
+class CGlobalsView : public CMyRowView, public CWhorldBase {
 public:
 	DECLARE_DYNCREATE(CGlobalsView);
 	CGlobalsView();
@@ -41,7 +41,6 @@ public:
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg int OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message);
 };
 
 inline CGlobalsRowDlg* CGlobalsView::GetRow(int iRow)

@@ -28,7 +28,7 @@ static char THIS_FILE[]=__FILE__;
 
 // CParamsView
 
-IMPLEMENT_DYNCREATE(CParamsView, CRowView)
+IMPLEMENT_DYNCREATE(CParamsView, CMyRowView)
 
 CParamsView::CParamsView()
 {
@@ -78,25 +78,16 @@ void CParamsView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	}
 }
 
-BEGIN_MESSAGE_MAP(CParamsView, CRowView)
-	ON_WM_MOUSEACTIVATE()
+BEGIN_MESSAGE_MAP(CParamsView, CMyRowView)
 	ON_WM_CREATE()
 END_MESSAGE_MAP()
 	
 int CParamsView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CRowView::OnCreate(lpCreateStruct) == -1)
+	if (CMyRowView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	theApp.GetDocument()->AddView(this);	// add view to document
 	return 0;
-}
-
-int CParamsView::OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message)
-{
-	UNREFERENCED_PARAMETER(pDesktopWnd);
-	UNREFERENCED_PARAMETER(nHitTest);
-	UNREFERENCED_PARAMETER(message);
-	return MA_NOACTIVATE;	// prevents assertion
 }
 
 // CParamsBar
@@ -131,11 +122,10 @@ void CParamsBar::OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI)
 
 BEGIN_MESSAGE_MAP(CParamsBar, CMyDockablePane)
 	ON_WM_CREATE()
+	ON_WM_DESTROY()
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
-	ON_WM_DESTROY()
-	ON_MESSAGE(WM_COMMANDHELP, OnCommandHelp)
 END_MESSAGE_MAP()
 
 // CParamsBar message handlers

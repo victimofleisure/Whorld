@@ -26,7 +26,7 @@ static char THIS_FILE[]=__FILE__;
 
 // CGlobalsView
 
-IMPLEMENT_DYNCREATE(CGlobalsView, CRowView)
+IMPLEMENT_DYNCREATE(CGlobalsView, CMyRowView)
 
 CGlobalsView::CGlobalsView()
 {
@@ -82,25 +82,16 @@ void CGlobalsView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	}
 }
 
-BEGIN_MESSAGE_MAP(CGlobalsView, CRowView)
-	ON_WM_MOUSEACTIVATE()
+BEGIN_MESSAGE_MAP(CGlobalsView, CMyRowView)
 	ON_WM_CREATE()
 END_MESSAGE_MAP()
 	
 int CGlobalsView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CRowView::OnCreate(lpCreateStruct) == -1)
+	if (CMyRowView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	theApp.GetDocument()->AddView(this);	// add view to document
 	return 0;
-}
-
-int CGlobalsView::OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message)
-{
-	UNREFERENCED_PARAMETER(pDesktopWnd);
-	UNREFERENCED_PARAMETER(nHitTest);
-	UNREFERENCED_PARAMETER(message);
-	return MA_NOACTIVATE;	// prevents assertion
 }
 
 // CGlobalsBar
@@ -139,7 +130,6 @@ BEGIN_MESSAGE_MAP(CGlobalsBar, CMyDockablePane)
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
 	ON_WM_DESTROY()
-	ON_MESSAGE(WM_COMMANDHELP, OnCommandHelp)
 END_MESSAGE_MAP()
 
 // CGlobalsBar message handlers

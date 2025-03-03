@@ -223,6 +223,7 @@
     <ClInclude Include="MidiManager.h" />
     <ClInclude Include="MidiWrap.h" />
     <ClInclude Include="MyDockablePane.h" />
+    <ClInclude Include="MyRowView.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="OptionsDef.h" />
     <ClInclude Include="OptionsDlg.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="MidiManager.cpp" />
     <ClCompile Include="MidiWrap.cpp" />
     <ClCompile Include="MyDockablePane.cpp" />
+    <ClCompile Include="MyRowView.cpp" />
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="Oscillator.cpp" />

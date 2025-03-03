@@ -27,7 +27,7 @@ static char THIS_FILE[]=__FILE__;
 
 // CMasterView
 
-IMPLEMENT_DYNCREATE(CMasterView, CRowView)
+IMPLEMENT_DYNCREATE(CMasterView, CMyRowView)
 
 #define IDS_MAST_NAME_STATIC IDS_PROW_NAME_STATIC
 #define IDS_MAST_VAL_SLIDER IDS_PROW_VAL_SLIDER
@@ -82,25 +82,16 @@ void CMasterView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	}
 }
 
-BEGIN_MESSAGE_MAP(CMasterView, CRowView)
-	ON_WM_MOUSEACTIVATE()
+BEGIN_MESSAGE_MAP(CMasterView, CMyRowView)
 	ON_WM_CREATE()
 END_MESSAGE_MAP()
 	
 int CMasterView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CRowView::OnCreate(lpCreateStruct) == -1)
+	if (CMyRowView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	theApp.GetDocument()->AddView(this);	// add view to document
 	return 0;
-}
-
-int CMasterView::OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message)
-{
-	UNREFERENCED_PARAMETER(pDesktopWnd);
-	UNREFERENCED_PARAMETER(nHitTest);
-	UNREFERENCED_PARAMETER(message);
-	return MA_NOACTIVATE;	// prevents assertion
 }
 
 // CMasterBar
@@ -139,7 +130,6 @@ BEGIN_MESSAGE_MAP(CMasterBar, CMyDockablePane)
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
 	ON_WM_DESTROY()
-	ON_MESSAGE(WM_COMMANDHELP, OnCommandHelp)
 END_MESSAGE_MAP()
 
 // CMasterBar message handlers

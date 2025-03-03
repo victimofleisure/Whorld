@@ -61,6 +61,7 @@ CWhorldApp::CWhorldApp()
 	m_bIsDualMonitor = false;
 	m_bIsPaused = false;
 	m_hKeyboardHook = NULL;
+	m_nOldResourceVersion = 0;
 }
 
 // The one and only CWhorldApp object
@@ -607,13 +608,7 @@ void CWhorldApp::SetPause(bool bEnable)
 	PushRenderCommand(cmd);	// request render thread to enter specified pause state
 	m_bIsPaused = bEnable;	// update our paused state
 	if (!bEnable) {	// if we're unpausing
-		if (m_pPreSnapshotModePatch != NULL) {	// if we're in snapshot mode
-			// snapshot is deleted when smart pointer goes out of scope
-			CAutoPtr<CPatch> pOldPatch(m_pPreSnapshotModePatch);	// take ownership
-			CWhorldDoc*	pDoc = GetDocument();
-			pDoc->GetPatch() = *pOldPatch;	// copy previously saved patch to document
-			pDoc->UpdateAllViews(NULL);	// notify views of new patch
-		}
+		SetSnapshotMode(false);
 	}
 }
 
@@ -623,14 +618,9 @@ bool CWhorldApp::LoadSnapshot(LPCTSTR pszPath)
 	if (pSnapshot == NULL) {	// if read failed
 		return false;	// error already handled
 	}
-	SetPause(true);	// pause render updates while showing snapshot
-	CWhorldDoc*	pDoc = GetDocument();
-	if (m_pPreSnapshotModePatch == NULL) {	// if pre-snapshot mode backup unmade
-		CPatch&	patch = *pDoc;	// upcast from document to patch data
-		// create copy of current patch on heap and attach copy to member pointer
-		m_pPreSnapshotModePatch.Attach(new CPatch(patch));
-	}
+	SetSnapshotMode(true);
 	// update zoom in UI to snapshot's zoom
+	CWhorldDoc*	pDoc = GetDocument();
 	pDoc->m_master.fZoom = pSnapshot->m_state.fZoom;
 	CWhorldDoc::CParamHint	hint(MASTER_Zoom);	// master property index
 	// display snapshot command updates render thread's zoom, so specify
@@ -640,6 +630,28 @@ bool CWhorldApp::LoadSnapshot(LPCTSTR pszPath)
 	cmd.m_prop.byref = pSnapshot;
 	PushRenderCommand(cmd);	// request render thread to display snapshot
 	return true;
+}
+
+void CWhorldApp::SetSnapshotMode(bool bEnable)
+{
+	if (bEnable == IsSnapshotMode())	// if already in requested mode
+		return;	// nothing to do
+	if (bEnable) {	// if entering snapshot mode
+		SetPause(true);	// pause render updates while showing snapshot
+		CWhorldDoc*	pDoc = GetDocument();
+		if (m_pPreSnapshotModePatch == NULL) {	// if pre-snapshot mode backup unmade
+			CPatch&	patch = *pDoc;	// upcast from document to patch data
+			// create copy of current patch on heap and attach copy to member pointer
+			m_pPreSnapshotModePatch.Attach(new CPatch(patch));
+		}
+	} else {	// exiting snapshot mode
+		ASSERT(m_pPreSnapshotModePatch != NULL);	// otherwise logic error
+		// snapshot is deleted when smart pointer goes out of scope
+		CAutoPtr<CPatch> pOldPatch(m_pPreSnapshotModePatch);	// take ownership
+		CWhorldDoc*	pDoc = GetDocument();
+		pDoc->GetPatch() = *pOldPatch;	// copy previously saved patch to document
+		pDoc->UpdateAllViews(NULL);	// notify views of new patch
+	}
 }
 
 // CWhorldApp message map

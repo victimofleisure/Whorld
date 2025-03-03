@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		24feb25	fix outline menu item not displaying check
 		02		27feb25	disable undo/redo while in snapshot mode
+		03		03mar25	don't touch modified flag while in snapshot mode
 
 */
 
@@ -219,6 +220,17 @@ BOOL CWhorldDoc::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 		}
 	}
 	return true;
+}
+
+void CWhorldDoc::SetModifiedFlag(BOOL bModified)
+{
+	// If we're in snapshot mode, don't touch the modified flag, 
+	// because undo is disabled in snapshot mode, and any changes
+	// made to the document during snapshot mode are reversed when
+	// snapshot mode ends, by restoring a previously saved backup.
+	if (!theApp.IsSnapshotMode()) {	// if not in snapshot mode
+		CDocument::SetModifiedFlag(bModified);	// do base class behavior
+	}
 }
 
 // CWhorldDoc undo handling

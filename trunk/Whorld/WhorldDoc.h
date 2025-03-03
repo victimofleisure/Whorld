@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		27feb25	customize undo notify to support disabling
+		02		03mar25	override set modified flag accessor
 
 */
 
@@ -55,6 +56,7 @@ public:
 	virtual	void	SaveUndoState(CUndoState& State);
 	virtual	void	RestoreUndoState(const CUndoState& State);
 	virtual	CString	GetUndoTitle(const CUndoState& State);
+	virtual void	SetModifiedFlag(BOOL bModified = TRUE);
 
 // Public types
 	class CMyUndoManager : public CUndoManager {

@@ -64,6 +64,7 @@ public:
 	bool	IsPaused() const;
 	void	SetPause(bool bEnable);
 	bool	IsSnapshotMode() const;
+	void	SetSnapshotMode(bool bEnable);
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 	bool	ResourceVersionChanged() const;

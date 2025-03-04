@@ -716,10 +716,10 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	case FRAME_RATE_TIMER_ID:
 		{
 			int	nPrevLen = m_sRingCount.GetLength();
-			m_sRingCount.Format(_T("%lld"), theApp.GetRingCount());
+			m_sRingCount.Format(_T("%lld"), theApp.m_thrRender.GetRingCount());
 			FastSetPaneText(m_wndStatusBar, SBP_RING_COUNT, m_sRingCount, nPrevLen);
 			double	fElapsedSecs = m_benchFrameRate.Reset();
-			UINT_PTR	nFrameCount = theApp.GetFrameCount();
+			UINT_PTR	nFrameCount = theApp.m_thrRender.GetFrameCount();
 			double	fFrameRate = (nFrameCount - m_nPrevFrameCount) * (1 / fElapsedSecs);
 			m_nPrevFrameCount = nFrameCount;	// update previous frame count
 			nPrevLen = m_sFrameRate.GetLength();
@@ -748,10 +748,10 @@ void CMainFrame::OnFileExport()
 			return;	// user canceled
 		}
 	}
-	// render thread captures bitmap and posts it to our main window for writing
-	CRenderCmd	cmd(RC_CAPTURE_BITMAP, theApp.m_options.GetExportFlags());
-	cmd.m_prop.szVal = theApp.m_options.GetExportImageSize();
-	theApp.PushRenderCommand(cmd);	// start capture ASAP in case we're unpaused
+	// render thread captures bitmap and posts it to our main window for writing;
+	// enqueue command ASAP in case we're unpaused, in which case sooner is better
+	theApp.m_thrRender.CaptureBitmap(theApp.m_options.GetExportFlags(), 
+		theApp.m_options.GetExportImageSize());
 	if (sExportPath.IsEmpty()) {	// if export path is unspecified
 		if (!MakeExportPath(sExportPath, m_pszExportExt))	// generate path
 			return;	// unable to generate path
@@ -770,7 +770,7 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 		CString	sExportPath(m_saOutputPath[0]);	// copy oldest output path
 		m_saOutputPath.RemoveAt(0);	// remove oldest output path from array
 		if (pBitmap != NULL) {	// if capture succeeded
-			theApp.WriteCapturedBitmap(pBitmap, sExportPath);	// export image
+			theApp.m_thrRender.WriteCapturedBitmap(pBitmap, sExportPath);	// export image
 		}
 	}
 	return 0;
@@ -778,8 +778,7 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnFileTakeSnapshot()
 {
-	CRenderCmd	cmd(RC_CAPTURE_SNAPSHOT);
-	theApp.PushRenderCommand(cmd);
+	theApp.m_thrRender.CaptureSnapshot();
 }
 
 void CMainFrame::OnFileLoadSnapshot()
@@ -883,8 +882,7 @@ void CMainFrame::OnUpdatePlaylistMru(CCmdUI* pCmdUI)
 
 void CMainFrame::OnImageRandomPhase()
 {
-	CRenderCmd	cmd(RC_RANDOM_PHASE);
-	theApp.PushRenderCommand(cmd);
+	theApp.m_thrRender.RandomPhase();
 }
 
 #define MAINDOCKBARDEF(name, width, height, style) \
@@ -953,8 +951,7 @@ void CMainFrame::OnUpdateWindowPause(CCmdUI *pCmdUI)
 
 void CMainFrame::OnWindowStep()
 {
-	CRenderCmd	cmd(RC_SINGLE_STEP);
-	theApp.PushRenderCommand(cmd);
+	theApp.m_thrRender.SingleStep();
 }
 
 void CMainFrame::OnUpdateWindowStep(CCmdUI *pCmdUI)
@@ -964,8 +961,7 @@ void CMainFrame::OnUpdateWindowStep(CCmdUI *pCmdUI)
 
 void CMainFrame::OnWindowClear()
 {
-	CRenderCmd	cmd(RC_SET_EMPTY, !theApp.IsPaused());
-	theApp.PushRenderCommand(cmd);
+	theApp.m_thrRender.SetEmpty();
 }
 
 void CMainFrame::OnWindowResetLayout()

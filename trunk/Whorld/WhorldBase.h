@@ -103,6 +103,11 @@ public:
 		int		m_iParam;	// index of parameter
 		int		m_iProp;	// index of property
 	};
+	class CPropHint : public CObject {
+	public:
+		CPropHint(int iProp = 0) : m_iProp(iProp) {}
+		int		m_iProp;	// index of property
+	};
 
 // Constants
 	enum {	// parameter properties
@@ -148,8 +153,8 @@ public:
 	enum {	// document update hints
 		HINT_NONE,			// no hint
 		HINT_PARAM,			// update parameter property; pHint is CParamHint
-		HINT_MASTER,		// update master property; pHint is CParamHint
-		HINT_MAIN,			// update main property; pHint is CParamHint
+		HINT_MASTER,		// update master property; pHint is CPropHint
+		HINT_MAIN,			// update main property; pHint is CPropHint
 		HINT_ZOOM,			// update zoom; pHint is unused
 		HINT_ORIGIN,		// update origin; pHint is unused
 	};

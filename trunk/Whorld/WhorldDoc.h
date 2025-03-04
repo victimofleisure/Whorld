@@ -39,8 +39,8 @@ public:
 	void	SetReverse(bool bEnable);
 	void	SetConvex(bool bEnable);
 	void	SetMirror(bool bEnable);
-	void	SetZoom(double fZoom, bool bDamped = true);
-	void	SetOrigin(DPoint ptOrigin, bool bDamped = true);
+	void	SetZoom(double fZoom, bool bDamping = true);
+	void	SetOrigin(DPoint ptOrigin, bool bDamping = true);
 	bool	OffsetMasterProp(int iProp, double fDelta, double& fVal);
 	BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	CPatch&	GetPatch();

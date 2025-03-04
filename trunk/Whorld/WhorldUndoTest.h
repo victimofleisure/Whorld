@@ -29,14 +29,14 @@ class CWhorldDoc;
 class CWhorldUndoTest : public CUndoTest, public CWhorldBase {
 public:
 // Construction
-	CWhorldUndoTest(bool InitRunning);
+	CWhorldUndoTest(bool bInitRunning);
 	virtual ~CWhorldUndoTest();
 
 protected:
 // Types
 
 // Constants
-	static const EDIT_INFO	m_EditInfo[];	// array of edit properties
+	static const EDIT_INFO	m_arrEditInfo[];	// array of edit properties
 
 // Data members
 	CWhorldDoc	*m_pDoc;		// pointer to target document
@@ -44,7 +44,7 @@ protected:
 // Overrides
 	virtual	bool	Create();
 	virtual	void	Destroy();
-	virtual	int		ApplyEdit(int UndoCode);
+	virtual	int		ApplyEdit(int nUndoCode);
 	virtual	LONGLONG	GetSnapshot() const;
 
 // Helpers

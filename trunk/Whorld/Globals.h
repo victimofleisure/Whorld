@@ -115,13 +115,6 @@ public:
 	CStdioFileEx(LPCTSTR lpszFileName, UINT nOpenFlags, bool bUTF8 = true);
 };
 
-// DPoint to string conversion
-inline STD_OSTREAM& operator<<(STD_OSTREAM& os, const DPoint& pt)
-{
-    os << _T("(") << pt.x << _T(",") << pt.y << _T(")");
-    return os;
-}
-
 enum {	// application-wide user window messages, based on WP_APP
 	UWM_FIRST = WM_APP,
 	UWM_DELAYED_CREATE,			// wParam: none, lParam: none

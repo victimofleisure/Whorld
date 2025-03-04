@@ -114,7 +114,7 @@ void CWhorldDoc::SetMasterProp(int iProp, double fProp, CView *pSender)
 	NotifyUndoableEdit(iProp, UCODE_MASTER, UE_COALESCE);
 	m_master.a[iProp] = fProp;
 	SetModifiedFlag();
-	CParamHint	hint(iProp);	// master property index
+	CPropHint	hint(iProp);	// master property index
 	UpdateAllViews(pSender, HINT_MASTER, &hint);
 }
 
@@ -124,7 +124,7 @@ void CWhorldDoc::SetMainProp(int iProp, const VARIANT_PROP& prop, CView *pSender
 	NotifyUndoableEdit(iProp, UCODE_MAIN, UE_COALESCE);
 	CPatch::SetMainProp(iProp, prop);
 	SetModifiedFlag();
-	CParamHint	hint(iProp);	// master property index
+	CPropHint	hint(iProp);	// master property index
 	UpdateAllViews(pSender, HINT_MAIN, &hint);
 }
 
@@ -167,27 +167,23 @@ void CWhorldDoc::SetOriginMotion(int iMotionType)
 	}
 }
 
-void CWhorldDoc::SetZoom(double fZoom, bool bDamped)
+void CWhorldDoc::SetZoom(double fZoom, bool bDamping)
 {
 	if (UndoMgrIsIdle()) {
 		NotifyUndoableEdit(0, UCODE_ZOOM, UE_COALESCE);
 	}
-	CRenderCmd	cmd(RC_SET_ZOOM, bDamped);
-	cmd.m_prop.dblVal = fZoom;
-	theApp.PushRenderCommand(cmd);
+	theApp.m_thrRender.SetZoom(fZoom, bDamping);
 	m_master.fZoom = fZoom;
 	SetModifiedFlag();
 	UpdateAllViews(NULL, HINT_ZOOM, NULL);
 }
 
-void CWhorldDoc::SetOrigin(DPoint ptOrigin, bool bDamped)
+void CWhorldDoc::SetOrigin(DPoint ptOrigin, bool bDamping)
 {
 	if (UndoMgrIsIdle()) {
 		NotifyUndoableEdit(0, UCODE_ORIGIN, UE_COALESCE);
 	}
-	CRenderCmd	cmd(RC_SET_ORIGIN, bDamped);
-	cmd.m_prop.fltPt = ptOrigin;
-	theApp.PushRenderCommand(cmd);
+	theApp.m_thrRender.SetOrigin(ptOrigin, bDamping);
 	m_main.dptOrigin = ptOrigin;
 	SetModifiedFlag();
 	UpdateAllViews(NULL, HINT_ORIGIN, NULL);
@@ -285,7 +281,7 @@ void CWhorldDoc::SaveUndoState(CUndoState& State)
 		State.m_Val.d = m_master.fZoom;
 		break;
 	case UCODE_ORIGIN:
-		State.m_Val.pt = theApp.GetOrigin();	// render thread writes origin
+		State.m_Val.pt = theApp.m_thrRender.GetOrigin();	// render thread writes origin
 		break;
 	default:
 		NODEFAULTCASE;	// missing undo case

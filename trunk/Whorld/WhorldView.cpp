@@ -60,38 +60,29 @@ void CWhorldView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	CWhorldDoc	*pDoc = GetDocument();
 	switch (lHint) {
 	case HINT_NONE:
-		{
-			CRenderCmd	cmd(RC_SET_PATCH);
-			// dynamically allocate patch data and enqueue a pointer to it;
-			// recipient (render thread) is responsible for deleting buffer
-			CPatch&	patch = *pDoc;	// upcast from document to patch data
-			CPatch	*pPatch = new CPatch(patch);	// allocate new patch on heap
-			cmd.m_prop.byref = pPatch;	// command property is pointer to patch
-			theApp.PushRenderCommand(cmd);	// patch belongs to render thread now
-		}
+		theApp.m_thrRender.SetPatch(*pDoc);
 		break;
 	case HINT_PARAM:
 		{
 			CParamHint	*pParamHint = static_cast<CParamHint*>(pHint);
-			CRenderCmd	cmd(RC_SET_PARAM_Val + pParamHint->m_iProp, pParamHint->m_iParam);
-			pDoc->GetParamRC(pParamHint->m_iParam, pParamHint->m_iProp, cmd.m_prop);
-			theApp.PushRenderCommand(cmd);
+			VARIANT_PROP	prop;
+			pDoc->GetParamRC(pParamHint->m_iParam, pParamHint->m_iProp, prop);
+			theApp.m_thrRender.SetParam(pParamHint->m_iParam, pParamHint->m_iProp, prop);
 		}
 		break;
 	case HINT_MASTER:
 		{
-			CParamHint	*pParamHint = static_cast<CParamHint*>(pHint);
-			CRenderCmd	cmd(RC_SET_MASTER, pParamHint->m_iParam);
-			cmd.m_prop.dblVal = pDoc->GetMasterProp(pParamHint->m_iParam);
-			theApp.PushRenderCommand(cmd);
+			CPropHint	*pPropHint = static_cast<CPropHint*>(pHint);
+			double	fVal = pDoc->GetMasterProp(pPropHint->m_iProp);
+			theApp.m_thrRender.SetMasterProp(pPropHint->m_iProp, fVal);
 		}
 		break;
 	case HINT_MAIN:
 		{
-			CParamHint	*pParamHint = static_cast<CParamHint*>(pHint);
-			CRenderCmd	cmd(RC_SET_MAIN, pParamHint->m_iParam);
-			pDoc->GetMainProp(pParamHint->m_iParam, cmd.m_prop);
-			theApp.PushRenderCommand(cmd);
+			CPropHint	*pPropHint = static_cast<CPropHint*>(pHint);
+			VARIANT_PROP	prop;
+			pDoc->GetMainProp(pPropHint->m_iProp, prop);
+			theApp.m_thrRender.SetMainProp(pPropHint->m_iProp, prop);
 		}
 		break;
 	}

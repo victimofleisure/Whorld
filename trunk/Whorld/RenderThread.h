@@ -20,7 +20,7 @@ class CRenderThreadBase {
 public:
 	enum {	// base render commands
 		RC_RESIZE,				// Param: none; Data: none
-		RC_SET_FULLSCREEN,		// Param: BOOL; Data: none
+		RC_SET_FULLSCREEN,		// Param: bool; Data: none
 		BASE_RENDER_COMMANDS	// start of derived class commands
 	};
 	union VARIANT_PROP {	// subset of VARIANT types
@@ -43,13 +43,39 @@ public:
 	class CRenderCmd {
 	public:
 		CRenderCmd() {}
-		CRenderCmd(UINT nCmd, UINT nParam = 0)
-			: m_nCmd(nCmd), m_nParam(nParam) { m_prop.llVal = 0; }
+		CRenderCmd(UINT nCmd, UINT nParam = 0);
+		CRenderCmd(UINT nCmd, UINT nParam, int& iProp);
+		CRenderCmd(UINT nCmd, UINT nParam, UINT& iProp);
+		CRenderCmd(UINT nCmd, UINT nParam, double& fProp);
 		UINT	m_nCmd;			// render command; see enum
 		UINT	m_nParam;		// optional parameter
 		VARIANT_PROP	m_prop;	// variant property
 	};
 };
+
+inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam)
+	: m_nCmd(nCmd), m_nParam(nParam)
+{
+	m_prop.llVal = 0;
+}
+
+inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, int& iProp)
+	: m_nCmd(nCmd), m_nParam(nParam)
+{
+	m_prop.intVal = iProp;
+}
+
+inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, UINT& iProp)
+	: m_nCmd(nCmd), m_nParam(nParam)
+{
+	m_prop.uintVal = iProp;
+}
+
+inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, double& fProp)
+	: m_nCmd(nCmd), m_nParam(nParam)
+{
+	m_prop.dblVal = fProp;
+}
 
 class CRenderThread : protected CD2DDevCtx, public CRenderThreadBase {
 public:
@@ -58,6 +84,10 @@ public:
 	virtual ~CRenderThread();
 	bool	CreateThread(HWND hWnd);
 	void	DestroyThread();
+
+// Commands
+	bool	Resize();
+	bool	SetFullScreen(bool bEnable);
 
 // Operations
 	bool	PushCommand(const CRenderCmd& cmd);
@@ -87,10 +117,20 @@ protected:
 	bool	HandleDeviceLost();
 	void	ProcessCommand(const CRenderCmd& cmd);
 	bool	LogDeviceInfo();
-	bool	SetFullScreen(bool bEnable);
+	bool	OnSetFullScreen(bool bEnable);
 };
 
 inline bool CRenderThread::PushCommand(const CRenderCmd& cmd)
 {
 	return m_qCmd.Push(cmd);
+}
+
+inline bool CRenderThread::Resize()
+{
+	return PushCommand(CRenderCmd(RC_RESIZE));
+}
+
+inline bool CRenderThread::SetFullScreen(bool bEnable)
+{
+	return PushCommand(CRenderCmd(RC_SET_FULLSCREEN, bEnable));
 }

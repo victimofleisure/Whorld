@@ -59,21 +59,16 @@ public:
 	bool	IsSingleMonitor() const;
 	bool	IsFullScreenSingleMonitor() const;
 	bool	IsRenderWndCreated() const;
-	UINT_PTR	GetRingCount() const;
-	UINT_PTR	GetFrameCount() const;
 	bool	IsPaused() const;
 	void	SetPause(bool bEnable);
 	bool	IsSnapshotMode() const;
 	void	SetSnapshotMode(bool bEnable);
-	DWORD	GetFrameRate() const;
-	DPoint	GetOrigin() const;
 	bool	ResourceVersionChanged() const;
 	static bool	IsMainThread();
 
 // Operations
 	void	ApplyOptions(const COptions *pPrevOptions);
 	void	Log(CString sMsg);
-	void	PushRenderCommand(const CRenderCmd& cmd);
 	bool	SetDetached(bool bEnable);
 	bool	SetFullScreen(bool bEnable);
 	bool	SetSingleMonitorExclusive(bool bEnable);
@@ -85,7 +80,6 @@ public:
 	LRESULT	OnTrackingHelp(WPARAM wParam, LPARAM lParam);
 	bool	HandleDlgKeyMsg(MSG* pMsg);
 	bool	UpdateFrameRate();
-	bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
 	CString	GetTimestampFileName() const;
 	void	MidiInit();
 	bool	LoadSnapshot(LPCTSTR pszPath);
@@ -99,6 +93,7 @@ public:
 	UINT  m_nAppLook;
 	BOOL  m_bHiColorIcons;
 	bool	m_bCleanStateOnExit;	// if true, clean state before exiting
+	CWhorldThread	m_thrRender;	// render thread
 	COptions	m_options;			// options data
 	CMidiManager	m_midiMgr;		// MIDI manager
 	CAutoPtr<CPlaylist>	m_pPlaylist;	// pointer to playlist
@@ -112,7 +107,6 @@ protected:
 	CWhorldView	*m_pView;		// pointer to one and only view; app is SDI
 	CWhorldDoc	*m_pDocument;	// pointer to one and only document; app is SDI
 	CRenderWnd	m_wndRender;	// render window
-	CWhorldThread	m_thrRender;	// derived render thread
 	bool	m_bIsDetached;		// true if render window is detached
 	bool	m_bIsFullScreen;	// true if app is full-screen
 	bool	m_bIsFullScreenChanging;	// true if full-screen mode switch is in progress
@@ -200,16 +194,6 @@ inline bool CWhorldApp::IsRenderWndCreated() const
 	return m_wndRender.m_hWnd != 0;
 }
 
-inline UINT_PTR CWhorldApp::GetRingCount() const
-{
-	return m_thrRender.GetRingCount();
-}
-
-inline UINT_PTR CWhorldApp::GetFrameCount() const
-{
-	return m_thrRender.GetFrameCount();
-}
-
 inline bool CWhorldApp::IsPaused() const
 {
 	return m_bIsPaused;
@@ -218,21 +202,6 @@ inline bool CWhorldApp::IsPaused() const
 inline bool CWhorldApp::IsSnapshotMode() const
 {
 	return m_pPreSnapshotModePatch != NULL;
-}
-
-inline DWORD CWhorldApp::GetFrameRate() const
-{
-	return m_thrRender.GetFrameRate();
-}
-
-inline DPoint CWhorldApp::GetOrigin() const
-{
-	return m_thrRender.GetOrigin();
-}
-
-inline bool CWhorldApp::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath)
-{
-	return m_thrRender.WriteCapturedBitmap(pBitmap, pszImagePath);
 }
 
 inline bool	CWhorldApp::ResourceVersionChanged() const

@@ -27,12 +27,6 @@
 
 #define CHECK_MIDI(x) { MMRESULT nResult = x; if (MIDI_FAILED(nResult)) { OnMidiError(nResult); return false; } }
 
-// macro to construct and push a render command object with a variant property value
-#define PUSH_RENDER_CMD(cmd, cmdidx, param, type, val) \
-	CRenderCmd cmd(cmdidx, param); \
-	cmd.m_prop.type = val; \
-	theApp.PushRenderCommand(cmd);
-
 CMidiManager::CMidiManager()
 {
 	m_bInMsgBox = false;
@@ -143,9 +137,9 @@ void CMidiManager::PushMasterProperty(int iProp, double fNormVal)
 	// only push render commands or post messages to the main thread.
 	double	fVal = CMasterRowDlg::Denorm(iProp, fNormVal);
 	if (iProp == MASTER_Zoom) {	// if zoom
-		PUSH_RENDER_CMD(cmd, RC_SET_ZOOM, true, dblVal, fVal);	// zoom with damping
+		theApp.m_thrRender.SetZoom(fVal, true);	// with damping
 	} else {	// generic case
-		PUSH_RENDER_CMD(cmd, RC_SET_MASTER, iProp, dblVal, fVal);
+		theApp.m_thrRender.SetMasterProp(iProp, fVal);
 	}
 	PostMainMsg(UWM_MASTER_PROP_CHANGE, iProp, FloatToLParam(fVal));
 }
@@ -161,33 +155,37 @@ void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 		{
 			int	iWaveform = Trunc(fNormVal * WAVEFORM_COUNT);
 			iWaveform = CLAMP(iWaveform, 0, WAVEFORM_COUNT - 1);
+			VARIANT_PROP	prop;
+			prop.intVal = iWaveform;
+			theApp.m_thrRender.SetParam(iParam, PARAM_PROP_Wave, prop);
 			lParam = iWaveform;	// waveform is passed as integer
-			PUSH_RENDER_CMD(cmd, RC_SET_PARAM_Wave, iParam, intVal, iWaveform);
+		}
+		break;
+	case PARAM_PROP_Global:
+		{
+			int	iGlobal = MapParamToGlobal(iParam);
+			if (iGlobal < 0) {	// if parameter lacks a global
+				return;	// avoid posting a useless update
+			}
+			double	fVal = (fNormVal - 0.5) * info.fMaxVal * 2;
+			theApp.m_thrRender.SetDampedGlobal(iParam, fVal);
+			lParam = FloatToLParam(fVal);	// globals is passed as float
 		}
 		break;
 	default:
-		int	iCmd = RC_SET_PARAM_Val + iProp;
 		double	fVal;
 		switch (iProp) {
 		case PARAM_PROP_Val:
 		case PARAM_PROP_Amp:
 			fVal = fNormVal * (info.fMaxVal - info.fMinVal) + info.fMinVal;
 			break;
-		case PARAM_PROP_Global:
-			{
-				int	iGlobal = MapParamToGlobal(iParam);
-				if (iGlobal < 0) {	// if parameter lacks a global
-					return;	// avoid posting a useless update
-				}
-				fVal = (fNormVal - 0.5) * info.fMaxVal * 2;
-				iCmd = RC_SET_DAMPED_GLOBAL;
-			}
-			break;
 		default:
 			fVal = fNormVal;
 		}
 		lParam = FloatToLParam(fVal);	// all other properties are passed as float
-		PUSH_RENDER_CMD(cmd, iCmd, iParam, dblVal, fVal);
+		VARIANT_PROP	prop;
+		prop.dblVal = fVal;
+		theApp.m_thrRender.SetParam(iParam, iProp, prop);
 	}
 	// using MAKELONG limits us to 64K parameters and 64K properties, that's fine
 	PostMainMsg(UWM_PARAM_CHANGE, MAKELONG(iParam, iProp), lParam);
@@ -204,70 +202,37 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 	// only push render commands or post messages to the main thread.
 	switch (iMiscTarget) {
 	case MT_OriginX:
+		theApp.m_thrRender.SetOriginX(fNormVal, true);	// with damping
+		break;
 	case MT_OriginY:
-		{
-			int	nCmdIdx = (iMiscTarget == MT_OriginX ? RC_SET_ORIGIN_X : RC_SET_ORIGIN_Y);
-			PUSH_RENDER_CMD(cmd, nCmdIdx, true, dblVal, fNormVal);	// origin motion with damping
-			// don't update UI as render thread's origin is indeterminate
-		}
+		theApp.m_thrRender.SetOriginY(fNormVal, true);	// with damping
 		break;
 	case MT_Fill:
-		{
-			// accessing document's draw mode risks a race condition
-			UINT nDrawMode = SetOrClear(theApp.GetDocument()->m_main.nDrawMode, DM_FILL, fNormVal != 0);
-			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_DrawMode, uintVal, nDrawMode);
-			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
-		}
+		theApp.m_thrRender.SetDrawMode(DM_FILL, fNormVal != 0 ? DM_FILL : 0);
 		break;
 	case MT_Outline:
-		{
-			// accessing document's draw mode risks a race condition
-			UINT nDrawMode = SetOrClear(theApp.GetDocument()->m_main.nDrawMode, DM_OUTLINE, fNormVal != 0);
-			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_DrawMode, uintVal, nDrawMode);
-			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.uintVal);
-		}
+		theApp.m_thrRender.SetDrawMode(DM_OUTLINE, fNormVal != 0 ? DM_OUTLINE : 0);
 		break;
 	case MT_OriginDrag:
-		{
-			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_OrgMotion, intVal, fNormVal != 0 ? OM_DRAG : 0);
-			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
-		}
+		PushOriginMotion(fNormVal != 0 ? OM_DRAG : OM_PARK);
 		break;
 	case MT_OriginRandom:
-		{
-			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_OrgMotion, intVal, fNormVal != 0 ? OM_RANDOM : 0);
-			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.intVal);
-		}
+		PushOriginMotion(fNormVal != 0 ? OM_RANDOM : OM_PARK);
 		break;
 	case MT_Reverse:
-		{
-			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_Reverse, boolVal, fNormVal != 0);
-			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
-		}
+		PushMainBool(MAIN_Reverse, fNormVal != 0);
 		break;
 	case MT_Convex:
-		{
-			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_Convex, boolVal, fNormVal != 0);
-			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
-		}
+		PushMainBool(MAIN_Convex, fNormVal != 0);
 		break;
 	case MT_LoopHue:
-		{
-			PUSH_RENDER_CMD(cmd, RC_SET_MAIN, MAIN_LoopHue, boolVal, fNormVal != 0);
-			PostMainMsg(UWM_MAIN_PROP_CHANGE, cmd.m_nParam, cmd.m_prop.boolVal);
-		}
+		PushMainBool(MAIN_LoopHue, fNormVal != 0);
 		break;
 	case MT_RandomPhase:
-		{
-			CRenderCmd	cmd(RC_RANDOM_PHASE);
-			theApp.PushRenderCommand(cmd);
-		}
+		theApp.m_thrRender.RandomPhase();
 		break;
 	case MT_Clear:
-		{
-			CRenderCmd	cmd(RC_SET_EMPTY);
-			theApp.PushRenderCommand(cmd);
-		}
+		theApp.m_thrRender.SetEmpty();
 		break;
 	case MT_Pause:
 		// let main thread handle pause as its pause state is canonical
@@ -276,6 +241,22 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 	default:
 		NODEFAULTCASE;	// missing case
 	}
+}
+
+void CMidiManager::PushMainBool(int iProp, bool bVal)
+{
+	VARIANT_PROP	prop;
+	prop.boolVal = bVal;
+	theApp.m_thrRender.SetMainProp(iProp, prop);
+	PostMainMsg(UWM_MAIN_PROP_CHANGE, iProp, bVal);
+}
+
+void CMidiManager::PushOriginMotion(int nOrgMotion)
+{
+	VARIANT_PROP	prop;
+	prop.intVal = nOrgMotion;
+	theApp.m_thrRender.SetMainProp(MAIN_OrgMotion, prop);
+	PostMainMsg(UWM_MAIN_PROP_CHANGE, MAIN_OrgMotion, prop.intVal);
 }
 
 void CMidiManager::OnMidiEvent(DWORD dwEvent)

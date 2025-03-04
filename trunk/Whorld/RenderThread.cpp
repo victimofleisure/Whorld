@@ -130,7 +130,7 @@ bool CRenderThread::RenderFrame()
 
 bool CRenderThread::HandleDeviceLost()
 {
-	SetFullScreen(false);
+	OnSetFullScreen(false);
 	AfxGetMainWnd()->PostMessage(UWM_FULL_SCREEN_CHANGED, IsFullScreen(), 0);
 	HWND	hWnd;
 	CHECK(m_pSwapChain->GetHwnd(&hWnd));
@@ -147,10 +147,10 @@ void CRenderThread::ProcessCommand(const CRenderCmd& cmd)
 {
 	switch (cmd.m_nCmd) {
 	case RC_RESIZE:
-		Resize();
+		CD2DDevCtx::Resize();
 		break;
 	case RC_SET_FULLSCREEN:
-		SetFullScreen(cmd.m_nParam != 0);
+		OnSetFullScreen(cmd.m_nParam != 0);
 		break;
 	default:
 		OnRenderCommand(cmd);	// handle derived commands
@@ -179,7 +179,7 @@ bool CRenderThread::LogDeviceInfo()
 	return true;
 }
 
-bool CRenderThread::SetFullScreen(bool bEnable)
+bool CRenderThread::OnSetFullScreen(bool bEnable)
 {
 	bool	bPrevEnable = IsFullScreen();
 	if (bEnable == bPrevEnable)	// if already in requested state

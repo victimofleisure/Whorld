@@ -35,12 +35,30 @@ public:
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 
+// Commands
+	bool	SetParam(int iParam, int iProp, VARIANT_PROP& prop);
+	bool	SetMasterProp(int iProp, double fVal);
+	bool	SetMainProp(int iProp, VARIANT_PROP& prop);
+	bool	SetPatch(const CPatch& patch);
+	bool	SetFrameRate(DWORD nFrameRate);
+	bool	SetPause(bool bEnable);
+	bool	SingleStep();
+	bool	SetEmpty();
+	bool	RandomPhase();
+	bool	SetZoom(double fZoom, bool bDamping);
+	bool	SetOrigin(DPoint ptOrigin, bool bDamping);
+	bool	SetOriginX(double fOriginX, bool bDamping);
+	bool	SetOriginY(double fOriginY, bool bDamping);
+	bool	CaptureBitmap(UINT nFlags, SIZE szImage);
+	bool	CaptureSnapshot();
+	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
+	bool	SetDampedGlobal(int iParam, double fGlobal);
+	bool	SetDrawMode(UINT nMask, UINT nVal);
+
 // Operations
 	static bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
 
 protected:
-// Types
-
 // Constants
 	enum {
 		MAX_SIDES = 50,			// maximum number of sides a ring can have
@@ -96,6 +114,7 @@ protected:
 	virtual bool	OnDraw();
 	virtual void	OnRenderCommand(const CRenderCmd& cmd);
 	virtual void	Log(CString sMsg);
+	bool	PushCommand(const CRenderCmd& cmd);
 
 // Helpers
 	static void		HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
@@ -105,7 +124,9 @@ protected:
 	void	OnHueSpanChange();
 	void	ResizeCanvas();
 	void	OnCopiesChange();
+	void	RemoveAllRings();
 	void	AddRing();
+	static double	RandDouble();
 	void	OnTempoChange();
 	void	OnOriginMotionChange();
 	void	SetOriginTarget(DPoint ptOrigin, bool bDamping);
@@ -118,6 +139,7 @@ protected:
 		ID2D1GeometrySink* pSink, D2D1_FIGURE_BEGIN nBeginType, 
 		int iFirstPoint, int nPoints, int nVertices, bool bCurved) const;
 	void	DrawOutline(ID2D1PathGeometry* pPath, const RING& ring, float fLineWidth) const;
+	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
 	void	OnMasterPropChange(int iProp);
 	void	OnMainPropChange(int iProp);
 	void	OnMasterPropChange();
@@ -127,32 +149,31 @@ protected:
 	void	SetSnapshot(const CSnapshot* pSnapshot);
 	void	ExitSnapshotMode();
 	static CString	RenderCommandToString(const CRenderCmd& cmd);
-	static double	RandDouble();
 
 // Command handlers
-	void	SetParam(int iParam, double fVal);
-	void	SetWaveform(int iParam, int iWave);
-	void	SetAmplitude(int iParam, double fAmp);
-	void	SetFrequency(int iParam, double fFreq);
-	void	SetPulseWidth(int iParam, double fPW);
-	void	SetGlobalParam(int iParam, double fGlobal);
-	void	SetMasterProp(int iProp, double fVal);
-	void	SetMainProp(int iProp, const VARIANT_PROP& prop);
-	void	SetPatch(const CPatch *pPatch);
-	bool	SetFrameRate(DWORD nFrameRate);
-	void	SetPause(bool bIsPaused);
-	void	SingleStep();
-	void	SetEmpty();
-	void	RandomPhase();
-	void	SetZoom(double fZoom, bool bDamping);
-	void	SetOrigin(DPoint ptOrigin, bool bDamping);
-	void	SetOriginX(double fOriginX, bool bDamping);
-	void	SetOriginY(double rOriginY, bool bDamping);
-	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
-	void	CaptureBitmap(UINT nFlags, SIZE szImage);
-	bool	CaptureSnapshot() const;
-	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
-	void	SetDampedGlobal(int iParam, double fGlobal);
+	void	OnSetParam(int iParam, double fVal);
+	void	OnSetWaveform(int iParam, int iWave);
+	void	OnSetAmplitude(int iParam, double fAmp);
+	void	OnSetFrequency(int iParam, double fFreq);
+	void	OnSetPulseWidth(int iParam, double fPW);
+	void	OnSetGlobalParam(int iParam, double fGlobal);
+	void	OnSetMasterProp(int iProp, double fVal);
+	void	OnSetMainProp(int iProp, const VARIANT_PROP& prop);
+	void	OnSetPatch(const CPatch *pPatch);
+	bool	OnSetFrameRate(DWORD nFrameRate);
+	void	OnSetPause(bool bIsPaused);
+	void	OnSingleStep();
+	void	OnSetEmpty();
+	void	OnRandomPhase();
+	void	OnSetZoom(double fZoom, bool bDamping);
+	void	OnSetOrigin(DPoint ptOrigin, bool bDamping);
+	void	OnSetOriginX(double fOriginX, bool bDamping);
+	void	OnSetOriginY(double rOriginY, bool bDamping);
+	void	OnCaptureBitmap(UINT nFlags, SIZE szImage);
+	bool	OnCaptureSnapshot() const;
+	bool	OnDisplaySnapshot(const CSnapshot* pSnapshot);
+	void	OnSetDampedGlobal(int iParam, double fGlobal);
+	void	OnSetDrawMode(UINT nMask, UINT nVal);
 };
 
 inline UINT_PTR CWhorldThread::GetRingCount() const

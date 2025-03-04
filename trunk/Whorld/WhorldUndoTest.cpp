@@ -44,36 +44,38 @@
 #include "RandList.h"
 #include "MasterRowDlg.h"
 
-#define TIMER_PERIOD 0	// timer period, in milliseconds
+#define TIMER_PERIOD 10	// timer period, in milliseconds
 
-static CWhorldUndoTest gUndoTest(TRUE);	// one and only instance, initially running
+#define PAUSE_VIEW_DURING_TEST false	// unpaused is a tougher test
 
-const CWhorldUndoTest::EDIT_INFO CWhorldUndoTest::m_EditInfo[] = {
+static CWhorldUndoTest gUndoTest(true);	// one and only instance, initially running
+
+const CWhorldUndoTest::EDIT_INFO CWhorldUndoTest::m_arrEditInfo[] = {
 	{UCODE_PARAM,				1},
 	{UCODE_MASTER,				0.1f},
 	{UCODE_MAIN,				0.1f},
 };
 
-CWhorldUndoTest::CWhorldUndoTest(bool InitRunning) :
-	CUndoTest(InitRunning, TIMER_PERIOD, m_EditInfo, _countof(m_EditInfo))
+CWhorldUndoTest::CWhorldUndoTest(bool bInitRunning) :
+	CUndoTest(bInitRunning, TIMER_PERIOD, m_arrEditInfo, _countof(m_arrEditInfo))
 {
 	m_pDoc = NULL;
 #if 0
-	m_Cycles = 1;
-	m_Passes = 2;
-	m_PassEdits = 10;
-	m_PassUndos = 5;
-	m_MaxEdits = INT_MAX;
-	m_RandSeed = 666;
-	m_MakeSnapshots = 1;
+	m_nCycles = 1;
+	m_nPasses = 2;
+	m_nPassEdits = 10;
+	m_nPassUndos = 5;
+	m_nMaxEdits = INT_MAX;
+	m_nRandSeed = 666;
+	m_bMakeSnapshots = true;
 #else
-	m_Cycles = 1;
-	m_Passes = 10;
-	m_PassEdits = 250;
-	m_PassUndos = 100;
-	m_MaxEdits = INT_MAX;
-	m_RandSeed = 666;
-	m_MakeSnapshots = 1;
+	m_nCycles = 1;
+	m_nPasses = 10;
+	m_nPassEdits = 250;
+	m_nPassUndos = 100;
+	m_nMaxEdits = INT_MAX;
+	m_nRandSeed = 666;
+	m_bMakeSnapshots = true;
 #endif
 }
 
@@ -87,14 +89,14 @@ LONGLONG CWhorldUndoTest::GetSnapshot() const
 	const CPatch&	patch = *m_pDoc;
 	nSum += Fletcher64(&patch, sizeof(CPatch));
 //	_tprintf(_T("%I64x\n"), nSum);
-	return(nSum);
+	return nSum;
 }
 
-int CWhorldUndoTest::ApplyEdit(int UndoCode)
+int CWhorldUndoTest::ApplyEdit(int nUndoCode)
 {
-	CUndoState	state(0, UndoCode);
+	CUndoState	state(0, nUndoCode);
 	CString	sUndoTitle(m_pDoc->GetUndoTitle(state));
-	switch (UndoCode) {
+	switch (nUndoCode) {
 	case UCODE_PARAM:
 		{
 			int	iParam = Random(PARAM_COUNT);
@@ -128,7 +130,16 @@ int CWhorldUndoTest::ApplyEdit(int UndoCode)
 		{
 			int	iProp = Random(MASTER_COUNT);
 			CMasterRowDlg::DBL_RANGE	range;
-			CMasterRowDlg::GetPropEditRange(iProp, range);
+			switch (iProp) {
+			case MASTER_Zoom:
+				// keep zoom on the low side, otherwise giant rings bog down
+				// rendering so badly that the render command queue fills up
+				range.fMinVal = 1e-3;
+				range.fMaxVal = 1e-1;
+				break;
+			default:
+				CMasterRowDlg::GetPropEditRange(iProp, range);
+			}
 			double	prop = RandomFloat(range.fMaxVal - range.fMinVal) + range.fMinVal;
 			m_pDoc->SetMasterProp(iProp, prop);
 		}
@@ -159,27 +170,27 @@ int CWhorldUndoTest::ApplyEdit(int UndoCode)
 		break;
 	default:
 		NODEFAULTCASE;
-		return(ABORT);
+		return ABORT;
 	}
-	return(SUCCESS);
+	return SUCCESS;
 }
 
 bool CWhorldUndoTest::Create()
 {
-	theApp.SetPause(true);
+	theApp.SetPause(PAUSE_VIEW_DURING_TEST);
 	m_pDoc = theApp.GetDocument();
-	m_UndoMgr = m_pDoc->GetUndoManager();
-	m_UndoMgr->SetLevels(-1);	// unlimited undo
+	m_pUndoMgr = m_pDoc->GetUndoManager();
+	m_pUndoMgr->SetLevels(-1);	// unlimited undo
 	m_pDoc->UpdateAllViews(NULL);
 	if (!CUndoTest::Create())
-		return(FALSE);
-	return(TRUE);
+		return false;
+	return true;
 }
 
 void CWhorldUndoTest::Destroy()
 {
 	CUndoTest::Destroy();
-	m_pDoc->SetModifiedFlag(FALSE);
+	m_pDoc->SetModifiedFlag(false);
 }
 
 #endif

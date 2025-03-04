@@ -70,8 +70,8 @@ void CMasterView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		break;
 	case HINT_MASTER:
 		{
-			CParamHint	*pParamHint = reinterpret_cast<CParamHint*>(pHint);
-			int	iProp = pParamHint->m_iParam;	// master property index
+			CPropHint	*pParamHint = reinterpret_cast<CPropHint*>(pHint);
+			int	iProp = pParamHint->m_iProp;	// master property index
 			ASSERT(IsValidMasterProp(iProp));
 			UpdateRow(iProp);	// update all of row's controls
 		}

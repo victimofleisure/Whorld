@@ -23,6 +23,13 @@
 
 #include "WhorldBase.h"
 
+// DPoint to string conversion; needed for Origin in main properties
+inline STD_OSTREAM& operator<<(STD_OSTREAM& os, const DPoint& pt)
+{
+    os << _T("(") << pt.x << _T(",") << pt.y << _T(")");
+    return os;
+}
+
 class CPatch : public CWhorldBase {
 public:
 // Construction

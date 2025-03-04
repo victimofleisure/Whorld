@@ -29,21 +29,21 @@ class CWhorldDoc;
 class CMappingUndoTest : public CUndoTest, public CMappingBase {
 public:
 // Construction
-	CMappingUndoTest(bool InitRunning);
+	CMappingUndoTest(bool bInitRunning);
 	virtual ~CMappingUndoTest();
 
 protected:
 // Types
 
 // Constants
-	static const EDIT_INFO	m_EditInfo[];	// array of edit properties
+	static const EDIT_INFO	m_arrEditInfo[];	// array of edit properties
 
 // Data members
 
 // Overrides
 	virtual	bool	Create();
 	virtual	void	Destroy();
-	virtual	int		ApplyEdit(int UndoCode);
+	virtual	int		ApplyEdit(int nUndoCode);
 	virtual	LONGLONG	GetSnapshot() const;
 
 // Helpers

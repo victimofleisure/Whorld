@@ -50,7 +50,7 @@ void CRenderWnd::OnSize(UINT nType, int cx, int cy)
 {
 	CWnd::OnSize(nType, cx, cy);
 	if (cx > 0 && cy > 0) {
-		theApp.PushRenderCommand(CRenderCmd(RC_RESIZE));
+		theApp.m_thrRender.Resize();
 	}
 }
 

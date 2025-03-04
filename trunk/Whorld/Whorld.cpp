@@ -358,32 +358,6 @@ void CWhorldApp::ResizeRenderWnd(int cx, int cy)
 	}
 }
 
-void CWhorldApp::PushRenderCommand(const CRenderCmd& cmd)
-{
-	while (!m_thrRender.PushCommand(cmd)) {	// try to enqueue command
-		// command queue was full
-		if (IsMainThread()) {	// if we're the user-interface thread
-			// give the user a chance to retry
-			if (AfxMessageBox(IDS_APP_ERR_RENDER_QUEUE_FULL, MB_RETRYCANCEL) != IDRETRY) {
-				return;	// user canceled, so stop retrying
-			}
-		} else {	// we're a worker thread
-			// do a limited number of retries, separated by timeouts
-			const int	nMaxRetries = 10;
-			const int	nRetryTimeout = 10;	// in milliseconds
-			for (int iRetry = 0; iRetry < nMaxRetries; iRetry++) {	// for each retry
-				Sleep(nRetryTimeout);	// do a timeout
-				if (m_thrRender.PushCommand(cmd)) {	// try to enqueue command
-					return;	// retry succeeded
-				}
-			}
-			// relay the error to the main thread
-			theApp.GetMainFrame()->PostMessage(UWM_THREAD_ERROR_MSG, IDS_APP_ERR_RENDER_QUEUE_FULL);
-			return;	// retries failed, so give up
-		}
-	}
-}
-
 bool CWhorldApp::SetDetached(bool bEnable)
 {
 	ASSERT(m_wndRender.m_hWnd);
@@ -458,8 +432,7 @@ bool CWhorldApp::SetFullScreen(bool bEnable)
 			SetSingleMonitorExclusive(false);
 		}
 	}
-	CRenderCmd	cmd(RC_SET_FULLSCREEN, bEnable);
-	PushRenderCommand(cmd);	// queue full screen command to render thread
+	m_thrRender.SetFullScreen(bEnable);
 	m_bIsFullScreen = bEnable;	// update state data member
 	objFullScreenChanging.m_objOld = true;	// set flag for real
 	return true;
@@ -574,9 +547,8 @@ bool CWhorldApp::UpdateFrameRate()
 		ON_ERROR(LDS(IDS_APP_ERR_CANT_GET_DISPLAY_SETTINGS));
 		return false;
 	}
-	if (mode.dmDisplayFrequency != GetFrameRate()) {	// if display frequency changed
-		CRenderCmd	cmd(RC_SET_FRAME_RATE, mode.dmDisplayFrequency);
-		PushRenderCommand(cmd);
+	if (mode.dmDisplayFrequency != m_thrRender.GetFrameRate()) {	// if display frequency changed
+		m_thrRender.SetFrameRate(mode.dmDisplayFrequency);
 	}
 	return true;
 }
@@ -604,8 +576,7 @@ void CWhorldApp::SetPause(bool bEnable)
 	// the render thread has its own paused state, which may differ.
 	if (bEnable == m_bIsPaused)	// if already in requested state
 		return;	// nothing to do
-	CRenderCmd	cmd(RC_SET_PAUSE, bEnable);
-	PushRenderCommand(cmd);	// request render thread to enter specified pause state
+	m_thrRender.SetPause(bEnable);	// request render thread to enter specified pause state
 	m_bIsPaused = bEnable;	// update our paused state
 	if (!bEnable) {	// if we're unpausing
 		SetSnapshotMode(false);
@@ -622,14 +593,11 @@ bool CWhorldApp::LoadSnapshot(LPCTSTR pszPath)
 	// update zoom in UI to snapshot's zoom
 	CWhorldDoc*	pDoc = GetDocument();
 	pDoc->m_master.fZoom = pSnapshot->m_state.fZoom;
-	CWhorldDoc::CParamHint	hint(MASTER_Zoom);	// master property index
+	CWhorldDoc::CPropHint	hint(MASTER_Zoom);	// master property index
 	// display snapshot command updates render thread's zoom, so specify
 	// view as sender to prevent view from pushing needless zoom command
 	pDoc->UpdateAllViews(GetView(), HINT_MASTER, &hint);
-	CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
-	cmd.m_prop.byref = pSnapshot;
-	PushRenderCommand(cmd);	// request render thread to display snapshot
-	return true;
+	return m_thrRender.DisplaySnapshot(pSnapshot);	// request render thread to display snapshot
 }
 
 void CWhorldApp::SetSnapshotMode(bool bEnable)

@@ -15,6 +15,7 @@
 		05		27feb25	implement hue loop
 		06		01mar25	add commands to set origin coords individually
 		07		02mar25	implement global parameters
+		08		04mar25	fix points buffer overrun caused by global ring sides
 
 */
 
@@ -31,7 +32,7 @@
 #define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { HandleError(hr, __FILE__, __LINE__, __DATE__); return false; }}
 #define DTOF(x) static_cast<float>(x)
 
-#define RENDER_CMD_NATTER 0	// set true to display render commands on console
+#define RENDER_CMD_NATTER 1	// set true to display render commands on console
 
 const double CWhorldThread::MIN_ASPECT_RATIO = 1e-9;
 const double CWhorldThread::MIN_STAR_RATIO = 1e-2;
@@ -96,7 +97,7 @@ bool CWhorldThread::OnThreadCreate()
 	DWORD	nFrameRate;
 	if (!GetDisplayFrequency(nFrameRate))
 		return false;
-	SetFrameRate(nFrameRate);
+	OnSetFrameRate(nFrameRate);
 	return true;
 }
 
@@ -120,6 +121,8 @@ void CWhorldThread::Log(CString sMsg)
 {
 	theApp.Log(sMsg);
 }
+
+// Drawing
 
 inline double CWhorldThread::Wrap(double fVal, double fLimit)
 {
@@ -175,79 +178,6 @@ void CWhorldThread::OnCopiesChange()
 		m_bCopying = m_master.fSpread != 0;
 	} else {	// one copy only
 		m_bCopying = false;
-	}
-}
-
-void CWhorldThread::AddRing()
-{
-	m_params.fRingSpacing = max(m_params.fRingSpacing, 1);
-	m_params.fPolySides = CLAMP(m_params.fPolySides, 3, MAX_SIDES);
-	m_params.fLightness = CLAMP(m_params.fLightness, 0, 1);
-	m_params.fSaturation = CLAMP(m_params.fSaturation, 0, 1);
-	double	fR, fG, fB;
-	CHLS::hls2rgb(m_fHue, m_params.fLightness, m_params.fSaturation, fR, fG, fB);
-	m_clrRing = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
-	RING	ring;
-	bool	bReverse = m_params.fRingGrowth < 0;
-	double	fRingOffset = bReverse ? -m_fRingOffset : m_fRingOffset;
-	ring.fRotDelta = m_params.fRotateSpeed;
-	ring.fRot = ring.fRotDelta * fRingOffset - ring.fRotDelta * m_fNewGrowth;
-	if (m_params.fRingGrowth >= 0)
-		ring.fRadius = m_fRingOffset - m_fNewGrowth;
-	else {	// if inward growth, start at outermost edge of canvas
-		ring.fRadius = (max(m_rCanvas.Width(), m_rCanvas.Height()) / 2 
-			/ m_fZoom - m_fRingOffset) - m_fNewGrowth;
-	}
-	// don't let rings get too flat, or they'll never die
-	double	fAspect = max(pow(2, m_params.fAspectRatio), MIN_ASPECT_RATIO);
-	ring.ptScale.x = fAspect > 1 ? fAspect : 1;
-	ring.ptScale.y = fAspect < 1 ? 1 / fAspect : 1;
-	ring.ptShiftDelta.x = sin(m_params.fSkewAngle) * m_params.fSkewRadius;
-	ring.ptShiftDelta.y = cos(m_params.fSkewAngle) * m_params.fSkewRadius;
-	ring.ptShift.x = ring.ptShiftDelta.x * fRingOffset - ring.ptShiftDelta.x * m_fNewGrowth;
-	ring.ptShift.y = ring.ptShiftDelta.y * fRingOffset - ring.ptShiftDelta.y * m_fNewGrowth;
-	if (m_bCopying) {
-		ring.ptShift.x += sin(m_fCopyTheta) * m_master.fSpread;
-		ring.ptShift.y += cos(m_fCopyTheta) * m_master.fSpread;
-		m_fCopyTheta += m_fCopyDelta;
-	}
-	ring.clrCur = m_clrRing;
-	ring.nSides = static_cast<short>(Round(m_params.fPolySides));
-	ring.bDelete = false;
-	// don't let stars get too thin, or they'll never die
-	double	fRad = max(pow(2, m_params.fStarFactor), MIN_STAR_RATIO);
-	// use trig to find distance from origin to middle of a side
-	// b is unknown, A is at origin, c is radius, b = cos(A) * c
-	ring.fStarRatio = cos(M_PI / ring.nSides) * fRad;
-	ring.fPinwheel = M_PI / ring.nSides * m_params.fPinwheel;
-	ring.fLineWidth = DTOF(m_params.fLineWidth);
-	ring.nDrawMode = static_cast<short>(m_main.nDrawMode);
-	ring.fHue = m_fHue;
-	ring.fLightness = m_params.fLightness;
-	ring.fSaturation = m_params.fSaturation;
-	ring.ptOrigin = m_ptOrigin;
-	ring.fEvenCurve = m_params.fEvenCurve;
-	ring.fOddCurve = m_params.fOddCurve / ring.fStarRatio;
-	ring.fEvenShear = m_params.fEvenShear;
-	ring.fOddShear = m_params.fOddShear;
-	POSITION	posStart = bReverse ? m_aRing.GetTailPosition() : m_aRing.GetHeadPosition();
-	if (posStart != NULL) {	// if ring list has elements
-		const RING& ringStart = bReverse ? m_aRing.GetPrev(posStart) : m_aRing.GetNext(posStart);
-		double	fRingSpacing = bReverse ? -m_params.fRingSpacing : m_params.fRingSpacing;
-		ring.bSkipFill = fabs(ring.fRadius + fRingSpacing - ringStart.fRadius) > m_params.fRingSpacing * 2;
-	} else {	// ring list is empty
-		ring.bSkipFill = bReverse;
-	}
-	// add ring to list
-	if (bReverse)
-		m_aRing.AddTail(ring);
-	else
-		m_aRing.AddHead(ring);
-	while (m_aRing.GetCount() > m_nMaxRings) {
-		if (bReverse)
-			m_aRing.RemoveHead();
-		else
-			m_aRing.RemoveTail();
 	}
 }
 
@@ -344,6 +274,85 @@ void CWhorldThread::UpdateGlobals()
 		const PARAM_ROW&	row = GetParamRow(iParam);	// dereference
 		// increment parameter by a fraction of its distance from target parameter
 		m_globs.a[iParam] += (row.fGlobal - m_globs.a[iParam]) * m_master.fDamping;
+	}
+}
+
+void CWhorldThread::RemoveAllRings()
+{
+	m_aRing.RemoveAll();
+	m_posDel = NULL;	// avoid bogus delete
+}
+
+void CWhorldThread::AddRing()
+{
+	m_params.fRingSpacing = max(m_params.fRingSpacing, 1);
+	m_params.fPolySides = CLAMP(m_params.fPolySides, 3, MAX_SIDES);
+	m_params.fLightness = CLAMP(m_params.fLightness, 0, 1);
+	m_params.fSaturation = CLAMP(m_params.fSaturation, 0, 1);
+	double	fR, fG, fB;
+	CHLS::hls2rgb(m_fHue, m_params.fLightness, m_params.fSaturation, fR, fG, fB);
+	m_clrRing = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
+	RING	ring;
+	bool	bReverse = m_params.fRingGrowth < 0;
+	double	fRingOffset = bReverse ? -m_fRingOffset : m_fRingOffset;
+	ring.fRotDelta = m_params.fRotateSpeed;
+	ring.fRot = ring.fRotDelta * fRingOffset - ring.fRotDelta * m_fNewGrowth;
+	if (m_params.fRingGrowth >= 0)
+		ring.fRadius = m_fRingOffset - m_fNewGrowth;
+	else {	// if inward growth, start at outermost edge of canvas
+		ring.fRadius = (max(m_rCanvas.Width(), m_rCanvas.Height()) / 2 
+			/ m_fZoom - m_fRingOffset) - m_fNewGrowth;
+	}
+	// don't let rings get too flat, or they'll never die
+	double	fAspect = max(pow(2, m_params.fAspectRatio), MIN_ASPECT_RATIO);
+	ring.ptScale.x = fAspect > 1 ? fAspect : 1;
+	ring.ptScale.y = fAspect < 1 ? 1 / fAspect : 1;
+	ring.ptShiftDelta.x = sin(m_params.fSkewAngle) * m_params.fSkewRadius;
+	ring.ptShiftDelta.y = cos(m_params.fSkewAngle) * m_params.fSkewRadius;
+	ring.ptShift.x = ring.ptShiftDelta.x * fRingOffset - ring.ptShiftDelta.x * m_fNewGrowth;
+	ring.ptShift.y = ring.ptShiftDelta.y * fRingOffset - ring.ptShiftDelta.y * m_fNewGrowth;
+	if (m_bCopying) {
+		ring.ptShift.x += sin(m_fCopyTheta) * m_master.fSpread;
+		ring.ptShift.y += cos(m_fCopyTheta) * m_master.fSpread;
+		m_fCopyTheta += m_fCopyDelta;
+	}
+	ring.clrCur = m_clrRing;
+	ring.nSides = static_cast<short>(Round(m_params.fPolySides));
+	ring.bDelete = false;
+	// don't let stars get too thin, or they'll never die
+	double	fRad = max(pow(2, m_params.fStarFactor), MIN_STAR_RATIO);
+	// use trig to find distance from origin to middle of a side
+	// b is unknown, A is at origin, c is radius, b = cos(A) * c
+	ring.fStarRatio = cos(M_PI / ring.nSides) * fRad;
+	ring.fPinwheel = M_PI / ring.nSides * m_params.fPinwheel;
+	ring.fLineWidth = DTOF(m_params.fLineWidth);
+	ring.nDrawMode = static_cast<short>(m_main.nDrawMode);
+	ring.fHue = m_fHue;
+	ring.fLightness = m_params.fLightness;
+	ring.fSaturation = m_params.fSaturation;
+	ring.ptOrigin = m_ptOrigin;
+	ring.fEvenCurve = m_params.fEvenCurve;
+	ring.fOddCurve = m_params.fOddCurve / ring.fStarRatio;
+	ring.fEvenShear = m_params.fEvenShear;
+	ring.fOddShear = m_params.fOddShear;
+	POSITION	posStart = bReverse ? m_aRing.GetTailPosition() : m_aRing.GetHeadPosition();
+	if (posStart != NULL) {	// if ring list has elements
+		const RING& ringStart = bReverse ? m_aRing.GetPrev(posStart) : m_aRing.GetNext(posStart);
+		double	fRingSpacing = bReverse ? -m_params.fRingSpacing : m_params.fRingSpacing;
+		ring.bSkipFill = fabs(ring.fRadius + fRingSpacing - ringStart.fRadius) > m_params.fRingSpacing * 2;
+	} else {	// ring list is empty
+		ring.bSkipFill = bReverse;
+	}
+	// add ring to list
+	if (bReverse)
+		m_aRing.AddTail(ring);
+	else
+		m_aRing.AddHead(ring);
+	while (m_aRing.GetCount() > m_nMaxRings) {
+		if (bReverse)
+			m_aRing.RemoveHead();
+		else
+			m_aRing.RemoveTail();
 	}
 }
 
@@ -542,7 +551,7 @@ bool CWhorldThread::OnDraw()
 		CKD2DRectF	rBounds(m_rCanvas);
 		rBounds.OffsetRect(DTOF(ptOrg.x), DTOF(ptOrg.y));
 		int		nSides = ring.nSides + m_globRing.nPolySides;
-		nSides = max(nSides, 1);
+		nSides = CLAMP(nSides, 1, MAX_SIDES);
 		double	fRot = ring.fRot + m_globRing.fRot;
 		double	afRot[2] = {fRot, fRot + ring.fPinwheel + M_PI / nSides * m_globRing.fPinwheel};
 		double	fRad = ring.fRadius * m_fZoom;
@@ -663,7 +672,7 @@ void CWhorldThread::OnMasterPropChange(int iProp)
 		OnCopiesChange();
 		break;
 	case MASTER_Zoom:
-		SetZoom(m_master.fZoom, false);
+		OnSetZoom(m_master.fZoom, false);
 		break;
 	case MASTER_Tempo:
 		OnTempoChange();
@@ -698,248 +707,6 @@ void CWhorldThread::OnMainPropChange()
 	for (int iProp = 0; iProp < MAIN_COUNT; iProp++) {	// for each main property
 		OnMainPropChange(iProp);
 	}
-}
-
-CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
-{
-	CString	sRet;	// string returned to caller
-	CString	sCmdName(GetRenderCmdName(cmd.m_nCmd));	// get command name
-	// try parameter commands first as they occupy a contiguous range
-	if (cmd.m_nCmd >= RC_SET_PARAM_FIRST && cmd.m_nCmd <= RC_SET_PARAM_LAST) {
-		int	iProp = cmd.m_nCmd - RC_SET_PARAM_FIRST;	// get property index
-		sRet = sCmdName 
-			+ _T(" '") + GetParamName(cmd.m_nParam) 
-			+ _T("' ") + GetParamPropName(iProp)
-			+ _T(" = ") + ParamToString(iProp, cmd.m_prop);
-	} else {	// not a parameter command
-		switch (cmd.m_nCmd) {
-		case RC_SET_MASTER:
-			sRet = sCmdName 
-				+ _T(" '") + GetMasterName(cmd.m_nParam) 
-				+ _T("' = ") + MasterToString(cmd.m_nParam, cmd.m_prop);
-			break;
-		case RC_SET_MAIN:
-			sRet = sCmdName 
-				+ _T(" '") + GetMainName(cmd.m_nParam) 
-				+ _T("' = ") + MainToString(cmd.m_nParam, cmd.m_prop);
-			break;
-		default:
-			switch (cmd.m_nCmd) {
-			#define RENDERCMDDEF(name, vartype) case RC_##name: sRet = sCmdName \
-				+ ' ' + ValToString(cmd.m_nParam) \
-				+ ' ' + ValToString(cmd.m_prop.vartype); \
-				break;
-			#include "WhorldDef.h"	// generate cases for generic commands
-			}
-		}
-	}
-	return sRet;
-}
-
-void CWhorldThread::ExitSnapshotMode()
-{
-	m_bSnapshotMode = false;
-	if (m_pPrevSnapshot != NULL) {	// if previous snapshot exists
-		// snapshot is deleted when smart pointer goes out of scope
-		CAutoPtr<CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
-		SetSnapshot(pSnapshot);	// restore snapshot
-	}
-}
-
-// Command handlers
-
-void CWhorldThread::SetParam(int iParam, double fVal)
-{
-	GetParamRow(iParam).fVal = fVal;
-}
-
-void CWhorldThread::SetWaveform(int iParam, int iWave)
-{
-	GetParamRow(iParam).iWave = iWave;
-	m_aOsc[iParam].SetWaveform(iWave);
-}
-
-void CWhorldThread::SetAmplitude(int iParam, double fAmp)
-{
-	GetParamRow(iParam).fAmp = fAmp;
-}
-
-void CWhorldThread::SetFrequency(int iParam, double fFreq)
-{
-	GetParamRow(iParam).fFreq = fFreq;
-	m_aOsc[iParam].SetFreq(fFreq);
-}
-
-void CWhorldThread::SetPulseWidth(int iParam, double fPW)
-{
-	GetParamRow(iParam).fPW = fPW;
-	m_aOsc[iParam].SetPulseWidth(fPW);
-}
-
-void CWhorldThread::SetGlobalParam(int iParam, double fGlobal)
-{
-	GetParamRow(iParam).fGlobal = fGlobal;
-	m_globs.a[iParam] = fGlobal;
-}
-
-void CWhorldThread::SetMasterProp(int iProp, double fVal)
-{
-	CPatch::SetMasterProp(iProp, fVal);
-	OnMasterPropChange(iProp);
-}
-
-void CWhorldThread::SetMainProp(int iProp, const VARIANT_PROP& prop)
-{
-	CPatch::SetMainProp(iProp, prop);
-	OnMainPropChange(iProp);
-}
-
-void CWhorldThread::SetPatch(const CPatch *pPatch)
-{
-	// assume dynamic allocation: recipient is responsible for deletion
-	ASSERT(pPatch != NULL);	// patch pointer had better not be null
-	CPatch&	patch = *this;	// upcast to patch data base class
-	patch = *pPatch;	// copy patch data from buffer to bass class
-	delete pPatch;	// delete patch data buffer
-	OnMasterPropChange();	// handle master property changes
-	OnMainPropChange();	// handle main property changes
-	OnGlobalsChange();	// handle global parameter changes
-	m_bFlushHistory = true;	// suppress interpolation to avoid glitch
-}
-
-bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
-{
-	if (!nFrameRate) {
-		ASSERT(0);	// zero frame rate is intolerable
-		return false;	// avoid divide by zero when calculating period
-	}
-	m_nFrameRate = nFrameRate;
-	m_oscOrigin.SetTimerFreq(nFrameRate);
-	return true;
-}
-
-void CWhorldThread::SetPause(bool bIsPaused)
-{
-	m_bIsPaused = bIsPaused;
-	if (!bIsPaused) {	// if unpausing
-		ExitSnapshotMode();
-	}
-}
-
-void CWhorldThread::SingleStep()
-{
-	if (m_bIsPaused) {
-		TimerHook();
-	}
-}
-
-void CWhorldThread::SetEmpty()
-{
-	m_aRing.RemoveAll();
-	m_posDel = NULL;	// avoid bogus delete
-	m_fRingOffset = 0;	// add a ring ASAP
-}
-
-void CWhorldThread::RandomPhase()
-{
-	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
-		m_aOsc[iParam].SetPhase(RandDouble());
-	}
-}
-
-void CWhorldThread::SetZoom(double fZoom, bool bDamping)
-{
-	m_fZoomTarget = fZoom;
-	if (!bDamping || m_bSnapshotMode) {	// if not damping
-		m_fZoom = fZoom;	// go directly to target
-	}
-}
-
-void CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
-{
-	SetOriginTarget(DPoint((ptOrigin - 0.5) * GetTargetSize()), bDamping);	// denormalize origin
-}
-
-void CWhorldThread::SetOriginX(double fOriginX, bool bDamping)
-{
-	SetOriginTarget(DPoint((fOriginX - 0.5) * GetTargetSize().x,	// denormalize x-coord
-		m_ptOriginTarget.y), bDamping);
-}
-
-void CWhorldThread::SetOriginY(double fOriginY, bool bDamping)
-{
-	SetOriginTarget(DPoint(m_ptOriginTarget.x, 
-		(fOriginY - 0.5) * GetTargetSize().y), bDamping);	// denormalize y-coord
-}
-
-DPoint CWhorldThread::GetOrigin() const
-{
-	if (!m_szTarget.width || !m_szTarget.height) {
-		return DPoint(0, 0);	// avoid divide by zero
-	}
-	return DPoint(m_ptOrigin) / GetTargetSize() + 0.5;
-}
-
-bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)
-{
-	pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
-	if (nFlags & EF_USE_VIEW_SIZE) {	// if using view size as image size
-		szImage = CSize(m_szTarget);	// override specified image size
-	}
-	//
-	// 1) Create the capture bitmap, which can be a GPU target but isn't readable by the CPU.
-	//
-	D2D1_BITMAP_PROPERTIES1 propsCapture = {
-		{DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED}, 0, 0,
-		D2D1_BITMAP_OPTIONS_TARGET,	// target option is incompatible with CPU read
-	};
-	CComPtr<ID2D1Bitmap1>	pCaptureBitmap;
-	CHECK(m_pD2DDeviceContext->CreateBitmap(szImage, NULL, 0, &propsCapture, &pCaptureBitmap));
-	//
-	// 2) Draw into the capture bitmap.
-	//
-	m_pD2DDeviceContext->SetTarget(pCaptureBitmap);	// make capture bitmap the render target
-	m_pD2DDeviceContext->BeginDraw();	// start drawing
-	{
-		CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set pause state
-		CSaveObj<double>	saveZoom(m_fZoom);	// save zoom
-		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
-			double	fScaleWidth = szImage.width / m_szTarget.width;
-			double	fScaleHeight = szImage.height / m_szTarget.height;
-			double	fScaleToFit = min(fScaleWidth, fScaleHeight);
-			m_fZoom *= fScaleToFit; 
-		}
-		OnDraw();	// draw as usual; geometry is frozen because we're paused
-		// state is restored automatically when CSaveObj instances goes out of scope
-	}
-	m_pD2DDeviceContext->EndDraw();	// end drawing
-	m_pD2DDeviceContext->SetTarget(m_pTargetBitmap);	// restore the swap chain render target
-	//
-	// 3) Create the CPU-readable bitmap.
-	//
-	D2D1_BITMAP_PROPERTIES1 propsReadable = {
-		{DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED}, 0, 0,
-		D2D1_BITMAP_OPTIONS_CPU_READ | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-	};
-	CComPtr<ID2D1Bitmap1> pReadableBitmap;
-	CHECK(m_pD2DDeviceContext->CreateBitmap(szImage, NULL, 0, &propsReadable, &pReadableBitmap));
-	//
-	// 4) Copy from the capture bitmap to the readable bitmap.
-	//
-	CHECK(pReadableBitmap->CopyFromBitmap(NULL, pCaptureBitmap, NULL));
-	//
-	// 5) Return readable bitmap to caller for mapping and writing.
-	//
-	pBitmap = pReadableBitmap.Detach();	// detach bitmap from its smart pointer
-	return true;
-}
-
-void CWhorldThread::CaptureBitmap(UINT nFlags, SIZE szImage)
-{
-	ID2D1Bitmap1*	pBitmap;
-	CaptureBitmap(nFlags, CD2DSizeU(szImage), pBitmap);
-	LPARAM	lParam = reinterpret_cast<LPARAM>(pBitmap);	
-	AfxGetMainWnd()->PostMessage(UWM_BITMAP_CAPTURE, 0, lParam);	// post pointer to main window
 }
 
 bool CWhorldThread::WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath)
@@ -1007,13 +774,6 @@ CSnapshot* CWhorldThread::GetSnapshot() const
 	return pSnapshot;
 }
 
-bool CWhorldThread::CaptureSnapshot() const
-{
-	LPARAM	lParam = reinterpret_cast<LPARAM>(GetSnapshot());
-	AfxGetMainWnd()->PostMessage(UWM_SNAPSHOT_CAPTURE, 0, lParam);	// post pointer to main window
-	return true;
-}
-
 void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 {
 	ASSERT(pSnapshot != NULL);
@@ -1024,7 +784,7 @@ void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 	m_main.bConvex = pSnapshot->m_state.bConvex;
 	m_globRing = pSnapshot->m_globRing;
 	// restore ring list
-	SetEmpty();	// empty ring list
+	RemoveAllRings();	// empty ring list
 	RING*	pRing = const_cast<RING*>(pSnapshot->m_aRing);
 	for (int iRing = 0; iRing < nRings; iRing++) {	// for each snapshot ring
 		POSITION	pos = m_aRing.AddTail(*pRing++);	// add ring to list
@@ -1036,7 +796,388 @@ void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 	}
 }
 
+void CWhorldThread::ExitSnapshotMode()
+{
+	m_bSnapshotMode = false;
+	if (m_pPrevSnapshot != NULL) {	// if previous snapshot exists
+		// snapshot is deleted when smart pointer goes out of scope
+		CAutoPtr<CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
+		SetSnapshot(pSnapshot);	// restore snapshot
+	}
+}
+
+CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
+{
+	CString	sRet;	// string returned to caller
+	CString	sCmdName(GetRenderCmdName(cmd.m_nCmd));	// get command name
+	// try parameter commands first as they occupy a contiguous range
+	if (cmd.m_nCmd >= RC_SET_PARAM_FIRST && cmd.m_nCmd <= RC_SET_PARAM_LAST) {
+		int	iProp = cmd.m_nCmd - RC_SET_PARAM_FIRST;	// get property index
+		sRet = sCmdName 
+			+ _T(" '") + GetParamName(cmd.m_nParam) 
+			+ _T("' ") + GetParamPropName(iProp)
+			+ _T(" = ") + ParamToString(iProp, cmd.m_prop);
+	} else {	// not a parameter command
+		switch (cmd.m_nCmd) {
+		case RC_SET_MASTER:
+			sRet = sCmdName 
+				+ _T(" '") + GetMasterName(cmd.m_nParam) 
+				+ _T("' = ") + MasterToString(cmd.m_nParam, cmd.m_prop);
+			break;
+		case RC_SET_MAIN:
+			sRet = sCmdName 
+				+ _T(" '") + GetMainName(cmd.m_nParam) 
+				+ _T("' = ") + MainToString(cmd.m_nParam, cmd.m_prop);
+			break;
+		default:
+			switch (cmd.m_nCmd) {
+			#define RENDERCMDDEF(name, vartype) case RC_##name: sRet = sCmdName \
+				+ ' ' + ValToString(cmd.m_nParam) \
+				+ ' ' + ValToString(cmd.m_prop.vartype); \
+				break;
+			#include "WhorldDef.h"	// generate cases for generic commands
+			}
+		}
+	}
+	return sRet;
+}
+
+// Commands
+
+bool CWhorldThread::SetParam(int iParam, int iProp, VARIANT_PROP& prop)
+{
+	CRenderCmd	cmd(RC_SET_PARAM_Val + iProp, iParam);
+	cmd.m_prop = prop;
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::SetMasterProp(int iProp, double fVal)
+{
+	return PushCommand(CRenderCmd(RC_SET_MASTER, iProp, fVal));
+}
+
+bool CWhorldThread::SetMainProp(int iProp, VARIANT_PROP& prop)
+{
+	CRenderCmd	cmd(RC_SET_MAIN, iProp);
+	cmd.m_prop = prop;
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::SetPatch(const CPatch& patch)
+{
+	CRenderCmd	cmd(RC_SET_PATCH);
+	// dynamically allocate a copy of the patch and enqueue a pointer
+	// to it; the render thread is responsible for deleting the patch
+	cmd.m_prop.byref = new CPatch(patch);	// allocate new patch on heap
+	return PushCommand(cmd);	// patch belongs to render thread now
+}
+
+bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
+{
+	return PushCommand(CRenderCmd(RC_SET_FRAME_RATE, nFrameRate));
+}
+
+bool CWhorldThread::SetPause(bool bEnable)
+{
+	return PushCommand(CRenderCmd(RC_SET_PAUSE, bEnable));
+}
+
+bool CWhorldThread::SingleStep()
+{
+	return PushCommand(CRenderCmd(RC_SINGLE_STEP));
+}
+
+bool CWhorldThread::SetEmpty()
+{
+	return PushCommand(CRenderCmd(RC_SET_EMPTY));
+}
+
+bool CWhorldThread::RandomPhase()
+{
+	return PushCommand(CRenderCmd(RC_RANDOM_PHASE));
+}
+
+bool CWhorldThread::SetZoom(double fZoom, bool bDamping)
+{
+	return PushCommand(CRenderCmd(RC_SET_ZOOM, bDamping, fZoom));
+}
+
+bool CWhorldThread::SetOrigin(DPoint ptOrigin, bool bDamping)
+{
+	CRenderCmd	cmd(RC_SET_ORIGIN, bDamping);
+	cmd.m_prop.fltPt = ptOrigin;
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::SetOriginX(double fOriginX, bool bDamping)
+{
+	return PushCommand(CRenderCmd(RC_SET_ORIGIN_X, bDamping, fOriginX));
+}
+
+bool CWhorldThread::SetOriginY(double fOriginY, bool bDamping)
+{
+	return PushCommand(CRenderCmd(RC_SET_ORIGIN_Y, bDamping, fOriginY));
+}
+
+bool CWhorldThread::CaptureBitmap(UINT nFlags, SIZE szImage)
+{
+	CRenderCmd	cmd(RC_CAPTURE_BITMAP, nFlags);
+	cmd.m_prop.szVal = szImage;
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::CaptureSnapshot()
+{
+	return PushCommand(CRenderCmd(RC_CAPTURE_SNAPSHOT));
+}
+
 bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
+{
+	CRenderCmd	cmd(RC_DISPLAY_SNAPSHOT);
+	cmd.m_prop.byref = const_cast<CSnapshot*>(pSnapshot);
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::SetDampedGlobal(int iParam, double fGlobal)
+{
+	return PushCommand(CRenderCmd(RC_SET_DAMPED_GLOBAL, iParam, fGlobal));
+}
+
+bool CWhorldThread::SetDrawMode(UINT nMask, UINT nVal)
+{
+	return PushCommand(CRenderCmd(RC_SET_DRAW_MODE, nMask, nVal));
+}
+
+bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
+{
+	while (!CRenderThread::PushCommand(cmd)) {	// try to enqueue command
+		// render command queue was full
+		if (CWhorldApp::IsMainThread()) {	// if we're the user-interface thread
+			// give the user a chance to retry the push
+			if (AfxMessageBox(IDS_APP_ERR_RENDER_QUEUE_FULL, MB_RETRYCANCEL) != IDRETRY) {
+				return false;	// user canceled, so stop retrying
+			}
+		} else {	// we're a worker thread
+			// do a limited number of retries, separated by timeouts
+			const int	nMaxRetries = 20;
+			const int	nRetryTimeout = 10;	// in milliseconds
+			for (int iRetry = 0; iRetry < nMaxRetries; iRetry++) {	// for each retry
+				Sleep(nRetryTimeout);	// do a timeout
+				if (CRenderThread::PushCommand(cmd)) {	// try to enqueue command
+					return true;	// retry succeeded
+				}
+			}
+			// notify main thread of unrecoverable error
+			AfxGetMainWnd()->PostMessage(UWM_THREAD_ERROR_MSG, IDS_APP_ERR_RENDER_QUEUE_FULL);
+			return false;	// retries failed, so give up
+		}
+	}
+	return true;
+}
+
+// Command handlers
+
+void CWhorldThread::OnSetParam(int iParam, double fVal)
+{
+	GetParamRow(iParam).fVal = fVal;
+}
+
+void CWhorldThread::OnSetWaveform(int iParam, int iWave)
+{
+	GetParamRow(iParam).iWave = iWave;
+	m_aOsc[iParam].SetWaveform(iWave);
+}
+
+void CWhorldThread::OnSetAmplitude(int iParam, double fAmp)
+{
+	GetParamRow(iParam).fAmp = fAmp;
+}
+
+void CWhorldThread::OnSetFrequency(int iParam, double fFreq)
+{
+	GetParamRow(iParam).fFreq = fFreq;
+	m_aOsc[iParam].SetFreq(fFreq);
+}
+
+void CWhorldThread::OnSetPulseWidth(int iParam, double fPW)
+{
+	GetParamRow(iParam).fPW = fPW;
+	m_aOsc[iParam].SetPulseWidth(fPW);
+}
+
+void CWhorldThread::OnSetGlobalParam(int iParam, double fGlobal)
+{
+	GetParamRow(iParam).fGlobal = fGlobal;
+	m_globs.a[iParam] = fGlobal;
+}
+
+void CWhorldThread::OnSetMasterProp(int iProp, double fVal)
+{
+	CPatch::SetMasterProp(iProp, fVal);
+	OnMasterPropChange(iProp);
+}
+
+void CWhorldThread::OnSetMainProp(int iProp, const VARIANT_PROP& prop)
+{
+	CPatch::SetMainProp(iProp, prop);
+	OnMainPropChange(iProp);
+}
+
+void CWhorldThread::OnSetPatch(const CPatch *pPatch)
+{
+	// assume dynamic allocation: recipient is responsible for deletion
+	ASSERT(pPatch != NULL);	// patch pointer had better not be null
+	CPatch&	patch = *this;	// upcast to patch data base class
+	patch = *pPatch;	// copy patch data from buffer to bass class
+	delete pPatch;	// delete patch data buffer
+	OnMasterPropChange();	// handle master property changes
+	OnMainPropChange();	// handle main property changes
+	OnGlobalsChange();	// handle global parameter changes
+	m_bFlushHistory = true;	// suppress interpolation to avoid glitch
+}
+
+bool CWhorldThread::OnSetFrameRate(DWORD nFrameRate)
+{
+	if (!nFrameRate) {
+		ASSERT(0);	// zero frame rate is intolerable
+		return false;	// avoid divide by zero when calculating period
+	}
+	m_nFrameRate = nFrameRate;
+	m_oscOrigin.SetTimerFreq(nFrameRate);
+	return true;
+}
+
+void CWhorldThread::OnSetPause(bool bIsPaused)
+{
+	m_bIsPaused = bIsPaused;
+	if (!bIsPaused) {	// if unpausing
+		ExitSnapshotMode();
+	}
+}
+
+void CWhorldThread::OnSingleStep()
+{
+	if (m_bIsPaused) {
+		TimerHook();
+	}
+}
+
+void CWhorldThread::OnSetEmpty()
+{
+	RemoveAllRings();
+	m_fRingOffset = 0;	// add a ring ASAP
+}
+
+void CWhorldThread::OnRandomPhase()
+{
+	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
+		m_aOsc[iParam].SetPhase(RandDouble());
+	}
+}
+
+void CWhorldThread::OnSetZoom(double fZoom, bool bDamping)
+{
+	m_fZoomTarget = fZoom;
+	if (!bDamping || m_bSnapshotMode) {	// if not damping
+		m_fZoom = fZoom;	// go directly to target
+	}
+}
+
+void CWhorldThread::OnSetOrigin(DPoint ptOrigin, bool bDamping)
+{
+	SetOriginTarget(DPoint((ptOrigin - 0.5) * GetTargetSize()), bDamping);	// denormalize origin
+}
+
+void CWhorldThread::OnSetOriginX(double fOriginX, bool bDamping)
+{
+	SetOriginTarget(DPoint((fOriginX - 0.5) * GetTargetSize().x,	// denormalize x-coord
+		m_ptOriginTarget.y), bDamping);
+}
+
+void CWhorldThread::OnSetOriginY(double fOriginY, bool bDamping)
+{
+	SetOriginTarget(DPoint(m_ptOriginTarget.x, 
+		(fOriginY - 0.5) * GetTargetSize().y), bDamping);	// denormalize y-coord
+}
+
+DPoint CWhorldThread::GetOrigin() const
+{
+	if (!m_szTarget.width || !m_szTarget.height) {
+		return DPoint(0, 0);	// avoid divide by zero
+	}
+	return DPoint(m_ptOrigin) / GetTargetSize() + 0.5;
+}
+
+bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)
+{
+	pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
+	if (nFlags & EF_USE_VIEW_SIZE) {	// if using view size as image size
+		szImage = CSize(m_szTarget);	// override specified image size
+	}
+	//
+	// 1) Create the capture bitmap, which can be a GPU target but isn't readable by the CPU.
+	//
+	D2D1_BITMAP_PROPERTIES1 propsCapture = {
+		{DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED}, 0, 0,
+		D2D1_BITMAP_OPTIONS_TARGET,	// target option is incompatible with CPU read
+	};
+	CComPtr<ID2D1Bitmap1>	pCaptureBitmap;
+	CHECK(m_pD2DDeviceContext->CreateBitmap(szImage, NULL, 0, &propsCapture, &pCaptureBitmap));
+	//
+	// 2) Draw into the capture bitmap.
+	//
+	m_pD2DDeviceContext->SetTarget(pCaptureBitmap);	// make capture bitmap the render target
+	m_pD2DDeviceContext->BeginDraw();	// start drawing
+	{
+		CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set pause state
+		CSaveObj<double>	saveZoom(m_fZoom);	// save zoom
+		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
+			double	fScaleWidth = szImage.width / m_szTarget.width;
+			double	fScaleHeight = szImage.height / m_szTarget.height;
+			double	fScaleToFit = min(fScaleWidth, fScaleHeight);
+			m_fZoom *= fScaleToFit; 
+		}
+		OnDraw();	// draw as usual; geometry is frozen because we're paused
+		// state is restored automatically when CSaveObj instances goes out of scope
+	}
+	m_pD2DDeviceContext->EndDraw();	// end drawing
+	m_pD2DDeviceContext->SetTarget(m_pTargetBitmap);	// restore the swap chain render target
+	//
+	// 3) Create the CPU-readable bitmap.
+	//
+	D2D1_BITMAP_PROPERTIES1 propsReadable = {
+		{DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED}, 0, 0,
+		D2D1_BITMAP_OPTIONS_CPU_READ | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+	};
+	CComPtr<ID2D1Bitmap1> pReadableBitmap;
+	CHECK(m_pD2DDeviceContext->CreateBitmap(szImage, NULL, 0, &propsReadable, &pReadableBitmap));
+	//
+	// 4) Copy from the capture bitmap to the readable bitmap.
+	//
+	CHECK(pReadableBitmap->CopyFromBitmap(NULL, pCaptureBitmap, NULL));
+	//
+	// 5) Return readable bitmap to caller for mapping and writing.
+	//
+	pBitmap = pReadableBitmap.Detach();	// detach bitmap from its smart pointer
+	return true;
+}
+
+void CWhorldThread::OnCaptureBitmap(UINT nFlags, SIZE szImage)
+{
+	ID2D1Bitmap1*	pBitmap;
+	CaptureBitmap(nFlags, CD2DSizeU(szImage), pBitmap);
+	LPARAM	lParam = reinterpret_cast<LPARAM>(pBitmap);	
+	AfxGetMainWnd()->PostMessage(UWM_BITMAP_CAPTURE, 0, lParam);	// post pointer to main window
+}
+
+bool CWhorldThread::OnCaptureSnapshot() const
+{
+	LPARAM	lParam = reinterpret_cast<LPARAM>(GetSnapshot());
+	AfxGetMainWnd()->PostMessage(UWM_SNAPSHOT_CAPTURE, 0, lParam);	// post pointer to main window
+	return true;
+}
+
+bool CWhorldThread::OnDisplaySnapshot(const CSnapshot* pSnapshot)
 {
 	if (pSnapshot == NULL) {	// if null snapshot pointer
 		CHECK(E_INVALIDARG);	// One or more arguments are invalid
@@ -1051,9 +1192,15 @@ bool CWhorldThread::DisplaySnapshot(const CSnapshot* pSnapshot)
 	return true;
 }
 
-void CWhorldThread::SetDampedGlobal(int iParam, double fGlobal)
+void CWhorldThread::OnSetDampedGlobal(int iParam, double fGlobal)
 {
 	GetParamRow(iParam).fGlobal = fGlobal;	// set target only
+}
+
+void CWhorldThread::OnSetDrawMode(UINT nMask, UINT nVal)
+{
+	m_main.nDrawMode &= ~nMask;	// clear specified bits
+	m_main.nDrawMode |= (nVal & nMask);	// set specified bits
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
@@ -1064,70 +1211,73 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 	// dispatch render command to appropriate handler
 	switch (cmd.m_nCmd) {
 	case RC_SET_PARAM_Val:
-		SetParam(cmd.m_nParam, cmd.m_prop.dblVal);
+		OnSetParam(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	case RC_SET_PARAM_Wave:
-		SetWaveform(cmd.m_nParam, cmd.m_prop.intVal);
+		OnSetWaveform(cmd.m_nParam, cmd.m_prop.intVal);
 		break;
 	case RC_SET_PARAM_Amp:
-		SetAmplitude(cmd.m_nParam, cmd.m_prop.dblVal);
+		OnSetAmplitude(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	case RC_SET_PARAM_Freq:
-		SetFrequency(cmd.m_nParam, cmd.m_prop.dblVal);
+		OnSetFrequency(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	case RC_SET_PARAM_PW:
-		SetPulseWidth(cmd.m_nParam,  cmd.m_prop.dblVal);
+		OnSetPulseWidth(cmd.m_nParam,  cmd.m_prop.dblVal);
 		break;
 	case RC_SET_PARAM_Global:
-		SetGlobalParam(cmd.m_nParam, cmd.m_prop.dblVal);
+		OnSetGlobalParam(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	case RC_SET_MASTER:
-		SetMasterProp(cmd.m_nParam, cmd.m_prop.dblVal);
+		OnSetMasterProp(cmd.m_nParam, cmd.m_prop.dblVal);
 		break;
 	case RC_SET_MAIN:
-		SetMainProp(cmd.m_nParam, cmd.m_prop);
+		OnSetMainProp(cmd.m_nParam, cmd.m_prop);
 		break;
 	case RC_SET_PATCH:
-		SetPatch(static_cast<CPatch*>(cmd.m_prop.byref));
+		OnSetPatch(static_cast<CPatch*>(cmd.m_prop.byref));
 		break;
 	case RC_SET_EMPTY:
-		SetEmpty();
+		OnSetEmpty();
 		break;
 	case RC_SET_FRAME_RATE:
-		SetFrameRate(cmd.m_nParam);
+		OnSetFrameRate(cmd.m_nParam);
 		break;
 	case RC_SET_PAUSE:
-		SetPause(cmd.m_nParam != 0);
+		OnSetPause(cmd.m_nParam != 0);
 		break;
 	case RC_SINGLE_STEP:
-		SingleStep();
+		OnSingleStep();
 		break;
 	case RC_RANDOM_PHASE:
-		RandomPhase();
+		OnRandomPhase();
 		break;
 	case RC_SET_ZOOM:
-		SetZoom(cmd.m_prop.dblVal, cmd.m_nParam != 0);
+		OnSetZoom(cmd.m_prop.dblVal, cmd.m_nParam != 0);
 		break;
 	case RC_SET_ORIGIN:
-		SetOrigin(cmd.m_prop.fltPt, cmd.m_nParam != 0);
+		OnSetOrigin(cmd.m_prop.fltPt, cmd.m_nParam != 0);
 		break;
 	case RC_SET_ORIGIN_X:
-		SetOriginX(cmd.m_prop.dblVal, cmd.m_nParam != 0);
+		OnSetOriginX(cmd.m_prop.dblVal, cmd.m_nParam != 0);
 		break;
 	case RC_SET_ORIGIN_Y:
-		SetOriginY(cmd.m_prop.dblVal, cmd.m_nParam != 0);
+		OnSetOriginY(cmd.m_prop.dblVal, cmd.m_nParam != 0);
 		break;
 	case RC_CAPTURE_BITMAP:
-		CaptureBitmap(cmd.m_nParam, cmd.m_prop.szVal);
+		OnCaptureBitmap(cmd.m_nParam, cmd.m_prop.szVal);
 		break;
 	case RC_CAPTURE_SNAPSHOT:
-		CaptureSnapshot();
+		OnCaptureSnapshot();
 		break;
 	case RC_DISPLAY_SNAPSHOT:
-		DisplaySnapshot(static_cast<CSnapshot*>(cmd.m_prop.byref));
+		OnDisplaySnapshot(static_cast<CSnapshot*>(cmd.m_prop.byref));
 		break;
 	case RC_SET_DAMPED_GLOBAL:
-		SetDampedGlobal(cmd.m_nParam, cmd.m_prop.dblVal);
+		OnSetDampedGlobal(cmd.m_nParam, cmd.m_prop.dblVal);
+		break;
+	case RC_SET_DRAW_MODE:
+		OnSetDrawMode(cmd.m_nParam, cmd.m_prop.uintVal);
 		break;
 	default:
 		NODEFAULTCASE;	// missing command case

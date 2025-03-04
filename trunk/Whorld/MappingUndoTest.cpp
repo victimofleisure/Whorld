@@ -44,12 +44,16 @@
 
 #define TIMER_PERIOD 1	// timer period, in milliseconds
 
+// pause only matters if receiving MIDI input during test,
+// in which case, also back off the timer period to 10 ms
+#define PAUSE_VIEW_DURING_TEST false	// unpaused is a tougher test
+
 #define midiMaps theApp.m_midiMgr.m_midiMaps
 #define midiPane theApp.GetMainFrame()->m_wndMappingBar
 
-static CMappingUndoTest gUndoTest(TRUE);	// one and only instance, initially running
+static CMappingUndoTest gUndoTest(true);	// one and only instance, initially running
 
-const CMappingUndoTest::EDIT_INFO CMappingUndoTest::m_EditInfo[] = {
+const CMappingUndoTest::EDIT_INFO CMappingUndoTest::m_arrEditInfo[] = {
 	{UCODE_PROPERTY,			1},
 	{UCODE_MULTI_PROPERTY,		1},
 	{UCODE_INSERT,				0.5f},
@@ -62,25 +66,25 @@ const CMappingUndoTest::EDIT_INFO CMappingUndoTest::m_EditInfo[] = {
 	{UCODE_LEARN_MULTI,			0.5},
 };
 
-CMappingUndoTest::CMappingUndoTest(bool InitRunning) :
-	CUndoTest(InitRunning, TIMER_PERIOD, m_EditInfo, _countof(m_EditInfo))
+CMappingUndoTest::CMappingUndoTest(bool bInitRunning) :
+	CUndoTest(bInitRunning, TIMER_PERIOD, m_arrEditInfo, _countof(m_arrEditInfo))
 {
 #if 0
-	m_Cycles = 1;
-	m_Passes = 2;
-	m_PassEdits = 10;
-	m_PassUndos = 5;
-	m_MaxEdits = INT_MAX;
-	m_RandSeed = 666;
-	m_MakeSnapshots = 1;
+	m_nCycles = 1;
+	m_nPasses = 2;
+	m_nPassEdits = 10;
+	m_nPassUndos = 5;
+	m_nMaxEdits = INT_MAX;
+	m_nRandSeed = 666;
+	m_bMakeSnapshots = true;
 #else
-	m_Cycles = 1;
-	m_Passes = 10;
-	m_PassEdits = 250;
-	m_PassUndos = 100;
-	m_MaxEdits = INT_MAX;
-	m_RandSeed = 666;
-	m_MakeSnapshots = 1;
+	m_nCycles = 1;
+	m_nPasses = 10;
+	m_nPassEdits = 250;
+	m_nPassUndos = 100;
+	m_nMaxEdits = INT_MAX;
+	m_nRandSeed = 666;
+	m_bMakeSnapshots = true;
 #endif
 }
 
@@ -94,7 +98,7 @@ LONGLONG CMappingUndoTest::GetSnapshot() const
 	const CMappingArray&	aMapping = midiMaps.GetArray();
 	nSum += Fletcher64(aMapping.GetData(), aMapping.GetSize() * sizeof(CMapping));
 //	_tprintf(_T("%I64x\n"), nSum);
-	return(nSum);
+	return nSum;
 }
 
 int CMappingUndoTest::MakeRandomMappingProperty(int iProp)
@@ -116,14 +120,14 @@ int CMappingUndoTest::MakeRandomMappingProperty(int iProp)
 bool CMappingUndoTest::MakeRandomSelection(int nItems, CIntArrayEx& arrSelection) const
 {
 	if (nItems <= 0)
-		return(FALSE);
+		return false;
 	int	nSels = Random(nItems) + 1;	// select at least one item
 	CRandList	list(nItems);
 	arrSelection.SetSize(nSels);
 	for (int iSel = 0; iSel < nSels; iSel++)	// for each selection
 		arrSelection[iSel] = list.GetNext();	// select random track
 	arrSelection.Sort();
-	return(TRUE);
+	return true;
 }
 
 CString	CMappingUndoTest::PrintSelection(CIntArrayEx& arrSelection) const
@@ -139,19 +143,19 @@ CString	CMappingUndoTest::PrintSelection(CIntArrayEx& arrSelection) const
 		str += s;
 	}
 	str += ']';
-	return(str);
+	return str;
 }
 
-int CMappingUndoTest::ApplyEdit(int UndoCode)
+int CMappingUndoTest::ApplyEdit(int nUndoCode)
 {
-	CUndoState	state(0, UndoCode);
+	CUndoState	state(0, nUndoCode);
 	CString	sUndoTitle(midiPane.GetUndoTitle(state));
-	switch (UndoCode) {
+	switch (nUndoCode) {
 	case UCODE_PROPERTY:
 		{
 			int	iMapping = Random(midiMaps.GetCount());
 			if (iMapping < 0)
-				return(DISABLED);
+				return DISABLED;
 			int	iProp = Random(PROPERTIES);
 			int	nVal = MakeRandomMappingProperty(iProp);
 			midiPane.SetProperty(iMapping, iProp, nVal);
@@ -162,7 +166,7 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 			int	nMappings = midiMaps.GetCount(); 
 			CIntArrayEx	arrSelection;
 			if (!MakeRandomSelection(nMappings, arrSelection))
-				return(DISABLED);
+				return DISABLED;
 			int	iProp = Random(PROPERTIES);
 			int	nVal = MakeRandomMappingProperty(iProp);
 			midiPane.SetProperty(arrSelection, iProp, nVal);
@@ -181,9 +185,9 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 			int	nMappings = midiMaps.GetCount(); 
 			CIntArrayEx	arrSelection;
 			if (!MakeRandomSelection(nMappings, arrSelection))
-				return(DISABLED);
+				return DISABLED;
 			midiPane.GetListCtrl().SetSelection(arrSelection);
-			if (UndoCode == UCODE_CUT) {
+			if (nUndoCode == UCODE_CUT) {
 				midiPane.Cut(arrSelection);
 			} else {
 				midiPane.Delete(arrSelection);
@@ -194,7 +198,7 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 	case UCODE_PASTE:
 		{
 			if (!midiPane.CanPaste())
-				return(DISABLED);
+				return DISABLED;
 			int iInsPos = max(Random(midiMaps.GetCount()), 0);
 			midiPane.Paste(iInsPos);
 			PRINTF(_T("%s %d\n"), sUndoTitle, iInsPos);
@@ -204,13 +208,13 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 		{
 			int	nMappings = midiMaps.GetCount(); 
 			if (nMappings < 2)
-				return(DISABLED);
+				return DISABLED;
 			CIntArrayEx	arrSelection;
 			if (!MakeRandomSelection(nMappings, arrSelection))
-				return(DISABLED);
+				return DISABLED;
 			int	iDropPos = Random(nMappings + 1);
 			if (!CDragVirtualListCtrl::CompensateDropPos(arrSelection, iDropPos))
-				return(DISABLED);
+				return DISABLED;
 			midiPane.Move(arrSelection, iDropPos);
 			PRINTF(_T("%s %s %d\n"), sUndoTitle, PrintSelection(arrSelection), iDropPos);
 		}
@@ -219,7 +223,7 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 		{
 			int	nMappings = midiMaps.GetCount(); 
 			if (nMappings < 2)
-				return(DISABLED);
+				return DISABLED;
 			int	iProp = Random(PROPERTIES);
 			bool	bDescending = Random(2) != 0;
 			midiPane.Sort(iProp, bDescending);
@@ -230,7 +234,7 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 		{
 			int	iMapping = Random(midiMaps.GetCount());
 			if (iMapping < 0)
-				return(DISABLED);
+				return DISABLED;
 			int	nInMidiMsg = MakeMidiMsg(MIDI_IDX_CMD(Random(MIDI_CHANNEL_VOICE_MESSAGES)),
 				Random(MIDI_CHANNELS), Random(MIDI_NOTES), Random(MIDI_NOTES));
 			midiPane.LearnMapping(iMapping, nInMidiMsg);
@@ -241,7 +245,7 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 		{
 			CIntArrayEx	arrSelection;
 			if (!MakeRandomSelection(midiMaps.GetCount(), arrSelection))
-				return(DISABLED);
+				return DISABLED;
 			int	nInMidiMsg = MakeMidiMsg(MIDI_IDX_CMD(Random(MIDI_CHANNEL_VOICE_MESSAGES)),
 				Random(MIDI_CHANNELS), Random(MIDI_NOTES), Random(MIDI_NOTES));
 			midiPane.LearnMappings(arrSelection, nInMidiMsg);
@@ -250,26 +254,26 @@ int CMappingUndoTest::ApplyEdit(int UndoCode)
 		break;
 	default:
 		NODEFAULTCASE;
-		return(ABORT);
+		return ABORT;
 	}
-	return(SUCCESS);
+	return SUCCESS;
 }
 
 bool CMappingUndoTest::Create()
 {
-	theApp.SetPause(true);	// sets the bar lower
-	m_UndoMgr = midiPane.GetUndoManager();
-	m_UndoMgr->SetLevels(-1);	// unlimited undo
+	theApp.SetPause(PAUSE_VIEW_DURING_TEST);
+	m_pUndoMgr = midiPane.GetUndoManager();
+	m_pUndoMgr->SetLevels(-1);	// unlimited undo
 	theApp.GetMainFrame()->m_wndMappingBar.ShowPane(true, 0, true);
 	if (!CUndoTest::Create())
-		return(FALSE);
-	return(TRUE);
+		return false;
+	return true;
 }
 
 void CMappingUndoTest::Destroy()
 {
 	CUndoTest::Destroy();
-	midiPane.SetModifiedFlag(FALSE);
+	midiPane.SetModifiedFlag(false);
 }
 
 #endif

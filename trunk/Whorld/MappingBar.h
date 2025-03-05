@@ -13,6 +13,7 @@
 		03		26feb25	adapt for Whorld
 		04		27feb25	add undo
 		05		01mar25	add learn mode
+		06		05mar25	add custom draw
 
 */
 
@@ -56,6 +57,7 @@ public:
 	void	Sort(int iProp, bool bDescending = false);
 	void	LearnMapping(int iMapping, DWORD nInMidiMsg, bool bCoalesceEdit = false);
 	void	LearnMappings(const CIntArrayEx& arrSelection, DWORD nInMidiMsg, bool bCoalesceEdit = false);
+	void	OnLearnMode();
 
 // Overrides
 	virtual	CString	GetUndoTitle(const CUndoState& State);
@@ -148,6 +150,7 @@ protected:
 	afx_msg void OnListColHdrReset();
 	afx_msg void OnListReorder(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnListColumnClick(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg LRESULT OnMidiEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnEditSelectAll();
 	afx_msg void OnUpdateEditSelectAll(CCmdUI *pCmdUI);
@@ -163,8 +166,6 @@ protected:
 	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
 	afx_msg void OnEditRedo();
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
-	afx_msg void OnViewMidiLearn();
-	afx_msg void OnUpdateViewMidiLearn(CCmdUI *pCmdUI);
 };
 
 inline const int CMappingBar::GetPropertyNameID(int iProp)

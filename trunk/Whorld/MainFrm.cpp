@@ -909,6 +909,7 @@ void CMainFrame::OnViewOptions()
 void CMainFrame::OnViewMidiLearn()
 {
 	theApp.m_midiMgr.SetLearnMode(!theApp.m_midiMgr.IsLearnMode());
+	m_wndMappingBar.OnLearnMode();
 }
 
 void CMainFrame::OnUpdateViewMidiLearn(CCmdUI *pCmdUI)

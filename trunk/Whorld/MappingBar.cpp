@@ -19,6 +19,7 @@
 		09		26feb25	adapt for Whorld
 		10		27feb25	add undo
 		11		01mar25	add learn mode
+		12		05mar25	indicate learn mode by changing list selection color
 		
 */
 
@@ -359,6 +360,20 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 	}
 }
 
+void CMappingBar::OnLearnMode()
+{
+	DWORD	dwRemove = 0, dwAdd = 0;
+	// for more on style change, see OnCreate and OnListCustomDraw
+	if (theApp.m_midiMgr.IsLearnMode()) {	// if learning MIDI input
+		dwRemove = LVS_SHOWSELALWAYS;	// disable show selection always
+	} else {	// not learning
+		dwAdd = LVS_SHOWSELALWAYS;	// enable show selection always
+		m_arrPrevSelection.RemoveAll();	// reset change detection
+	}
+	m_grid.ModifyStyle(dwRemove, dwAdd);	// apply style chosen above
+	UpdateGrid();	// redraw all items
+}
+
 // CMappingBar undo
 
 void CMappingBar::MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems)
@@ -598,6 +613,7 @@ BEGIN_MESSAGE_MAP(CMappingBar, CMyDockablePane)
 	ON_COMMAND(ID_LIST_COL_HDR_RESET, OnListColHdrReset)
 	ON_NOTIFY(ULVN_REORDER, IDC_MAPPING_GRID, OnListReorder)
 	ON_NOTIFY(LVN_COLUMNCLICK, IDC_MAPPING_GRID, OnListColumnClick)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_MAPPING_GRID, OnListCustomDraw)
 	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditDelete)
 	ON_COMMAND(ID_EDIT_CUT, OnEditCut)
@@ -614,8 +630,6 @@ BEGIN_MESSAGE_MAP(CMappingBar, CMyDockablePane)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
 	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
-	ON_COMMAND(ID_VIEW_MIDI_LEARN, OnViewMidiLearn)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_MIDI_LEARN, OnUpdateViewMidiLearn)
 END_MESSAGE_MAP()
 
 // CMappingBar message handlers
@@ -627,7 +641,8 @@ int CMappingBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	DWORD	dwStyle = WS_CHILD | WS_VISIBLE 
 		| LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS;
-	// NOTE that LVS_SHOWSELALWAYS breaks CDIS_SELECTED handling in OnListCustomDraw
+	// NOTE that LVS_SHOWSELALWAYS breaks CDIS_SELECTED handling in OnListCustomDraw,
+	// but since it's a useful style, instead we disable it while in MIDI learn mode
 	if (!m_grid.Create(dwStyle, CRect(0, 0, 0, 0), this, IDC_MAPPING_GRID))
 		return -1;
 	DWORD	dwListExStyle = LVS_EX_LABELTIP | LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP;
@@ -681,34 +696,39 @@ void CMappingBar::LearnMappings(const CIntArrayEx& arrSelection, DWORD nInMidiMs
 LRESULT CMappingBar::OnMidiEvent(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
-	if (theApp.m_midiMgr.IsLearnMode()) {	// if in MIDI learn mode
-		DWORD	nInMidiMsg = static_cast<DWORD>(wParam);
-		int	iMapping = m_grid.GetSelection();
-		if (iMapping >= 0) {	// if item is selected
-			CIntArrayEx	arrSelection;
-			m_grid.GetSelection(arrSelection);
-			bool	bCoalesceEdit;
-			if (arrSelection != m_arrPrevSelection) {	// if selection changed
-				m_arrPrevSelection = arrSelection;
-				bCoalesceEdit = false;	// don't coalesce edit; create a new undo state
-			} else {	// selection hasn't changed
-				bCoalesceEdit = true;	// coalesce edit to avoid a blizzard of undo states
-			}
-			int	iCmd = MIDI_CMD_IDX(nInMidiMsg);	// convert MIDI status to command index
-			if (iCmd >= 0 && iCmd < MIDI_CHANNEL_VOICE_MESSAGES) {	// if channel voice message
-				// remove data from message by clearing second or both parameters
-				if (iCmd <= MIDI_CVM_CONTROL) {	// if message has a note/controller
-					nInMidiMsg &= ~MIDI_P2_MASK;	// only clear its second parameter
-				} else {	// message doesn't have a note/controller; only status matters
-					nInMidiMsg &= ~(MIDI_P1_MASK | MIDI_P2_MASK);	// clear both parameters
-				}
-				if (arrSelection.GetSize() > 1) {	// if multiple selection
-					LearnMappings(arrSelection, nInMidiMsg, bCoalesceEdit);
-				} else {	// not multiple selection
-					if (arrSelection.GetSize()) {	// if single selection
-						LearnMapping(iMapping, nInMidiMsg, bCoalesceEdit);
-					}
-				}
+	if (!theApp.m_midiMgr.IsLearnMode()) {	// if not in MIDI learn mode
+		return 0;	// we shouldn't be here
+	}
+	if (::GetFocus() != m_grid.m_hWnd) {	// if grid doesn't have focus
+		return 0;	// too confusing otherwise
+	}
+	int	iMapping = m_grid.GetSelection();
+	if (iMapping < 0) {	// if grid doesn't have a selection
+		return 0;	// nothing to map
+	}
+	DWORD	nInMidiMsg = static_cast<DWORD>(wParam);
+	CIntArrayEx	arrSelection;
+	m_grid.GetSelection(arrSelection);
+	bool	bCoalesceEdit;
+	if (arrSelection != m_arrPrevSelection) {	// if selection changed
+		m_arrPrevSelection = arrSelection;
+		bCoalesceEdit = false;	// don't coalesce edit; create a new undo state
+	} else {	// selection hasn't changed
+		bCoalesceEdit = true;	// coalesce edit to avoid a blizzard of undo states
+	}
+	int	iCmd = MIDI_CMD_IDX(nInMidiMsg);	// convert MIDI status to command index
+	if (iCmd >= 0 && iCmd < MIDI_CHANNEL_VOICE_MESSAGES) {	// if channel voice message
+		// remove data from message by clearing second or both parameters
+		if (iCmd <= MIDI_CVM_CONTROL) {	// if message has a note/controller
+			nInMidiMsg &= ~MIDI_P2_MASK;	// only clear its second parameter
+		} else {	// message doesn't have a note/controller; only status matters
+			nInMidiMsg &= ~(MIDI_P1_MASK | MIDI_P2_MASK);	// clear both parameters
+		}
+		if (arrSelection.GetSize() > 1) {	// if multiple selection
+			LearnMappings(arrSelection, nInMidiMsg, bCoalesceEdit);
+		} else {	// not multiple selection
+			if (arrSelection.GetSize()) {	// if single selection
+				LearnMapping(iMapping, nInMidiMsg, bCoalesceEdit);
 			}
 		}
 	}
@@ -799,6 +819,27 @@ void CMappingBar::OnListColumnClick(NMHDR* pNMHDR, LRESULT* pResult)
 	pResult = 0;
 }
 
+void CMappingBar::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
+	*pResult = CDRF_DODEFAULT;
+	if (theApp.m_midiMgr.IsLearnMode()) {	// if learning MIDI input
+		switch (pLVCD->nmcd.dwDrawStage) {
+		case CDDS_PREPAINT:
+			*pResult = CDRF_NOTIFYITEMDRAW;
+			break;
+		case CDDS_ITEMPREPAINT:
+			// this will NOT work with LVS_SHOWSELALWAYS; see uItemState in NMCUSTOMDRAW doc
+			if (pLVCD->nmcd.uItemState & CDIS_SELECTED) {	// if item selected
+				pLVCD->clrTextBk = MIDI_LEARN_COLOR;	// customize item background color
+				// trick system into using our custom color instead of selection color
+				pLVCD->nmcd.uItemState &= ~CDIS_SELECTED;	// clear item's selected flag
+			}
+			break;
+		}
+	}
+}
+
 void CMappingBar::OnEditUndo()
 {
 	m_UndoMgr.Undo();
@@ -879,15 +920,4 @@ void CMappingBar::OnEditSelectAll()
 void CMappingBar::OnUpdateEditSelectAll(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(midiMaps.GetCount());
-}
-
-void CMappingBar::OnViewMidiLearn()
-{
-	theApp.m_midiMgr.SetLearnMode(!theApp.m_midiMgr.IsLearnMode());
-}
-
-void CMappingBar::OnUpdateViewMidiLearn(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(theApp.m_midiMgr.IsLearnMode());
-	pCmdUI->Enable(m_grid.GetItemCount());
 }

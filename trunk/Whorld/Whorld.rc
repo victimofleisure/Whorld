@@ -101,6 +101,9 @@ BEGIN
     BUTTON      ID_EDIT_UNDO
     BUTTON      ID_EDIT_REDO
     SEPARATOR
+    BUTTON      ID_IMAGE_FILL
+    BUTTON      ID_IMAGE_OUTLINE
+    SEPARATOR
     BUTTON      ID_WINDOW_PAUSE
     BUTTON      ID_VIEW_MIDI_LEARN
     SEPARATOR
@@ -120,9 +123,11 @@ BEGIN
     BUTTON      ID_EDIT_UNDO
     BUTTON      ID_EDIT_REDO
     SEPARATOR
+    BUTTON      ID_IMAGE_FILL
+    BUTTON      ID_IMAGE_OUTLINE
+    SEPARATOR
     BUTTON      ID_WINDOW_PAUSE
     BUTTON      ID_VIEW_MIDI_LEARN
-    SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
 
@@ -332,6 +337,7 @@ BEGIN
     "N",            ID_PLAYLIST_NEW,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     "O",            ID_PLAYLIST_OPEN,       VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_PLAYLIST_SAVE,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "G",            ID_VIEW_BAR_Globals,    VIRTKEY, SHIFT, NOINVERT
     "I",            ID_VIEW_BAR_Mapping,    VIRTKEY, SHIFT, NOINVERT
     "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
     "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
@@ -342,7 +348,7 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    "G",            ID_VIEW_BAR_Globals,    VIRTKEY, SHIFT, NOINVERT
+    "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -772,11 +778,11 @@ BEGIN
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
+    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
 END
 
 STRINGTABLE
 BEGIN
-    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
@@ -797,11 +803,11 @@ BEGIN
     ID_PLAYLIST_MRU_FILE2   "Open this playlist"
     ID_PLAYLIST_MRU_FILE3   "Open this playlist"
     ID_PLAYLIST_MRU_FILE4   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE5   "Open this playlist"
 END
 
 STRINGTABLE
 BEGIN
-    ID_PLAYLIST_MRU_FILE5   "Open this playlist"
     ID_PLAYLIST_MRU_FILE6   "Open this playlist"
     ID_PLAYLIST_MRU_FILE7   "Open this playlist"
     ID_PLAYLIST_MRU_FILE8   "Open this playlist"

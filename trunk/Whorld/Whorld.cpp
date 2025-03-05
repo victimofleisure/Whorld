@@ -44,7 +44,7 @@
 #define RK_RENDER_WND _T("RenderWnd")
 #define RK_RESOURCE_VERSION _T("nResourceVersion")
 
-const int CWhorldApp::m_nNewResourceVersion = 6;	// increment if resource change breaks customization
+const int CWhorldApp::m_nNewResourceVersion = 7;	// increment if resource change breaks customization
 
 // CWhorldApp construction
 
@@ -116,6 +116,7 @@ BOOL CWhorldApp::InitInstance()
 	m_nOldResourceVersion = GetProfileInt(REG_SETTINGS, RK_RESOURCE_VERSION, 0);
 	m_options.ReadProperties();	// get options from registry
 	LoadStdProfileSettings(m_options.m_General_nMRUItems);  // Load standard INI file options (including MRU)
+	m_thrRender.CreateCommandQueue(CRenderThread::COMMAND_QUEUE_SIZE);
 	m_midiMgr.Initialize();
 	m_pPlaylist.Attach(new CPlaylist);
 	if (m_pPlaylist == NULL)	// if can't create playlist

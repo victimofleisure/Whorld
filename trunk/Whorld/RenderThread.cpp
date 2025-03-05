@@ -16,7 +16,7 @@
 
 #define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { OnError(hr, __FILE__, __LINE__, __DATE__); return false; }}
 
-CRenderThread::CRenderThread() : m_qCmd(COMMAND_QUEUE_SIZE)
+CRenderThread::CRenderThread()
 {
 	m_pThread = NULL;
 	m_bThreadExit = false;
@@ -48,10 +48,22 @@ void CRenderThread::Log(CString sMsg)
 	_fputts(sMsg + '\n', stdout);
 }
 
+bool CRenderThread::CreateCommandQueue(int nCmdQueueSize)
+{
+	if (m_pThread != NULL) {	// if thread was launched
+		return false;	// too late to create command queue
+	}
+	m_qCmd.Create(nCmdQueueSize);
+	return true;
+}
+
 bool CRenderThread::CreateThread(HWND hRenderWnd, CWnd* pNotifyWnd)
 {
 	ASSERT(hRenderWnd);	// validate window handle
 	ASSERT(m_pThread == NULL);	// only one thread at a time
+	if (!m_qCmd.GetSize()) {	// if command queue wasn't created yet
+		m_qCmd.Create(COMMAND_QUEUE_SIZE);	// create command queue
+	}
 	m_hRenderWnd = hRenderWnd;	// store render window handle in member var
 	m_pNotifyWnd = pNotifyWnd;	// store notification window pointer in member var
 	// create thread in suspended state so we can safely disable auto-delete
@@ -73,6 +85,7 @@ void CRenderThread::DestroyThread()
 		delete m_pThread;	// delete thread instance
 		m_pThread = NULL;	// mark instance deleted
 	}
+	m_pNotifyWnd = NULL;
 }
 
 UINT CRenderThread::ThreadFunc()

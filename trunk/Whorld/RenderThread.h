@@ -47,6 +47,7 @@ public:
 		CRenderCmd(UINT nCmd, UINT nParam, int& iProp);
 		CRenderCmd(UINT nCmd, UINT nParam, UINT& iProp);
 		CRenderCmd(UINT nCmd, UINT nParam, double& fProp);
+		CRenderCmd(UINT nCmd, UINT nParam, bool& bProp);
 		UINT	m_nCmd;			// render command; see enum
 		UINT	m_nParam;		// optional parameter
 		VARIANT_PROP	m_prop;	// variant property
@@ -77,13 +78,30 @@ inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, double&
 	m_prop.dblVal = fProp;
 }
 
+inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, bool& bProp)
+	: m_nCmd(nCmd), m_nParam(nParam)
+{
+	m_prop.boolVal = bProp;
+}
+
 class CRenderThread : protected CD2DDevCtx, public CRenderThreadBase {
 public:
 // Construction
 	CRenderThread();
 	virtual ~CRenderThread();
+	bool	CreateCommandQueue(int nCmdQueueSize);
 	bool	CreateThread(HWND hRenderWnd, CWnd* pNotifyWnd = NULL);
 	void	DestroyThread();
+
+// Constants
+	enum {
+		COMMAND_QUEUE_SIZE = 1024,	// default size
+	};
+
+// Attributes
+	bool	IsCommandQueueEmpty() const;
+	bool	IsCommandQueueFull() const;
+	bool	IsCommandQueueBelowHalfFull() const;
 
 // Commands
 	bool	Resize();
@@ -93,11 +111,6 @@ public:
 	bool	PushCommand(const CRenderCmd& cmd);
 
 protected:
-// Constants
-	enum {
-		COMMAND_QUEUE_SIZE = 1024,
-	};
-
 // Member data
 	CILockRingBuf<CRenderCmd>	m_qCmd;	// command queue as interlocked ring buffer
 	CWinThread	*m_pThread;		// pointer to render thread
@@ -135,4 +148,19 @@ inline bool CRenderThread::Resize()
 inline bool CRenderThread::SetFullScreen(bool bEnable)
 {
 	return PushCommand(CRenderCmd(RC_SET_FULLSCREEN, bEnable));
+}
+
+inline bool CRenderThread::IsCommandQueueEmpty() const
+{
+	return m_qCmd.IsEmpty();
+}
+
+inline bool CRenderThread::IsCommandQueueFull() const
+{
+	return m_qCmd.IsFull();
+}
+
+inline bool CRenderThread::IsCommandQueueBelowHalfFull() const
+{
+	return m_qCmd.IsBelowHalfFull();
 }

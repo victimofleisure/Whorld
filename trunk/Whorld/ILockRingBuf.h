@@ -28,6 +28,9 @@ public:
 // Attributes
 	int		GetSize() const;
 	int		GetCount() const;
+	bool	IsEmpty() const;
+	bool	IsFull() const;
+	bool	IsBelowHalfFull() const;
 
 // Operations
 	bool	Push(const T& item);
@@ -116,4 +119,34 @@ inline bool CILockRingBuf<T>::Pop(T& item)
 		m_pTail = m_pStart;
 	InterlockedDecrement(&m_nItems);
 	return true;
+}
+
+template<class T>
+inline int CILockRingBuf<T>::GetSize() const
+{
+	return m_nSize;
+}
+
+template<class T>
+inline int CILockRingBuf<T>::GetCount() const
+{
+	return m_nItems;
+}
+
+template<class T>
+inline bool CILockRingBuf<T>::IsEmpty() const
+{
+	return m_nItems <= 0;
+}
+
+template<class T>
+inline bool CILockRingBuf<T>::IsFull() const
+{
+	return m_nItems >= m_nSize;
+}
+
+template<class T>
+inline bool CILockRingBuf<T>::IsBelowHalfFull() const
+{
+	return m_nItems < m_nSize / 2;
 }

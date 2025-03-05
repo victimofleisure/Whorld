@@ -36,6 +36,7 @@
 #include "dbt.h"	// for device change types
 #include "Midi.h"
 #include "SaveObj.h"
+#include "ProgressDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -92,7 +93,7 @@ CMainFrame::CMainFrame()
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
 	theApp.m_pMainWnd = this;
 	m_nPrevFrameCount = 0;
-	m_bInMsgBox = false;
+	m_bInRenderFullError = false;
 }
 
 CMainFrame::~CMainFrame()
@@ -508,7 +509,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_PARAM_CHANGE, OnParamChange)
 	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
 	ON_MESSAGE(UWM_MAIN_PROP_CHANGE, OnMainPropChange)
-	ON_MESSAGE(UWM_THREAD_ERROR_MSG, OnThreadErrorMsg)
+	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
 	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
 	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
@@ -838,15 +839,55 @@ LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-LRESULT CMainFrame::OnThreadErrorMsg(WPARAM wParam, LPARAM lParam)
+LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 {
+	UNREFERENCED_PARAMETER(wParam);
 	UNREFERENCED_PARAMETER(lParam);
-	UINT	nErrorMsgID = static_cast<UINT>(wParam);
-	ASSERT(nErrorMsgID);	// string resource ID of error message
-	if (!m_bInMsgBox) {	// if not already displaying message box
-		CSaveObj<bool>	save(m_bInMsgBox, true);	// save and set reentry guard
-		AfxMessageBox(nErrorMsgID);
+	if (m_bInRenderFullError) {	// if already handling this error
+		return 0;	// reentry disallowed
 	}
+	// save and set the reentrance guard flag; the flag's state will be
+	// restored automatically when the save object goes out of scope
+	CSaveObj<bool>	save(m_bInRenderFullError, true);
+	AfxMessageBox(IDS_APP_ERR_RENDER_QUEUE_FULL);	// display error message
+	// if render thread's command queue has free space
+	if (!theApp.m_thrRender.IsCommandQueueFull()) {
+		return 0;	// success
+	}
+	// the command queue is still full; more drastic measures are needed
+	int	nResult = AfxMessageBox(IDS_APP_ERR_RENDERING_TOO_SLOW, MB_YESNO);
+	if (nResult == IDNO) {	// if user chickened out of doing a reset
+		return 0;	// cancel
+	}
+	// if the MIDI input device is open, and at least one MIDI mapping exists
+	if (theApp.m_midiMgr.IsInputDeviceOpen() 
+	&& theApp.m_midiMgr.m_midiMaps.GetCount() > 0) {
+		// remove all MIDI mappings by loading a new playlist; if current
+		// playlist was modified, user is prompted to save their changes
+		if (!theApp.m_pPlaylist->New()) {	// if new playlist fails
+			return 0;	// user probably canceled out of saving changes
+		}
+	}
+	// if the MIDI input callback was spamming the command queue, 
+	// it's no longer doing so, because we nuked the MIDI mappings
+	CProgressDlg	dlg;
+	dlg.Create();	// create progress dialog
+	// we don't know how long this will take, so use a marquee progress bar
+	dlg.SetMarquee(true, 0);
+	// loop until the command queue drains down at least halfway
+	while (!theApp.m_thrRender.IsCommandQueueBelowHalfFull()) {
+		if (dlg.Canceled()) {	// if user canceled
+			return 0;	// cancel
+		}
+		// pump message blocks waiting for messages, but it won't block
+		// for long because we're running a timer to update the status bar
+		theApp.PumpMessage();	// keeps UI responsive
+	}
+	// the command queue is now assumed to be half full at most, so there's
+	// plenty of room for two commands: SetPatch (via OnFileNew) and SetEmpty
+	theApp.m_pDocManager->OnFileNew();	// prompts user to save their changes
+	theApp.m_thrRender.SetEmpty();	// removes all rings from the drawing
+	// successful recovery
 	return 0;
 }
 

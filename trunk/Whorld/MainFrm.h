@@ -65,6 +65,7 @@ public:
 
 // Attributes
 	HACCEL	GetAccelTable() const;
+	bool	InRenderFullError() const;
 
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
@@ -112,7 +113,7 @@ public:
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
 	CStringArrayEx	m_saOutputPath;	// array of output paths
-	bool	m_bInMsgBox;			// true if displaying message box; guards against reentrance
+	bool	m_bInRenderFullError;	// true if handling render command queue full error
 
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -151,7 +152,7 @@ public:
 	afx_msg LRESULT	OnParamChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMainPropChange(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT	OnThreadErrorMsg(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnViewOptions();
 	afx_msg void OnWindowPause();
 	afx_msg void OnUpdateWindowPause(CCmdUI *pCmdUI);
@@ -175,4 +176,9 @@ public:
 inline HACCEL CMainFrame::GetAccelTable() const
 {
 	return m_hAccelTable;
+}
+
+inline bool CMainFrame::InRenderFullError() const
+{
+	return m_bInRenderFullError;
 }

@@ -28,6 +28,7 @@
 #include "Statistics.h"
 #include "SaveObj.h"
 #include "Snapshot.h"
+#include "MainFrm.h"
 
 #define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { HandleError(hr, __FILE__, __LINE__, __DATE__); return false; }}
 #define DTOF(x) static_cast<float>(x)
@@ -359,7 +360,7 @@ void CWhorldThread::AddRing()
 
 void CWhorldThread::TimerHook()
 {
-	int	nRings = Round(m_master.fRings);
+	int	nRings = max(Round(m_master.fRings), 0);	// keep ring count positive
 	m_nMaxRings = nRings >= MAX_RINGS ? INT_MAX : nRings;
 	UpdateOrigin();
 	UpdateZoom();
@@ -960,9 +961,12 @@ bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
 	while (!CRenderThread::PushCommand(cmd)) {	// try to enqueue command
 		// enqueue failed because render command queue was full
 		if (CWhorldApp::IsMainThread()) {	// if we're the user-interface thread
-			// give the user a chance to retry enqueuing the command
-			if (AfxMessageBox(IDS_APP_ERR_RENDER_QUEUE_FULL, MB_RETRYCANCEL) != IDRETRY) {
-				return false;	// user canceled, so stop retrying
+			// if not already handling render queue full error
+			if (!theApp.GetMainFrame()->InRenderFullError()) {
+				// give the user a chance to retry enqueuing the command
+				if (AfxMessageBox(IDS_APP_ERR_RENDER_QUEUE_FULL, MB_RETRYCANCEL) != IDRETRY) {
+					return false;	// user canceled, so stop retrying
+				}
 			}
 		} else {	// we're a worker thread
 			// all times are in milliseconds
@@ -996,7 +1000,7 @@ bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
 			// to avoid blocking the worker thread on every attempted push
 			InterlockedExchange64(&m_nLastPushErrorTime, nTimeNow);
 			// notify main thread that an unrecoverable error occurred
-			PostMsgToMainWnd(UWM_THREAD_ERROR_MSG, IDS_APP_ERR_RENDER_QUEUE_FULL);
+			PostMsgToMainWnd(UWM_RENDER_QUEUE_FULL);
 			return false;	// we are in the retries failed error state
 		}
 	}

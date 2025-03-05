@@ -131,7 +131,6 @@ void CALLBACK CMidiManager::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwIns
 inline BOOL CMidiManager::PostMsgToMainWnd(int nMsg, WPARAM wParam, LPARAM lParam)
 {
 	CMainFrame	*pMainWnd = theApp.GetMainFrame();
-	ASSERT(pMainWnd != NULL);
 	if (pMainWnd != NULL) {	// if main window exists
 		return pMainWnd->PostMessage(nMsg, wParam, lParam);
 	}

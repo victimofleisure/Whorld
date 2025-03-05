@@ -38,7 +38,7 @@ CRowDlg	*CParamsView::CreateRow(int Idx)
 	ASSERT(pRow != NULL);
 	pRow->SetRowIndex(Idx);
 	pRow->Create(IDD_PARAM_ROW, m_pParent);
-	return(pRow);
+	return pRow;
 }
 
 void CParamsView::UpdateRow(int Idx)

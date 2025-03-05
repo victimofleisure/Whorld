@@ -21,6 +21,7 @@ CRenderThread::CRenderThread() : m_qCmd(COMMAND_QUEUE_SIZE)
 	m_pThread = NULL;
 	m_bThreadExit = false;
 	m_hRenderWnd = 0;
+	m_pNotifyWnd = NULL;
 }
 
 CRenderThread::~CRenderThread()
@@ -47,11 +48,12 @@ void CRenderThread::Log(CString sMsg)
 	_fputts(sMsg + '\n', stdout);
 }
 
-bool CRenderThread::CreateThread(HWND hWnd)
+bool CRenderThread::CreateThread(HWND hRenderWnd, CWnd* pNotifyWnd)
 {
-	ASSERT(hWnd);	// validate window handle
+	ASSERT(hRenderWnd);	// validate window handle
 	ASSERT(m_pThread == NULL);	// only one thread at a time
-	m_hRenderWnd = hWnd;	// store window handle in member var
+	m_hRenderWnd = hRenderWnd;	// store render window handle in member var
+	m_pNotifyWnd = pNotifyWnd;	// store notification window pointer in member var
 	// create thread in suspended state so we can safely disable auto-delete
 	m_pThread = AfxBeginThread(ThreadFunc, this, THREAD_PRIORITY_ABOVE_NORMAL, 0, CREATE_SUSPENDED);
 	if (m_pThread == NULL)	// if begin thread failed
@@ -131,7 +133,7 @@ bool CRenderThread::RenderFrame()
 bool CRenderThread::HandleDeviceLost()
 {
 	OnSetFullScreen(false);
-	AfxGetMainWnd()->PostMessage(UWM_FULL_SCREEN_CHANGED, IsFullScreen(), 0);
+	PostMsgToMainWnd(UWM_FULL_SCREEN_CHANGED, IsFullScreen(), 0);
 	HWND	hWnd;
 	CHECK(m_pSwapChain->GetHwnd(&hWnd));
 	Destroy();
@@ -193,6 +195,14 @@ bool CRenderThread::OnSetFullScreen(bool bEnable)
 	} else {	// mode change failed
 		bEnable = bPrevEnable;
 	}
-	AfxGetMainWnd()->PostMessage(UWM_FULL_SCREEN_CHANGED, bEnable, bResult);
+	PostMsgToMainWnd(UWM_FULL_SCREEN_CHANGED, bEnable, bResult);
 	return true;
+}
+
+BOOL CRenderThread::PostMsgToMainWnd(UINT nMsg, WPARAM wParam, LPARAM lParam) const
+{
+	if (m_pNotifyWnd != NULL) {	// if notification window exists
+		return m_pNotifyWnd->PostMessage(nMsg, wParam, lParam);
+	}
+	return false;
 }

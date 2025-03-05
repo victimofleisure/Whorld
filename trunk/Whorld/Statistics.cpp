@@ -58,7 +58,7 @@ double CStatistics::GetStandardDeviation() const
 	// sample count can exceed sample array size, so take minimum
 	int	nSamps = min(m_nSamps, GetSampleSize());
 	if (!nSamps)
-		return(0);	// avoid divide by zero
+		return 0;	// avoid divide by zero
 	double	fSum = 0;
 	for (int iSamp = 0; iSamp < nSamps; iSamp++)
 		fSum += m_arrSamp[iSamp];
@@ -68,7 +68,7 @@ double CStatistics::GetStandardDeviation() const
 		double	fDiff = m_arrSamp[iSamp] - fMean;
 		fSum += fDiff * fDiff;
 	}
-	return(sqrt(fSum / nSamps));	// square root of variance
+	return sqrt(fSum / nSamps);	// square root of variance
 }
 
 CString CStatistics::GetStats() const
@@ -79,5 +79,5 @@ CString CStatistics::GetStats() const
 			m_nSamps, GetSum(), GetMin(), GetMax(), GetAverage(), 
 			GetStandardDeviation());
 	}
-	return(s);
+	return s;
 }

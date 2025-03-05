@@ -168,13 +168,13 @@ bool CPatch::Read(LPCTSTR pszPath)
 	int	nVersion;
 	if (!fIn.ReadString(sLine) || _stscanf_s(sLine, FILE_ID, &nVersion) != 1) {
 		AfxMessageBox(IDS_DOC_BAD_FORMAT);
-		return(false);
+		return false;
 	}
 	SetDefaults();	// in case some lines are missing
 	while (fIn.ReadString(sLine)) {
 		ParseLine(sLine);
 	}
-	return(true);
+	return true;
 }
 
 bool CPatch::Write(LPCTSTR pszPath) const
@@ -200,5 +200,5 @@ bool CPatch::Write(LPCTSTR pszPath) const
 		CFormatIO::ValToStr(info.nFIOType, ((BYTE *)&m_main) + info.nOffset, sLine);
 		fOut.WriteString(CString(info.pszTag) + '\t' + sLine + '\n');
 	}
-	return(true);
+	return true;
 }

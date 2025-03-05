@@ -18,6 +18,7 @@
 		08		17mar20	add method to delete all columns
 		09		01apr20	fix context menu top left if no selection
 		10		29jan22	add method to ensure item is horizontally visible
+		11		03mar25	modernize style
 
 		extended selection list control
  
@@ -71,8 +72,8 @@ int CListCtrlExSel::GetSelection() const
 {
 	POSITION	pos = GetFirstSelectedItemPosition();
 	if (pos == NULL)
-		return(-1);
-	return(GetNextSelectedItem(pos));
+		return -1;
+	return GetNextSelectedItem(pos);
 }
 
 void CListCtrlExSel::GetSelection(CIntArrayEx& arrSel) const
@@ -138,8 +139,8 @@ int CListCtrlExSel::GetInsertPos() const
 {
 	int	iItem = GetSelection();
 	if (iItem >= 0)
-		return(iItem);
-	return(GetItemCount());
+		return iItem;
+	return GetItemCount();
 }
 
 void CListCtrlExSel::GetColumnWidths(CIntArrayEx& arrWidth)
@@ -164,19 +165,19 @@ bool CListCtrlExSel::SaveColumnWidths(LPCTSTR pszSection, LPCTSTR pszKey)
 	CIntArrayEx	arrWidth;
 	GetColumnWidths(arrWidth);
 	DWORD	nSize = arrWidth.GetSize() * sizeof(int);
-	return(CPersist::WriteBinary(pszSection, pszKey, arrWidth.GetData(), nSize) != 0);
+	return CPersist::WriteBinary(pszSection, pszKey, arrWidth.GetData(), nSize) != 0;
 }
 
 bool CListCtrlExSel::LoadColumnWidths(LPCTSTR pszSection, LPCTSTR pszKey)
 {
 	int	nCols = GetColumnCount();
 	if (nCols < 0)	// if error
-		return(FALSE);
+		return FALSE;
 	CIntArrayEx	arrWidth;
 	if (!LoadArray(pszSection, pszKey, arrWidth, nCols))
-		return(FALSE);
+		return FALSE;
 	SetColumnWidths(arrWidth);
-	return(TRUE);
+	return TRUE;
 }
 
 void CListCtrlExSel::ResetColumnWidths(const COL_INFO *pColInfo, int nColumns)
@@ -193,15 +194,15 @@ bool CListCtrlExSel::GetColumnOrder(CIntArrayEx& arrOrder)
 {
 	int	nCols = GetColumnCount();
 	if (nCols < 0)	// if error
-		return(FALSE);
+		return FALSE;
 	arrOrder.SetSize(nCols);
-	return(GetColumnOrderArray(arrOrder.GetData(), nCols) != 0);
+	return GetColumnOrderArray(arrOrder.GetData(), nCols) != 0;
 }
 
 bool CListCtrlExSel::SetColumnOrder(const CIntArrayEx& arrOrder)
 {
 	int	nCols = min(GetColumnCount(), arrOrder.GetSize());
-	return(SetColumnOrderArray(nCols, const_cast<int *>(arrOrder.GetData())) != 0);
+	return SetColumnOrderArray(nCols, const_cast<int *>(arrOrder.GetData())) != 0;
 }
 
 bool CListCtrlExSel::SaveColumnOrder(LPCTSTR pszSection, LPCTSTR pszKey)
@@ -209,30 +210,30 @@ bool CListCtrlExSel::SaveColumnOrder(LPCTSTR pszSection, LPCTSTR pszKey)
 	CIntArrayEx	arrOrder;
 	GetColumnOrder(arrOrder);
 	DWORD	nSize = arrOrder.GetSize() * sizeof(int);
-	return(CPersist::WriteBinary(pszSection, pszKey, arrOrder.GetData(), nSize) != 0);
+	return CPersist::WriteBinary(pszSection, pszKey, arrOrder.GetData(), nSize) != 0;
 }
 
 bool CListCtrlExSel::LoadColumnOrder(LPCTSTR pszSection, LPCTSTR pszKey)
 {
 	int	nCols = GetColumnCount();
 	if (nCols < 0)	// if error
-		return(FALSE);
+		return FALSE;
 	CIntArrayEx	arrOrder;
 	if (!LoadArray(pszSection, pszKey, arrOrder, nCols))
-		return(FALSE);
-	return(SetColumnOrder(arrOrder));
+		return FALSE;
+	return SetColumnOrder(arrOrder);
 }
 
 bool CListCtrlExSel::ResetColumnOrder()
 {
 	int	nCols = GetColumnCount();
 	if (nCols < 0)	// if error
-		return(FALSE);
+		return FALSE;
 	CIntArrayEx	arrOrder;
 	arrOrder.SetSize(nCols);
 	for (int iCol = 0; iCol < nCols; iCol++)
 		arrOrder[iCol] = iCol;
-	return(SetColumnOrder(arrOrder));
+	return SetColumnOrder(arrOrder);
 }
 
 void CListCtrlExSel::ResetColumnHeader(const COL_INFO *pColInfo, int nColumns)
@@ -251,10 +252,10 @@ bool CListCtrlExSel::LoadArray(LPCTSTR pszSection, LPCTSTR pszKey, CIntArrayEx& 
 	DWORD	nExpectedSize = nElems * sizeof(int);
 	DWORD	nSize = nExpectedSize;
 	if (!CPersist::GetBinary(pszSection, pszKey, Array.GetData(), &nSize))
-		return(FALSE);
+		return FALSE;
 	if (nSize != nExpectedSize)	// if unexpected nSize
-		return(FALSE);
-	return(TRUE);
+		return FALSE;
+	return TRUE;
 }
 
 void CListCtrlExSel::FixContextMenuPoint(CPoint& point)
@@ -311,7 +312,7 @@ int CListCtrlExSel::GetToolTipText(const LVHITTESTINFO* pHTI, CString& Text)
 {
 	UNREFERENCED_PARAMETER(pHTI);
 	UNREFERENCED_PARAMETER(Text);
-	return(0);
+	return 0;
 }
 
 void CListCtrlExSel::RedrawSubItem(int iItem, int iSubItem)
@@ -371,7 +372,7 @@ BOOL CListCtrlExSel::OnToolTipNeedText(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 	CString	sText;
 	int	nID = GetToolTipText(&hti, sText);	// get resource ID or string from derived class
 	if (!nID && sText.IsEmpty())	// if neither resource ID nor string provided
-		return(FALSE);	// no tip
+		return FALSE;	// no tip
 	USES_CONVERSION;
 	if (pNMHDR->code == TTN_NEEDTEXTA) {	// if ANSI notification
 		TOOLTIPTEXTA *pTTT = (TOOLTIPTEXTA *)pNMHDR;
@@ -388,5 +389,5 @@ BOOL CListCtrlExSel::OnToolTipNeedText(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		} else	// use string
 			wcsncpy_s(pTTT->szText, T2CW(sText), _countof(pTTT->szText));
 	}
-	return(TRUE);
+	return TRUE;
 }

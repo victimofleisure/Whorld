@@ -26,6 +26,7 @@
 		16		01nov18	set focus when drag begins
 		17		01nov18	cancel drag if window loses focus
 		18		30apr20	in cancel drag, kill scroll timer
+		19		03mar25	modernize style
 
         virtual list control with drag reordering
  
@@ -113,14 +114,14 @@ bool CDragVirtualListCtrl::CompensateDropPos(CIntArrayEx& arrSel, int& iDropPos)
 	int	iPos = iDropPos;
 	int	nSels = arrSel.GetSize();
 	if (!(nSels > 1 || (nSels == 1 && iPos != arrSel[0])))
-		return(FALSE);	// nothing changed
+		return FALSE;	// nothing changed
 	// reverse iterate for stability
 	for (int iSel = nSels - 1; iSel >= 0; iSel--) {	// for each selected item
 		if (arrSel[iSel] < iPos)	// if below drop position
 			iPos--;	// compensate drop position
 	}
 	iDropPos = max(iPos, 0);	// keep it positive
-	return(TRUE);
+	return TRUE;
 }
 
 int CDragVirtualListCtrl::GetCompensatedDropPos() const
@@ -129,8 +130,8 @@ int CDragVirtualListCtrl::GetCompensatedDropPos() const
 	GetSelection(arrSel);
 	int	iDropPos = GetDropPos();
 	if (!CompensateDropPos(arrSel, iDropPos))
-		return(-1);	// nothing changed
-	return(iDropPos);
+		return -1;	// nothing changed
+	return iDropPos;
 }
 
 BEGIN_MESSAGE_MAP(CDragVirtualListCtrl, CListCtrlExSel)
@@ -155,7 +156,7 @@ BOOL CDragVirtualListCtrl::OnBegindrag(NMHDR* pNMHDR, LRESULT* pResult)
 		SetFocus();
 	}
 	*pResult = 0;
-	return(FALSE);	// let parent handle notification too
+	return FALSE;	// let parent handle notification too
 }
 
 void CDragVirtualListCtrl::OnLButtonUp(UINT nFlags, CPoint point) 
@@ -220,7 +221,7 @@ BOOL CDragVirtualListCtrl::PreTranslateMessage(MSG* pMsg)
 	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE) {
 		if (m_bDragging) {
 			CancelDrag();
-			return(TRUE);
+			return TRUE;
 		}
 	}
 	return CListCtrlExSel::PreTranslateMessage(pMsg);

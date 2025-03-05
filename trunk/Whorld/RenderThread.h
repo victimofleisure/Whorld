@@ -82,7 +82,7 @@ public:
 // Construction
 	CRenderThread();
 	virtual ~CRenderThread();
-	bool	CreateThread(HWND hWnd);
+	bool	CreateThread(HWND hRenderWnd, CWnd* pNotifyWnd = NULL);
 	void	DestroyThread();
 
 // Commands
@@ -102,7 +102,8 @@ protected:
 	CILockRingBuf<CRenderCmd>	m_qCmd;	// command queue as interlocked ring buffer
 	CWinThread	*m_pThread;		// pointer to render thread
 	BOOL	m_bThreadExit;		// true if thread should exit
-	HWND	m_hRenderWnd;		// handle to render window
+	HWND	m_hRenderWnd;		// handle of render window
+	CWnd*	m_pNotifyWnd;		// pointer to window that receives notifications
 
 // Overrideables
 	virtual bool	OnThreadCreate();
@@ -118,6 +119,7 @@ protected:
 	void	ProcessCommand(const CRenderCmd& cmd);
 	bool	LogDeviceInfo();
 	bool	OnSetFullScreen(bool bEnable);
+	BOOL	PostMsgToMainWnd(UINT nMsg, WPARAM wParam = 0, LPARAM lParam = 0) const;
 };
 
 inline bool CRenderThread::PushCommand(const CRenderCmd& cmd)

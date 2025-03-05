@@ -10,6 +10,7 @@
 		00		05aug06	initial version
 		01		20oct07	move GetEdit into .cpp
 		02		20jun21	refactor for centralized use
+		03		03mar25	modernize style
 
 		handlers for focused edit control
 
@@ -35,12 +36,12 @@ inline CEdit *CFocusEdit::GetEdit()
 
 inline bool CFocusEdit::IsReadOnly(CEdit *pEdit)
 {
-	return((pEdit->GetStyle() & ES_READONLY) != 0);
+	return (pEdit->GetStyle() & ES_READONLY) != 0;
 }
 
 inline bool CFocusEdit::HasSelection(CEdit *pEdit)
 {
 	int	nBeg, nEnd;
 	pEdit->GetSel(nBeg, nEnd);
-	return(nBeg != nEnd);
+	return nBeg != nEnd;
 }

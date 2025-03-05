@@ -77,7 +77,7 @@ protected:
 
 inline bool CProgressDlg::Canceled() const
 {
-	return(m_Canceled);
+	return m_Canceled;
 }
 
 inline void CProgressDlg::ShowPercent(bool Enable)

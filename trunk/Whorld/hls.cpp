@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      22apr05	initial version
+		01		03mar25	modernize style
 
         convert between RGB and HLS color space
  
@@ -23,13 +24,13 @@ double CHLS::mkrgb(double H, double M1, double M2)
 	else if (H > 360)
 		H -= 360;
 	if (H < 60)
-		return(M1 + (M2 - M1) * H / 60);
+		return M1 + (M2 - M1) * H / 60;
 	else if (H >= 60 && H < 180)
-		return(M2);
+		return M2;
 	else if (H >= 180 && H < 240)
-		return(M1 + (M2 - M1) * (240 - H) / 60);
+		return M1 + (M2 - M1) * (240 - H) / 60;
 	else
-		return(M1);
+		return M1;
 }
 
 void CHLS::hls2rgb(double H, double L, double S, 

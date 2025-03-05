@@ -12,6 +12,7 @@
         02		10jun17	remove self-assignment check
         03		13feb18	add IsNull and Include
         04		05may18	overload assignment operator for single value
+		05		03mar25	modernize style
 
 		range template
 
@@ -94,7 +95,7 @@ inline CRange<T>& CRange<T>::operator=(const CRange& Range)
 {
 	Start = Range.Start;
 	End = Range.End;
-	return(*this);
+	return *this;
 }
 
 template<class T>
@@ -102,13 +103,13 @@ inline CRange<T>& CRange<T>::operator=(T Val)
 {
 	Start = Val;
 	End = Val;
-	return(*this);
+	return *this;
 }
 
 template<class T>
 inline T CRange<T>::Length() const
 {
-	return(End - Start);
+	return End - Start;
 }
 
 template<class T>
@@ -121,19 +122,19 @@ inline void CRange<T>::SetEmpty()
 template<class T>
 inline bool CRange<T>::IsEmpty() const
 {
-	return(Start == End);
+	return Start == End;
 }
 
 template<class T>
 inline bool CRange<T>::IsNull() const
 {
-	return(!Start && !End);
+	return !Start && !End;
 }
 
 template<class T>
 inline bool CRange<T>::IsNormalized() const
 {
-	return(Start <= End);
+	return Start <= End;
 }
 
 template<class T>
@@ -149,115 +150,115 @@ inline void CRange<T>::Normalize()
 template<class T>
 inline bool CRange<T>::InRange(T Val) const
 {
-	return(Val >= Start && Val < End);
+	return Val >= Start && Val < End;
 }
 
 template<class T>
 inline bool CRange<T>::operator==(const CRange& Range) const
 {
-	return(Range.Start == Start && Range.End == End);
+	return Range.Start == Start && Range.End == End;
 }
 
 template<class T>
 inline bool CRange<T>::operator!=(const CRange& Range) const
 {
-	return(Range.Start != Start || Range.End != End);
+	return Range.Start != Start || Range.End != End;
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator+(const CRange& Range) const
 {
-	return(CRange(Start + Range.Start, End + Range.End));
+	return CRange(Start + Range.Start, End + Range.End);
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator-(const CRange& Range) const
 {
-	return(CRange(Start - Range.Start, End - Range.End));
+	return CRange(Start - Range.Start, End - Range.End);
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator*(const CRange& Range) const
 {
-	return(CRange(Start * Range.Start, End * Range.End));
+	return CRange(Start * Range.Start, End * Range.End);
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator/(const CRange& Range) const
 {
-	return(CRange(Start / Range.Start, End / Range.End));
+	return CRange(Start / Range.Start, End / Range.End);
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator+(T Val) const
 {
-	return(*this + CRange(Val, Val));
+	return *this + CRange(Val, Val);
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator-(T Val) const
 {
-	return(*this - CRange(Val, Val));
+	return *this - CRange(Val, Val);
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator*(T Val) const
 {
-	return(*this * CRange(Val, Val));
+	return *this * CRange(Val, Val);
 }
 
 template<class T>
 const inline CRange<T> CRange<T>::operator/(T Val) const
 {
-	return(*this / CRange(Val, Val));
+	return *this / CRange(Val, Val);
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator+=(const CRange& Range)
 {
-	return(*this = *this + Range);
+	return *this = *this + Range;
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator-=(const CRange& Range)
 {
-	return(*this = *this - Range);
+	return *this = *this - Range;
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator*=(const CRange& Range)
 {
-	return(*this = *this * Range);
+	return *this = *this * Range;
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator/=(const CRange& Range)
 {
-	return(*this = *this / Range);
+	return *this = *this / Range;
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator+=(T Val)
 {
-	return(*this = *this + Val);
+	return *this = *this + Val;
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator-=(T Val)
 {
-	return(*this = *this - Val);
+	return *this = *this - Val;
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator*=(T Val)
 {
-	return(*this = *this * Val);
+	return *this = *this * Val;
 }
 
 template<class T>
 inline CRange<T>& CRange<T>::operator/=(T Val)
 {
-	return(*this = *this / Val);
+	return *this = *this / Val;
 }
 
 template<class T>
@@ -267,10 +268,10 @@ inline bool CRange<T>::Intersect(const CRange& Range1, const CRange& Range2)
 		Start = max(Range1.Start, Range2.Start);	// calculate intersection
 		End = min(Range1.End, Range2.End);
 		if (Start < End)	// if valid intersection
-			return(TRUE);	// success
+			return true;	// success
 	}
 	SetEmpty();	// one or both ranges empty, or no intersection: empty ourself
-	return(FALSE);	// fail
+	return false;	// fail
 }
 
 template<class T>
@@ -279,7 +280,7 @@ inline bool CRange<T>::Union(const CRange& Range1, const CRange& Range2)
 	if (Range1.IsEmpty()) {	// if Range1 empty
 		if (Range2.IsEmpty()) {	// if Range2 empty
 			SetEmpty();	// both ranges empty: empty ourself
-			return(FALSE);	// fail
+			return false;	// fail
 		} else	// Range2 non-empty
 			*this = Range2;	// copy Range2
 	} else {	// Range1 non-empty
@@ -290,7 +291,7 @@ inline bool CRange<T>::Union(const CRange& Range1, const CRange& Range2)
 			End = max(Range1.End, Range2.End);
 		}
 	}
-	return(TRUE);	// success
+	return true;	// success
 }
 
 template<class T>
@@ -307,7 +308,7 @@ inline CRange<T> CRange<T>::operator&(const CRange& Range2) const
 {
 	CRange	range;
 	range.Intersect(*this, Range2);
-	return(range);
+	return range;
 }
 
 template<class T>
@@ -315,5 +316,5 @@ inline CRange<T> CRange<T>::operator|(const CRange& Range2) const
 {
 	CRange	range;
 	range.Union(*this, Range2);
-	return(range);
+	return range;
 }

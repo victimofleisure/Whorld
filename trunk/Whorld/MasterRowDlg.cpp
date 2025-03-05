@@ -78,19 +78,19 @@ void CMasterRowDlg::GetPropEditRange(int iProp, DBL_RANGE& range)
 
 inline double CMasterRowDlg::Log(double Base, double x)
 {
-	return(log(x) / log(Base));	// log with arbitrary base
+	return log(x) / log(Base);	// log with arbitrary base
 }
 
 inline double CMasterRowDlg::LogNorm(double x, double Base, double Scale)
 {
 	// x is exponential from 0..1, result is linear from 0..Scale
-	return(Log(Base, x * (Base - 1) + 1) * Scale);
+	return Log(Base, x * (Base - 1) + 1) * Scale;
 }
 
 inline double CMasterRowDlg::ExpNorm(double x, double Base, double Scale)
 {
 	// x is linear from 0..Scale, result is exponential from 0..1
-	return((pow(Base, x / Scale) - 1) / (Base - 1));
+	return (pow(Base, x / Scale) - 1) / (Base - 1);
 }
 
 int CMasterRowDlg::GetRowIdx(const CWnd& wnd)

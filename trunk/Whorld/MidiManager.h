@@ -46,7 +46,7 @@ public:
 	void	OnMidiError(MMRESULT nResult);
 	bool	OpenInputDevice(bool bEnable);
 	bool	OpenInputDevice();
-	void	CloseInputDevice();
+	bool	CloseInputDevice();
 	bool	ReopenInputDevice();
 	void	OnDeviceChange();
 	static LPARAM	FloatToLParam(double fVal);
@@ -64,7 +64,7 @@ protected:
 	bool	m_bLearnMode;		// true if we're learning mappings
 
 // Helpers
-	void	PostMainMsg(int nMsg, WPARAM wParam, LPARAM lParam);
+	BOOL	PostMsgToMainWnd(int nMsg, WPARAM wParam = 0, LPARAM lParam = 0);
 	void	PushParameter(int iParam, int iProp, double fNormVal);
 	void	PushMasterProperty(int iProp, double fNormVal);
 	void	PushMiscTarget(int iMiscTarget, double fNormVal);

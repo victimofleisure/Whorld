@@ -9,6 +9,7 @@
 		rev		date	comments
         00      19jan04	initial version
 		01		23nov07	support Unicode
+		02		03mar25	modernize style
 
         retrieve version information
  
@@ -35,11 +36,11 @@ bool CVersionInfo::GetFileInfo(VS_FIXEDFILEINFO& Info, LPCTSTR Path)
 			PVOID	pInfo;
 			if (VerQueryValue(pData, _T("\\"), &pInfo, &uInfoSize)) {
 				Info = *((VS_FIXEDFILEINFO *)pInfo);
-				return(TRUE);
+				return TRUE;
 			}
 		}
 	}
-	return(FALSE);
+	return FALSE;
 }
 
 bool CVersionInfo::GetModuleInfo(VS_FIXEDFILEINFO& Info, LPCTSTR ModuleName)
@@ -47,6 +48,6 @@ bool CVersionInfo::GetModuleInfo(VS_FIXEDFILEINFO& Info, LPCTSTR ModuleName)
 	TCHAR	Path[MAX_PATH];
 	HMODULE	Hand = GetModuleHandle(ModuleName);
 	if (Hand != NULL && GetModuleFileName(Hand, Path, MAX_PATH))
-		return(GetFileInfo(Info, Path));
-	return(FALSE);
+		return GetFileInfo(Info, Path);
+	return FALSE;
 }

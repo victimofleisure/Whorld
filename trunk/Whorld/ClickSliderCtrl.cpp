@@ -49,7 +49,7 @@ int CClickSliderCtrl::PointToPos(CPoint point)
 	GetThumbRect(rThumb);
 	int nPos = nMin + nWidth * (point.x - rChan.left - rThumb.Width() / 2)
 		/ (rChan.Width() - rThumb.Width());
-	return(min(max(nPos, nMin), nMax));	// clamp to range
+	return min(max(nPos, nMin), nMax);	// clamp to range
 }
 
 void CClickSliderCtrl::PostPos()

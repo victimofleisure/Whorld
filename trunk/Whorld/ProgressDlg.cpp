@@ -12,6 +12,7 @@
 		02		27dec09	add ShowPercent
 		03		07jun21	rename rounding functions
 		04		12dec22	add marquee mode; make pump messages public
+		05		03mar25	modernize style
 
         progress dialog
  
@@ -58,9 +59,9 @@ bool CProgressDlg::Create(CWnd* pParent)
     }
     if (!CDialog::Create(m_IDTemplate, pParent)) {
 		ReenableParent();
-		return(FALSE);
+		return FALSE;
     }
-	return(TRUE);
+	return TRUE;
 }
 
 void CProgressDlg::ReenableParent()

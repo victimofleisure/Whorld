@@ -78,5 +78,5 @@ protected:
 
 inline bool	Win32Console::IsOpen()
 {
-	return(m_IsOpen);
+	return m_IsOpen;
 }

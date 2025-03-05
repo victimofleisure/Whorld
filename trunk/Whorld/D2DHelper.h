@@ -70,5 +70,5 @@ inline void CKD2DRectF::SetRectEmpty()
 
 inline bool CKD2DRectF::PtInRect(const D2D_POINT_2F& pt) const
 { 
-	return(pt.x >= left && pt.y >= top && pt.x < right && pt.y < bottom);
+	return pt.x >= left && pt.y >= top && pt.x < right && pt.y < bottom;
 }

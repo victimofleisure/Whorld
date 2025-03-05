@@ -11,6 +11,7 @@
 		01		14feb08	convert to a template
 		02		28oct08	check for self-assignment
         03      22feb25	replace header guard with pragma
+		04		03mar25	modernize style
 
         reference-counting pointer
  
@@ -59,7 +60,7 @@ inline void CRefObj::Release()
 
 inline int CRefObj::GetRefCount() const
 {
-	return(m_RefCount);
+	return m_RefCount;
 }
 
 template<class T>
@@ -131,7 +132,7 @@ inline CRefPtr<T>& CRefPtr<T>::operator=(const CRefPtr& Ptr)
 {
 	if (&Ptr != this)	// avoid self-assignment
 		Copy(Ptr);
-	return(*this);
+	return *this;
 }
 
 template<class T>
@@ -149,7 +150,7 @@ void CRefPtr<T>::CreateObj(const T& Obj)
 template<class T>
 inline T *CRefPtr<T>::GetObj() const
 {
-	return(m_Ptr);
+	return m_Ptr;
 }
 
 template<class T>
@@ -165,7 +166,7 @@ void CRefPtr<T>::SetObj(T *Obj)
 template<class T>
 inline bool CRefPtr<T>::IsEmpty() const
 {
-	return(m_Ptr == NULL);
+	return m_Ptr == NULL;
 }
 
 template<class T>
@@ -180,19 +181,19 @@ void CRefPtr<T>::SetEmpty()
 template<class T>
 inline T *CRefPtr<T>::operator->() const
 {
-	return(m_Ptr);
+	return m_Ptr;
 }
 
 template<class T>
 inline CRefPtr<T>::operator T&() const
 {
-	return(*m_Ptr);
+	return *m_Ptr;
 }
 
 template<class T>
 inline CRefPtr<T>::operator T*() const
 {
-	return(m_Ptr);
+	return m_Ptr;
 }
 
 template<class T>

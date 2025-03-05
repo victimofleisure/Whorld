@@ -15,6 +15,7 @@
 		05		16mar20	add insert sorted descending
 		06		26sep20	add find min/max element
 		07		18feb22	add index validator
+		08		03mar25	modernize style
 
 */
 
@@ -131,25 +132,25 @@ const CArrayEx_TYPE& operator[](W64INT nIndex) const
 #ifdef CArrayEx_BASE_TYPE
 const CArrayEx_TYPE *GetData() const
 {
-	return(reinterpret_cast<CArrayEx_TYPE *>(m_pData));
+	return reinterpret_cast<CArrayEx_TYPE *>(m_pData);
 }
 
 CArrayEx_TYPE  *GetData()
 {
-	return(reinterpret_cast<CArrayEx_TYPE *>(m_pData));
+	return reinterpret_cast<CArrayEx_TYPE *>(m_pData);
 }
 #endif	// CArrayEx_BASE_TYPE
 
 bool operator==(const CArrayEx_CLASS& arr) const 
 {
 	if (arr.m_nSize != m_nSize)
-		return(FALSE);
+		return FALSE;
 	W64INT nElems = m_nSize;
 	for (int iElem = 0; iElem < nElems; iElem++) {
 		if (arr[iElem] != GetAt(iElem))
-			return(FALSE);
+			return FALSE;
 	}
-	return(TRUE);
+	return TRUE;
 }
 
 bool operator!=(const CArrayEx_CLASS& arr) const 
@@ -386,14 +387,14 @@ static int SortCompareAscending(const void *elem1, const void *elem2)
 {
 	const CArrayEx_TYPE	*a = (const CArrayEx_TYPE *)elem1;
 	const CArrayEx_TYPE	*b = (const CArrayEx_TYPE *)elem2;
-	return(*a < *b ? -1 : (*a > *b ? 1 : 0));
+	return *a < *b ? -1 : (*a > *b ? 1 : 0);
 }
 
 static int SortCompareDescending(const void *elem1, const void *elem2)
 {
 	const CArrayEx_TYPE	*a = (const CArrayEx_TYPE *)elem1;
 	const CArrayEx_TYPE	*b = (const CArrayEx_TYPE *)elem2;
-	return(*a < *b ? 1 : (*a > *b ? -1 : 0));
+	return *a < *b ? 1 : (*a > *b ? -1 : 0);
 }
 
 void Sort(bool bDescending = FALSE)

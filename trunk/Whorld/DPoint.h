@@ -12,6 +12,7 @@
 		03		09feb25	rename round function
 		04		12feb25	add POINTFLOAT ctor and conversion
 		05		14feb25	simplify base struct def
+		06		03mar25	modernize style
 
 		double-precision 2D coordinate
 
@@ -104,119 +105,119 @@ inline	DPoint::DPoint(const POINTFLOAT& p)
 inline DPoint& DPoint::operator=(const DPoint& p)
 {
 	if (this == &p)
-		return(*this);	// self-assignment
+		return *this;	// self-assignment
 	x = p.x;
 	y = p.y;
-	return(*this);
+	return *this;
 }
 
 inline DPoint& DPoint::operator=(const DPOINT& p)
 {
 	if (this == &p)
-		return(*this);	// self-assignment
+		return *this;	// self-assignment
 	x = p.x;
 	y = p.y;
-	return(*this);
+	return *this;
 }
 
 const inline DPoint DPoint::operator+(const DPoint& p) const
 {
-	return(DPoint(x + p.x, y + p.y));
+	return DPoint(x + p.x, y + p.y);
 }
 
 const inline DPoint DPoint::operator-(const DPoint& p) const
 {
-	return(DPoint(x - p.x, y - p.y));
+	return DPoint(x - p.x, y - p.y);
 }
 
 const inline DPoint DPoint::operator*(const DPoint& p) const
 {
-	return(DPoint(x * p.x, y * p.y));
+	return DPoint(x * p.x, y * p.y);
 }
 
 const inline DPoint DPoint::operator/(const DPoint& p) const
 {
-	return(DPoint(x / p.x, y / p.y));
+	return DPoint(x / p.x, y / p.y);
 }
 
 const inline DPoint DPoint::operator+(double d) const
 {
-	return(*this + DPoint(d, d));
+	return *this + DPoint(d, d);
 }
 
 const inline DPoint DPoint::operator-(double d) const
 {
-	return(*this - DPoint(d, d));
+	return *this - DPoint(d, d);
 }
 
 const inline DPoint DPoint::operator*(double d) const
 {
-	return(*this * DPoint(d, d));
+	return *this * DPoint(d, d);
 }
 
 const inline DPoint DPoint::operator/(double d) const
 {
-	return(*this / DPoint(d, d));
+	return *this / DPoint(d, d);
 }
 
 inline DPoint& DPoint::operator+=(const DPoint& p)
 {
-	return(*this = *this + p);
+	return *this = *this + p;
 }
 
 inline DPoint& DPoint::operator-=(const DPoint& p)
 {
-	return(*this = *this - p);
+	return *this = *this - p;
 }
 
 inline DPoint& DPoint::operator*=(const DPoint& p)
 {
-	return(*this = *this * p);
+	return *this = *this * p;
 }
 
 inline DPoint& DPoint::operator/=(const DPoint& p)
 {
-	return(*this = *this / p);
+	return *this = *this / p;
 }
 
 inline DPoint& DPoint::operator+=(double d)
 {
-	return(*this = *this + d);
+	return *this = *this + d;
 }
 
 inline DPoint& DPoint::operator-=(double d)
 {
-	return(*this = *this - d);
+	return *this = *this - d;
 }
 
 inline DPoint& DPoint::operator*=(double d)
 {
-	return(*this = *this * d);
+	return *this = *this * d;
 }
 
 inline DPoint& DPoint::operator/=(double d)
 {
-	return(*this = *this / d);
+	return *this = *this / d;
 }
 
 inline bool DPoint::operator==(const DPoint& p) const
 {
-	return(Equal(p.x, x) && Equal(p.y, y));
+	return Equal(p.x, x) && Equal(p.y, y);
 }
 
 inline bool DPoint::operator!=(const DPoint& p) const
 {
-	return(!Equal(p.x, x) || !Equal(p.y, y));
+	return !Equal(p.x, x) || !Equal(p.y, y);
 }
 
 inline const double DPoint::operator[](int i) const
 {
-	return(((double *)this)[i]);
+	return ((double *)this)[i];
 }
 
 inline double& DPoint::operator[](int i)
 {
-	return(((double *)this)[i]);
+	return ((double *)this)[i];
 }
 
 inline DPoint::operator POINT() const
@@ -224,7 +225,7 @@ inline DPoint::operator POINT() const
 	POINT	p;
 	p.x = Round(x);
 	p.y = Round(y);
-	return(p);
+	return p;
 }
 
 inline DPoint::operator POINTFLOAT() const

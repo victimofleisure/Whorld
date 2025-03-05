@@ -52,33 +52,33 @@ protected:
 
 inline double CStatistics::GetMin() const
 {
-	return(m_fMin);
+	return m_fMin;
 }
 
 inline double CStatistics::GetMax() const
 {
-	return(m_fMax);
+	return m_fMax;
 }
 
 inline double CStatistics::GetSum() const
 {
-	return(m_fSum);
+	return m_fSum;
 }
 
 inline int CStatistics::GetCount() const
 {
-	return(m_nSamps);
+	return m_nSamps;
 }
 
 inline double CStatistics::GetAverage() const
 {
 	ASSERT(m_nSamps);	// else divide by zero
-	return(m_fSum / m_nSamps);
+	return m_fSum / m_nSamps;
 }
 
 inline int CStatistics::GetSampleSize() const
 {
-	return((int)m_arrSamp.GetSize());
+	return (int)m_arrSamp.GetSize();
 }
 
 inline void CStatistics::SetSampleSize(int nSamps)
@@ -88,5 +88,5 @@ inline void CStatistics::SetSampleSize(int nSamps)
 
 inline double CStatistics::GetSample(int iSamp) const
 {
-	return(m_arrSamp[iSamp]);
+	return m_arrSamp[iSamp];
 }

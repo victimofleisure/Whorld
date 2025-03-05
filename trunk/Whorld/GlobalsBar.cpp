@@ -37,7 +37,7 @@ CRowDlg	*CGlobalsView::CreateRow(int Idx)
 	pRow->SetRowIndex(Idx);
 	pRow->SetRowPos(MapGlobalToParam(Idx));
 	pRow->Create(IDD_GLOBAL_ROW, m_pParent);
-	return(pRow);
+	return pRow;
 }
 
 void CGlobalsView::UpdateRow(int Idx)

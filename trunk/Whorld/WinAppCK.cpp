@@ -50,20 +50,20 @@ bool CWinAppCK::GetTempPath(CString& Path)
 	LPTSTR	pBuf = Path.GetBuffer(MAX_PATH);
 	DWORD	retc = ::GetTempPath(MAX_PATH, pBuf);
 	Path.ReleaseBuffer();
-	return(retc != 0);
+	return retc != 0;
 }
 
 bool CWinAppCK::GetTempFileName(CString& Path, LPCTSTR Prefix, UINT Unique)
 {
 	CString	TempPath;
 	if (!GetTempPath(TempPath))
-		return(FALSE);
+		return FALSE;
 	if (Prefix == NULL)
 		Prefix = m_pszAppName;
 	LPTSTR	pBuf = Path.GetBuffer(MAX_PATH);
 	DWORD	retc = ::GetTempFileName(TempPath, Prefix, Unique, pBuf);
 	Path.ReleaseBuffer();
-	return(retc != 0);
+	return retc != 0;
 }
 
 void CWinAppCK::GetCurrentDirectory(CString& Path)
@@ -78,17 +78,17 @@ bool CWinAppCK::GetSpecialFolderPath(int FolderID, CString& Path)
 	LPTSTR	p = Path.GetBuffer(MAX_PATH);
 	bool	retc = SUCCEEDED(SHGetSpecialFolderPath(NULL, p, FolderID, 0));
 	Path.ReleaseBuffer();
-	return(retc);
+	return retc;
 }
 
 bool CWinAppCK::GetAppDataFolder(CString& Folder) const
 {
 	CPathStr	path;
 	if (!GetSpecialFolderPath(CSIDL_APPDATA, path))
-		return(FALSE);
+		return FALSE;
 	path.Append(m_pszAppName);
 	Folder = path;
-	return(TRUE);
+	return TRUE;
 }
 
 CString CWinAppCK::GetAppPath()
@@ -99,20 +99,20 @@ CString CWinAppCK::GetAppPath()
 		s = s.Mid(1).SpanExcluding(_T("\""));	// span to next quote
 	else
 		s = s.SpanExcluding(_T(" \t"));	// span to next whitespace
-	return(s);
+	return s;
 }
 
 CString CWinAppCK::GetAppFolder()
 {
 	CPathStr	path(GetAppPath());
 	path.RemoveFileSpec();
-	return(path);
+	return path;
 }
 
 bool CWinAppCK::GetJobLogFolder(CString& Folder) const
 {
 	UNREFERENCED_PARAMETER(Folder);
-	return(false);
+	return false;
 }
 
 CString CWinAppCK::GetVersionString()
@@ -162,7 +162,7 @@ CString CWinAppCK::GetTitleFromPath(LPCTSTR Path)
 {
 	CPathStr	s(PathFindFileName(Path));
 	s.RemoveExtension();
-	return(s);
+	return s;
 }
 
 bool CWinAppCK::GetLogicalDriveStringArray(CStringArrayEx& arrDrive)
@@ -187,9 +187,9 @@ int	CWinAppCK::FindMenuItem(const CMenu *pMenu, UINT nItemID)
 	int	nItems = pMenu->GetMenuItemCount();
 	for (int iItem = 0; iItem < nItems; iItem++) {
 		if (pMenu->GetMenuItemID(iItem) == nItemID)
-			return(iItem);	// return item's position
+			return iItem;	// return item's position
 	}
-	return(-1);
+	return -1;
 }
 
 bool CWinAppCK::InsertNumericMenuItems(CMenu *pMenu, UINT nPlaceholderID, UINT nStartID, int nStartVal, int nItems, bool bInsertAfter)
@@ -227,7 +227,7 @@ bool CWinAppCK::RestartApp()
 bool CWinAppCK::GotoUrl(LPCTSTR Url)
 {
 	INT_PTR	retc = (INT_PTR)ShellExecute(NULL, NULL, Url, NULL, NULL, SW_SHOWNORMAL);
-	return(retc > HINSTANCE_ERROR);
+	return retc > HINSTANCE_ERROR;
 }
 
 void CWinAppCK::SetRecentFileListSize(int nSize)

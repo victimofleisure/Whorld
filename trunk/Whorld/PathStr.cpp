@@ -24,7 +24,7 @@ BOOL CPathStr::Append(LPCTSTR pszMore)
 	LPTSTR	p = GetBuffer(MAX_PATH);
 	BOOL	retc = PathAppend(p, pszMore);
 	ReleaseBuffer();
-	return(retc);
+	return retc;
 }
 
 void CPathStr::RemoveExtension()
@@ -39,7 +39,7 @@ BOOL CPathStr::RemoveFileSpec()
 	LPTSTR	p = GetBuffer(MAX_PATH);
 	BOOL	retc = PathRemoveFileSpec(p);
 	ReleaseBuffer();
-	return(retc);
+	return retc;
 }
 
 BOOL CPathStr::RenameExtension(LPCTSTR pszExt)
@@ -47,7 +47,7 @@ BOOL CPathStr::RenameExtension(LPCTSTR pszExt)
 	LPTSTR	p = GetBuffer(MAX_PATH);
 	BOOL	retc = PathRenameExtension(p, pszExt);
 	ReleaseBuffer();
-	return(retc);
+	return retc;
 }
 
 void CPathStr::QuoteSpaces()

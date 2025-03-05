@@ -37,12 +37,12 @@ protected:
 
 inline int CRandList::GetSize() const
 {
-	return(static_cast<int>(m_List.GetSize()));	// cast to 32-bit
+	return static_cast<int>(m_List.GetSize());	// cast to 32-bit
 }
 
 inline int CRandList::GetAvail() const
 {
-	return(m_nAvail);
+	return m_nAvail;
 }
 
 #endif

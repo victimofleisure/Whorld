@@ -11,6 +11,7 @@
 		01		31may14	in Create, add vertical scroll to default style
 		02		16mar15	send end edit message instead of posting it
 		03		16dec22	add support for drop down with edit control
+		04		03mar25	modernize style
 
 		popup combo box control
 
@@ -43,10 +44,10 @@ BOOL CPopupCombo::Create(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT
 	if (!dwStyle)	// if style not specified, use default style
 		dwStyle = WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST;
 	if (!CComboBox::Create(dwStyle, rect, pParentWnd, nID))	// create control
-		return(FALSE);	// control creation failed
+		return FALSE;	// control creation failed
 	SetFont(pParentWnd->GetFont());	// set font same as parent
 	SetFocus();	// give control focus
-	return(TRUE);
+	return TRUE;
 }
 
 CPopupCombo *CPopupCombo::Factory(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, int DropHeight)
@@ -58,7 +59,7 @@ CPopupCombo *CPopupCombo::Factory(DWORD dwStyle, const RECT& rect, CWnd* pParent
 		delete pCombo;	// destroy instance
 		pCombo = NULL;
 	}
-	return(pCombo);
+	return pCombo;
 }
 
 void CPopupCombo::EndEdit()
@@ -123,7 +124,7 @@ LRESULT CPopupCombo::OnEndEdit(WPARAM wParam, LPARAM lParam)
 		CancelEdit();
 	else
 		EndEdit();
-	return(0);
+	return 0;
 }
 
 void CPopupCombo::OnCloseup() 

@@ -7,6 +7,7 @@
 
 		rev		date	comments
 		00		28jan03	initial version
+		01		03mar25	modernize style
 
 		double-precision 2D coordinate
 
@@ -20,5 +21,5 @@ const double DPoint::Epsilon = 1e-10;
 
 bool DPoint::Equal(double a, double b)
 {
-	return(fabs(a - b) < Epsilon);	// less than this and they're equal
+	return fabs(a - b) < Epsilon;	// less than this and they're equal
 }

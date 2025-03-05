@@ -41,9 +41,9 @@ void CRandList::Init(int nSize)
 int CRandList::Rand(int nVals)
 {
 	if (nVals <= 0)
-		return(-1);
+		return -1;
 	int	i = Trunc(rand() / double(RAND_MAX) * nVals);
-	return(min(i, nVals - 1));
+	return min(i, nVals - 1);
 }
 
 int CRandList::GetNext()
@@ -56,5 +56,5 @@ int CRandList::GetNext()
 	int	tmp = m_List[idx];
 	m_List[idx] = m_List[m_nAvail];
 	m_List[m_nAvail] = tmp;
-	return(tmp);
+	return tmp;
 }

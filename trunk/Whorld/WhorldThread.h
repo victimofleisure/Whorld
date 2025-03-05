@@ -104,6 +104,7 @@ protected:
 	double	m_fZoomTarget;	// target zoom for damped zooming
 	DWORD	m_nFrameRate;	// current frame rate in Hertz
 	CAutoPtr<CSnapshot>	m_pPrevSnapshot;	// render state before snapshot mode
+	LONGLONG	m_nLastPushErrorTime;	// when push command retries last failed
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);

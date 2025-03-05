@@ -41,12 +41,12 @@ bool CPopupNumEdit::Create(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UI
 {
 	dwStyle |= WS_BORDER | ES_AUTOHSCROLL;
 	if (!CNumEdit::Create(dwStyle, rect, pParentWnd, nID))	// create control
-		return(FALSE);	// control creation failed
+		return FALSE;	// control creation failed
 	if (m_nFormat & DF_SPIN)	// if spin control requested
 		CreateSpinCtrl();
 	SetFont(pParentWnd->GetFont());	// set font same as parent
 	SetFocus();	// give control focus
-	return(TRUE);
+	return TRUE;
 }
 
 void CPopupNumEdit::EndEdit()
@@ -119,5 +119,5 @@ LRESULT CPopupNumEdit::OnEndEdit(WPARAM wParam, LPARAM lParam)
 		CancelEdit();
 	else
 		EndEdit();
-	return(0);
+	return 0;
 }

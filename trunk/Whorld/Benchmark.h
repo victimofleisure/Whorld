@@ -39,12 +39,12 @@ inline double CBenchmark::Time()
 {
 	LARGE_INTEGER	nCount;
 	QueryPerformanceCounter(&nCount);
-	return(static_cast<double>(nCount.QuadPart) / m_nFreq);
+	return static_cast<double>(nCount.QuadPart) / m_nFreq;
 }
 
 inline double CBenchmark::Elapsed() const
 {
-	return(Time() - m_fStart);
+	return Time() - m_fStart;
 }
 
 inline double CBenchmark::Reset()

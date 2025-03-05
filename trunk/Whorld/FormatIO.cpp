@@ -37,9 +37,9 @@ bool CFormatIO::ValToStr(int Type, const PVOID Val, CString& Str)
 	VALTOSTR(USHORT,	_T("%hu"));
 	VALTOSTR(BYTE,		_T("%u"));
 	default:
-		return(FALSE);
+		return FALSE;
 	}
-	return(TRUE);
+	return TRUE;
 }
 
 bool CFormatIO::ValToStr(int Type, const PVOID Val, CString& Str, int Precision)
@@ -48,9 +48,9 @@ bool CFormatIO::ValToStr(int Type, const PVOID Val, CString& Str, int Precision)
 	VALTOSTR_PREC(FLOAT,	_T("%.*f"), Precision);
 	VALTOSTR_PREC(DOUBLE,	_T("%.*f"), Precision);
 	default:
-		return(ValToStr(Type, Val, Str));
+		return ValToStr(Type, Val, Str);
 	}
-	return(TRUE);
+	return TRUE;
 }
 
 bool CFormatIO::StrToVal(int Type, LPCTSTR Str, void *Val)
@@ -72,8 +72,8 @@ bool CFormatIO::StrToVal(int Type, LPCTSTR Str, void *Val)
 			*((BYTE *)Val) = static_cast<BYTE>(i);
 		}
 	default:
-		return(FALSE);
+		return FALSE;
 	}
-	return(TRUE);
+	return TRUE;
 }
 

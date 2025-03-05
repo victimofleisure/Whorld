@@ -41,7 +41,7 @@ CRowDlg	*CMasterView::CreateRow(int Idx)
 	ASSERT(pRow != NULL);
 	pRow->SetRowIndex(Idx);
 	pRow->Create(IDD_MASTER_ROW, m_pParent);
-	return(pRow);
+	return pRow;
 }
 
 void CMasterView::UpdateRow(int Idx)

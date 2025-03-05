@@ -18,6 +18,7 @@
 		08		04apr15	add GetCompensatedDropPos
 		09		24apr18	standardize names
 		10		16jun18	make CompensateDropPos static
+		11		03mar25	modernize style
 
         virtual list control with drag reordering
  
@@ -101,17 +102,17 @@ inline void CDragVirtualListCtrl::SetDragEnable(bool bEnable)
 
 inline bool CDragVirtualListCtrl::GetDragEnable() const
 {
-	return(m_bDragEnable);
+	return m_bDragEnable;
 }
 
 inline int CDragVirtualListCtrl::GetDropPos() const
 {
-	return(m_iDropPos);
+	return m_iDropPos;
 }
 
 inline bool CDragVirtualListCtrl::IsDragging() const
 {
-	return(m_bDragging);
+	return m_bDragging;
 }
 
 inline void CDragVirtualListCtrl::TrackDropPos(bool bEnable)

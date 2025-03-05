@@ -166,6 +166,7 @@ BOOL CWhorldApp::InitInstance()
 
 int CWhorldApp::ExitInstance()
 {
+	m_midiMgr.CloseInputDevice();	// close MIDI input device; no more callbacks
 	m_thrRender.DestroyThread();
 	m_wndRender.DestroyWindow();
 	m_options.WriteProperties();	// save options to registry
@@ -323,11 +324,13 @@ void CWhorldApp::Log(CString sMsg)
 
 bool CWhorldApp::CreateRenderWnd(DWORD dwStyle, CRect& rWnd, CWnd *pParentWnd)
 {
-	if (!m_wndRender.CreateWnd(dwStyle, rWnd, pParentWnd)) {	// create rendering window
+	// create rendering window
+	if (!m_wndRender.CreateWnd(dwStyle, rWnd, pParentWnd)) {
 		ON_ERROR(LDS(IDS_APP_ERR_CANT_CREATE_RENDER_WINDOW));
 		return false;
 	}
-	if (!m_thrRender.CreateThread(m_wndRender.m_hWnd)) {	// create rendering thread
+	// create rendering thread
+	if (!m_thrRender.CreateThread(m_wndRender.m_hWnd, m_pMainWnd)) {
 		ON_ERROR(LDS(IDS_APP_ERR_CANT_CREATE_RENDER_THREAD));
 		return false;
 	}

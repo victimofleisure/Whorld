@@ -128,7 +128,7 @@ int CMidiDevices::CDeviceArray::GetNameCount(CString sName) const
 		if (GetAt(iDev).m_sName == sName)	// if names match
 			nMatches++;	// bump match count
 	}
-	return(nMatches);	// return match count
+	return nMatches;	// return match count
 }
 
 bool CMidiDevices::operator==(const CMidiDevices& devs) const

@@ -73,9 +73,9 @@ bool CMidiManager::OpenInputDevice()
 	return OpenInputDevice(GetDeviceIdx(CMidiDevices::INPUT) >= 0);
 }
 
-void CMidiManager::CloseInputDevice()
+bool CMidiManager::CloseInputDevice()
 {
-	m_midiIn.Close();
+	return MIDI_SUCCEEDED(m_midiIn.Close());
 }
 
 bool CMidiManager::ReopenInputDevice()
@@ -99,10 +99,13 @@ void CMidiManager::OnDeviceChange()
 			}
 		}
 		if (nChangeMask & CMidiDevices::CM_CHANGE) {	// if MIDI device state changed
-			CWnd	*pPopupWnd = theApp.GetMainFrame()->GetLastActivePopup();
-			COptionsDlg	*pOptionsDlg = DYNAMIC_DOWNCAST(COptionsDlg, pPopupWnd);
-			if (pOptionsDlg != NULL)	// if options dialog is active
-				pOptionsDlg->UpdateMidiDevices();	// update dialog's MIDI device combos
+			CMainFrame	*pMainFrm = theApp.GetMainFrame();
+			if (pMainFrm != NULL) {
+				CWnd	*pPopupWnd = pMainFrm->GetLastActivePopup();
+				COptionsDlg	*pOptionsDlg = DYNAMIC_DOWNCAST(COptionsDlg, pPopupWnd);
+				if (pOptionsDlg != NULL)	// if options dialog is active
+					pOptionsDlg->UpdateMidiDevices();	// update dialog's MIDI device combos
+			}
 		}
 	}
 }
@@ -111,7 +114,6 @@ void CALLBACK CMidiManager::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwIns
 {
 	// This callback function runs in a worker thread context; 
 	// data shared with other threads may require serialization.
-	static CDWordArrayEx	arrMappedEvent;
 	UNREFERENCED_PARAMETER(hMidiIn);
 	UNREFERENCED_PARAMETER(dwInstance);
 	UNREFERENCED_PARAMETER(dwParam2);
@@ -126,9 +128,14 @@ void CALLBACK CMidiManager::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwIns
 	}
 }
 
-inline void CMidiManager::PostMainMsg(int nMsg, WPARAM wParam, LPARAM lParam)
+inline BOOL CMidiManager::PostMsgToMainWnd(int nMsg, WPARAM wParam, LPARAM lParam)
 {
-	theApp.GetMainFrame()->PostMessage(nMsg, wParam, lParam);	// saves some typing
+	CMainFrame	*pMainWnd = theApp.GetMainFrame();
+	ASSERT(pMainWnd != NULL);
+	if (pMainWnd != NULL) {	// if main window exists
+		return pMainWnd->PostMessage(nMsg, wParam, lParam);
+	}
+	return false;
 }
 
 void CMidiManager::PushMasterProperty(int iProp, double fNormVal)
@@ -141,7 +148,7 @@ void CMidiManager::PushMasterProperty(int iProp, double fNormVal)
 	} else {	// generic case
 		theApp.m_thrRender.SetMasterProp(iProp, fVal);
 	}
-	PostMainMsg(UWM_MASTER_PROP_CHANGE, iProp, FloatToLParam(fVal));
+	PostMsgToMainWnd(UWM_MASTER_PROP_CHANGE, iProp, FloatToLParam(fVal));
 }
 
 void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
@@ -188,7 +195,7 @@ void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 		theApp.m_thrRender.SetParam(iParam, iProp, prop);
 	}
 	// using MAKELONG limits us to 64K parameters and 64K properties, that's fine
-	PostMainMsg(UWM_PARAM_CHANGE, MAKELONG(iParam, iProp), lParam);
+	PostMsgToMainWnd(UWM_PARAM_CHANGE, MAKELONG(iParam, iProp), lParam);
 }
 
 inline UINT CMidiManager::SetOrClear(UINT nDest, UINT nMask, bool bIsSet)
@@ -236,7 +243,7 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 		break;
 	case MT_Pause:
 		// let main thread handle pause as its pause state is canonical
-		PostMainMsg(WM_COMMAND, ID_WINDOW_PAUSE, 0);
+		PostMsgToMainWnd(WM_COMMAND, ID_WINDOW_PAUSE, 0);
 		break;
 	default:
 		NODEFAULTCASE;	// missing case
@@ -248,7 +255,7 @@ void CMidiManager::PushMainBool(int iProp, bool bVal)
 	VARIANT_PROP	prop;
 	prop.boolVal = bVal;
 	theApp.m_thrRender.SetMainProp(iProp, prop);
-	PostMainMsg(UWM_MAIN_PROP_CHANGE, iProp, bVal);
+	PostMsgToMainWnd(UWM_MAIN_PROP_CHANGE, iProp, bVal);
 }
 
 void CMidiManager::PushOriginMotion(int nOrgMotion)
@@ -256,7 +263,7 @@ void CMidiManager::PushOriginMotion(int nOrgMotion)
 	VARIANT_PROP	prop;
 	prop.intVal = nOrgMotion;
 	theApp.m_thrRender.SetMainProp(MAIN_OrgMotion, prop);
-	PostMainMsg(UWM_MAIN_PROP_CHANGE, MAIN_OrgMotion, prop.intVal);
+	PostMsgToMainWnd(UWM_MAIN_PROP_CHANGE, MAIN_OrgMotion, prop.intVal);
 }
 
 void CMidiManager::OnMidiEvent(DWORD dwEvent)
@@ -270,7 +277,7 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 		return;	// ignore
 	if (m_bLearnMode) {	// if learning mappings
 		// post MIDI message to mapping bar; do NOT access bar's members directly
-		theApp.GetMainFrame()->m_wndMappingBar.PostMessage(UWM_MIDI_EVENT, dwEvent);
+		PostMsgToMainWnd(UWM_MIDI_EVENT, dwEvent);
 	}
 	// lock the mapping array during iteration
 	WCritSec::Lock lock(m_midiMaps.GetCritSec());

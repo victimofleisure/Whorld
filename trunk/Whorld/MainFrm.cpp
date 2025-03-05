@@ -696,7 +696,7 @@ LRESULT	CMainFrame::OnDeviceNodeChange(WPARAM wParam, LPARAM lParam)
 	UNREFERENCED_PARAMETER(wParam);
 	UNREFERENCED_PARAMETER(lParam);
 	theApp.m_midiMgr.OnDeviceChange();
-	return(0);
+	return 0;
 }
 
 BOOL CMainFrame::OnDeviceChange(UINT nEventType, W64ULONG dwData)

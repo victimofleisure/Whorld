@@ -21,6 +21,7 @@
 		11		17mar20	add method to delete all columns
 		12		01apr20	add ResetColumnHeader
 		13		29jan22	add method to ensure item is horizontally visible
+		14		03mar25	modernize style
 
 		extended selection list control
  
@@ -104,7 +105,7 @@ protected:
 
 inline int CListCtrlExSel::GetColumnCount() const
 {
-	return(const_cast<CListCtrlExSel *>(this)->GetHeaderCtrl()->GetItemCount());
+	return const_cast<CListCtrlExSel *>(this)->GetHeaderCtrl()->GetItemCount();
 }
 
 inline bool CListCtrlExSel::GetSelected(int iItem) const

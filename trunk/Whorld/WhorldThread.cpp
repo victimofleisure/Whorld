@@ -70,6 +70,7 @@ CWhorldThread::CWhorldThread()
 	m_fZoom = 1;
 	m_fZoomTarget = 1;
 	m_nFrameRate = DEFAULT_FRAME_RATE;
+	m_nLastPushErrorTime = 0;
 }
 
 bool CWhorldThread::CreateUserResources()
@@ -868,8 +869,14 @@ bool CWhorldThread::SetPatch(const CPatch& patch)
 	CRenderCmd	cmd(RC_SET_PATCH);
 	// dynamically allocate a copy of the patch and enqueue a pointer
 	// to it; the render thread is responsible for deleting the patch
-	cmd.m_prop.byref = new CPatch(patch);	// allocate new patch on heap
-	return PushCommand(cmd);	// patch belongs to render thread now
+	CPatch	*pPatch = new CPatch(patch);	// allocate new patch on heap
+	cmd.m_prop.byref = pPatch;
+	bool	bRetVal = PushCommand(cmd);
+	if (!bRetVal) {	// if push command failed
+		delete pPatch;	// we're responsible for cleaning up
+		return false;	// return failure
+	}
+	return true;	// patch belongs to render thread now
 }
 
 bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
@@ -958,18 +965,38 @@ bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
 				return false;	// user canceled, so stop retrying
 			}
 		} else {	// we're a worker thread
-			// do a limited number of retries, separated by timeouts
-			const int	nMaxRetries = 20;
-			const int	nRetryTimeout = 10;	// in milliseconds
-			for (int iRetry = 0; iRetry < nMaxRetries; iRetry++) {	// for each retry
-				Sleep(nRetryTimeout);	// do a timeout
+			// all times are in milliseconds
+			const UINT	nMaxTotalTimeout = 256;	// maximum total duration of retry loop
+			const UINT	nRetryBreakTimeout = 5000;	// duration of break from retries
+			LONGLONG	nTimeNow = static_cast<LONGLONG>(GetTickCount64());
+			// if we're in an error state, taking a break from doing retries
+			if (m_nLastPushErrorTime + nRetryBreakTimeout > nTimeNow) {
+				return false;	// push command fails immediately, no retries
+			}
+			// do a limited number of retries, separated by increasing timeouts
+			UINT	nTotalTimeout = 0;
+			UINT	nTimeoutLen = 0;	// zero means relinquish remainder of time slice
+			// while total time spent sleeping remains within limit
+			while (nTotalTimeout + nTimeoutLen < nMaxTotalTimeout) {
+				Sleep(nTimeoutLen);	// do a timeout of the specified length
 				if (CRenderThread::PushCommand(cmd)) {	// try to enqueue command
+					// clear error state by resetting time of last error
+					InterlockedExchange64(&m_nLastPushErrorTime, 0);
 					return true;	// retry succeeded
 				}
+				nTotalTimeout += nTimeoutLen;	// add timeout to total time slept
+				if (nTimeoutLen) {	// if non-zero timeout
+					nTimeoutLen <<= 1;	// double timeout (exponential backoff)
+				} else {	// zero timeout
+					nTimeoutLen = 1;	// start doubling from one
+				}
 			}
+			// retries failed, so take a longer break from doing retries,
+			// to avoid blocking the worker thread on every attempted push
+			InterlockedExchange64(&m_nLastPushErrorTime, nTimeNow);
 			// notify main thread of unrecoverable error
-			AfxGetMainWnd()->PostMessage(UWM_THREAD_ERROR_MSG, IDS_APP_ERR_RENDER_QUEUE_FULL);
-			return false;	// retries failed, so give up
+			PostMsgToMainWnd(UWM_THREAD_ERROR_MSG, IDS_APP_ERR_RENDER_QUEUE_FULL);
+			return false;	// we are in the retries failed error state
 		}
 	}
 	return true;
@@ -1167,13 +1194,13 @@ void CWhorldThread::OnCaptureBitmap(UINT nFlags, SIZE szImage)
 	ID2D1Bitmap1*	pBitmap;
 	CaptureBitmap(nFlags, CD2DSizeU(szImage), pBitmap);
 	LPARAM	lParam = reinterpret_cast<LPARAM>(pBitmap);	
-	AfxGetMainWnd()->PostMessage(UWM_BITMAP_CAPTURE, 0, lParam);	// post pointer to main window
+	PostMsgToMainWnd(UWM_BITMAP_CAPTURE, 0, lParam);	// post pointer to main window
 }
 
 bool CWhorldThread::OnCaptureSnapshot() const
 {
 	LPARAM	lParam = reinterpret_cast<LPARAM>(GetSnapshot());
-	AfxGetMainWnd()->PostMessage(UWM_SNAPSHOT_CAPTURE, 0, lParam);	// post pointer to main window
+	PostMsgToMainWnd(UWM_SNAPSHOT_CAPTURE, 0, lParam);	// post pointer to main window
 	return true;
 }
 

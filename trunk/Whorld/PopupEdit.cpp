@@ -9,6 +9,7 @@
 		rev		date	comments
 		00		23sep13	initial version
 		01		16mar15	send end edit message instead of posting it
+		02		03mar25	modernize style
 
 		popup edit control
 
@@ -39,10 +40,10 @@ bool CPopupEdit::Create(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT 
 {
 	dwStyle |= WS_BORDER | ES_AUTOHSCROLL;
 	if (!CEdit::Create(dwStyle, rect, pParentWnd, nID))	// create control
-		return(FALSE);	// control creation failed
+		return FALSE;	// control creation failed
 	SetFont(pParentWnd->GetFont());	// set font same as parent
 	SetFocus();	// give control focus
-	return(TRUE);
+	return TRUE;
 }
 
 void CPopupEdit::EndEdit()
@@ -99,5 +100,5 @@ LRESULT CPopupEdit::OnEndEdit(WPARAM wParam, LPARAM lParam)
 		CancelEdit();
 	else
 		EndEdit();
-	return(0);
+	return 0;
 }

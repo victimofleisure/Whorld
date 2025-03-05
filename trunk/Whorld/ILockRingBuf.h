@@ -7,6 +7,7 @@
 
 		rev		date		comments
 		00		16apr10		initial version
+		01		05mar25		modernize style
 
 		interlocked ring buffer template
 
@@ -29,8 +30,8 @@ public:
 	int		GetCount() const;
 
 // Operations
-	bool	Push(const T& Item);
-	bool	Pop(T& Item);
+	bool	Push(const T& item);
+	bool	Pop(T& item);
 
 protected:
 // Member data
@@ -94,25 +95,25 @@ inline void CILockRingBuf<T>::Create(int nSize)
 }
 
 template<class T>
-inline bool CILockRingBuf<T>::Push(const T& Item)
+inline bool CILockRingBuf<T>::Push(const T& item)
 {
 	if (m_nItems >= m_nSize)
-		return(FALSE);
-	*m_pHead++ = Item;
+		return false;
+	*m_pHead++ = item;
 	if (m_pHead == m_pEnd)
 		m_pHead = m_pStart;
 	InterlockedIncrement(&m_nItems);
-	return(TRUE);
+	return true;
 }
 
 template<class T>
-inline bool CILockRingBuf<T>::Pop(T& Item)
+inline bool CILockRingBuf<T>::Pop(T& item)
 {
 	if (!m_nItems)
-		return(FALSE);
-	Item = *m_pTail++;
+		return false;
+	item = *m_pTail++;
 	if (m_pTail == m_pEnd)
 		m_pTail = m_pStart;
 	InterlockedDecrement(&m_nItems);
-	return(TRUE);
+	return true;
 }

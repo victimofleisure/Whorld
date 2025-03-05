@@ -13,6 +13,7 @@
 		03		23nov07	support Unicode
 		04		29nov08	add GetWndPlacement
         05      22feb25	replace header guard with pragma
+		06		03mar25	modernize style
 
 		make states persistent using registry
  
@@ -51,20 +52,20 @@ private:
 
 inline UINT	CPersist::GetInt(LPCTSTR Section, LPCTSTR Entry, int Default)
 {
-	return(AfxGetApp()->GetProfileInt(Section, Entry, Default));
+	return AfxGetApp()->GetProfileInt(Section, Entry, Default);
 }
 
 inline BOOL	CPersist::WriteInt(LPCTSTR Section, LPCTSTR Entry, int Value)
 {
-	return(AfxGetApp()->WriteProfileInt(Section, Entry, Value));
+	return AfxGetApp()->WriteProfileInt(Section, Entry, Value);
 }
 
 inline CString CPersist::GetString(LPCTSTR Section, LPCTSTR Entry, LPCTSTR Default)
 {
-	return(AfxGetApp()->GetProfileString(Section, Entry, Default));
+	return AfxGetApp()->GetProfileString(Section, Entry, Default);
 }
 
 inline BOOL	CPersist::WriteString(LPCTSTR Section, LPCTSTR Entry, LPCTSTR Value)
 {
-	return(AfxGetApp()->WriteProfileString(Section, Entry, Value));
+	return AfxGetApp()->WriteProfileString(Section, Entry, Value);
 }

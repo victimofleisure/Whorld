@@ -111,17 +111,17 @@ union MIDI_MSG {
 
 inline bool IsMidiCmd(int Cmd)
 {
-	return(Cmd >= 128 && Cmd < 256);
+	return Cmd >= 128 && Cmd < 256;
 }
 
 inline bool IsMidiChan(int Chan)
 {
-	return(Chan >= 0 && Chan < MIDI_CHANNELS);
+	return Chan >= 0 && Chan < MIDI_CHANNELS;
 }
 
 inline bool IsMidiParam(int Param)
 {
-	return(Param >= 0 && Param < MIDI_NOTES);
+	return Param >= 0 && Param < MIDI_NOTES;
 }
 
 inline DWORD MakeMidiMsg(int Cmd, int Chan, int P1, int P2)

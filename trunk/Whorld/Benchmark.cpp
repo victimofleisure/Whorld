@@ -24,5 +24,5 @@ LONGLONG CBenchmark::InitFreq()
 {
 	LARGE_INTEGER	nFreq;
 	QueryPerformanceFrequency(&nFreq);
-	return(nFreq.QuadPart);
+	return nFreq.QuadPart;
 }

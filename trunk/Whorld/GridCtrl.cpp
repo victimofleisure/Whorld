@@ -36,12 +36,6 @@
 #include "GridCtrl.h"
 #include "PopupEdit.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CGridCtrl
 
@@ -158,13 +152,11 @@ bool CGridCtrl::AllowEnsureHorizontallyVisible(int iCol)
 }
 
 BEGIN_MESSAGE_MAP(CGridCtrl, CDragVirtualListCtrl)
-	//{{AFX_MSG_MAP(CGridCtrl)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_PARENTNOTIFY()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
 	ON_WM_DESTROY()
-	//}}AFX_MSG_MAP
 	ON_MESSAGE(CPopupEdit::UWM_TEXT_CHANGE, OnTextChange)
 END_MESSAGE_MAP()
 

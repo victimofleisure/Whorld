@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      02mar25	initial version
+		01		04mar25	fix edit control minimum value
 
 */
 
@@ -16,12 +17,6 @@
 #include "GlobalsBar.h"
 #include "GlobalsRowDlg.h"
 #include "WhorldDoc.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 // CGlobalsRowDlg
 
@@ -84,12 +79,12 @@ BOOL CGlobalsRowDlg::OnInitDialog()
 	int	iParam = m_iPos;	// map from row index to parameter index
 	const PARAM_INFO&	info = GetParamInfo(iParam);
 	m_staticName.SetWindowText(GetParamName(iParam));
-	m_editVal.SetRange(info.fMinVal, info.fMaxVal);
+	double	fMinVal = -info.fMaxVal;	// for globals, minimum is negative maximum
 	m_editVal.SetScale(info.fScale);
+	m_editVal.SetRange(fMinVal, info.fMaxVal);
 	m_sliderVal.SetRange(0, info.nSteps);
 	m_sliderVal.SetDefaultPos(info.nSteps / 2);
 	m_sliderVal.SetEditCtrl(&m_editVal);
-	double	fMinVal = -info.fMaxVal;	// minimum is negative maximum
 	m_spinVal.SetDelta((info.fMaxVal - fMinVal) / info.nSteps);
 
 	return TRUE;  // return TRUE unless you set the focus to a control

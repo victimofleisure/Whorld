@@ -37,9 +37,6 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CNumSpin)
-	//}}AFX_VIRTUAL
 
 // Implementation
 public:
@@ -47,9 +44,7 @@ public:
 
 // Generated message map functions
 protected:
-	//{{AFX_MSG(CNumSpin)
 	afx_msg void OnDeltapos(NMHDR* pNMHDR, LRESULT* pResult);
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 // Member data
@@ -60,8 +55,3 @@ inline void CNumSpin::SetDelta(double fDelta)
 {
 	m_fDelta = fDelta;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

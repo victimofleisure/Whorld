@@ -38,12 +38,6 @@
 #include "Resource.h"
 #include "DragVirtualListCtrl.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CDragVirtualListCtrl
 
@@ -140,13 +134,11 @@ int CDragVirtualListCtrl::GetCompensatedDropPos() const
 }
 
 BEGIN_MESSAGE_MAP(CDragVirtualListCtrl, CListCtrlExSel)
-	//{{AFX_MSG_MAP(CDragVirtualListCtrl)
 	ON_NOTIFY_REFLECT_EX(LVN_BEGINDRAG, OnBegindrag)
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_TIMER()
 	ON_WM_KILLFOCUS()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

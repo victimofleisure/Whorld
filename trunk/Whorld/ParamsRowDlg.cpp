@@ -18,12 +18,6 @@
 #include "ParamsRowDlg.h"
 #include "WhorldDoc.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 // CParamsRowDlg
 
 // define aliases for parameter property controls, accounting for the control type prefix

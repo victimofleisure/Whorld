@@ -39,7 +39,6 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
 	public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);

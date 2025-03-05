@@ -29,12 +29,6 @@
 #include "EditSliderCtrl.h"
 #include <math.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CEditSliderCtrl
 
@@ -130,10 +124,8 @@ double CEditSliderCtrl::GetDefaultVal() const
 }
 
 BEGIN_MESSAGE_MAP(CEditSliderCtrl, CClickSliderCtrl)
-	//{{AFX_MSG_MAP(CEditSliderCtrl)
 	ON_WM_HSCROLL_REFLECT()
 	ON_WM_DESTROY()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

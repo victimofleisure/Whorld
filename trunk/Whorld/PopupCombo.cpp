@@ -24,12 +24,6 @@
 #include "PopupCombo.h"
 #include "PopupEdit.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CPopupCombo
 
@@ -83,12 +77,10 @@ void CPopupCombo::CancelEdit()
 }
 
 BEGIN_MESSAGE_MAP(CPopupCombo, CComboBox)
-	//{{AFX_MSG_MAP(CPopupCombo)
 	ON_WM_KILLFOCUS()
 	ON_CONTROL_REFLECT(CBN_CLOSEUP, OnCloseup)
 	ON_CONTROL_REFLECT(CBN_KILLFOCUS, OnReflectKillFocus)
 	ON_MESSAGE(CPopupEdit::UWM_END_EDIT, OnEndEdit)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

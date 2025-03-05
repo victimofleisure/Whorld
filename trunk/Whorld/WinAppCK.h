@@ -70,13 +70,8 @@ public:
 	static bool	GotoUrl(LPCTSTR Url);
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CWinAppCK)
-	//}}AFX_VIRTUAL
 
 // Implementation
-	//{{AFX_MSG(CWinAppCK)
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 protected:

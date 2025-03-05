@@ -21,6 +21,7 @@
 		11		02jun18	in Notify, fix x64 crash due to casting pointer to long
 		12		14dec22	add fraction format
 		13		10feb25	in AddSpin, if clamped value is unchanged, don't notify
+		14		05mar25	in AddSpin, check for infinitesimal and replace with zero
 
         numeric edit control
  
@@ -34,12 +35,6 @@
 #include "NumEdit.h"
 #include "NumSpin.h"
 #include <math.h>
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CNumEdit
@@ -98,6 +93,9 @@ void CNumEdit::AddSpin(double fDelta)
 {
 	GetText();	// freshen value before incrementing it
 	double	fNewVal = m_fVal + fDelta;
+	const double fEpsilon = 1e-10;	// quite small
+	if (fabs(fNewVal) < fEpsilon)	// if infinitesimal
+		fNewVal = 0;	// call it zero
 	if (m_bHaveRange) {	// if range was specified
 		fNewVal = CLAMP(fNewVal, m_fMinVal, m_fMaxVal);
 		if (fNewVal == m_fVal)	// if clamped value is unchanged
@@ -190,11 +188,9 @@ void CNumEdit::CreateSpinCtrl()
 }
 
 BEGIN_MESSAGE_MAP(CNumEdit, CEdit)
-	//{{AFX_MSG_MAP(CNumEdit)
 	ON_CONTROL_REFLECT_EX(EN_KILLFOCUS, OnKillfocus)
 	ON_WM_CHAR()
 	ON_WM_ENABLE()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

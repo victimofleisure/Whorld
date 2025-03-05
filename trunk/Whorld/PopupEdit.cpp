@@ -21,12 +21,6 @@
 #include "Resource.h"
 #include "PopupEdit.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CPopupEdit
 
@@ -70,9 +64,7 @@ void CPopupEdit::CancelEdit()
 }
 
 BEGIN_MESSAGE_MAP(CPopupEdit, CEdit)
-	//{{AFX_MSG_MAP(CPopupEdit)
 	ON_WM_KILLFOCUS()
-	//}}AFX_MSG_MAP
 	ON_MESSAGE(UWM_END_EDIT, OnEndEdit)
 END_MESSAGE_MAP()
 

@@ -22,12 +22,6 @@
 #include "NumSpin.h"
 #include "NumEdit.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CNumSpin
 
@@ -43,9 +37,7 @@ CNumSpin::~CNumSpin()
 }
 
 BEGIN_MESSAGE_MAP(CNumSpin, CSpinButtonCtrl)
-	//{{AFX_MSG_MAP(CNumSpin)
 	ON_NOTIFY_REFLECT(UDN_DELTAPOS, OnDeltapos)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

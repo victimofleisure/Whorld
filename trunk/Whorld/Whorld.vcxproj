@@ -191,6 +191,7 @@
     <ClInclude Include="ArrayExAlgoDef.h" />
     <ClInclude Include="AuxiliaryDoc.h" />
     <ClInclude Include="Benchmark.h" />
+    <ClInclude Include="CenterSliderCtrl.h" />
     <ClInclude Include="ClickSliderCtrl.h" />
     <ClInclude Include="CritSec.h" />
     <ClInclude Include="D2DDevCtx.h" />
@@ -288,6 +289,7 @@
     <ClCompile Include="ArrayEx.cpp" />
     <ClCompile Include="AuxiliaryDoc.cpp" />
     <ClCompile Include="Benchmark.cpp" />
+    <ClCompile Include="CenterSliderCtrl.cpp" />
     <ClCompile Include="ClickSliderCtrl.cpp" />
     <ClCompile Include="D2DDevCtx.cpp" />
     <ClCompile Include="DPoint.cpp" />

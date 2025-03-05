@@ -42,13 +42,10 @@ public:
 	void	CancelEdit();
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CPopupNumEdit)
 	public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void PreSubclassWindow();
-	//}}AFX_VIRTUAL
 	virtual	void	AddSpin(double fDelta);
 
 // Implementation
@@ -57,17 +54,10 @@ public:
 
 // Generated message map functions
 protected:
-	//{{AFX_MSG(CPopupNumEdit)
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
-	//}}AFX_MSG
 	afx_msg LRESULT OnEndEdit(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 
 // Data members
 	bool	m_bEndingEdit;	// true if ending edit
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

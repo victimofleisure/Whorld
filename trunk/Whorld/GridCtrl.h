@@ -50,11 +50,8 @@ public:
 	};
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CGridCtrl)
 	public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//}}AFX_VIRTUAL
 
 // Implementation
 public:
@@ -62,13 +59,11 @@ public:
 
 	// Generated message map functions
 protected:
-	//{{AFX_MSG(CGridCtrl)
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnParentNotify(UINT message, LPARAM lParam);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnDestroy();
-	//}}AFX_MSG
 	afx_msg LRESULT OnTextChange(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 
@@ -90,8 +85,3 @@ inline bool CGridCtrl::IsEditing() const
 {
 	return m_pEditCtrl != NULL;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

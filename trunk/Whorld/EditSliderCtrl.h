@@ -65,11 +65,8 @@ public:
 	static	double	Denorm(const INFO& info, double pVal);
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CEditSliderCtrl)
 	protected:
 	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
-	//}}AFX_VIRTUAL
 
 // Implementation
 public:
@@ -77,10 +74,8 @@ public:
 
 protected:
 // Generated message map functions
-	//{{AFX_MSG(CEditSliderCtrl)
 	afx_msg void HScroll(UINT nSBCode, UINT nPos);
 	afx_msg void OnDestroy();
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 // Member data

@@ -20,12 +20,6 @@
 #include "WhorldView.h"
 #include <math.h>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 // CMasterRowDlg
 
 const CEditSliderCtrl::INFO CMasterRowDlg::m_arrSliderInfo[MASTER_COUNT] = {

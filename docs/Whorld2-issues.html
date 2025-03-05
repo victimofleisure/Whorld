@@ -46,20 +46,20 @@
 <TD>JM</TD>
 </TR>
 <TR VALIGN=TOP>
-<TH>56</TH>
-<TD>02/28/25</TD>
-<TD>&nbsp;</TD>
-<TD>bug</TD>
-<TD>pitch bend mapping has 7-bit precision but it should be 14-bit</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
 <TH>59</TH>
 <TD>03/01/25</TD>
 <TD>&nbsp;</TD>
 <TD>bug</TD>
 <TD>boolean mapping targets send spurious render commands when value is unchanged; careful to avoid race</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>72</TH>
+<TD>03/04/25</TD>
+<TD>&nbsp;</TD>
+<TD>bug</TD>
+<TD>if frame rate is extremely low, MIDI mapping can fill command queue, causing perpetual error message</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>
@@ -226,15 +226,6 @@
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
-<TH>48</TH>
-<TD>02/27/25</TD>
-<TD>02/27/25</TD>
-<TD>done</TD>
-<TD>toolbar needs a pause button</TD>
-<TD>2.0.04.000</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
 <TH>18</TH>
 <TD>02/23/25</TD>
 <TD>02/27/25</TD>
@@ -249,6 +240,15 @@
 <TD>02/27/25</TD>
 <TD>done</TD>
 <TD>disable undo/redo while in snapshot mode</TD>
+<TD>2.0.04.000</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>48</TH>
+<TD>02/27/25</TD>
+<TD>02/27/25</TD>
+<TD>done</TD>
+<TD>toolbar needs a pause button</TD>
 <TD>2.0.04.000</TD>
 <TD>&nbsp;</TD>
 </TR>
@@ -307,20 +307,20 @@
 <TD>JM</TD>
 </TR>
 <TR VALIGN=TOP>
-<TH>57</TH>
-<TD>02/28/25</TD>
-<TD>03/01/25</TD>
-<TD>done</TD>
-<TD>add option to set maximum number of items in recently used file lists</TD>
-<TD>2.0.06.000</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
 <TH>46</TH>
 <TD>02/27/25</TD>
 <TD>03/01/25</TD>
 <TD>done</TD>
 <TD>add miscellaneous mapping targets</TD>
+<TD>2.0.06.000</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>57</TH>
+<TD>02/28/25</TD>
+<TD>03/01/25</TD>
+<TD>done</TD>
+<TD>add option to set maximum number of items in recently used file lists</TD>
 <TD>2.0.06.000</TD>
 <TD>&nbsp;</TD>
 </TR>
@@ -403,6 +403,60 @@
 <TD>done</TD>
 <TD>in snapshot mode, zooming (or any other edits) shouldn't set document modified flag</TD>
 <TD>2.0.09.002</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>56</TH>
+<TD>02/28/25</TD>
+<TD>03/03/25</TD>
+<TD>done</TD>
+<TD>pitch bend mapping should use full resolution (14 bits)</TD>
+<TD>2.0.09.003</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>68</TH>
+<TD>03/04/25</TD>
+<TD>03/04/25</TD>
+<TD>done</TD>
+<TD>points buffer overrun if Ring Sides = 50, curves = true, Fill = true, ring count >= 2, and Global Ring Sides >= 1</TD>
+<TD>2.0.09.005</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>71</TH>
+<TD>03/04/25</TD>
+<TD>03/04/25</TD>
+<TD>done</TD>
+<TD>refactor render thread so that PushCommand is protected by wrapping it in accessors</TD>
+<TD>2.0.09.006</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>69</TH>
+<TD>03/04/25</TD>
+<TD>03/04/25</TD>
+<TD>done</TD>
+<TD>in globals row dialog, edit box spin should allow negative values</TD>
+<TD>2.0.09.007</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>73</TH>
+<TD>03/04/25</TD>
+<TD>03/05/25</TD>
+<TD>done</TD>
+<TD>in parameters, master and globals panes, can't drag slider back to exact center value; use epsilon</TD>
+<TD>2.0.09.008</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>74</TH>
+<TD>03/04/25</TD>
+<TD>03/05/25</TD>
+<TD>done</TD>
+<TD>in parameters pane, spin or arrows don't return Skew Radius to exact center value; use epsilon</TD>
+<TD>2.0.09.008</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -591,6 +645,24 @@
 <TD>&nbsp;</TD>
 <TD>hold</TD>
 <TD>disable MIDI learn if mapping pane loses focus</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>67</TH>
+<TD>03/04/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>global line width can cause negative line width; Direct2D takes absolute value, maybe it's fine</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>70</TH>
+<TD>03/04/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>missing useful toolbar icons: fill and outline, origin motion is useful too</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>

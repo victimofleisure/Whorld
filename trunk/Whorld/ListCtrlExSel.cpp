@@ -31,12 +31,6 @@
 #include "ListCtrlExSel.h"
 #include "Persist.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CListCtrlExSel
 
@@ -358,8 +352,6 @@ void CListCtrlExSel::EnsureHorizontallyVisible(int iItem, int iSubItem)
 // CListCtrlExSel message map
 
 BEGIN_MESSAGE_MAP(CListCtrlExSel, CListCtrl)
-	//{{AFX_MSG_MAP(CListCtrlExSel)
-	//}}AFX_MSG_MAP
 	ON_NOTIFY_EX(TTN_NEEDTEXTW, 0, OnToolTipNeedText)	// Unicode handler
 	ON_NOTIFY_EX(TTN_NEEDTEXTA, 0, OnToolTipNeedText)	// ANSI handler
 END_MESSAGE_MAP()

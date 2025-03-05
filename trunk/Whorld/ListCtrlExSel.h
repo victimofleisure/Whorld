@@ -90,16 +90,11 @@ public:
 	static	bool	LoadArray(LPCTSTR pszSection, LPCTSTR pszKey, CIntArrayEx& arr, int nElems);
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CListCtrlExSel)
 	public:
 	virtual W64INT OnToolHitTest(CPoint point, TOOLINFO* pTI) const;
-	//}}AFX_VIRTUAL
 
 // Generated message map functions
 protected:
-	//{{AFX_MSG(CListCtrlExSel)
-	//}}AFX_MSG
 	afx_msg BOOL OnToolTipNeedText(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 	DECLARE_MESSAGE_MAP()
 
@@ -121,8 +116,3 @@ inline BOOL CListCtrlExSel::RedrawItem(int iItem)
 {
 	return RedrawItems(iItem, iItem);
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

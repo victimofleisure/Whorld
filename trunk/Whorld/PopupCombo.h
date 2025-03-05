@@ -42,11 +42,8 @@ public:
 	void	CancelEdit();
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CPopupCombo)
 	public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//}}AFX_VIRTUAL
 
 // Implementation
 public:
@@ -54,19 +51,12 @@ public:
 
 // Generated message map functions
 protected:
-	//{{AFX_MSG(CPopupCombo)
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnCloseup();
 	afx_msg void OnReflectKillFocus();
-	//}}AFX_MSG
 	afx_msg LRESULT OnEndEdit(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 
 // Data members
 	bool	m_bEndingEdit;	// true if ending edit
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

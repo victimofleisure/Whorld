@@ -23,12 +23,6 @@
 #include "PopupNumEdit.h"
 #include "PopupEdit.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CPopupNumEdit
 
@@ -82,9 +76,7 @@ void CPopupNumEdit::AddSpin(double fDelta)
 }
 
 BEGIN_MESSAGE_MAP(CPopupNumEdit, CNumEdit)
-	//{{AFX_MSG_MAP(CPopupNumEdit)
 	ON_WM_KILLFOCUS()
-	//}}AFX_MSG_MAP
 	ON_MESSAGE(CPopupEdit::UWM_END_EDIT, OnEndEdit)
 END_MESSAGE_MAP()
 

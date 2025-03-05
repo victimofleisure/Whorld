@@ -74,13 +74,10 @@ public:
 	virtual	void	AddSpin(double fDelta);
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CNumEdit)
 	public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void PreSubclassWindow();
-	//}}AFX_VIRTUAL
 
 // Implementation
 public:
@@ -88,11 +85,9 @@ public:
 
 	// Generated message map functions
 protected:
-	//{{AFX_MSG(CNumEdit)
 	afx_msg BOOL OnKillfocus();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnEnable(BOOL bEnable);
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 // Member data
@@ -157,8 +152,3 @@ inline void CNumEdit::SetFractionScale(int nScale)
 {
 	m_nFracScale = nScale;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

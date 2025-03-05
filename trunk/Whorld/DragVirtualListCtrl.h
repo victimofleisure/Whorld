@@ -57,11 +57,8 @@ public:
 	static	bool	CompensateDropPos(CIntArrayEx& arrSel, int& DropPos);
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CDragVirtualListCtrl)
 	public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//}}AFX_VIRTUAL
 
 // Implementation
 public:
@@ -69,13 +66,11 @@ public:
 
 protected:
 // Generated message map functions
-	//{{AFX_MSG(CDragVirtualListCtrl)
 	afx_msg BOOL OnBegindrag(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(W64UINT nIDEvent);
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 // Constants
@@ -124,7 +119,3 @@ inline void CDragVirtualListCtrl::TrackDropPos(bool bEnable)
 	m_bTrackDropPos = bEnable;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

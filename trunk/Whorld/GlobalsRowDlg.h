@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      02mar25	initial version
+		01		05mar25	use center slider to fix unreachable center value
 
 */
 
@@ -15,7 +16,7 @@
 
 #include "WhorldBase.h"
 #include "RowDlg.h"
-#include "EditSliderCtrl.h"
+#include "CenterSliderCtrl.h"
 #include "NumEdit.h"
 #include "NumSpin.h"
 
@@ -36,7 +37,7 @@ public:
 
 protected:
 // Types
-	class CMyEditSliderCtrl : public CEditSliderCtrl, public CWhorldBase {
+	class CMyEditSliderCtrl : public CCenterSliderCtrl, public CWhorldBase {
 	public:
 		virtual	double	Norm(double x) const;
 		virtual	double	Denorm(double x) const;

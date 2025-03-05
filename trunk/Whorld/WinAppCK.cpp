@@ -39,18 +39,10 @@
 #include "PathStr.h"
 #include "VersionInfo.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CWinAppCK
 
 BEGIN_MESSAGE_MAP(CWinAppCK, CWinApp)
-	//{{AFX_MSG_MAP(CWinAppCK)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 bool CWinAppCK::GetTempPath(CString& Path)

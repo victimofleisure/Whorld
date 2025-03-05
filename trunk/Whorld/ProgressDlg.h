@@ -45,27 +45,20 @@ public:
 	static	void	PumpMessages(HWND hWnd);
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CProgressDlg)
 	public:
 	virtual BOOL DestroyWindow();
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
 // Dialog Data
-	//{{AFX_DATA(CProgressDlg)
 	enum { IDD = IDD_PROGRESS };
 	CProgressCtrl	m_Progress;
 	CStatic	m_Percent;
-	//}}AFX_DATA
 
 // Generated message map functions
-	//{{AFX_MSG(CProgressDlg)
 	virtual void OnCancel();
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 // Member data
@@ -96,6 +89,3 @@ inline void CProgressDlg::PumpMessages()
 {
 	PumpMessages(m_hWnd);
 }
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.

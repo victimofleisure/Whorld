@@ -83,7 +83,6 @@ public:
 	void	ResetColumnWidths();
 
 // Overrides
-	// ClassWizard generated virtual function overrides
 	public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);

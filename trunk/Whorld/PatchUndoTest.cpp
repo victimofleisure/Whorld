@@ -36,7 +36,7 @@
 #if UNDO_TEST == 1	// do not change this unique identifier
 
 #include "Whorld.h"
-#include "WhorldUndoTest.h"
+#include "PatchUndoTest.h"
 #include "WhorldDoc.h"
 #include "MainFrm.h"
 #include "UndoState.h"
@@ -48,15 +48,15 @@
 
 #define PAUSE_VIEW_DURING_TEST false	// unpaused is a tougher test
 
-static CWhorldUndoTest gUndoTest(true);	// one and only instance, initially running
+static CPatchUndoTest gUndoTest(true);	// one and only instance, initially running
 
-const CWhorldUndoTest::EDIT_INFO CWhorldUndoTest::m_arrEditInfo[] = {
+const CPatchUndoTest::EDIT_INFO CPatchUndoTest::m_arrEditInfo[] = {
 	{UCODE_PARAM,				1},
 	{UCODE_MASTER,				0.1f},
 	{UCODE_MAIN,				0.1f},
 };
 
-CWhorldUndoTest::CWhorldUndoTest(bool bInitRunning) :
+CPatchUndoTest::CPatchUndoTest(bool bInitRunning) :
 	CUndoTest(bInitRunning, TIMER_PERIOD, m_arrEditInfo, _countof(m_arrEditInfo))
 {
 	m_pDoc = NULL;
@@ -79,11 +79,11 @@ CWhorldUndoTest::CWhorldUndoTest(bool bInitRunning) :
 #endif
 }
 
-CWhorldUndoTest::~CWhorldUndoTest()
+CPatchUndoTest::~CPatchUndoTest()
 {
 }
 
-LONGLONG CWhorldUndoTest::GetSnapshot() const
+LONGLONG CPatchUndoTest::GetSnapshot() const
 {
 	LONGLONG	nSum = 0;
 	const CPatch&	patch = *m_pDoc;
@@ -92,7 +92,7 @@ LONGLONG CWhorldUndoTest::GetSnapshot() const
 	return nSum;
 }
 
-int CWhorldUndoTest::ApplyEdit(int nUndoCode)
+int CPatchUndoTest::ApplyEdit(int nUndoCode)
 {
 	CUndoState	state(0, nUndoCode);
 	CString	sUndoTitle(m_pDoc->GetUndoTitle(state));
@@ -175,7 +175,7 @@ int CWhorldUndoTest::ApplyEdit(int nUndoCode)
 	return SUCCESS;
 }
 
-bool CWhorldUndoTest::Create()
+bool CPatchUndoTest::Create()
 {
 	theApp.SetPause(PAUSE_VIEW_DURING_TEST);
 	m_pDoc = theApp.GetDocument();
@@ -187,7 +187,7 @@ bool CWhorldUndoTest::Create()
 	return true;
 }
 
-void CWhorldUndoTest::Destroy()
+void CPatchUndoTest::Destroy()
 {
 	CUndoTest::Destroy();
 	m_pDoc->SetModifiedFlag(false);

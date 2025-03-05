@@ -241,7 +241,7 @@
     <ClInclude Include="SnapshotV1.h" />
     <ClInclude Include="StringTpl.h" />
     <ClInclude Include="VariantHelper.h" />
-    <ClInclude Include="WhorldUndoTest.h" />
+    <ClInclude Include="PatchUndoTest.h" />
     <ClInclude Include="NumEdit.h" />
     <ClInclude Include="NumSpin.h" />
     <ClInclude Include="ParamsRowDlg.h" />
@@ -326,7 +326,7 @@
     <ClCompile Include="PropertiesGrid.cpp" />
     <ClCompile Include="Snapshot.cpp" />
     <ClCompile Include="SnapshotV1.cpp" />
-    <ClCompile Include="WhorldUndoTest.cpp" />
+    <ClCompile Include="PatchUndoTest.cpp" />
     <ClCompile Include="NumEdit.cpp" />
     <ClCompile Include="NumSpin.cpp" />
     <ClCompile Include="ParamsRowDlg.cpp" />

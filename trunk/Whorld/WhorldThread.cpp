@@ -958,16 +958,16 @@ bool CWhorldThread::SetDrawMode(UINT nMask, UINT nVal)
 bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
 {
 	while (!CRenderThread::PushCommand(cmd)) {	// try to enqueue command
-		// render command queue was full
+		// enqueue failed because render command queue was full
 		if (CWhorldApp::IsMainThread()) {	// if we're the user-interface thread
-			// give the user a chance to retry the push
+			// give the user a chance to retry enqueuing the command
 			if (AfxMessageBox(IDS_APP_ERR_RENDER_QUEUE_FULL, MB_RETRYCANCEL) != IDRETRY) {
 				return false;	// user canceled, so stop retrying
 			}
 		} else {	// we're a worker thread
 			// all times are in milliseconds
 			const UINT	nMaxTotalTimeout = 256;	// maximum total duration of retry loop
-			const UINT	nRetryBreakTimeout = 5000;	// duration of break from retries
+			const UINT	nRetryBreakTimeout = 2500;	// duration of break from retries
 			LONGLONG	nTimeNow = static_cast<LONGLONG>(GetTickCount64());
 			// if we're in an error state, taking a break from doing retries
 			if (m_nLastPushErrorTime + nRetryBreakTimeout > nTimeNow) {
@@ -979,11 +979,12 @@ bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
 			// while total time spent sleeping remains within limit
 			while (nTotalTimeout + nTimeoutLen < nMaxTotalTimeout) {
 				Sleep(nTimeoutLen);	// do a timeout of the specified length
-				if (CRenderThread::PushCommand(cmd)) {	// try to enqueue command
-					// clear error state by resetting time of last error
+				if (CRenderThread::PushCommand(cmd)) {	// retry enqueuing command
+					// success: clear error state by zeroing time of last error
 					InterlockedExchange64(&m_nLastPushErrorTime, 0);
 					return true;	// retry succeeded
 				}
+				// retry failed: increase timeout and try again if permitted
 				nTotalTimeout += nTimeoutLen;	// add timeout to total time slept
 				if (nTimeoutLen) {	// if non-zero timeout
 					nTimeoutLen <<= 1;	// double timeout (exponential backoff)
@@ -991,10 +992,10 @@ bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
 					nTimeoutLen = 1;	// start doubling from one
 				}
 			}
-			// retries failed, so take a longer break from doing retries,
+			// all retries have failed, so take a break from doing retries,
 			// to avoid blocking the worker thread on every attempted push
 			InterlockedExchange64(&m_nLastPushErrorTime, nTimeNow);
-			// notify main thread of unrecoverable error
+			// notify main thread that an unrecoverable error occurred
 			PostMsgToMainWnd(UWM_THREAD_ERROR_MSG, IDS_APP_ERR_RENDER_QUEUE_FULL);
 			return false;	// we are in the retries failed error state
 		}

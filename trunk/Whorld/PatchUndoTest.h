@@ -26,11 +26,11 @@
 
 class CWhorldDoc;
 
-class CWhorldUndoTest : public CUndoTest, public CWhorldBase {
+class CPatchUndoTest : public CUndoTest, public CWhorldBase {
 public:
 // Construction
-	CWhorldUndoTest(bool bInitRunning);
-	virtual ~CWhorldUndoTest();
+	CPatchUndoTest(bool bInitRunning);
+	virtual ~CPatchUndoTest();
 
 protected:
 // Types

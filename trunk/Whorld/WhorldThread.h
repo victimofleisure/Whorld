@@ -114,7 +114,6 @@ protected:
 	virtual bool	OnThreadCreate();
 	virtual bool	OnDraw();
 	virtual void	OnRenderCommand(const CRenderCmd& cmd);
-	virtual void	Log(CString sMsg);
 	bool	PushCommand(const CRenderCmd& cmd);
 
 // Helpers

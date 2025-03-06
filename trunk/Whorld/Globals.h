@@ -11,7 +11,7 @@
 		01		20feb25	add bitmap capture message
 		02		22feb25	add snapshot capture message
 		03		26feb25	add device node change message
-		04		03mar25	add thread error message
+		04		03mar25	add render queue full message
 
 */
 
@@ -108,12 +108,6 @@ inline CWinApp *FastGetApp()
 
 // base ID for dynamic submenus, far above menu resource IDs and below MFC reserved IDs
 #define ID_APP_DYNAMIC_SUBMENU_BASE 0xc800
-
-// stream file that optionally supports UTF-8 character encoding
-class CStdioFileEx : public CStdioFile {
-public:
-	CStdioFileEx(LPCTSTR lpszFileName, UINT nOpenFlags, bool bUTF8 = true);
-};
 
 enum {	// application-wide user window messages, based on WP_APP
 	UWM_FIRST = WM_APP,

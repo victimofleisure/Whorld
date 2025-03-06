@@ -573,6 +573,8 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_APP_ERR_RENDERING_TOO_SLOW 
+                            "Rendering is slower than usual.\nReset to defaults?"
     IDS_APP_ERR_RENDER_QUEUE_FULL "Too many render commands."
     IDS_APP_LICENSE         "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA."
     IDS_APP_UNKNOWN_SYSTEM_ERROR "Unknown system error %d (0x%X)"
@@ -588,11 +590,11 @@ BEGIN
     IDS_CHAN_STAT_NOTE      "Note"
     IDS_CHAN_STAT_NOTE_OFF  "Note Off"
     IDS_CHAN_STAT_NOTE_ON   "Note On"
-    IDS_CHAN_STAT_PATCH     "Patch"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_CHAN_STAT_PATCH     "Patch"
     IDS_CHAN_STAT_TEMPO     "Tempo"
     IDS_CHAN_STAT_WHEEL     "Wheel"
     IDS_DOC_BAD_FORMAT      "Unexpected file format."
@@ -608,11 +610,11 @@ BEGIN
     IDS_EDIT_REDO_PREFIX    "&Redo"
     IDS_EDIT_SORT           "Sort"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
-    IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
 END
 
 STRINGTABLE
 BEGIN
+    IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
     IDS_MAIN_Hue            "Hue"
@@ -628,11 +630,11 @@ BEGIN
     IDS_MAPPING_COL_END     "End"
     IDS_MAPPING_COL_EVENT   "Event"
     IDS_MAPPING_COL_NUMBER  "#"
-    IDS_MAPPING_COL_PROPERTY "Property"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAPPING_COL_PROPERTY "Property"
     IDS_MAPPING_COL_START   "Start"
     IDS_MAPPING_COL_TARGET  "Target"
     IDS_MAP_TARGET_Clear    "Clear"
@@ -648,11 +650,11 @@ BEGIN
     IDS_MAP_TARGET_RandomPhase "Random Phase"
     IDS_MAP_TARGET_Reverse  "Reverse"
     IDS_MASTER_CanvasScale  "Canvas"
-    IDS_MASTER_Copies       "Copies"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueSpan      "Hue Span"
     IDS_MASTER_Rings        "Rings"
@@ -668,11 +670,11 @@ BEGIN
     IDS_MIDI_SYS_STAT_CLOCK "Clock"
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
     IDS_MIDI_SYS_STAT_EOX   "EOX"
-    IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
@@ -691,12 +693,12 @@ BEGIN
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
-    IDS_OPT_DESC_General_nMRUItems 
-                            "Maximum number of items in recently used lists"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_General_nMRUItems 
+                            "Maximum number of items in recently used lists"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
@@ -712,11 +714,11 @@ BEGIN
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
-    IDS_PARAM_BkSaturation  "Bk Saturation"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
@@ -732,11 +734,11 @@ BEGIN
     IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
     IDS_PARAM_SkewRadius    "Skew Radius"
-    IDS_PARAM_StarFactor    "Star Factor"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
@@ -752,11 +754,11 @@ BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
-    IDS_WAVE_RAMP_UP        "Ramp Up"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
@@ -765,8 +767,8 @@ BEGIN
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_APP_ERR_RENDERING_TOO_SLOW 
-                            "Rendering is slower than usual.\nReset to defaults?"
+    IDS_APP_ERR_CANT_CREATE_APP_DATA_FOLDER 
+                            "Can't create application data folder."
 END
 
 STRINGTABLE

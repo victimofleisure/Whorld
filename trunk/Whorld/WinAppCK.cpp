@@ -25,6 +25,7 @@
 		15		16feb25	add restart app method
 		16		19feb25	add goto URL
 		17		28feb25	add methods to set size of recent file list
+		18		06mar25	replace deprecated special folder method
 
         enhanced application
  
@@ -45,61 +46,74 @@
 BEGIN_MESSAGE_MAP(CWinAppCK, CWinApp)
 END_MESSAGE_MAP()
 
-bool CWinAppCK::GetTempPath(CString& Path)
+bool CWinAppCK::GetTempPath(CString& sFolder)
 {
-	LPTSTR	pBuf = Path.GetBuffer(MAX_PATH);
+	LPTSTR	pBuf = sFolder.GetBuffer(MAX_PATH);
 	DWORD	retc = ::GetTempPath(MAX_PATH, pBuf);
-	Path.ReleaseBuffer();
+	sFolder.ReleaseBuffer();
 	return retc != 0;
 }
 
-bool CWinAppCK::GetTempFileName(CString& Path, LPCTSTR Prefix, UINT Unique)
+bool CWinAppCK::GetTempFileName(CString& sPath, LPCTSTR pszPrefix, UINT nUnique)
 {
-	CString	TempPath;
-	if (!GetTempPath(TempPath))
+	CString	sTempPath;
+	if (!GetTempPath(sTempPath))
 		return FALSE;
-	if (Prefix == NULL)
-		Prefix = m_pszAppName;
-	LPTSTR	pBuf = Path.GetBuffer(MAX_PATH);
-	DWORD	retc = ::GetTempFileName(TempPath, Prefix, Unique, pBuf);
-	Path.ReleaseBuffer();
+	if (pszPrefix == NULL)
+		pszPrefix = m_pszAppName;
+	LPTSTR	pBuf = sPath.GetBuffer(MAX_PATH);
+	DWORD	retc = ::GetTempFileName(sTempPath, pszPrefix, nUnique, pBuf);
+	sPath.ReleaseBuffer();
 	return retc != 0;
 }
 
-void CWinAppCK::GetCurrentDirectory(CString& Path)
+void CWinAppCK::GetCurrentDirectory(CString& sFolder)
 {
-	LPTSTR	pBuf = Path.GetBuffer(MAX_PATH);
+	LPTSTR	pBuf = sFolder.GetBuffer(MAX_PATH);
 	::GetCurrentDirectory(MAX_PATH, pBuf);
-	Path.ReleaseBuffer();
+	sFolder.ReleaseBuffer();
 }
 
-bool CWinAppCK::GetSpecialFolderPath(int FolderID, CString& Path)
+bool CWinAppCK::GetSpecialFolderPath(REFKNOWNFOLDERID idKnownFolder, CString& sFolder)
 {
-	LPTSTR	p = Path.GetBuffer(MAX_PATH);
-	bool	retc = SUCCEEDED(SHGetSpecialFolderPath(NULL, p, FolderID, 0));
-	Path.ReleaseBuffer();
-	return retc;
+	CComHeapPtr<WCHAR> spPath;	// will call CoTaskMemFree automatically
+	HRESULT hr = SHGetKnownFolderPath(idKnownFolder, 0, NULL, &spPath);
+	if (FAILED(hr) || spPath == NULL) {	// if failure
+		return false;
+	}
+    sFolder = spPath;	// construct a CString from the wide-char buffer
+    return true;
 }
 
-bool CWinAppCK::GetAppDataFolder(CString& Folder) const
+bool CWinAppCK::GetAppDataFolder(CString& sFolder) const
 {
-	CPathStr	path;
-	if (!GetSpecialFolderPath(CSIDL_APPDATA, path))
+	CPathStr	sPath;
+	if (!GetSpecialFolderPath(FOLDERID_RoamingAppData, sPath))
 		return FALSE;
-	path.Append(m_pszAppName);
-	Folder = path;
+	sPath.Append(m_pszAppName);
+	sFolder = sPath;
+	return TRUE;
+}
+
+bool CWinAppCK::GetLocalAppDataFolder(CString& sFolder) const
+{
+	CPathStr	sPath;
+	if (!GetSpecialFolderPath(FOLDERID_LocalAppData, sPath))
+		return FALSE;
+	sPath.Append(m_pszAppName);
+	sFolder = sPath;
 	return TRUE;
 }
 
 CString CWinAppCK::GetAppPath()
 {
-	CString	s = GetCommandLine();
-	s.TrimLeft();	// trim leading whitespace just in case
-	if (s[0] == '"')	// if first char is a quote
-		s = s.Mid(1).SpanExcluding(_T("\""));	// span to next quote
+	CString	sCL(GetCommandLine());
+	sCL.TrimLeft();	// trim leading whitespace just in case
+	if (sCL[0] == '"')	// if first char is a quote
+		sCL = sCL.Mid(1).SpanExcluding(_T("\""));	// span to next quote
 	else
-		s = s.SpanExcluding(_T(" \t"));	// span to next whitespace
-	return s;
+		sCL = sCL.SpanExcluding(_T(" \t"));	// span to next whitespace
+	return sCL;
 }
 
 CString CWinAppCK::GetAppFolder()
@@ -109,9 +123,9 @@ CString CWinAppCK::GetAppFolder()
 	return path;
 }
 
-bool CWinAppCK::GetJobLogFolder(CString& Folder) const
+bool CWinAppCK::GetJobLogFolder(CString& sFolder) const
 {
-	UNREFERENCED_PARAMETER(Folder);
+	UNREFERENCED_PARAMETER(sFolder);
 	return false;
 }
 
@@ -137,9 +151,9 @@ CString CWinAppCK::GetVersionString()
 }
 
 #if _MFC_VER >= 0x0700	// this method is a problem in VC6
-bool CWinAppCK::CreateFolder(LPCTSTR Path)
+bool CWinAppCK::CreateFolder(LPCTSTR pszPath)
 {
-	int	retc = SHCreateDirectoryEx(NULL, Path, NULL);	// create folder
+	int	retc = SHCreateDirectoryEx(NULL, pszPath, NULL);	// create folder
 	switch (retc) {
 	case ERROR_SUCCESS:
 	case ERROR_FILE_EXISTS:
@@ -152,17 +166,17 @@ bool CWinAppCK::CreateFolder(LPCTSTR Path)
 }
 #endif
 
-bool CWinAppCK::DeleteFolder(LPCTSTR Path, FILEOP_FLAGS nFlags)
+bool CWinAppCK::DeleteFolder(LPCTSTR pszPath, FILEOP_FLAGS nFlags)
 {
-	SHFILEOPSTRUCT fop = {NULL, FO_DELETE, Path, _T(""), nFlags};
+	SHFILEOPSTRUCT fop = {NULL, FO_DELETE, pszPath, _T(""), nFlags};
 	return !SHFileOperation(&fop);
 }
 
-CString CWinAppCK::GetTitleFromPath(LPCTSTR Path)
+CString CWinAppCK::GetTitleFromPath(LPCTSTR pszPath)
 {
-	CPathStr	s(PathFindFileName(Path));
-	s.RemoveExtension();
-	return s;
+	CPathStr	sTitle(PathFindFileName(pszPath));
+	sTitle.RemoveExtension();
+	return sTitle;
 }
 
 bool CWinAppCK::GetLogicalDriveStringArray(CStringArrayEx& arrDrive)
@@ -224,9 +238,9 @@ bool CWinAppCK::RestartApp()
 	return true;
 }
 
-bool CWinAppCK::GotoUrl(LPCTSTR Url)
+bool CWinAppCK::GotoUrl(LPCTSTR pszUrl)
 {
-	INT_PTR	retc = (INT_PTR)ShellExecute(NULL, NULL, Url, NULL, NULL, SW_SHOWNORMAL);
+	INT_PTR	retc = (INT_PTR)ShellExecute(NULL, NULL, pszUrl, NULL, NULL, SW_SHOWNORMAL);
 	return retc > HINSTANCE_ERROR;
 }
 

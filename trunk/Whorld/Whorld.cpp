@@ -12,6 +12,7 @@
 		02		26feb25	add MIDI input
 		03		28feb25	add playlist
 		04		03mar25	if command queue is full, worker thread now retries
+		05		06mar25	add error logging
 
 */
 
@@ -34,6 +35,8 @@
 #include "afxregpath.h"
 #include "AppRegKey.h"
 #include "OptionsDlg.h"
+#include "PathStr.h"
+#include "StdioFileEx.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -213,7 +216,7 @@ void CWhorldApp::OnError(CString sErrorMsg, LPCSTR pszSrcFileName, int nLineNum,
 	CString sContext;
 	sContext.Format(_T("%s line %d (%s)"), sSrcFileName.GetString(), nLineNum, sSrcFileDate.GetString());
 	sErrorMsg += sContext;
-	Log(sErrorMsg);
+	WriteLogEntry(sErrorMsg);
 	AfxMessageBox(sErrorMsg);
 }
 
@@ -310,17 +313,45 @@ void CWhorldApp::ApplyOptions(const COptions *pPrevOptions)
 	}
 }
 
-void CWhorldApp::Log(CString sMsg)
+bool CWhorldApp::WriteLogEntry(CString sLogEntry)
 {
-#if _DEBUG
-	SYSTEMTIME	sysTime;
-	GetSystemTime(&sysTime);
-	CString	sTime;
-	sTime.Format(_T("%02d:%02d:%02d.%03d"), sysTime.wHour, sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
-	sMsg.Replace('\n', ' ');	// remove internal newlines
-	sMsg += '\n';	// append trailing newline
-	_fputts(sTime + ' ' + sMsg, stdout);
-#endif
+	// This method is callable by worker threads, and access to the log file
+	// is therefore serialized via a critical section. The caller may not be
+	// expecting MFC exceptions, but both CString and CStdioFile throw them,
+	// so the entire method is wrapped in an MFC-style TRY block.
+	TRY {
+		// the intended path is %USERPROFILE%\AppData\Local\AppName\AppName.log
+		CString	sLogFolder;
+		GetLocalAppDataFolder(sLogFolder);
+		if (!CreateFolder(sLogFolder)) {	// if unable to create folder
+			AfxMessageBox(IDS_APP_ERR_CANT_CREATE_APP_DATA_FOLDER);
+			return false;	// failure
+		}
+		CPathStr	sLogPath(sLogFolder);	// start with the log folder
+		sLogPath.Append(m_pszAppName);	// append the application name
+		sLogPath += _T(".log");	// append the log file extension
+		SYSTEMTIME	sysTime;
+		GetSystemTime(&sysTime);
+		CString	sTimestamp;
+		sTimestamp.Format(_T("%04d-%02d-%02d %02d:%02d:%02d.%03d"),	// ISO 8601
+			sysTime.wYear, sysTime.wMonth, sysTime.wDay,
+			sysTime.wHour, sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
+		sLogEntry.Replace('\n', ' ');	// replace any internal newlines with spaces
+		sLogEntry.Remove('\r');	// remove all internal carriage returns
+		sLogEntry += '\n';	// append a single trailing newline
+		// Enter the critical section as late as possible; we'll exit
+		// it automatically when the lock instance goes out of scope.
+		WCritSec::Lock	lock(m_csErrorLog);	// serialize access to the log file
+		CStdioLogFile	fLog(sLogPath);	// open UTF-8, append, text, commit
+		fLog.WriteString(sTimestamp + ' ' + sLogEntry);	// write the log entry
+		fLog.Flush();	// force any buffered data to be written to the file
+	}
+	CATCH (CFileException, e) {
+		e->ReportError();	// report the exception
+		return false;	// failure
+	}
+	END_CATCH
+	return true;	// success
 }
 
 bool CWhorldApp::CreateRenderWnd(DWORD dwStyle, CRect& rWnd, CWnd *pParentWnd)

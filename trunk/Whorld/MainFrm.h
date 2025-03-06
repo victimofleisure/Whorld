@@ -15,7 +15,7 @@
 		05		26feb25	add MIDI input
 		06		27feb25	add pre-snapshot mode patch member
 		07		02mar25	add globals pane
-		08		03mar25	add thread error message handler
+		08		03mar25	add render queue full handler
 
 */
 

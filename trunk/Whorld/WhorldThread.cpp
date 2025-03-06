@@ -107,21 +107,17 @@ void CWhorldThread::HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum,
 {
 	CString	sSrcFileName(pszSrcFileName);	// convert to Unicode
 	CString	sSrcFileDate(pszSrcFileDate);
-	CString	sMsg;
-	sMsg.Format(_T("COM error 0x%x in %s line %d (%s)"), hr, sSrcFileName.GetString(), nLineNum, sSrcFileDate.GetString());
-	sMsg += '\n' + FormatSystemError(hr);
-	theApp.Log(sMsg);
-	AfxMessageBox(sMsg);
+	CString	sErrorMsg;
+	sErrorMsg.Format(_T("COM error 0x%x in %s line %d (%s)"), hr, 
+		sSrcFileName.GetString(), nLineNum, sSrcFileDate.GetString());
+	sErrorMsg += '\n' + FormatSystemError(hr);
+	theApp.WriteLogEntry(sErrorMsg);
+	AfxMessageBox(sErrorMsg);
 }
 
 void CWhorldThread::OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
 {
 	HandleError(hr, pszSrcFileName, nLineNum, pszSrcFileDate);	// static method
-}
-
-void CWhorldThread::Log(CString sMsg)
-{
-	theApp.Log(sMsg);
 }
 
 // Drawing

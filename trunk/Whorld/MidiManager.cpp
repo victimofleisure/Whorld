@@ -42,12 +42,13 @@ void CMidiManager::OnMidiError(MMRESULT nResult)
 {
 	if (!m_bInMsgBox) {	// if not already displaying message box
 		CSaveObj<bool>	save(m_bInMsgBox, true);	// save and set reentry guard
-		CString	sError;
+		CString	sErrorMsg;
 		int	nIDHelp;
-		sError.Format(LDS(IDS_SEQ_MIDI_ERROR), nResult);
-		sError += '\n' + CMidiOut::GetErrorString(nResult);
+		sErrorMsg.Format(IDS_SEQ_MIDI_ERROR, nResult);
+		sErrorMsg += '\n' + CMidiOut::GetErrorString(nResult);
+		theApp.WriteLogEntry(sErrorMsg);
 		nIDHelp = -1;
-		AfxMessageBox(sError, MB_OK, nIDHelp);
+		AfxMessageBox(sErrorMsg, MB_OK, nIDHelp);
 	}
 }
 

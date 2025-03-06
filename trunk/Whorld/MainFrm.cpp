@@ -16,7 +16,7 @@
 		06		26feb25	add MIDI input
 		07		27feb25	restore patch on exiting snapshot mode
 		08		02mar25	add globals pane
-		09		03mar25	add thread error message handler
+		09		03mar25	add render queue full handler
 
 */
 

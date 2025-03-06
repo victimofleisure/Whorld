@@ -30,6 +30,7 @@
 		20		16feb25	add restart app method
 		21		19feb25	add goto URL
 		22		28feb25	add methods to set size of recent file list
+		23		06mar25	replace deprecated special folder method
 
         enhanced application
  
@@ -46,12 +47,13 @@ class CWinAppCK : public CWinAppEx
 {
 public:
 // Attributes
-	bool	GetTempPath(CString& Path);
-	bool	GetTempFileName(CString& Path, LPCTSTR Prefix = NULL, UINT Unique = 0);
-	static	void	GetCurrentDirectory(CString& Path);
-	static	bool	GetSpecialFolderPath(int FolderID, CString& Folder);
-	bool	GetAppDataFolder(CString& Folder) const;
-	bool	GetJobLogFolder(CString& Folder) const;
+	bool	GetTempPath(CString& sFolder);
+	bool	GetTempFileName(CString& sPath, LPCTSTR pszPrefix = NULL, UINT nUnique = 0);
+	static	void	GetCurrentDirectory(CString& sFolder);
+	static	bool	GetSpecialFolderPath(REFKNOWNFOLDERID idKnownFolder, CString& sFolder);
+	bool	GetAppDataFolder(CString& sFolder) const;
+	bool	GetLocalAppDataFolder(CString& sFolder) const;
+	bool	GetJobLogFolder(CString& sFolder) const;
 	static	CString GetAppPath();
 	static	CString GetAppFolder();
 	static	CString GetVersionString();
@@ -59,15 +61,15 @@ public:
 	static	void	SetRecentFileListSize(CRecentFileList& list, int nSize);
 
 // Operations
-	static	bool	CreateFolder(LPCTSTR Path);
-	static	bool	DeleteFolder(LPCTSTR Path, FILEOP_FLAGS nFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT);
-	static	CString	GetTitleFromPath(LPCTSTR Path);
+	static	bool	CreateFolder(LPCTSTR pszPath);
+	static	bool	DeleteFolder(LPCTSTR pszPath, FILEOP_FLAGS nFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT);
+	static	CString	GetTitleFromPath(LPCTSTR pszPath);
 	static	bool	GetLogicalDriveStringArray(CStringArrayEx& arrDrive);
 	static	int		FindMenuItem(const CMenu *pMenu, UINT nItemID);
 	static	bool	InsertNumericMenuItems(CMenu *pMenu, UINT nPlaceholderID, UINT nStartID, int nStartVal, int nItems, bool bInsertAfter = false);
 	template<class T> static int CountSetBits(T nVal);
 	bool	RestartApp();
-	static bool	GotoUrl(LPCTSTR Url);
+	static bool	GotoUrl(LPCTSTR pszUrl);
 
 // Overrides
 

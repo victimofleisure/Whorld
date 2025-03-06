@@ -227,25 +227,6 @@ int StringReplaceNoCase(CString& str, LPCTSTR pszOld, LPCTSTR pszNew)
 	return nSubs;	// return number of substitutions
 }
 
-CStdioFileEx::CStdioFileEx(LPCTSTR lpszFileName, UINT nOpenFlags, bool bUTF8)
-{
-	if (bUTF8) {	// if UTF-8 character encoding is enabled
-		static const LPCTSTR arrModeStr[] = {
-			_T("rt,ccs=UTF-8"),	// read text mode
-			_T("wt,ccs=UTF-8"),	// write text mode
-		};
-		FILE	*fStream;
-		errno_t	nErr =_tfopen_s(&fStream, lpszFileName, arrModeStr[(nOpenFlags & modeWrite) != 0]);
-		if (nErr != 0) {	// if open error
-			AfxThrowFileException(CFileException::OsErrorToException(nErr), nErr, lpszFileName);
-		}
-		CommonBaseInit(fStream, NULL);
-		m_bCloseOnDelete = true;
-	} else {	// default behavior
-		CommonInit(lpszFileName, nOpenFlags, NULL);
-	}
-}
-
 bool ShowListColumnHeaderMenu(CWnd *pWnd, CListCtrl& list, CPoint point)
 {
 	if (point.x == -1 && point.y == -1)	// if menu triggered via keyboard

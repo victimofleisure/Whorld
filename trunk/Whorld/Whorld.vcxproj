@@ -239,6 +239,7 @@
     <ClInclude Include="RegTemplTypes.h" />
     <ClInclude Include="Snapshot.h" />
     <ClInclude Include="SnapshotV1.h" />
+    <ClInclude Include="StdioFileEx.h" />
     <ClInclude Include="StringTpl.h" />
     <ClInclude Include="VariantHelper.h" />
     <ClInclude Include="PatchUndoTest.h" />
@@ -348,6 +349,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StdioFileEx.cpp" />
     <ClCompile Include="Undoable.cpp" />
     <ClCompile Include="UndoManager.cpp" />
     <ClCompile Include="UndoState.cpp" />

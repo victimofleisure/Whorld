@@ -68,7 +68,7 @@ public:
 
 // Operations
 	void	ApplyOptions(const COptions *pPrevOptions);
-	void	Log(CString sMsg);
+	bool	WriteLogEntry(CString sLogEntry);
 	bool	SetDetached(bool bEnable);
 	bool	SetFullScreen(bool bEnable);
 	bool	SetSingleMonitorExclusive(bool bEnable);
@@ -97,6 +97,7 @@ public:
 	COptions	m_options;			// options data
 	CMidiManager	m_midiMgr;		// MIDI manager
 	CAutoPtr<CPlaylist>	m_pPlaylist;	// pointer to playlist
+	WCritSec	m_csErrorLog;		// critical section for error log file
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();

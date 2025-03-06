@@ -43,7 +43,7 @@ COptions::COptions()
 
 void COptions::SetDefaultExportImageFolder()
 {
-	theApp.GetSpecialFolderPath(CSIDL_MYPICTURES, m_Export_sImageFolder);
+	theApp.GetSpecialFolderPath(FOLDERID_Pictures, m_Export_sImageFolder);
 }
 
 int COptions::GetGroupCount() const

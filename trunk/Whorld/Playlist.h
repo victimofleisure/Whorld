@@ -32,6 +32,10 @@ public:
 // Construction
 	CPlaylist();
 
+// Constants
+	static const LPCTSTR m_pszPlaylistExt;
+	static const LPCTSTR m_pszPlaylistFilter;
+
 // Attributes
 
 // Operations
@@ -42,13 +46,6 @@ public:
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 
 protected:
-// Constants
-	enum {
-		MRU_ENTRIES = 4,
-	};
-	static const LPCTSTR m_pszPlaylistExt;
-	static const LPCTSTR m_pszPlaylistFilter;
-
 // Data members
 	int		m_nFileVersion;		// file version number obtained from document
 	bool	ValidateFileType(CIniFile& fIn, LPCTSTR lpszPathName);

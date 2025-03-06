@@ -522,14 +522,14 @@ bool CRowView::FixContextMenuPos(CPoint& point) const
 		CRect	rWnd;
 		CWnd	*pWnd = GetFocus();
 		int	nRows = GetRows();
-		int	i;
-		for (i = 0; i < nRows; i++) {
-			if (GetRow(i)->IsChild(pWnd)) {	// if one of our children has focus
+		int	iRow;
+		for (iRow = 0; iRow < nRows; iRow++) {
+			if (GetRow(iRow)->IsChild(pWnd)) {	// if one of our children has focus
 				pWnd->GetWindowRect(rWnd);	// position menu over child window
 				break;
 			}
 		}
-		if (i >= nRows)	// if focused window wasn't one of our children
+		if (iRow >= nRows)	// if focused window wasn't one of our children
 			GetWindowRect(rWnd);	// position menu in top left corner of view
 		point = rWnd.TopLeft() + CSize(10, 10);	// offset looks nicer
 		return true;

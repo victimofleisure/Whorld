@@ -17,6 +17,7 @@
 		07		27feb25	restore patch on exiting snapshot mode
 		08		02mar25	add globals pane
 		09		03mar25	add render queue full handler
+		10		06mar25	implement drop files for all supported file types
 
 */
 
@@ -484,50 +485,50 @@ void CMainFrame::Dump(CDumpContext& dc) const
 // CMainFrame message map
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
+	ON_WM_TIMER()
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, OnToolbarCreateNew)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_FIRST, ID_VIEW_APPLOOK_LAST, OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_FIRST, ID_VIEW_APPLOOK_LAST, OnUpdateApplicationLook)
 	ON_WM_CLOSE()
-	ON_COMMAND(ID_WINDOW_FULLSCREEN, OnWindowFullscreen)
-	ON_UPDATE_COMMAND_UI(ID_WINDOW_FULLSCREEN, OnUpdateWindowFullscreen)
-	ON_COMMAND(ID_WINDOW_DETACH, OnWindowDetach)
-	ON_UPDATE_COMMAND_UI(ID_WINDOW_DETACH, OnUpdateWindowDetach)
+	ON_WM_DROPFILES()
+	ON_WM_DEVICECHANGE()
 	ON_MESSAGE(UWM_DELAYED_CREATE, OnDelayedCreate)
-	ON_WM_SYSCOMMAND()
+	ON_MESSAGE(UWM_HANDLE_DLG_KEY, OnHandleDlgKey)
 	ON_MESSAGE(UWM_RENDER_WND_CLOSED, OnRenderWndClosed)
 	ON_MESSAGE(UWM_FULL_SCREEN_CHANGED, OnFullScreenChanged)
-	ON_MESSAGE(UWM_HANDLE_DLG_KEY, OnHandleDlgKey)
-	ON_WM_TIMER()
 	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
 	ON_MESSAGE(UWM_DEVICE_NODE_CHANGE, OnDeviceNodeChange)
-	ON_WM_DEVICECHANGE()
-	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_MESSAGE(UWM_BITMAP_CAPTURE, OnBitmapCapture)
 	ON_MESSAGE(UWM_SNAPSHOT_CAPTURE, OnSnapshotCapture)
 	ON_MESSAGE(UWM_PARAM_CHANGE, OnParamChange)
 	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
 	ON_MESSAGE(UWM_MAIN_PROP_CHANGE, OnMainPropChange)
 	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
+	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
+	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
+	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
+	ON_COMMAND(ID_PLAYLIST_NEW, OnPlaylistNew)
+	ON_COMMAND(ID_PLAYLIST_OPEN, OnPlaylistOpen)
+	ON_COMMAND(ID_PLAYLIST_SAVE, OnPlaylistSave)
+	ON_COMMAND(ID_PLAYLIST_SAVE_AS, OnPlaylistSaveAs)
+	ON_COMMAND_RANGE(ID_PLAYLIST_MRU_FILE1, ID_PLAYLIST_MRU_FILE4, OnPlaylistMru)
+	ON_UPDATE_COMMAND_UI(ID_PLAYLIST_MRU_FILE1, OnUpdatePlaylistMru)
+	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, OnImageRandomPhase)
 	ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
+	ON_COMMAND(ID_VIEW_MIDI_LEARN, OnViewMidiLearn)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_MIDI_LEARN, OnUpdateViewMidiLearn)
+	ON_COMMAND(ID_WINDOW_FULLSCREEN, OnWindowFullscreen)
+	ON_UPDATE_COMMAND_UI(ID_WINDOW_FULLSCREEN, OnUpdateWindowFullscreen)
+	ON_COMMAND(ID_WINDOW_DETACH, OnWindowDetach)
+	ON_UPDATE_COMMAND_UI(ID_WINDOW_DETACH, OnUpdateWindowDetach)
 	ON_COMMAND(ID_WINDOW_PAUSE, OnWindowPause)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_PAUSE, OnUpdateWindowPause)
 	ON_COMMAND(ID_WINDOW_STEP, OnWindowStep)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_STEP, OnUpdateWindowStep)
 	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
-	ON_COMMAND(ID_IMAGE_RANDOM_PHASE, OnImageRandomPhase)
-	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
-	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
-	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
-	ON_COMMAND(ID_PLAYLIST_OPEN, OnPlaylistOpen)
-	ON_COMMAND(ID_PLAYLIST_SAVE, OnPlaylistSave)
-	ON_COMMAND(ID_PLAYLIST_SAVE_AS, OnPlaylistSaveAs)
-	ON_COMMAND(ID_PLAYLIST_NEW, OnPlaylistNew)
-	ON_COMMAND_RANGE(ID_PLAYLIST_MRU_FILE1, ID_PLAYLIST_MRU_FILE4, OnPlaylistMru)
-	ON_UPDATE_COMMAND_UI(ID_PLAYLIST_MRU_FILE1, OnUpdatePlaylistMru)
-	ON_COMMAND(ID_VIEW_MIDI_LEARN, OnViewMidiLearn)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_MIDI_LEARN, OnUpdateViewMidiLearn)
+	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	// dock bar handlers confuse code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
@@ -649,6 +650,82 @@ void CMainFrame::OnClose()
 	CFrameWndEx::OnClose();
 }
 
+void CMainFrame::OnDropFiles(HDROP hDropInfo) 
+{
+	// if the index parameter is 0xFFFFFFFF, DragQueryFile returns a count
+	// of the files dropped
+	UINT	nFiles = DragQueryFile(hDropInfo, 0xFFFFFFFF, NULL, 0);
+	CString	sPatchPath;
+	CString	sPlaylistPath;
+	CStringArrayEx	arrSnapshotPath;	// can load multiple snapshots at once
+	for (UINT iFile = 0; iFile < nFiles; iFile++) {	// for each dropped file
+		UINT	nPathLen = DragQueryFile(hDropInfo, iFile, NULL, 0);
+		if (nPathLen > 0) {	// if valid path length
+			// if the buffer parameter is NULL, DragQueryFile returns the
+			// required size of the buffer in characters, not including
+			// the terminating null character (hence the plus one below)
+			CString	sPath;
+			LPTSTR	pszPath = sPath.GetBuffer(nPathLen + 1);	// one extra for terminator
+			DragQueryFile(hDropInfo, iFile, pszPath, MAX_PATH);
+			sPath.ReleaseBuffer(nPathLen + 1);
+			CString	sExt = PathFindExtension(sPath) + 1;	// skip dot 
+			// if dropped file has the snapshot extension
+			if (!_tcsicmp(sExt, m_pszSnapshotExt)) {
+				arrSnapshotPath.Add(sPath);	// add to list of snapshots
+			} else {	// not a snapshot
+				// if dropped file has the playlist extension
+				if (!_tcsicmp(sExt, CPlaylist::m_pszPlaylistExt)) {
+					sPlaylistPath = sPath;	// store playlist path
+				} else {	// not a playlist
+					// assume dropped file is a patch
+					sPatchPath = sPath;	// store patch path
+				}
+			}
+		}
+	}
+	if (!sPatchPath.IsEmpty()) {	// if patch was dropped
+		theApp.OpenDocumentFile(sPatchPath);	// open patch
+	}
+	if (!sPlaylistPath.IsEmpty()) {	// if playlist was dropped
+		theApp.m_pPlaylist->Open(sPlaylistPath);	// open playlist			
+	}
+	if (!arrSnapshotPath.IsEmpty()) {	// if snapshots were dropped
+		theApp.LoadSnapshot(arrSnapshotPath[0]);	// only first one for now
+	}
+}
+
+BOOL CMainFrame::OnDeviceChange(UINT nEventType, W64ULONG dwData)
+{
+//	_tprintf(_T("OnDeviceChange %x %x\n"), nEventType, dwData);
+	BOOL	retc = CFrameWnd::OnDeviceChange(nEventType, dwData);
+	if (nEventType == DBT_DEVNODES_CHANGED) {
+		// use post so device change completes before our handler runs
+		PostMessage(UWM_DEVICE_NODE_CHANGE);
+	}
+	return retc;	// true to allow device change
+}
+
+void CMainFrame::OnTimer(UINT_PTR nIDEvent)
+{
+	switch (nIDEvent) {
+	case FRAME_RATE_TIMER_ID:
+		{
+			int	nPrevLen = m_sRingCount.GetLength();
+			m_sRingCount.Format(_T("%lld"), theApp.m_thrRender.GetRingCount());
+			FastSetPaneText(m_wndStatusBar, SBP_RING_COUNT, m_sRingCount, nPrevLen);
+			double	fElapsedSecs = m_benchFrameRate.Reset();
+			UINT_PTR	nFrameCount = theApp.m_thrRender.GetFrameCount();
+			double	fFrameRate = (nFrameCount - m_nPrevFrameCount) * (1 / fElapsedSecs);
+			m_nPrevFrameCount = nFrameCount;	// update previous frame count
+			nPrevLen = m_sFrameRate.GetLength();
+			m_sFrameRate.Format(_T("%.02f"), fFrameRate);
+			FastSetPaneText(m_wndStatusBar, SBP_FRAME_RATE, m_sFrameRate, nPrevLen);
+		}
+		return;	// don't relay timer message to base class
+	}
+	CFrameWndEx::OnTimer(nIDEvent);
+}
+
 LRESULT CMainFrame::OnDelayedCreate(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
@@ -700,67 +777,6 @@ LRESULT	CMainFrame::OnDeviceNodeChange(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-BOOL CMainFrame::OnDeviceChange(UINT nEventType, W64ULONG dwData)
-{
-//	_tprintf(_T("OnDeviceChange %x %x\n"), nEventType, dwData);
-	BOOL	retc = CFrameWnd::OnDeviceChange(nEventType, dwData);
-	if (nEventType == DBT_DEVNODES_CHANGED) {
-		// use post so device change completes before our handler runs
-		PostMessage(UWM_DEVICE_NODE_CHANGE);
-	}
-	return retc;	// true to allow device change
-}
-
-void CMainFrame::OnTimer(UINT_PTR nIDEvent)
-{
-	switch (nIDEvent) {
-	case FRAME_RATE_TIMER_ID:
-		{
-			int	nPrevLen = m_sRingCount.GetLength();
-			m_sRingCount.Format(_T("%lld"), theApp.m_thrRender.GetRingCount());
-			FastSetPaneText(m_wndStatusBar, SBP_RING_COUNT, m_sRingCount, nPrevLen);
-			double	fElapsedSecs = m_benchFrameRate.Reset();
-			UINT_PTR	nFrameCount = theApp.m_thrRender.GetFrameCount();
-			double	fFrameRate = (nFrameCount - m_nPrevFrameCount) * (1 / fElapsedSecs);
-			m_nPrevFrameCount = nFrameCount;	// update previous frame count
-			nPrevLen = m_sFrameRate.GetLength();
-			m_sFrameRate.Format(_T("%.02f"), fFrameRate);
-			FastSetPaneText(m_wndStatusBar, SBP_FRAME_RATE, m_sFrameRate, nPrevLen);
-		}
-		return;	// don't relay timer message to base class
-	}
-	CFrameWndEx::OnTimer(nIDEvent);
-}
-
-void CMainFrame::OnFileExport()
-{
-	CString	sExportPath;
-	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
-	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
-		// prompt user for export path
-		CFileDialog	fd(false, m_pszExportExt, NULL, OFN_OVERWRITEPROMPT, m_pszExportFilter);
-		if (fd.DoModal() != IDOK) {	// display file dialog
-			return;	// user canceled
-		}
-		sExportPath = fd.GetPathName();
-		// prompt user for export options
-		CExportDlg	dlg;
-		if (dlg.DoModal() != IDOK) {	// display export options dialog
-			return;	// user canceled
-		}
-	}
-	// render thread captures bitmap and posts it to our main window for writing;
-	// enqueue command ASAP in case we're unpaused, in which case sooner is better
-	theApp.m_thrRender.CaptureBitmap(theApp.m_options.GetExportFlags(), 
-		theApp.m_options.GetExportImageSize());
-	if (sExportPath.IsEmpty()) {	// if export path is unspecified
-		if (!MakeExportPath(sExportPath, m_pszExportExt))	// generate path
-			return;	// unable to generate path
-	}
-	m_saOutputPath.Add(sExportPath);
-	// bitmap capture message may already be waiting for us in message queue
-}
-
 LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 {
 	// Assume this message was posted by the render thread in response to a
@@ -775,19 +791,6 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 		}
 	}
 	return 0;
-}
-
-void CMainFrame::OnFileTakeSnapshot()
-{
-	theApp.m_thrRender.CaptureSnapshot();
-}
-
-void CMainFrame::OnFileLoadSnapshot()
-{
-	CFileDialog	fd(true, m_pszSnapshotExt, NULL, OFN_HIDEREADONLY, m_pszSnapshotFilter);
-	if (fd.DoModal() == IDOK) {	// display file dialog
-		VERIFY(theApp.LoadSnapshot(fd.GetPathName()));
-	}
 }
 
 LRESULT	CMainFrame::OnSnapshotCapture(WPARAM wParam, LPARAM lParam)
@@ -889,6 +892,48 @@ LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 	theApp.m_thrRender.SetEmpty();	// removes all rings from the drawing
 	// successful recovery
 	return 0;
+}
+
+void CMainFrame::OnFileExport()
+{
+	CString	sExportPath;
+	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
+	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+		// prompt user for export path
+		CFileDialog	fd(false, m_pszExportExt, NULL, OFN_OVERWRITEPROMPT, m_pszExportFilter);
+		if (fd.DoModal() != IDOK) {	// display file dialog
+			return;	// user canceled
+		}
+		sExportPath = fd.GetPathName();
+		// prompt user for export options
+		CExportDlg	dlg;
+		if (dlg.DoModal() != IDOK) {	// display export options dialog
+			return;	// user canceled
+		}
+	}
+	// render thread captures bitmap and posts it to our main window for writing;
+	// enqueue command ASAP in case we're unpaused, in which case sooner is better
+	theApp.m_thrRender.CaptureBitmap(theApp.m_options.GetExportFlags(), 
+		theApp.m_options.GetExportImageSize());
+	if (sExportPath.IsEmpty()) {	// if export path is unspecified
+		if (!MakeExportPath(sExportPath, m_pszExportExt))	// generate path
+			return;	// unable to generate path
+	}
+	m_saOutputPath.Add(sExportPath);
+	// bitmap capture message may already be waiting for us in message queue
+}
+
+void CMainFrame::OnFileTakeSnapshot()
+{
+	theApp.m_thrRender.CaptureSnapshot();
+}
+
+void CMainFrame::OnFileLoadSnapshot()
+{
+	CFileDialog	fd(true, m_pszSnapshotExt, NULL, OFN_HIDEREADONLY, m_pszSnapshotFilter);
+	if (fd.DoModal() == IDOK) {	// display file dialog
+		VERIFY(theApp.LoadSnapshot(fd.GetPathName()));
+	}
 }
 
 void CMainFrame::OnPlaylistNew()

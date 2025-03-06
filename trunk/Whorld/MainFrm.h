@@ -124,53 +124,54 @@ public:
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
-	#define MAINDOCKBARDEF(name, width, height, style) \
-		afx_msg void OnViewBar##name(); \
-		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);
-	#include "MainDockBarDef.h"	// generate docking bar message handlers
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCustomize();
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	afx_msg void OnClose();
-	afx_msg void OnWindowFullscreen();
-	afx_msg void OnUpdateWindowFullscreen(CCmdUI* pCmdUI);
-	afx_msg void OnWindowDetach();
-	afx_msg void OnUpdateWindowDetach(CCmdUI* pCmdUI);
+	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg BOOL OnDeviceChange(UINT nEventType, W64ULONG dwData);
 	afx_msg LRESULT OnDelayedCreate(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnHandleDlgKey(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnRenderWndClosed(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnFullScreenChanged(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT	OnHandleDlgKey(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg LRESULT	OnDisplayChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnDeviceNodeChange(WPARAM wParam, LPARAM lParam);
-	afx_msg BOOL OnDeviceChange(UINT nEventType, W64ULONG dwData);
-	afx_msg void OnWindowResetLayout();
 	afx_msg LRESULT	OnBitmapCapture(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnSnapshotCapture(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnParamChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMainPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnFileExport();
+	afx_msg void OnFileTakeSnapshot();
+	afx_msg void OnFileLoadSnapshot();
+	afx_msg void OnPlaylistNew();
+	afx_msg void OnPlaylistOpen();
+	afx_msg void OnPlaylistSave();
+	afx_msg void OnPlaylistSaveAs();
+	afx_msg void OnPlaylistMru(UINT nID);
+	afx_msg void OnUpdatePlaylistMru(CCmdUI* pCmdUI);
+	afx_msg void OnImageRandomPhase();
+	#define MAINDOCKBARDEF(name, width, height, style) \
+		afx_msg void OnViewBar##name(); \
+		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);
+	#include "MainDockBarDef.h"	// generate docking bar message handlers
 	afx_msg void OnViewOptions();
+	afx_msg void OnViewMidiLearn();
+	afx_msg void OnUpdateViewMidiLearn(CCmdUI *pCmdUI);
+	afx_msg void OnWindowFullscreen();
+	afx_msg void OnUpdateWindowFullscreen(CCmdUI* pCmdUI);
+	afx_msg void OnWindowDetach();
+	afx_msg void OnUpdateWindowDetach(CCmdUI* pCmdUI);
 	afx_msg void OnWindowPause();
 	afx_msg void OnUpdateWindowPause(CCmdUI *pCmdUI);
 	afx_msg void OnWindowStep();
 	afx_msg void OnUpdateWindowStep(CCmdUI *pCmdUI);
 	afx_msg void OnWindowClear();
-	afx_msg void OnImageRandomPhase();
-	afx_msg void OnFileExport();
-	afx_msg void OnFileTakeSnapshot();
-	afx_msg void OnFileLoadSnapshot();
-	afx_msg void OnPlaylistOpen();
-	afx_msg void OnPlaylistSave();
-	afx_msg void OnPlaylistSaveAs();
-	afx_msg void OnPlaylistNew();
-	afx_msg void OnPlaylistMru(UINT nID);
-	afx_msg void OnUpdatePlaylistMru(CCmdUI* pCmdUI);
-	afx_msg void OnViewMidiLearn();
-	afx_msg void OnUpdateViewMidiLearn(CCmdUI *pCmdUI);
+	afx_msg void OnWindowResetLayout();
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

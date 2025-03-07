@@ -18,6 +18,7 @@
 		08		02mar25	add globals pane
 		09		03mar25	add render queue full handler
 		10		06mar25	implement drop files for all supported file types
+		11		07mar25	use prompt for multiple files dialog for snapshots
 
 */
 
@@ -95,6 +96,7 @@ CMainFrame::CMainFrame()
 	theApp.m_pMainWnd = this;
 	m_nPrevFrameCount = 0;
 	m_bInRenderFullError = false;
+	m_iCurSnapshot = 0;
 }
 
 CMainFrame::~CMainFrame()
@@ -529,7 +531,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_STEP, OnUpdateWindowStep)
 	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
-	// dock bar handlers confuse code completion, so keep them last
+	ON_COMMAND(ID_SNAPSHOT_FIRST, OnSnapshotFirst)
+	ON_COMMAND(ID_SNAPSHOT_LAST, OnSnapshotLast)
+	ON_COMMAND(ID_SNAPSHOT_NEXT, OnSnapshotNext)
+	ON_COMMAND(ID_SNAPSHOT_PREV, OnSnapshotPrev)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_SNAPSHOT_FIRST, ID_SNAPSHOT_PREV, OnUpdateSnapshot)
+	// dock bar handlers confuse IDE's code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
 		ON_UPDATE_COMMAND_UI(ID_VIEW_BAR_##name, OnUpdateViewBar##name)
@@ -657,7 +664,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	UINT	nFiles = DragQueryFile(hDropInfo, 0xFFFFFFFF, NULL, 0);
 	CString	sPatchPath;
 	CString	sPlaylistPath;
-	CStringArrayEx	arrSnapshotPath;	// can load multiple snapshots at once
+	CStringArrayEx	saSnapshotPath;	// can load multiple snapshots at once
 	for (UINT iFile = 0; iFile < nFiles; iFile++) {	// for each dropped file
 		UINT	nPathLen = DragQueryFile(hDropInfo, iFile, NULL, 0);
 		if (nPathLen > 0) {	// if valid path length
@@ -671,7 +678,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 			CString	sExt = PathFindExtension(sPath) + 1;	// skip dot 
 			// if dropped file has the snapshot extension
 			if (!_tcsicmp(sExt, m_pszSnapshotExt)) {
-				arrSnapshotPath.Add(sPath);	// add to list of snapshots
+				saSnapshotPath.Add(sPath);	// add to list of snapshots
 			} else {	// not a snapshot
 				// if dropped file has the playlist extension
 				if (!_tcsicmp(sExt, CPlaylist::m_pszPlaylistExt)) {
@@ -689,8 +696,10 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	if (!sPlaylistPath.IsEmpty()) {	// if playlist was dropped
 		theApp.m_pPlaylist->Open(sPlaylistPath);	// open playlist			
 	}
-	if (!arrSnapshotPath.IsEmpty()) {	// if snapshots were dropped
-		theApp.LoadSnapshot(arrSnapshotPath[0]);	// only first one for now
+	if (!saSnapshotPath.IsEmpty()) {	// if snapshots were dropped
+		VERIFY(theApp.LoadSnapshot(saSnapshotPath[0]));	// load first snapshot
+		m_saSnapshotPath.Swap(saSnapshotPath);	// swap array pointers, avoiding array copy
+		m_iCurSnapshot = 0;	// reset current snapshot index
 	}
 }
 
@@ -930,9 +939,19 @@ void CMainFrame::OnFileTakeSnapshot()
 
 void CMainFrame::OnFileLoadSnapshot()
 {
-	CFileDialog	fd(true, m_pszSnapshotExt, NULL, OFN_HIDEREADONLY, m_pszSnapshotFilter);
-	if (fd.DoModal() == IDOK) {	// display file dialog
-		VERIFY(theApp.LoadSnapshot(fd.GetPathName()));
+	// array of file type filter specifications, as IFileOpenDialog expects
+	static const COMDLG_FILTERSPEC	aFilter[2] = {
+		{L"Snapshot Files", L"*.whs"},	// Unicode only!
+		{L"All Files", L"*.*"},
+	};
+	HRESULT hr = PromptForFiles(m_saSnapshotPath, _countof(aFilter), aFilter);
+	if (SUCCEEDED(hr)) {	// if prompt succeeded
+		m_iCurSnapshot = 0;	// reset current snapshot index
+		VERIFY(theApp.LoadSnapshot(m_saSnapshotPath[0]));	// load the first snapshot
+	} else {	// prompt failed
+		if (hr != HRESULT_FROM_WIN32(ERROR_CANCELLED)) {	// if user didn't cancel
+			theApp.OnError(FormatSystemError(hr), __FILE__, __LINE__, __DATE__);
+		}
 	}
 }
 
@@ -969,6 +988,41 @@ void CMainFrame::OnUpdatePlaylistMru(CCmdUI* pCmdUI)
 void CMainFrame::OnImageRandomPhase()
 {
 	theApp.m_thrRender.RandomPhase();
+}
+
+void CMainFrame::OnSnapshotFirst()
+{
+	if (!m_saSnapshotPath.IsEmpty()) {
+		theApp.LoadSnapshot(m_saSnapshotPath[0]);
+	}
+}
+
+void CMainFrame::OnSnapshotLast()
+{
+	if (!m_saSnapshotPath.IsEmpty()) {
+		theApp.LoadSnapshot(m_saSnapshotPath[m_saSnapshotPath.GetSize() - 1]);
+	}
+}
+
+void CMainFrame::OnSnapshotNext()
+{
+	if (m_iCurSnapshot < m_saSnapshotPath.GetSize() - 1) {
+		m_iCurSnapshot++;
+		theApp.LoadSnapshot(m_saSnapshotPath[m_iCurSnapshot]);
+	}
+}
+
+void CMainFrame::OnSnapshotPrev()
+{
+	if (m_iCurSnapshot > 0) {
+		m_iCurSnapshot--;
+		theApp.LoadSnapshot(m_saSnapshotPath[m_iCurSnapshot]);
+	}
+}
+
+void CMainFrame::OnUpdateSnapshot(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(theApp.IsSnapshotMode());
 }
 
 #define MAINDOCKBARDEF(name, width, height, style) \

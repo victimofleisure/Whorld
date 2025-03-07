@@ -12,6 +12,7 @@
 		02		22feb25	add snapshot capture message
 		03		26feb25	add device node change message
 		04		03mar25	add render queue full message
+		05		07mar25	add prompt for multiple files
 
 */
 
@@ -63,6 +64,7 @@ void DoGenericContextMenu(UINT nIDResource, CPoint point, CWnd* pWnd);
 bool FormatNumberCommas(LPCTSTR pszSrc, CString& sDst, int nPrecision = 0);
 int StringReplaceNoCase(CString& str, LPCTSTR pszOld, LPCTSTR pszNew);
 bool ShowListColumnHeaderMenu(CWnd *pWnd, CListCtrl& list, CPoint point);
+HRESULT PromptForFiles(CStringArrayEx& saPath, int nFilters = 0, const COMDLG_FILTERSPEC* pFilter = NULL, int iSelFilter = 0);
 
 // data validation method to flunk a control
 void DDV_Fail(CDataExchange* pDX, int nIDC);

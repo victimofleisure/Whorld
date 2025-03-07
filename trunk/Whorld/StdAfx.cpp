@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      06feb25	initial version
+		01		07mar25	add prompt for multiple files
 
 */
 
@@ -243,4 +244,35 @@ bool ShowListColumnHeaderMenu(CWnd *pWnd, CListCtrl& list, CPoint point)
 		return menu.GetSubMenu(0)->TrackPopupMenu(0, point.x, point.y, pWnd) != 0;
 	}
 	return false;
+}
+
+#define CHECK_COM(x) { HRESULT hr = x; if (FAILED(hr)) return hr; }
+
+HRESULT PromptForFiles(CStringArrayEx& saPath, int nFilters, const COMDLG_FILTERSPEC* pFilter, int iSelFilter)
+{
+	CStringArrayEx	saTempPath;	// store file paths in temporary string array
+	CComPtr<IFileOpenDialog> pFileOpen;
+	CHECK_COM(pFileOpen.CoCreateInstance(__uuidof(FileOpenDialog)));	// create instance
+	DWORD dwFlags;
+	CHECK_COM(pFileOpen->GetOptions(&dwFlags));	// get existing flags
+	CHECK_COM(pFileOpen->SetOptions(dwFlags | FOS_ALLOWMULTISELECT));	// set additional flags
+	if (nFilters) {	// if a file type filter was specified
+		CHECK_COM(pFileOpen->SetFileTypes(nFilters, pFilter));	// set file type filter
+		CHECK_COM(pFileOpen->SetFileTypeIndex(iSelFilter));	// select specified file type filter
+	}
+	CHECK_COM(pFileOpen->Show(NULL));	// show file open dialog
+	CComPtr<IShellItemArray> pItemArray;
+	CHECK_COM(pFileOpen->GetResults(&pItemArray));	// get results
+	DWORD	nItems;
+	CHECK_COM(pItemArray->GetCount(&nItems));	// get item count
+	saTempPath.SetSize(nItems);
+	for (DWORD iItem = 0; iItem < nItems; iItem++) {	// for each item
+		CComPtr<IShellItem> pItem;
+		CHECK_COM(pItemArray->GetItemAt(iItem, &pItem));	// get item
+		CComHeapPtr<WCHAR> spPath;
+		CHECK_COM(pItem->GetDisplayName(SIGDN_FILESYSPATH, &spPath));	// get item path
+		saTempPath[iItem] = spPath;	// store path in caller's array
+	}
+	saPath.Swap(saTempPath);	// swap array pointers, transferring paths to caller
+	return S_OK;	// success
 }

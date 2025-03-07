@@ -194,6 +194,13 @@ BEGIN
             MENUITEM "&Drag",                       ID_IMAGE_ORIGIN_DRAG
             MENUITEM "&Random",                     ID_IMAGE_ORIGIN_RANDOM
         END
+        POPUP "&Snapshot"
+        BEGIN
+            MENUITEM "&Previous",                   ID_SNAPSHOT_PREV
+            MENUITEM "&Next",                       ID_SNAPSHOT_NEXT
+            MENUITEM "&First",                      ID_SNAPSHOT_FIRST
+            MENUITEM "&Last",                       ID_SNAPSHOT_LAST
+        END
     END
     POPUP "&View"
     BEGIN
@@ -316,6 +323,7 @@ BEGIN
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
     "E",            ID_FILE_EXPORT,         VIRTKEY, CONTROL, NOINVERT
@@ -348,7 +356,10 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
+    VK_HOME,        ID_SNAPSHOT_FIRST,      VIRTKEY, NOINVERT
+    VK_END,         ID_SNAPSHOT_LAST,       VIRTKEY, NOINVERT
+    VK_NEXT,        ID_SNAPSHOT_NEXT,       VIRTKEY, NOINVERT
+    VK_PRIOR,       ID_SNAPSHOT_PREV,   VIRTKEY, NOINVERT
 END
 
 
@@ -562,17 +573,19 @@ IDC_CURSOR_DRAG_SINGLE  CURSOR                  "res\\dragsingle.cur"
 STRINGTABLE
 BEGIN
     IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER "Invalid export image folder."
+    IDS_APP_ERR_CANT_CREATE_APP_DATA_FOLDER 
+                            "Can't create application data folder."
     IDS_APP_ERR_CANT_CREATE_RENDER_THREAD "Can't create render thread."
     IDS_APP_ERR_CANT_CREATE_RENDER_WINDOW "Can't create render window."
     IDS_APP_ERR_CANT_DETACH_RENDER_WINDOW "Can't detach render window."
     IDS_APP_ERR_CANT_GET_DISPLAY_SETTINGS "Can't get display settings."
     IDS_APP_ERR_CANT_GET_MONITOR_INFO "Can't get monitor info."
     IDS_APP_ERR_CANT_REMOVE_KEYBOARD_HOOK "Can't remove keyboard hook."
-    IDS_APP_ERR_CANT_SET_KEYBOARD_HOOK "Can't set keyboard hook."
 END
 
 STRINGTABLE
 BEGIN
+    IDS_APP_ERR_CANT_SET_KEYBOARD_HOOK "Can't set keyboard hook."
     IDS_APP_ERR_RENDERING_TOO_SLOW 
                             "Rendering is slower than usual.\nReset to defaults?"
     IDS_APP_ERR_RENDER_QUEUE_FULL "Too many render commands."
@@ -589,11 +602,11 @@ BEGIN
     IDS_CHAN_STAT_MODULATOR "Modulator"
     IDS_CHAN_STAT_NOTE      "Note"
     IDS_CHAN_STAT_NOTE_OFF  "Note Off"
-    IDS_CHAN_STAT_NOTE_ON   "Note On"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_CHAN_STAT_NOTE_ON   "Note On"
     IDS_CHAN_STAT_PATCH     "Patch"
     IDS_CHAN_STAT_TEMPO     "Tempo"
     IDS_CHAN_STAT_WHEEL     "Wheel"
@@ -609,11 +622,11 @@ BEGIN
     IDS_EDIT_PASTE          "Paste"
     IDS_EDIT_REDO_PREFIX    "&Redo"
     IDS_EDIT_SORT           "Sort"
-    IDS_EDIT_UNDO_PREFIX    "&Undo"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_EDIT_UNDO_PREFIX    "&Undo"
     IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
@@ -629,11 +642,11 @@ BEGIN
     IDS_MAPPING_COL_CONTROL "Control"
     IDS_MAPPING_COL_END     "End"
     IDS_MAPPING_COL_EVENT   "Event"
-    IDS_MAPPING_COL_NUMBER  "#"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAPPING_COL_NUMBER  "#"
     IDS_MAPPING_COL_PROPERTY "Property"
     IDS_MAPPING_COL_START   "Start"
     IDS_MAPPING_COL_TARGET  "Target"
@@ -649,11 +662,11 @@ BEGIN
     IDS_MAP_TARGET_Pause    "Pause"
     IDS_MAP_TARGET_RandomPhase "Random Phase"
     IDS_MAP_TARGET_Reverse  "Reverse"
-    IDS_MASTER_CanvasScale  "Canvas"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueSpan      "Hue Span"
@@ -669,11 +682,11 @@ BEGIN
     IDS_MIDI_SYS_STAT_ACTIVE_SENSING "Active Sensing"
     IDS_MIDI_SYS_STAT_CLOCK "Clock"
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
-    IDS_MIDI_SYS_STAT_EOX   "EOX"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
@@ -692,11 +705,11 @@ BEGIN
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
-    IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
     IDS_OPT_DESC_General_nMRUItems 
                             "Maximum number of items in recently used lists"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
@@ -713,11 +726,11 @@ BEGIN
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
-    IDS_PARAM_BkLightness   "Bk Lightness"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
@@ -733,11 +746,11 @@ BEGIN
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
-    IDS_PARAM_SkewRadius    "Skew Radius"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
     IDS_PROW_Amp            "Amplitude"
@@ -753,11 +766,11 @@ BEGIN
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
-    IDS_WAVE_RAMP_DOWN      "Ramp Down"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_WAVE_RAMP_DOWN      "Ramp Down"
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
@@ -767,8 +780,6 @@ BEGIN
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_APP_ERR_CANT_CREATE_APP_DATA_FOLDER 
-                            "Can't create application data folder."
 END
 
 STRINGTABLE
@@ -789,6 +800,10 @@ STRINGTABLE
 BEGIN
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
+    ID_SNAPSHOT_NEXT        "Go to next item\nNext"
+    ID_SNAPSHOT_PREV    "Go to previous item\nPrevious"
+    ID_SNAPSHOT_FIRST       "Go to first item\nFirst"
+    ID_SNAPSHOT_LAST        "Go to last item\nLast"
 END
 
 STRINGTABLE

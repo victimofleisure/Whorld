@@ -16,6 +16,8 @@
 		06		27feb25	add pre-snapshot mode patch member
 		07		02mar25	add globals pane
 		08		03mar25	add render queue full handler
+		09		06mar25	add snapshot path array
+		10		07mar25	add snapshot submenu handlers
 
 */
 
@@ -113,8 +115,10 @@ public:
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
 	CStringArrayEx	m_saOutputPath;	// array of output paths
+	CStringArrayEx	m_saSnapshotPath;	// array of snapshot paths
+	int		m_iCurSnapshot;			// index of snapshot currently being displayed 
 	bool	m_bInRenderFullError;	// true if handling render command queue full error
-
+	
 // Helpers
 	BOOL	CreateDockingWindows();
 	bool	FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& sText, int& nCurTextLength);
@@ -155,6 +159,11 @@ public:
 	afx_msg void OnPlaylistMru(UINT nID);
 	afx_msg void OnUpdatePlaylistMru(CCmdUI* pCmdUI);
 	afx_msg void OnImageRandomPhase();
+	afx_msg void OnSnapshotFirst();
+	afx_msg void OnSnapshotLast();
+	afx_msg void OnSnapshotNext();
+	afx_msg void OnSnapshotPrev();
+	afx_msg void OnUpdateSnapshot(CCmdUI *pCmdUI);
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		afx_msg void OnViewBar##name(); \
 		afx_msg void OnUpdateViewBar##name(CCmdUI *pCmdUI);

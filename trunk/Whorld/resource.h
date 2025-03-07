@@ -243,32 +243,36 @@
 #define ID_PLAYLIST_OPEN                32805
 #define ID_PLAYLIST_SAVE                32806
 #define ID_PLAYLIST_SAVE_AS             32807
-#define ID_STATUS_PANE_FRAME_RATE       32808
-#define ID_STATUS_PANE_RING_COUNT       32809
-#define ID_VIEW_APPLOOK_OFF_2003        32810
-#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32811
-#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32812
-#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32813
-#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32814
-#define ID_VIEW_APPLOOK_OFF_XP          32815
-#define ID_VIEW_APPLOOK_VS_2005         32816
-#define ID_VIEW_APPLOOK_VS_2008         32817
-#define ID_VIEW_APPLOOK_WINDOWS_7       32818
-#define ID_VIEW_APPLOOK_WIN_2000        32819
-#define ID_VIEW_APPLOOK_WIN_XP          32820
-#define ID_VIEW_BAR_Globals             32821
-#define ID_VIEW_BAR_Mapping             32822
-#define ID_VIEW_BAR_Master              32823
-#define ID_VIEW_BAR_Params              32824
-#define ID_VIEW_CUSTOMIZE               32825
-#define ID_VIEW_MIDI_LEARN              32826
-#define ID_VIEW_OPTIONS                 32827
-#define ID_WINDOW_CLEAR                 32828
-#define ID_WINDOW_DETACH                32829
-#define ID_WINDOW_FULLSCREEN            32830
-#define ID_WINDOW_PAUSE                 32831
-#define ID_WINDOW_RESET_LAYOUT          32832
-#define ID_WINDOW_STEP                  32833
+#define ID_SNAPSHOT_FIRST               32808
+#define ID_SNAPSHOT_LAST                32809
+#define ID_SNAPSHOT_NEXT                32810
+#define ID_SNAPSHOT_PREV                32811
+#define ID_STATUS_PANE_FRAME_RATE       32812
+#define ID_STATUS_PANE_RING_COUNT       32813
+#define ID_VIEW_APPLOOK_OFF_2003        32814
+#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32815
+#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32816
+#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32817
+#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32818
+#define ID_VIEW_APPLOOK_OFF_XP          32819
+#define ID_VIEW_APPLOOK_VS_2005         32820
+#define ID_VIEW_APPLOOK_VS_2008         32821
+#define ID_VIEW_APPLOOK_WINDOWS_7       32822
+#define ID_VIEW_APPLOOK_WIN_2000        32823
+#define ID_VIEW_APPLOOK_WIN_XP          32824
+#define ID_VIEW_BAR_Globals             32825
+#define ID_VIEW_BAR_Mapping             32826
+#define ID_VIEW_BAR_Master              32827
+#define ID_VIEW_BAR_Params              32828
+#define ID_VIEW_CUSTOMIZE               32829
+#define ID_VIEW_MIDI_LEARN              32830
+#define ID_VIEW_OPTIONS                 32831
+#define ID_WINDOW_CLEAR                 32832
+#define ID_WINDOW_DETACH                32833
+#define ID_WINDOW_FULLSCREEN            32834
+#define ID_WINDOW_PAUSE                 32835
+#define ID_WINDOW_RESET_LAYOUT          32836
+#define ID_WINDOW_STEP                  32837
 
 // Next default values for new objects
 //
@@ -276,7 +280,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                1
 #define _APS_NEXT_RESOURCE_VALUE        361
-#define _APS_NEXT_COMMAND_VALUE         32834
+#define _APS_NEXT_COMMAND_VALUE         32838
 #define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -104,6 +104,12 @@ BEGIN
     BUTTON      ID_IMAGE_FILL
     BUTTON      ID_IMAGE_OUTLINE
     SEPARATOR
+    BUTTON      ID_IMAGE_REVERSE
+    BUTTON      ID_IMAGE_CONVEX
+    SEPARATOR
+    BUTTON      ID_IMAGE_ORIGIN_DRAG
+    BUTTON      ID_IMAGE_ORIGIN_RANDOM
+    SEPARATOR
     BUTTON      ID_WINDOW_PAUSE
     BUTTON      ID_VIEW_MIDI_LEARN
     SEPARATOR
@@ -126,8 +132,15 @@ BEGIN
     BUTTON      ID_IMAGE_FILL
     BUTTON      ID_IMAGE_OUTLINE
     SEPARATOR
+    BUTTON      ID_IMAGE_REVERSE
+    BUTTON      ID_IMAGE_CONVEX
+    SEPARATOR
+    BUTTON      ID_IMAGE_ORIGIN_DRAG
+    BUTTON      ID_IMAGE_ORIGIN_RANDOM
+    SEPARATOR
     BUTTON      ID_WINDOW_PAUSE
     BUTTON      ID_VIEW_MIDI_LEARN
+    SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
 
@@ -200,6 +213,8 @@ BEGIN
             MENUITEM "&Next",                       ID_SNAPSHOT_NEXT
             MENUITEM "&First",                      ID_SNAPSHOT_FIRST
             MENUITEM "&Last",                       ID_SNAPSHOT_LAST
+            MENUITEM SEPARATOR
+            MENUITEM "&Export All...",              ID_SNAPSHOT_EXPORT_ALL
         END
     END
     POPUP "&View"
@@ -359,7 +374,7 @@ BEGIN
     VK_HOME,        ID_SNAPSHOT_FIRST,      VIRTKEY, NOINVERT
     VK_END,         ID_SNAPSHOT_LAST,       VIRTKEY, NOINVERT
     VK_NEXT,        ID_SNAPSHOT_NEXT,       VIRTKEY, NOINVERT
-    VK_PRIOR,       ID_SNAPSHOT_PREV,   VIRTKEY, NOINVERT
+    VK_PRIOR,       ID_SNAPSHOT_PREV,       VIRTKEY, NOINVERT
 END
 
 
@@ -791,19 +806,30 @@ BEGIN
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
     ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
-    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
-    ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
-    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
 END
 
 STRINGTABLE
 BEGIN
+    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
+    ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
+    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
-    ID_SNAPSHOT_NEXT        "Go to next item\nNext"
-    ID_SNAPSHOT_PREV    "Go to previous item\nPrevious"
+    ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All"
+END
+
+STRINGTABLE
+BEGIN
+    ID_PLAYLIST_MRU_FILE6   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE7   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE8   "Open this playlist"
+    ID_PLAYLIST_MRU_FILE9   "Open this playlist"
     ID_SNAPSHOT_FIRST       "Go to first item\nFirst"
     ID_SNAPSHOT_LAST        "Go to last item\nLast"
+    ID_SNAPSHOT_NEXT        "Go to next item\nNext"
+    ID_SNAPSHOT_PREV        "Go to previous item\nPrevious"
+    ID_STATUS_PANE_FRAME_RATE "000.00"
+    ID_STATUS_PANE_RING_COUNT "00000"
 END
 
 STRINGTABLE
@@ -823,16 +849,6 @@ BEGIN
     ID_PLAYLIST_MRU_FILE3   "Open this playlist"
     ID_PLAYLIST_MRU_FILE4   "Open this playlist"
     ID_PLAYLIST_MRU_FILE5   "Open this playlist"
-END
-
-STRINGTABLE
-BEGIN
-    ID_PLAYLIST_MRU_FILE6   "Open this playlist"
-    ID_PLAYLIST_MRU_FILE7   "Open this playlist"
-    ID_PLAYLIST_MRU_FILE8   "Open this playlist"
-    ID_PLAYLIST_MRU_FILE9   "Open this playlist"
-    ID_STATUS_PANE_FRAME_RATE "000.00"
-    ID_STATUS_PANE_RING_COUNT "00000"
 END
 
 STRINGTABLE

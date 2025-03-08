@@ -18,6 +18,7 @@
 		08		03mar25	add render queue full handler
 		09		06mar25	add snapshot path array
 		10		07mar25	add snapshot submenu handlers
+		11		08mar25	add wait for posted message
 
 */
 
@@ -44,6 +45,7 @@ enum {	// docking bar IDs; don't change, else bar placement won't be restored
 
 class CAuxFrame;
 class CAuxView;
+class CProgressDlg;
 
 class CMainFrame : public CFrameWndEx, public CWhorldBase
 {
@@ -114,8 +116,8 @@ public:
 	CBenchmark	m_benchFrameRate;	// benchmark timer, for measuring frame rate
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
-	CStringArrayEx	m_saOutputPath;	// array of output paths
-	CStringArrayEx	m_saSnapshotPath;	// array of snapshot paths
+	CStringArrayEx	m_aOutputPath;	// array of output paths
+	CStringArrayEx	m_aSnapshotPath;	// array of snapshot paths
 	int		m_iCurSnapshot;			// index of snapshot currently being displayed 
 	bool	m_bInRenderFullError;	// true if handling render command queue full error
 	
@@ -124,7 +126,8 @@ public:
 	bool	FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& sText, int& nCurTextLength);
 	void	ApplyOptions(const COptions *pPrevOptions);
 	bool	WriteSnapshot(CSnapshot *pSnapshot);
-	static bool	MakeExportPath(CString& sExportPath, LPCTSTR pszExt);
+	bool	MakeUniqueExportPath(CString& sExportPath, LPCTSTR pszExt);
+	static bool	WaitForPostedMessage(UINT message, CProgressDlg& dlgProgress);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
@@ -163,6 +166,7 @@ public:
 	afx_msg void OnSnapshotLast();
 	afx_msg void OnSnapshotNext();
 	afx_msg void OnSnapshotPrev();
+	afx_msg void OnSnapshotExportAll();
 	afx_msg void OnUpdateSnapshot(CCmdUI *pCmdUI);
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		afx_msg void OnViewBar##name(); \

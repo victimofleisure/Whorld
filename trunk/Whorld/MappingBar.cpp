@@ -242,10 +242,7 @@ void CMappingBar::Sort(int iProp, bool bDescending)
 
 CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID)
 {
-	UNREFERENCED_PARAMETER(pszText);
-	UNREFERENCED_PARAMETER(dwStyle);
 	UNREFERENCED_PARAMETER(pParentWnd);
-	UNREFERENCED_PARAMETER(nID);
 	int	nVal = midiMaps.GetProperty(m_iEditRow, m_iEditCol - 1);	// skip number column
 	switch (m_iEditCol) {
 	case COL_EVENT:
@@ -738,8 +735,8 @@ LRESULT CMappingBar::OnMidiEvent(WPARAM wParam, LPARAM lParam)
 void CMappingBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	UNREFERENCED_PARAMETER(pResult);
-	NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
-	LVITEM&	item = pDispInfo->item;
+	const NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
+	const LVITEM&	item = pDispInfo->item;
 	int	iItem = item.iItem;
 	if (item.mask & LVIF_TEXT) {
 		const CMapping&	map = midiMaps.GetAt(iItem);

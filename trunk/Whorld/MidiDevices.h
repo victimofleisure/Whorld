@@ -10,6 +10,7 @@
         00      17apr18	initial version
 		01		27mar20	add device accessors
 		02		18feb22	move index validator to array base class
+		03		08mar25	add public find methods
 
 */
 
@@ -70,6 +71,7 @@ public:
 	CString	GetID(int iType, int iDev) const;
 	void	GetDevice(int iType, int iDev, CDevice& dev) const;
 	void	GetSelection(CSelection& sel) const;
+	static	bool	IsValidDeviceType(int iType);
 	static	CString	GetTypeCaption(int iType);
 
 // Operations
@@ -82,6 +84,9 @@ public:
 	void	Dump(CString& str, bool bShowIDs = false) const;
 	void	DumpSystemState(CString& str) const;
 	bool	OnDeviceChange(UINT& nChangeMask);
+	int		Find(int iType, CString sName, CString sID) const;
+	int		Find(int iType, CString sName) const;
+	int		GetNameCount(int iType, CString sName) const;
 
 protected:
 // Types
@@ -221,6 +226,11 @@ inline void CMidiDevices::GetDevice(int iType, int iDev, CDevice& dev) const
 	m_arrDev[iType].GetDevice(iDev, dev);
 }
 
+inline bool CMidiDevices::IsValidDeviceType(int iType)
+{
+	return iType >= 0 && iType < DEVICE_TYPES;
+}
+
 inline CString CMidiDevices::GetTypeCaption(int iType)
 {
 	return LDS(m_nDevCaption[iType]);
@@ -229,4 +239,22 @@ inline CString CMidiDevices::GetTypeCaption(int iType)
 inline bool CMidiDevices::operator!=(const CMidiDevices& devs) const
 {
 	return !operator==(devs);
+}
+
+inline int CMidiDevices::Find(int iType, CString sName, CString sID) const
+{
+	ASSERT(IsValidDeviceType(iType));
+	return m_arrDev[iType].Find(sName, sID);
+}
+
+inline int CMidiDevices::Find(int iType, CString sName) const
+{
+	ASSERT(IsValidDeviceType(iType));
+	return m_arrDev[iType].Find(sName);
+}
+
+inline int CMidiDevices::GetNameCount(int iType, CString sName) const
+{
+	ASSERT(IsValidDeviceType(iType));
+	return m_arrDev[iType].GetNameCount(sName);
 }

@@ -19,6 +19,7 @@
 		09		03mar25	add render queue full handler
 		10		06mar25	implement drop files for all supported file types
 		11		07mar25	use prompt for multiple files dialog for snapshots
+		12		08mar25	add export all snapshots
 
 */
 
@@ -91,7 +92,6 @@ const LPCTSTR CMainFrame::m_pszSnapshotFilter = _T("Snapshot Files (*.whs)|*.whs
 
 CMainFrame::CMainFrame()
 {
-	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
 	theApp.m_pMainWnd = this;
 	m_nPrevFrameCount = 0;
@@ -155,7 +155,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
-	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
@@ -357,19 +356,6 @@ bool CMainFrame::FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& 
 	return true;
 }
 
-bool CMainFrame::MakeExportPath(CString& sExportPath, LPCTSTR pszExt)
-{
-	CPathStr	sPath(theApp.m_options.m_Export_sImageFolder);
-	if (!PathFileExists(sPath)) {	// if export image folder doesn't exist
-		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
-		return false;
-	}
-	// automatically assign a filename based on date and time
-	sPath.Append(theApp.GetTimestampFileName());	// append filename to folder
-	sExportPath = sPath + '.' + CString(pszExt);	// append file extension to filename
-	return true;
-}
-
 bool CMainFrame::WriteSnapshot(CSnapshot *pSnapshot)
 {
 	ASSERT(pSnapshot != NULL);
@@ -382,11 +368,59 @@ bool CMainFrame::WriteSnapshot(CSnapshot *pSnapshot)
 		}
 		sSnapshotPath = fd.GetPathName();
 	} else {	// not prompting
-		if (!MakeExportPath(sSnapshotPath, m_pszSnapshotExt))	// generate path
+		if (!MakeUniqueExportPath(sSnapshotPath, m_pszSnapshotExt))	// generate path
 			return false;	// unable to generate path
 	}
 	pSnapshot->Write(pSnapshot, sSnapshotPath);
 	return true;
+}
+
+bool CMainFrame::MakeUniqueExportPath(CString& sExportPath, LPCTSTR pszExt)
+{
+	CPathStr	sPath(theApp.m_options.m_Export_sImageFolder);
+	if (!PathFileExists(sPath)) {	// if export image folder doesn't exist
+		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
+		return false;
+	}
+	// automatically assign a filename based on date and time
+	sPath.Append(theApp.GetTimestampFileName());	// append filename to folder
+	int	nPreExtPathLen = sPath.GetLength();	// save pre-extension path length
+	sExportPath = sPath + '.' + CString(pszExt);	// append file extension to filename
+	int	nRetries = 0;
+	// while path identifies an existing file, or is found in output path array
+	while (PathFileExists(sExportPath) || m_aOutputPath.Find(sExportPath) >= 0) {
+		CString	sSuffix;	// numeric suffix added to filename to make it unique
+		sSuffix.Format(_T("(%d)"), ++nRetries);	// pre-increment retry count
+		// append suffix to file name, re-append file extension, and try again
+		sExportPath = sPath.Left(nPreExtPathLen) + sSuffix + '.' + CString(pszExt);
+	}
+	return true;
+}
+
+bool CMainFrame::WaitForPostedMessage(UINT message, CProgressDlg& dlgProgress)
+{
+	// loop until the specified posted message is received and processed,
+	// pr the user cancels in the progress dialog, or an error occurs
+	while (1) {
+		MSG msg;
+		// check if we have a posted message, and read it if we do
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			if (msg.message == WM_QUIT) {	// if message is quit
+				return false;	// epic fail
+			}
+			TranslateMessage(&msg);	// process the message
+			DispatchMessage(&msg);
+			// if it's the message we're waiting for
+			if (msg.message == message) {
+				return true;	// success
+			}
+		} else {	// no posted message
+			if (dlgProgress.Canceled()) {	// if user canceled
+				return false;	// fail
+			}
+			WaitMessage();	// suspend until a message arrives
+		}
+	}
 }
 
 BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
@@ -535,6 +569,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_SNAPSHOT_LAST, OnSnapshotLast)
 	ON_COMMAND(ID_SNAPSHOT_NEXT, OnSnapshotNext)
 	ON_COMMAND(ID_SNAPSHOT_PREV, OnSnapshotPrev)
+	ON_COMMAND(ID_SNAPSHOT_EXPORT_ALL, OnSnapshotExportAll)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_SNAPSHOT_FIRST, ID_SNAPSHOT_PREV, OnUpdateSnapshot)
 	// dock bar handlers confuse IDE's code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
@@ -664,7 +699,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	UINT	nFiles = DragQueryFile(hDropInfo, 0xFFFFFFFF, NULL, 0);
 	CString	sPatchPath;
 	CString	sPlaylistPath;
-	CStringArrayEx	saSnapshotPath;	// can load multiple snapshots at once
+	CStringArrayEx	aSnapshotPath;	// can load multiple snapshots at once
 	for (UINT iFile = 0; iFile < nFiles; iFile++) {	// for each dropped file
 		UINT	nPathLen = DragQueryFile(hDropInfo, iFile, NULL, 0);
 		if (nPathLen > 0) {	// if valid path length
@@ -678,7 +713,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 			CString	sExt = PathFindExtension(sPath) + 1;	// skip dot 
 			// if dropped file has the snapshot extension
 			if (!_tcsicmp(sExt, m_pszSnapshotExt)) {
-				saSnapshotPath.Add(sPath);	// add to list of snapshots
+				aSnapshotPath.Add(sPath);	// add to list of snapshots
 			} else {	// not a snapshot
 				// if dropped file has the playlist extension
 				if (!_tcsicmp(sExt, CPlaylist::m_pszPlaylistExt)) {
@@ -696,9 +731,9 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	if (!sPlaylistPath.IsEmpty()) {	// if playlist was dropped
 		theApp.m_pPlaylist->Open(sPlaylistPath);	// open playlist			
 	}
-	if (!saSnapshotPath.IsEmpty()) {	// if snapshots were dropped
-		VERIFY(theApp.LoadSnapshot(saSnapshotPath[0]));	// load first snapshot
-		m_saSnapshotPath.Swap(saSnapshotPath);	// swap array pointers, avoiding array copy
+	if (!aSnapshotPath.IsEmpty()) {	// if snapshots were dropped
+		VERIFY(theApp.LoadSnapshot(aSnapshotPath[0]));	// load first snapshot
+		m_aSnapshotPath.Swap(aSnapshotPath);	// swap array pointers, avoiding array copy
 		m_iCurSnapshot = 0;	// reset current snapshot index
 	}
 }
@@ -792,9 +827,9 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 	// capture bitmap command. The message is posted even if capture failed.
 	UNREFERENCED_PARAMETER(wParam);
 	CComPtr<ID2D1Bitmap1> pBitmap(reinterpret_cast<ID2D1Bitmap1*>(lParam));
-	if (!m_saOutputPath.IsEmpty()) {	// if output path available
-		CString	sExportPath(m_saOutputPath[0]);	// copy oldest output path
-		m_saOutputPath.RemoveAt(0);	// remove oldest output path from array
+	if (!m_aOutputPath.IsEmpty()) {	// if output path available
+		CString	sExportPath(m_aOutputPath[0]);	// copy oldest output path
+		m_aOutputPath.RemoveAt(0);	// remove oldest output path from array
 		if (pBitmap != NULL) {	// if capture succeeded
 			theApp.m_thrRender.WriteCapturedBitmap(pBitmap, sExportPath);	// export image
 		}
@@ -882,13 +917,13 @@ LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 	}
 	// if the MIDI input callback was spamming the command queue, 
 	// it's no longer doing so, because we nuked the MIDI mappings
-	CProgressDlg	dlg;
-	dlg.Create();	// create progress dialog
+	CProgressDlg	dlgProgress;
+	dlgProgress.Create();	// create progress dialog
 	// we don't know how long this will take, so use a marquee progress bar
-	dlg.SetMarquee(true, 0);
+	dlgProgress.SetMarquee(true, 0);
 	// loop until the command queue drains down at least halfway
 	while (!theApp.m_thrRender.IsCommandQueueBelowHalfFull()) {
-		if (dlg.Canceled()) {	// if user canceled
+		if (dlgProgress.Canceled()) {	// if user canceled
 			return 0;	// cancel
 		}
 		// pump message blocks waiting for messages, but it won't block
@@ -925,10 +960,10 @@ void CMainFrame::OnFileExport()
 	theApp.m_thrRender.CaptureBitmap(theApp.m_options.GetExportFlags(), 
 		theApp.m_options.GetExportImageSize());
 	if (sExportPath.IsEmpty()) {	// if export path is unspecified
-		if (!MakeExportPath(sExportPath, m_pszExportExt))	// generate path
+		if (!MakeUniqueExportPath(sExportPath, m_pszExportExt))	// generate path
 			return;	// unable to generate path
 	}
-	m_saOutputPath.Add(sExportPath);
+	m_aOutputPath.Add(sExportPath);
 	// bitmap capture message may already be waiting for us in message queue
 }
 
@@ -944,10 +979,10 @@ void CMainFrame::OnFileLoadSnapshot()
 		{L"Snapshot Files", L"*.whs"},	// Unicode only!
 		{L"All Files", L"*.*"},
 	};
-	HRESULT hr = PromptForFiles(m_saSnapshotPath, _countof(aFilter), aFilter);
+	HRESULT hr = PromptForFiles(m_aSnapshotPath, _countof(aFilter), aFilter);
 	if (SUCCEEDED(hr)) {	// if prompt succeeded
 		m_iCurSnapshot = 0;	// reset current snapshot index
-		VERIFY(theApp.LoadSnapshot(m_saSnapshotPath[0]));	// load the first snapshot
+		VERIFY(theApp.LoadSnapshot(m_aSnapshotPath[0]));	// load the first snapshot
 	} else {	// prompt failed
 		if (hr != HRESULT_FROM_WIN32(ERROR_CANCELLED)) {	// if user didn't cancel
 			theApp.OnError(FormatSystemError(hr), __FILE__, __LINE__, __DATE__);
@@ -992,23 +1027,23 @@ void CMainFrame::OnImageRandomPhase()
 
 void CMainFrame::OnSnapshotFirst()
 {
-	if (!m_saSnapshotPath.IsEmpty()) {
-		theApp.LoadSnapshot(m_saSnapshotPath[0]);
+	if (!m_aSnapshotPath.IsEmpty()) {
+		theApp.LoadSnapshot(m_aSnapshotPath[0]);
 	}
 }
 
 void CMainFrame::OnSnapshotLast()
 {
-	if (!m_saSnapshotPath.IsEmpty()) {
-		theApp.LoadSnapshot(m_saSnapshotPath[m_saSnapshotPath.GetSize() - 1]);
+	if (!m_aSnapshotPath.IsEmpty()) {
+		theApp.LoadSnapshot(m_aSnapshotPath[m_aSnapshotPath.GetSize() - 1]);
 	}
 }
 
 void CMainFrame::OnSnapshotNext()
 {
-	if (m_iCurSnapshot < m_saSnapshotPath.GetSize() - 1) {
+	if (m_iCurSnapshot < m_aSnapshotPath.GetSize() - 1) {
 		m_iCurSnapshot++;
-		theApp.LoadSnapshot(m_saSnapshotPath[m_iCurSnapshot]);
+		theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
 	}
 }
 
@@ -1016,7 +1051,40 @@ void CMainFrame::OnSnapshotPrev()
 {
 	if (m_iCurSnapshot > 0) {
 		m_iCurSnapshot--;
-		theApp.LoadSnapshot(m_saSnapshotPath[m_iCurSnapshot]);
+		theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
+	}
+}
+
+void CMainFrame::OnSnapshotExportAll()
+{
+	int	nSnapshots = m_aSnapshotPath.GetSize();
+	if (nSnapshots <= 0)
+		return;
+	CString	sExportFolder(theApp.m_options.m_Export_sImageFolder);
+	if (!PathFileExists(sExportFolder)) {	// if export image folder doesn't exist
+		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
+		return;
+	}
+	CProgressDlg	dlgProgress;
+	dlgProgress.Create();
+	dlgProgress.SetRange(0, nSnapshots);
+	for (int iSnapshot = 0; iSnapshot < nSnapshots; iSnapshot++) {	// for each snapshot
+		CString	sSnapshotPath(m_aSnapshotPath[iSnapshot]);
+		theApp.LoadSnapshot(sSnapshotPath);	// load snapshot in render thread
+		// request render thread to capture snapshot as an image
+		theApp.m_thrRender.CaptureBitmap(theApp.m_options.GetExportFlags(), 
+			theApp.m_options.GetExportImageSize());
+		CPathStr	sFilename(PathFindFileName(sSnapshotPath));
+		sFilename.RenameExtension('.' + CString(m_pszExportExt));
+		CPathStr	sExportPath(sExportFolder);
+		sExportPath.Append(sFilename);
+		m_aOutputPath.Add(sExportPath);	// push path for captured image
+		// wait for render thread to post bitmap capture message
+		if (!WaitForPostedMessage(UWM_BITMAP_CAPTURE, dlgProgress)) {
+			m_aOutputPath.RemoveAll();	// clean up paths
+			break;	// user canceled, or error
+		}
+		dlgProgress.SetPos(iSnapshot);
 	}
 }
 

@@ -16,6 +16,7 @@
 		06		01mar25	add commands to set origin coords individually
 		07		02mar25	implement global parameters
 		08		04mar25	fix points buffer overrun caused by global ring sides
+		09		09mar25	set target size in capture bitmap to fix origin shift
 
 */
 
@@ -1159,6 +1160,8 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 	{
 		CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set pause state
 		CSaveObj<double>	saveZoom(m_fZoom);	// save zoom
+		CSaveObj<CD2DSizeF>	saveTargetSize(m_szTarget);	// save target size
+		m_szTarget = CD2DSizeF(szImage);	// set target size to image size
 		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
 			double	fScaleWidth = szImage.width / m_szTarget.width;
 			double	fScaleHeight = szImage.height / m_szTarget.height;

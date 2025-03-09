@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		02mar25	implement global parameters
+        02      09mar25	add export scaling types
 
 */
 
@@ -136,7 +137,9 @@ public:
 	};
 	enum {	// image export flags
 		EF_USE_VIEW_SIZE	= 0x01,	// make image same size as view
-		EF_SCALE_TO_FIT		= 0x02,	// scale image to fit within view
+		EF_SCALE_FIT_WIDTH	= 0x02,	// scale image to fit view width
+		EF_SCALE_FIT_HEIGHT	= 0x04,	// scale image to fit view height
+		EF_SCALE_FIT_BOTH	= EF_SCALE_FIT_WIDTH | EF_SCALE_FIT_HEIGHT,
 	};
 	enum {	// Whorld-specific render commands
 		RC_START = BASE_RENDER_COMMANDS - 1,	// offset from base render commands

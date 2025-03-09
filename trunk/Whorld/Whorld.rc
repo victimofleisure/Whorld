@@ -449,21 +449,20 @@ BEGIN
     RTEXT           "",IDC_PROGRESS_PERCENT,139,27,40,15,SS_CENTERIMAGE
 END
 
-IDD_EXPORT DIALOGEX 0, 0, 123, 136
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_EXPORT DIALOGEX 0, 0, 120, 116
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Export Options"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    CONTROL         "&Use view size",IDC_EXPORT_USE_VIEW_SIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,32,7,69,10
+    CONTROL         "&Use view size",IDC_EXPORT_USE_VIEW_SIZE_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,32,7,69,10
     RTEXT           "&Width:",IDC_STATIC,20,24,30,12,SS_CENTERIMAGE
-    EDITTEXT        IDC_EXPORT_WIDTH,54,24,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EXPORT_WIDTH_EDIT,54,24,40,14,ES_AUTOHSCROLL
     RTEXT           "&Height:",IDC_STATIC,20,44,30,12,SS_CENTERIMAGE
-    EDITTEXT        IDC_EXPORT_HEIGHT,54,44,40,14,ES_AUTOHSCROLL
-    GROUPBOX        "Resizing",IDC_STATIC,23,66,77,41,WS_GROUP
-    CONTROL         "&Crop",IDC_EXPORT_RESIZING1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,35,77,31,10
-    CONTROL         "&Scale to fit",IDC_EXPORT_RESIZING2,"Button",BS_AUTORADIOBUTTON,35,90,49,10
-    PUSHBUTTON      "OK",IDOK,7,115,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,66,115,50,14
+    EDITTEXT        IDC_EXPORT_HEIGHT_EDIT,54,44,40,14,ES_AUTOHSCROLL
+    LTEXT           "&Scaling Type:",IDC_STATIC,24,64,46,8
+    COMBOBOX        IDC_EXPORT_SCALING_TYPE_COMBO,24,74,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "OK",IDOK,7,95,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,63,95,50,14
 END
 
 IDD_GLOBAL_ROW DIALOGEX 0, 0, 195, 14
@@ -524,9 +523,9 @@ BEGIN
     IDD_EXPORT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 116
+        RIGHTMARGIN, 113
         TOPMARGIN, 7
-        BOTTOMMARGIN, 129
+        BOTTOMMARGIN, 109
     END
 
     IDD_GLOBAL_ROW, DIALOG
@@ -714,12 +713,12 @@ BEGIN
     IDS_NOT_APPLICABLE      "N/A"
     IDS_OPT_DESC_Export_bPromptUser 
                             "Prompt user for destination folder, filename, and options"
-    IDS_OPT_DESC_Export_bScaleToFit 
-                            "If true, scale drawing to fit within image size, otherwise drawing is cropped"
     IDS_OPT_DESC_Export_bUseViewSize 
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
+    IDS_OPT_DESC_Export_nScalingType 
+                            "Type of scaling to apply to image size; ignored if using view size"
 END
 
 STRINGTABLE
@@ -732,19 +731,23 @@ BEGIN
     IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
-    IDS_OPT_NAME_Export_bScaleToFit "Scale To Fit"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
+    IDS_OPT_NAME_Export_nScalingType "Scaling Type"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
     IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
-    IDS_PARAM_AspectRatio   "Aspect Ratio"
-    IDS_PARAM_BkHue         "Bk Hue"
+    IDS_OPT_SCALING_TYPE_FitBoth "Fit Both"
+    IDS_OPT_SCALING_TYPE_FitHeight "Fit Height"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_SCALING_TYPE_FitWidth "Fit Width"
+    IDS_OPT_SCALING_TYPE_None "None"
+    IDS_PARAM_AspectRatio   "Aspect Ratio"
+    IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
@@ -757,14 +760,14 @@ BEGIN
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
-    IDS_PARAM_RingSpacing   "Ring Spacing"
-    IDS_PARAM_RotateSpeed   "Rotate Speed"
-    IDS_PARAM_Saturation    "Saturation"
-    IDS_PARAM_SkewAngle     "Skew Angle"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_RingSpacing   "Ring Spacing"
+    IDS_PARAM_RotateSpeed   "Rotate Speed"
+    IDS_PARAM_Saturation    "Saturation"
+    IDS_PARAM_SkewAngle     "Skew Angle"
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
@@ -777,14 +780,14 @@ BEGIN
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
-    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
-    IDS_TOOLBAR_CUSTOMIZE   "Customize..."
-    IDS_TOOLBAR_STANDARD    "Standard"
-    IDS_WAVE_PULSE          "Pulse"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
+    IDS_TOOLBAR_CUSTOMIZE   "Customize..."
+    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_WAVE_PULSE          "Pulse"
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
@@ -805,17 +808,16 @@ BEGIN
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
     ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
-    ID_VIEW_OPTIONS         "Edit the options\nOptions"
 END
 
 STRINGTABLE
 BEGIN
+    ID_VIEW_OPTIONS         "Edit the options\nOptions"
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
-    ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All"
 END
 
 STRINGTABLE
@@ -824,6 +826,7 @@ BEGIN
     ID_PLAYLIST_MRU_FILE7   "Open this playlist"
     ID_PLAYLIST_MRU_FILE8   "Open this playlist"
     ID_PLAYLIST_MRU_FILE9   "Open this playlist"
+    ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All"
     ID_SNAPSHOT_FIRST       "Go to first item\nFirst"
     ID_SNAPSHOT_LAST        "Go to last item\nLast"
     ID_SNAPSHOT_NEXT        "Go to next item\nNext"

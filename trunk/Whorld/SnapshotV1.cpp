@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      23feb25	initial version
+		01		09mar25	add flags bitmask to state
 
 */
 
@@ -22,10 +23,6 @@ void CSnapshotV1::ThrowBadFormat(CArchive &ar)
 
 CSnapshot* CSnapshotV1::Read(CFile& fIn)
 {
-	enum {
-		SNAPSHOT_SIG = 0x4e534857,	// snapshot signature: WHSN (WHorld SNapshot)
-		SNAPSHOT_VERSION = 5,		// snapshot version number
-	};
 	fIn.SeekToBegin();
 	CArchive	ar(&fIn, CArchive::load);
 	ar.m_strFileName = fIn.GetFilePath();
@@ -122,6 +119,7 @@ void CSnapshotV1::CvtState(const STATE_V1& stateOld, CSnapshot::STATE& stateNew)
 	stateNew.clrBkgnd		= CvtColor(stateOld.BkColor);
 	stateNew.fZoom			= stateOld.Zoom;
 	stateNew.bConvex		= stateOld.Convex;
+	stateNew.nFlags			= CSnapshot::SF_V1;
 }
 
 void CSnapshotV1::CvtGlobRing(const GLOBRING_V1& grOld, GLOBRING& grNew)

@@ -9,6 +9,7 @@
 		rev		date	comments
         00      28jun05	initial version
         01      21feb25	refactor
+        02      09mar25	add export scaling types
 
         export options dialog
  
@@ -32,22 +33,23 @@ CExportDlg::CExportDlg(CWnd* pParent /*=NULL*/)
 	m_bUseViewSize = theApp.m_options.m_Export_bUseViewSize;
 	m_nWidth = theApp.m_options.m_Export_nImageWidth;
 	m_nHeight = theApp.m_options.m_Export_nImageHeight;
-	m_nResizing = theApp.m_options.m_Export_bScaleToFit;
 }
 
 void CExportDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Check(pDX, IDC_EXPORT_USE_VIEW_SIZE, m_bUseViewSize);
-	DDX_Text(pDX, IDC_EXPORT_WIDTH, m_nWidth);
-	DDX_Text(pDX, IDC_EXPORT_HEIGHT, m_nHeight);
-	DDX_Radio(pDX, IDC_EXPORT_RESIZING1, m_nResizing);
+	DDX_Check(pDX, IDC_EXPORT_USE_VIEW_SIZE_CHECK, m_bUseViewSize);
+	DDX_Text(pDX, IDC_EXPORT_WIDTH_EDIT, m_nWidth);
+	DDX_Text(pDX, IDC_EXPORT_HEIGHT_EDIT, m_nHeight);
+	DDX_Control(pDX, IDC_EXPORT_SCALING_TYPE_COMBO, m_comboScalingType);
 }
 
 BEGIN_MESSAGE_MAP(CExportDlg, CDialog)
 	ON_MESSAGE(WM_KICKIDLE, OnKickIdle)
-	ON_UPDATE_COMMAND_UI(IDC_EXPORT_WIDTH, OnUpdateSize)
-	ON_UPDATE_COMMAND_UI(IDC_EXPORT_HEIGHT, OnUpdateSize)
+	ON_UPDATE_COMMAND_UI(IDC_EXPORT_WIDTH_EDIT, OnUpdateSize)
+	ON_UPDATE_COMMAND_UI(IDC_EXPORT_HEIGHT_EDIT, OnUpdateSize)
+	ON_UPDATE_COMMAND_UI(IDC_EXPORT_SCALING_TYPE_COMBO, OnUpdateSize)
+	ON_CBN_SELCHANGE(IDC_EXPORT_SCALING_TYPE_COMBO, &CExportDlg::OnCbnSelchangeExportScalingTypeCombo)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,12 @@ END_MESSAGE_MAP()
 BOOL CExportDlg::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
+
+	// initialize scaling type drop list from options
+	for (int iScaT = 0; iScaT < COptions::SCALING_TYPES; iScaT++) {
+		m_comboScalingType.AddString(LDS(COptions::m_oiScalingType[iScaT].nNameID));
+	}
+	m_comboScalingType.SetCurSel(theApp.m_options.m_Export_nScalingType);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
@@ -66,7 +74,7 @@ void CExportDlg::OnOK()
 	theApp.m_options.m_Export_bUseViewSize = m_bUseViewSize != 0;
 	theApp.m_options.m_Export_nImageWidth = m_nWidth;
 	theApp.m_options.m_Export_nImageHeight = m_nHeight;
-	theApp.m_options.m_Export_bScaleToFit = m_nResizing != 0;
+	theApp.m_options.m_Export_nScalingType = max(m_comboScalingType.GetCurSel(), 0);
 }
 
 LRESULT CExportDlg::OnKickIdle(WPARAM, LPARAM)
@@ -77,6 +85,12 @@ LRESULT CExportDlg::OnKickIdle(WPARAM, LPARAM)
 
 void CExportDlg::OnUpdateSize(CCmdUI *pCmdUI)
 {
-	BOOL	bUseViewSize = IsDlgButtonChecked(IDC_EXPORT_USE_VIEW_SIZE);
+	BOOL	bUseViewSize = IsDlgButtonChecked(IDC_EXPORT_USE_VIEW_SIZE_CHECK);
 	pCmdUI->Enable(!bUseViewSize);
+}
+
+
+void CExportDlg::OnCbnSelchangeExportScalingTypeCombo()
+{
+	// TODO: Add your control notification handler code here
 }

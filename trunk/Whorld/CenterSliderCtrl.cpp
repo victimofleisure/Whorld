@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      05mar25	initial version
+		01		09mar25	do epsilon testing for thumb track case only
 
 */
 
@@ -33,15 +34,20 @@ void CCenterSliderCtrl::HScroll(UINT nSBCode, UINT nPos)
 {
 	UNREFERENCED_PARAMETER(nSBCode);
 	UNREFERENCED_PARAMETER(nPos);
-	const double fCenterEpsilon = 0.0075;	// determined empirically
-	int	nMin, nMax;
-	GetRange(nMin, nMax);
-	// normalize slider position
-	double	fNormPos = static_cast<double>(nPos - nMin) / (nMax - nMin);
-	// if slider close enough to center position
-	if (fabs(fNormPos - 0.5) < fCenterEpsilon) {
-		SetValNorm(0.5);	// call it center
-	} else {	// not near center
-		CEditSliderCtrl::HScroll(nSBCode, nPos);	// defer to base
+	if (nSBCode == SB_THUMBTRACK) {	// if user is dragging thumb
+		const double fCenterEpsilon = 0.0075;	// determined empirically
+		int	nMin, nMax;
+		GetRange(nMin, nMax);
+		// normalize slider position
+		double	fNormPos = static_cast<double>(nPos - nMin) / (nMax - nMin);
+		// if slider close enough to center position
+		if (fabs(fNormPos - 0.5) < fCenterEpsilon) {
+			SetValNorm(0.5);	// call it center
+			// not calling base class, so we're responsible for notifying parent
+			if (m_pEdit != NULL)
+				m_pEdit->SetVal(m_fVal, CNumEdit::NTF_PARENT);	// notify parent only
+			return;	// skip base class behavior, as we overrode it
+		}
 	}
+	CEditSliderCtrl::HScroll(nSBCode, nPos);
 }

@@ -22,6 +22,12 @@ public:
 	static CSnapshot* Read(CFile& fIn);
 	static void ThrowBadFormat(CArchive &ar);
 
+// Constants
+	enum {
+		SNAPSHOT_SIG = 0x4e534857,	// snapshot signature: WHSN (WHorld SNapshot)
+		SNAPSHOT_VERSION = 5,		// snapshot version number
+	};
+
 protected:
 // Types
 	struct PARMS_V1 {

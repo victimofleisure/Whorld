@@ -55,12 +55,12 @@ int CClickSliderCtrl::PointToPos(CPoint point)
 void CClickSliderCtrl::PostPos()
 {
 	GetParent()->PostMessage(WM_HSCROLL,
-		MAKELONG(SB_THUMBTRACK, GetPos()), reinterpret_cast<LPARAM>(this->m_hWnd));
+		MAKELONG(SB_THUMBTRACK, GetPos()), reinterpret_cast<LPARAM>(m_hWnd));
 }
 
 void CClickSliderCtrl::PostNotification(int nCode)
 {
-	GetParent()->PostMessage(WM_HSCROLL, nCode, reinterpret_cast<LPARAM>(this->m_hWnd));
+	GetParent()->PostMessage(WM_HSCROLL, nCode, reinterpret_cast<LPARAM>(m_hWnd));
 }
 
 void CClickSliderCtrl::SetTicCount(int nCount)

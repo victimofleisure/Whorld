@@ -17,6 +17,8 @@
 		07		02mar25	implement global parameters
 		08		04mar25	fix points buffer overrun caused by global ring sides
 		09		09mar25	set target size in capture bitmap to fix origin shift
+		10		09mar25	add export scaling types
+		11		09mar25	fix color shift in legacy snapshots
 
 */
 
@@ -73,6 +75,7 @@ CWhorldThread::CWhorldThread()
 	m_fZoomTarget = 1;
 	m_nFrameRate = DEFAULT_FRAME_RATE;
 	m_nLastPushErrorTime = 0;
+	m_nSnapshotFlags = 0;
 }
 
 bool CWhorldThread::CreateUserResources()
@@ -546,6 +549,11 @@ bool CWhorldThread::OnDraw()
 		if (m_bSnapshotMode) {	// if we're displaying a snapshot
 			fLineWidth *= m_fZoom;	// apply special scaling
 			ptOrg *= m_fZoom;
+			if (m_nSnapshotFlags & CSnapshot::SF_V1) {	// if V1 snapshot
+				// V1 shifted filled ring colors by one ring in convex mode, and V2's
+				// fix for that must be disabled to display a V1 snapshot correctly.
+				clrPrev = ring.clrCur;	// emulate legacy convex mode color behavior
+			}
 		}
 		CKD2DRectF	rBounds(m_rCanvas);
 		rBounds.OffsetRect(DTOF(ptOrg.x), DTOF(ptOrg.y));
@@ -762,7 +770,8 @@ CSnapshot* CWhorldThread::GetSnapshot() const
 	pSnapshot->m_state.fZoom = m_fZoom;
 	pSnapshot->m_state.nRings = nRings;
 	pSnapshot->m_state.bConvex = m_main.bConvex;
-	ZeroMemory(pSnapshot->m_state.baReserved, sizeof(pSnapshot->m_state.baReserved));
+	pSnapshot->m_state.bReserved = 0;
+	pSnapshot->m_state.nFlags = 0;
 	pSnapshot->m_globRing = m_globRing;	// save global ring data
 	// save ring list
 	RING	*pRing	= pSnapshot->m_aRing;
@@ -781,6 +790,7 @@ void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 	m_fZoom = pSnapshot->m_state.fZoom;
 	int	nRings = pSnapshot->m_state.nRings;
 	m_main.bConvex = pSnapshot->m_state.bConvex;
+	m_nSnapshotFlags = pSnapshot->m_state.nFlags;
 	m_globRing = pSnapshot->m_globRing;
 	// restore ring list
 	RemoveAllRings();	// empty ring list
@@ -1161,13 +1171,24 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 		CSaveObj<bool>	savePaused(m_bIsPaused, true);	// save and set pause state
 		CSaveObj<double>	saveZoom(m_fZoom);	// save zoom
 		CSaveObj<CD2DSizeF>	saveTargetSize(m_szTarget);	// save target size
-		m_szTarget = CD2DSizeF(szImage);	// set target size to image size
-		if (nFlags & EF_SCALE_TO_FIT) {	// if scaling to fit
-			double	fScaleWidth = szImage.width / m_szTarget.width;
-			double	fScaleHeight = szImage.height / m_szTarget.height;
-			double	fScaleToFit = min(fScaleWidth, fScaleHeight);
-			m_fZoom *= fScaleToFit; 
+		UINT	nScaleType = nFlags & EF_SCALE_FIT_BOTH;
+		if (nScaleType) {	// if scaling
+			double	fHorzScale = szImage.width / m_szTarget.width;
+			double	fVertScale = szImage.height / m_szTarget.height;
+			double	fScale;
+			switch (nScaleType) {
+			case EF_SCALE_FIT_WIDTH:
+				fScale = fHorzScale;	// fit width only
+				break;
+			case EF_SCALE_FIT_HEIGHT:
+				fScale = fVertScale;	// fit height only
+				break;
+			default:	// fit both width and height
+				fScale = min(fHorzScale, fVertScale);
+			}
+			m_fZoom *= fScale;	// apply scale to zoom
 		}
+		m_szTarget = CD2DSizeF(szImage);	// set target size to image size
 		OnDraw();	// draw as usual; geometry is frozen because we're paused
 		// state is restored automatically when CSaveObj instances goes out of scope
 	}

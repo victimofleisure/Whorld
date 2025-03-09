@@ -11,6 +11,7 @@
 		01		20feb19	rename option info vars
 		02		21feb25	customize for Whorld
 		03		26feb25	add MIDI input
+        04      09mar25	add export scaling types
 		
 */
 
@@ -36,8 +37,14 @@ public:
 		#include "OptionsDef.h"
 		PROPERTIES
 	};
+	enum {	// scaling types
+		#define SCALINGTYPEDEF(x) SCALING_TYPE_##x,
+		#include "OptionsDef.h"
+		SCALING_TYPES
+	};
 	static const OPTION_INFO	m_oiGroup[GROUPS];	// group names
 	static const PROPERTY_INFO	m_Info[PROPERTIES];	// fixed info for each property
+	static const OPTION_INFO	m_oiScalingType[SCALING_TYPES];	// scaling type options
 
 // Attributes
 	CSize	GetExportImageSize() const;

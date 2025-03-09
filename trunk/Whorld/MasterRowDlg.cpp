@@ -9,6 +9,7 @@
 		rev		date	comments
         00      10feb25	initial version
 		01		25feb25	add edit precision for zoom, damping, and trail
+		02		09mar25	set slider page size
 
 */
 
@@ -200,6 +201,7 @@ BOOL CMasterRowDlg::OnInitDialog()
 	m_editVal.SetRange(range.fMinVal, range.fMaxVal);
 	const CEditSliderCtrl::INFO&	info = m_arrSliderInfo[iMaster];
 	m_sliderVal.SetInfo(info, &m_editVal);
+	m_sliderVal.SetPageSize((info.nRangeMax - info.nRangeMin) / SLIDER_PAGES);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 }

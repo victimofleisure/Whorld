@@ -49,6 +49,11 @@ protected:
 		void	SetVal(int nSelect) { SetCurSel(nSelect); }
 	};
 
+// Constants
+	enum {
+		SLIDER_PAGES = 10,
+	};
+
 // Data members
 	CStatic		m_staticName;
 	CMyEditSliderCtrl	m_sliderVal;

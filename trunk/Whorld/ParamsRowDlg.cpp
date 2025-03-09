@@ -9,6 +9,7 @@
 		rev		date	comments
         00      08feb25	initial version
 		02		02mar25	exclude globals property
+		03		09mar25	set slider page size
 
 */
 
@@ -111,6 +112,7 @@ BOOL CParamsRowDlg::OnInitDialog()
 	m_sliderVal.SetRange(0, info.nSteps);
 	m_sliderVal.SetDefaultPos(info.nSteps / 2);
 	m_sliderVal.SetEditCtrl(&m_editVal);
+	m_sliderVal.SetPageSize(info.nSteps / SLIDER_PAGES);
 	m_spinVal.SetDelta((info.fMaxVal - info.fMinVal) / info.nSteps);
 	for (int iWave = 0; iWave < WAVEFORM_COUNT; iWave++) {	// for each waveform
 		m_comboWave.AddString(GetWaveformName(iWave));	// add name to combo box

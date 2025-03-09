@@ -13,6 +13,7 @@
 		03		27feb25	add snapshot mode accessor
 		04		01mar25	add commands to set origin coords individually
 		05		02mar25	implement global parameters
+		06		09mar25	add snapshot flags bitmask
 
 */
 
@@ -105,6 +106,7 @@ protected:
 	DWORD	m_nFrameRate;	// current frame rate in Hertz
 	CAutoPtr<CSnapshot>	m_pPrevSnapshot;	// render state before snapshot mode
 	LONGLONG	m_nLastPushErrorTime;	// when push command retries last failed
+	USHORT	m_nSnapshotFlags;	// snapshot flags bitmask
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);

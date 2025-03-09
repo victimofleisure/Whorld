@@ -9,6 +9,7 @@
 		rev		date	comments
         00      02mar25	initial version
 		01		04mar25	fix edit control minimum value
+		02		09mar25	set slider page size
 
 */
 
@@ -85,6 +86,7 @@ BOOL CGlobalsRowDlg::OnInitDialog()
 	m_sliderVal.SetRange(0, info.nSteps);
 	m_sliderVal.SetDefaultPos(info.nSteps / 2);
 	m_sliderVal.SetEditCtrl(&m_editVal);
+	m_sliderVal.SetPageSize(info.nSteps / SLIDER_PAGES);
 	m_spinVal.SetDelta((info.fMaxVal - fMinVal) / info.nSteps);
 
 	return TRUE;  // return TRUE unless you set the focus to a control

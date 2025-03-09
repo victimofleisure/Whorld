@@ -66,6 +66,9 @@ protected:
 
 // Constants
 	static const DBL_RANGE m_arrEditRange[MASTER_COUNT];
+	enum {
+		SLIDER_PAGES = 10,
+	};
 
 // Data members
 	CStatic		m_staticName;

@@ -9,6 +9,7 @@
 		rev		date	comments
         00      28jun05	initial version
         01      21feb25	refactor
+        02      09mar25	add export scaling types
 
         export options dialog
  
@@ -45,7 +46,7 @@ protected:
 	BOOL	m_bUseViewSize;
 	int		m_nWidth;
 	int		m_nHeight;
-	int		m_nResizing;
+	CComboBox m_comboScalingType;
 
 // Overrides
 	virtual BOOL OnInitDialog();
@@ -55,4 +56,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg LRESULT OnKickIdle(WPARAM, LPARAM);
 	afx_msg void OnUpdateSize(CCmdUI *pCmdUI);
+	afx_msg void OnCbnSelchangeExportScalingTypeCombo();
 };

@@ -11,6 +11,7 @@
 		01		20feb19	rename option info vars
 		02		21feb25	customize for Whorld
 		03		26feb25	add MIDI input
+        04      09mar25	add export scaling types
 		
 */
 
@@ -30,6 +31,11 @@ const COptions::PROPERTY_INFO COptions::m_Info[PROPERTIES] = {
 		{_T(#group) _T("_") _T(#name), IDS_OPT_NAME_##group##_##name, IDS_OPT_DESC_##group##_##name, \
 		offsetof(COptions, m_##group##_##name), sizeof(type), &typeid(type), GROUP_##group, -1, \
 		PT_##proptype, items, itemname, minval, maxval},
+	#include "OptionsDef.h"
+};
+
+const COptions::OPTION_INFO COptions::m_oiScalingType[SCALING_TYPES] = {
+	#define SCALINGTYPEDEF(name) {_T(#name), IDS_OPT_SCALING_TYPE_##name},
 	#include "OptionsDef.h"
 };
 
@@ -153,8 +159,16 @@ UINT COptions::GetExportFlags() const
 	if (m_Export_bUseViewSize) {
 		nFlags |= CWhorldBase::EF_USE_VIEW_SIZE;
 	}
-	if (m_Export_bScaleToFit) {
-		nFlags |= CWhorldBase::EF_SCALE_TO_FIT;
+	switch (m_Export_nScalingType) {
+	case SCALING_TYPE_FitWidth:
+		nFlags |= CWhorldBase::EF_SCALE_FIT_WIDTH;
+		break;
+	case SCALING_TYPE_FitHeight:
+		nFlags |= CWhorldBase::EF_SCALE_FIT_HEIGHT;
+		break;
+	case SCALING_TYPE_FitBoth:
+		nFlags |= CWhorldBase::EF_SCALE_FIT_BOTH;
+		break;
 	}
 	return nFlags;
 }

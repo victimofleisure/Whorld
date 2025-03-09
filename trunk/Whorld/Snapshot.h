@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      22feb25	initial version
+		01		09mar25	add flags bitmask to state
 
 */
 
@@ -26,10 +27,14 @@ public:
 		double	fZoom;			// current zoom, as a scaling factor
 		int		nRings;			// number of elements in ring array
 		bool	bConvex;		// true if drawing in descending size order
-		BYTE	baReserved[3];	// reserved, must be zero	
+		BYTE	bReserved;		// reserved, must be zero	
+		USHORT	nFlags;			// see enum below
 	};
 
 // Constants
+	enum {	// flags
+		SF_V1	= 0x0001,		// true if V1 legacy snapshot
+	};
 	static const UINT m_nFileID;
 	static const USHORT m_nFileVersion;
 

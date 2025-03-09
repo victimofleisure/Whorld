@@ -11,6 +11,7 @@
 		01		21feb25	customize for Whorld
 		02		26feb25	add MIDI input
 		03		28feb25	add general group
+		04      09mar25	add export scaling types
 
 */
 
@@ -31,10 +32,19 @@ PROPDEF(	Export,		NONE,		FOLDER,		CString,	sImageFolder,		"",			"",			"",			NULL
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageWidth,		1920,		1,			UINT_MAX,	NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageHeight,		1080,		1,			UINT_MAX,	NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bUseViewSize,		1,			0,			0,			NULL,		0)
-PROPDEF(	Export,		NONE,		VAR,		bool,		bScaleToFit,		0,			0,			0,			NULL,		0)
+PROPDEF(	Export,		NONE,		ENUM,		UINT,		nScalingType,		0,			0,			0,			m_oiScalingType,	SCALING_TYPES)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bPromptUser,		1,			0,			0,			NULL,		0)
 PROPDEF(	General,	NONE,		VAR,		int,		nMRUItems,			4,			0,			16,			NULL,		0)
 
 #undef PROPDEF
 #endif
 
+#ifdef SCALINGTYPEDEF
+
+SCALINGTYPEDEF(None)
+SCALINGTYPEDEF(FitWidth)
+SCALINGTYPEDEF(FitHeight)
+SCALINGTYPEDEF(FitBoth)
+
+#undef SCALINGTYPEDEF
+#endif

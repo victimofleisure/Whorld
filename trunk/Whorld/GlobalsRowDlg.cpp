@@ -9,7 +9,7 @@
 		rev		date	comments
         00      02mar25	initial version
 		01		04mar25	fix edit control minimum value
-		02		09mar25	set slider page size
+		02		09mar25	set slider's page size
 
 */
 

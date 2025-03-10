@@ -9,7 +9,7 @@
 		rev		date	comments
         00      10feb25	initial version
 		01		25feb25	add edit precision for zoom, damping, and trail
-		02		09mar25	set slider page size
+		02		09mar25	set slider's page size
 
 */
 

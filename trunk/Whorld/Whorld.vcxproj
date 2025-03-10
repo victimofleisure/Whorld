@@ -201,6 +201,7 @@
     <ClInclude Include="EditSliderCtrl.h" />
     <ClInclude Include="ExportDlg.h" />
     <ClInclude Include="FocusEdit.h" />
+    <ClInclude Include="FolderDialog.h" />
     <ClInclude Include="FormatIO.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GlobalsBar.h" />
@@ -298,6 +299,7 @@
     <ClCompile Include="EditSliderCtrl.cpp" />
     <ClCompile Include="ExportDlg.cpp" />
     <ClCompile Include="FocusEdit.cpp" />
+    <ClCompile Include="FolderDialog.cpp" />
     <ClCompile Include="FormatIO.cpp" />
     <ClCompile Include="GlobalsBar.cpp" />
     <ClCompile Include="GlobalsRowDlg.cpp" />

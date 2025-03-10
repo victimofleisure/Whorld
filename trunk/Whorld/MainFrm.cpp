@@ -20,6 +20,7 @@
 		10		06mar25	implement drop files for all supported file types
 		11		07mar25	use prompt for multiple files dialog for snapshots
 		12		08mar25	add export all snapshots
+		13		10mar25	add prompting for export all
 
 */
 
@@ -40,6 +41,7 @@
 #include "Midi.h"
 #include "SaveObj.h"
 #include "ProgressDlg.h"
+#include "FolderDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -943,8 +945,17 @@ void CMainFrame::OnFileExport()
 	CString	sExportPath;
 	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
 	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+		CPathStr sFileName;
+		if (theApp.IsSnapshotMode()) {	// if in snapshot mode
+			sFileName = PathFindFileName(m_aSnapshotPath[m_iCurSnapshot]);
+		} else {	// not in snapshot mode
+			if (!theApp.GetDocument()->GetPathName().IsEmpty()) {	// if document was opened
+				sFileName = theApp.GetDocument()->GetTitle();
+			}
+		}
+		sFileName.RemoveExtension();
 		// prompt user for export path
-		CFileDialog	fd(false, m_pszExportExt, NULL, OFN_OVERWRITEPROMPT, m_pszExportFilter);
+		CFileDialog	fd(false, m_pszExportExt, sFileName, OFN_OVERWRITEPROMPT, m_pszExportFilter);
 		if (fd.DoModal() != IDOK) {	// display file dialog
 			return;	// user canceled
 		}
@@ -1058,12 +1069,25 @@ void CMainFrame::OnSnapshotPrev()
 void CMainFrame::OnSnapshotExportAll()
 {
 	int	nSnapshots = m_aSnapshotPath.GetSize();
-	if (nSnapshots <= 0)
-		return;
+	if (nSnapshots <= 0)	// if no snapshots loaded
+		return;	// nothing to do
 	CString	sExportFolder(theApp.m_options.m_Export_sImageFolder);
+	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
+	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+		// prompt user for export destination folder
+		UINT	nFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+		CString	sFDlgTitle(LDS(IDS_EXPORT_ALL_SNAPSHOTS));
+		if (!CFolderDialog::BrowseFolder(sFDlgTitle, sExportFolder, NULL, nFlags, sExportFolder))
+			return;	// user canceled
+		// prompt user for export options
+		CExportDlg	dlg;
+		if (dlg.DoModal() != IDOK) {	// display export options dialog
+			return;	// user canceled
+		}
+	}
 	if (!PathFileExists(sExportFolder)) {	// if export image folder doesn't exist
 		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
-		return;
+		return;	// fail
 	}
 	CProgressDlg	dlgProgress;
 	dlgProgress.Create();
@@ -1086,6 +1110,8 @@ void CMainFrame::OnSnapshotExportAll()
 		}
 		dlgProgress.SetPos(iSnapshot);
 	}
+	// restore current snapshot
+	theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
 }
 
 void CMainFrame::OnUpdateSnapshot(CCmdUI *pCmdUI)

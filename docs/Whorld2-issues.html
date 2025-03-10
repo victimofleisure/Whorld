@@ -37,20 +37,11 @@
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
-<TH>23</TH>
-<TD>02/25/25</TD>
-<TD>&nbsp;</TD>
-<TD>bug</TD>
-<TD>sporadic error when trying to open legacy patch, invalid file handle; can't replicate so far</TD>
-<TD>&nbsp;</TD>
-<TD>JM</TD>
-</TR>
-<TR VALIGN=TOP>
 <TH>58</TH>
 <TD>03/01/25</TD>
 <TD>&nbsp;</TD>
 <TD>bug</TD>
-<TD>boolean mapping targets send spurious render commands when value is unchanged; careful to avoid race</TD>
+<TD>boolean mapping targets send spurious render commands when value is unchanged; part of larger switch issue</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>
@@ -545,7 +536,7 @@
 <TD>03/09/25</TD>
 <TD>03/09/25</TD>
 <TD>done</TD>
-<TD>centering a slider via shift+click updates the slider, but not the corresponding property</TD>
+<TD>centering a slider via Shift+click updates the slider, but not the corresponding property</TD>
 <TD>2.0.10.007</TD>
 <TD>&nbsp;</TD>
 </TR>
@@ -566,6 +557,33 @@
 <TD>export scaling not matching V1; refactor scaling to four options: none, fit width, fit height, fit both</TD>
 <TD>2.0.10.007</TD>
 <TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>85</TH>
+<TD>03/10/25</TD>
+<TD>03/10/25</TD>
+<TD>done</TD>
+<TD>MIDI learn not working; manager was posting messages to main frame rather than mapping bar</TD>
+<TD>2.0.11.000</TD>
+<TD>JM</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>82</TH>
+<TD>03/10/25</TD>
+<TD>03/10/25</TD>
+<TD>done</TD>
+<TD>change slider's restore default position modifier key from Shift to Control</TD>
+<TD>2.0.11.000</TD>
+<TD>JM</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>83</TH>
+<TD>03/10/25</TD>
+<TD>03/10/25</TD>
+<TD>done</TD>
+<TD>in parameters dialog, slider default positions should be parameter defaults, not center</TD>
+<TD>2.0.11.000</TD>
+<TD>JM</TD>
 </TR>
 <TR VALIGN=TOP>
 <TH>14</TH>
@@ -737,6 +755,24 @@
 <TD>global line width can cause negative line width; Direct2D takes absolute value, maybe it's fine</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>84</TH>
+<TD>03/10/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>origin motion commands belong on image menu, instead of buried in submenu</TD>
+<TD>&nbsp;</TD>
+<TD>JM</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>23</TH>
+<TD>02/25/25</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>sporadic error when trying to open legacy patch, invalid file handle; can't replicate</TD>
+<TD>&nbsp;</TD>
+<TD>JM</TD>
 </TR>
 <TR VALIGN=TOP>
 <TH>49</TH>

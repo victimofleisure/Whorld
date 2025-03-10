@@ -12,6 +12,7 @@
 		02		01mar25	add misc targets
 		03		01mar25	add learn mode
 		04		03mar25	support full resolution pitch bend
+		05		10mar25	fix learn mode; post to mapping bar, not main frame
 
 */
 
@@ -131,9 +132,18 @@ void CALLBACK CMidiManager::MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwIns
 
 inline BOOL CMidiManager::PostMsgToMainWnd(int nMsg, WPARAM wParam, LPARAM lParam)
 {
-	CMainFrame	*pMainWnd = theApp.GetMainFrame();
-	if (pMainWnd != NULL) {	// if main window exists
-		return pMainWnd->PostMessage(nMsg, wParam, lParam);
+	CMainFrame	*pMainFrame = theApp.GetMainFrame();
+	if (pMainFrame != NULL) {	// if main window exists
+		return pMainFrame->PostMessage(nMsg, wParam, lParam);
+	}
+	return false;
+}
+
+inline BOOL CMidiManager::PostMsgToMappingBar(int nMsg, WPARAM wParam, LPARAM lParam)
+{
+	CMainFrame	*pMainFrame = theApp.GetMainFrame();
+	if (pMainFrame != NULL) {	// if main window exists
+		return pMainFrame->m_wndMappingBar.PostMessage(nMsg, wParam, lParam);
 	}
 	return false;
 }
@@ -277,7 +287,7 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 		return;	// ignore
 	if (m_bLearnMode) {	// if learning mappings
 		// post MIDI message to mapping bar; do NOT access bar's members directly
-		PostMsgToMainWnd(UWM_MIDI_EVENT, dwEvent);
+		PostMsgToMappingBar(UWM_MIDI_EVENT, dwEvent);
 	}
 	// lock the mapping array during iteration
 	WCritSec::Lock lock(m_midiMaps.GetCritSec());

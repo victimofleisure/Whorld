@@ -47,7 +47,7 @@
 #define RK_RENDER_WND _T("RenderWnd")
 #define RK_RESOURCE_VERSION _T("nResourceVersion")
 
-const int CWhorldApp::m_nNewResourceVersion = 7;	// increment if resource change breaks customization
+const int CWhorldApp::m_nNewResourceVersion = 8;	// increment if resource change breaks customization
 
 // CWhorldApp construction
 

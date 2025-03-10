@@ -9,7 +9,8 @@
 		rev		date	comments
         00      08feb25	initial version
 		02		02mar25	exclude globals property
-		03		09mar25	set slider page size
+		03		09mar25	set slider's page size
+		04		10mar25	set slider's default position to parameter's default value
 
 */
 
@@ -99,6 +100,13 @@ void CParamsRowDlg::DoDataExchange(CDataExchange* pDX)
 	CRowDlg::DoDataExchange(pDX);
 }
 
+inline int CParamsRowDlg::GetSliderDefaultPos(int iParam)
+{
+	const PARAM_INFO&	info = GetParamInfo(iParam);
+	return Round((GetParamDefault(iParam) - info.fMinVal) 
+		/ (info.fMaxVal - info.fMinVal) * info.nSteps);
+}
+
 BOOL CParamsRowDlg::OnInitDialog()
 {
 	CRowDlg::OnInitDialog();
@@ -110,7 +118,7 @@ BOOL CParamsRowDlg::OnInitDialog()
 	m_editVal.SetRange(info.fMinVal, info.fMaxVal);
 	m_editVal.SetScale(info.fScale);
 	m_sliderVal.SetRange(0, info.nSteps);
-	m_sliderVal.SetDefaultPos(info.nSteps / 2);
+	m_sliderVal.SetDefaultPos(GetSliderDefaultPos(iParam));
 	m_sliderVal.SetEditCtrl(&m_editVal);
 	m_sliderVal.SetPageSize(info.nSteps / SLIDER_PAGES);
 	m_spinVal.SetDelta((info.fMaxVal - info.fMinVal) / info.nSteps);

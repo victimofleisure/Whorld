@@ -11,6 +11,7 @@
 		01		22apr05	remove undo handling
         02      22feb25	replace header guard with pragma
 		03		03mar25	modernize style
+		04		10mar25	change default position modifier key from shift to control
 
 		slider with jump to position and default
  
@@ -55,7 +56,7 @@ protected:
 
 // Constants
 	enum {
-		MKU_DEFAULT_POS = MK_SHIFT
+		MKU_DEFAULT_POS = MK_CONTROL
 	};
 
 // Member data

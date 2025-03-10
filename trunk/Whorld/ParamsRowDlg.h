@@ -75,6 +75,7 @@ protected:
 // Helpers
 	CParamsView* GetView();
 	void	SetParam(int iProp, const CComVariant& prop);
+	int		GetSliderDefaultPos(int iParam);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()

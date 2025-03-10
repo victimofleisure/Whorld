@@ -65,6 +65,7 @@ protected:
 
 // Helpers
 	BOOL	PostMsgToMainWnd(int nMsg, WPARAM wParam = 0, LPARAM lParam = 0);
+	BOOL	PostMsgToMappingBar(int nMsg, WPARAM wParam = 0, LPARAM lParam = 0);
 	void	PushParameter(int iParam, int iProp, double fNormVal);
 	void	PushMasterProperty(int iProp, double fNormVal);
 	void	PushMiscTarget(int iMiscTarget, double fNormVal);

@@ -14,6 +14,7 @@
 		04		01mar25	add commands to set origin coords individually
 		05		02mar25	implement global parameters
 		06		09mar25	add snapshot flags bitmask
+		07		10mar25	add get/set draw state
 
 */
 
@@ -107,6 +108,7 @@ protected:
 	CAutoPtr<CSnapshot>	m_pPrevSnapshot;	// render state before snapshot mode
 	LONGLONG	m_nLastPushErrorTime;	// when push command retries last failed
 	BYTE	m_nSnapshotFlags;	// snapshot flags bitmask
+	double	m_fSnapshotZoom;	// snapshot zoom, as a scaling factor
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);

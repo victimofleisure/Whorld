@@ -8,8 +8,8 @@
 		revision history:
 		rev		date	comments
         00      22feb25	initial version
-		01		09mar25	add flags bitmask to state
-		02		10mar25	add target size to state
+		01		09mar25	add flags bitmask to drawing state
+		02		10mar25	add target size to drawing state
 
 */
 
@@ -22,17 +22,6 @@
 
 class CSnapshot : public CWhorldBase {
 public:
-// Types
-	struct STATE {
-		D2D1_SIZE_F	szTarget;	// target size in device-independent pixels
-		D2D1_COLOR_F	clrBkgnd;	// background color
-		double	fZoom;			// current zoom, as a scaling factor
-		int		nRings;			// number of elements in ring array
-		bool	bConvex;		// true if drawing in descending size order
-		BYTE	nFlags;			// flags bitmask; see enum below
-		USHORT	nReserved;		// reserved, must be zero	
-	};
-
 // Constants
 	enum {	// flags
 		SF_V1	= 0x01,			// true if V1 legacy snapshot
@@ -41,8 +30,8 @@ public:
 	static const USHORT m_nFileVersion;
 
 // Public data
-	STATE		m_state;		// drawing state
-	GLOBRING	m_globRing;		// global ring offsets
+	DRAW_STATE	m_drawState;	// drawing state
+	GLOB_RING	m_globRing;		// global ring offsets
 	RING		m_aRing[1];		// variable-length array of rings
 
 // Attributes
@@ -54,19 +43,28 @@ public:
 	static CSnapshot*	Read(LPCTSTR pszPath);
 	static void	Read(CFile& file, void* lpBuf, UINT nCount);
 	static UINT	GetSize(int nRings);
+	template<class T> 
+	static void FormatItem(LPCTSTR pszCaption, const T& val, CString& sLine)
+	{
+		sLine += CString(pszCaption) + _T(": ") + ValToString(val) + '\n';
+	}
+	static CString	FormatState(const DRAW_STATE& drawState);
+	static CString	FormatRing(int iRing, const RING& ring);
+	static CString	FormatGlobRing(const GLOB_RING& globRing);
+	void	DumpToFile(LPCTSTR pszPath);
 
 protected:
 // Types
 	struct HEADER {
 		UINT	nFileID;		// file identifier
 		USHORT	nVersion;		// version number
-		USHORT	nStateSize;		// size of STATE
-		USHORT	nGlobRingSize;	// size of GLOBRING in bytes
+		USHORT	nDrawStateSize;	// size of DRAW_STATE in bytes
+		USHORT	nGlobRingSize;	// size of GLOB_RING in bytes
 		USHORT	nRingSize;		// size of RING in bytes
 	};
 };
 
 inline int CSnapshot::GetSize() const
 {
-	return GetSize(m_state.nRings);
+	return GetSize(m_drawState.nRings);
 }

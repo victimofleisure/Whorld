@@ -59,7 +59,7 @@ protected:
 		float	EvenShear;		// even vertex curve point asymmetry ratio
 		float	OddShear;		// odd vertex curve point asymmetry ratio
 	};
-	struct GLOBRING_V1 {
+	struct GLOB_RING_V1 {
 		double	Rot;			// rotation for all vertices, in radians
 		double	StarRatio;		// ratio of odd radii to even radii
 		double	Pinwheel;		// additional rotation for odd vertices
@@ -72,7 +72,7 @@ protected:
 		int		LineWidth;		// line width, in pixels
 		int		PolySides;		// number of sides
 	};
-	struct STATE_V1 {
+	struct DRAW_STATE_V1 {
 		double	RingOffset;		// size of gap since last ring, in pixels
 		double	CanvasScale;	// canvas size, as a fraction of client window
 		double	Hue;			// hue of new rings, in degrees
@@ -96,7 +96,7 @@ protected:
 
 // Helpers
 	static void	CvtRing(const RING_V1& ringOld, RING& ringNew);
-	static void	CvtState(const STATE_V1& stateOld, CSnapshot::STATE& stateNew);
-	static void CvtGlobRing(const GLOBRING_V1& grOld, GLOBRING& grNew);
+	static void	CvtState(const DRAW_STATE_V1& stateOld, DRAW_STATE& stateNew);
+	static void CvtGlobRing(const GLOB_RING_V1& grOld, GLOB_RING& grNew);
 	static D2D1::ColorF CvtColor(COLORREF clr);
 };

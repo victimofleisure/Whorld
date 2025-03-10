@@ -195,44 +195,20 @@ public:
 
 protected:
 // Rendering types
+	class DRAW_STATE {
+	public:
+		#define STATEDEF(type, name) type name;
+		#include "WhorldDef.h"	//  generate struct members
+	};
 	struct RING {	// per-ring data
-		DPOINT	ptShiftDelta;	// additional shear per tick
-		double	fRotDelta;		// additional rotation per tick
-		double	fHue;			// current hue
-		double	fLightness;		// current lightness
-		double	fSaturation;	// current saturation
-		double	fRot;			// rotation for all vertices, in radians
-		double	fRadius;		// radius of even vertices, in pixels
-		DPOINT	ptScale;		// anisotropic scaling
-		DPOINT	ptShift;		// shear, in pixels
-		double	fStarRatio;		// ratio of odd radii to even radii
-		short	nSides;			// polygon's number of sides
-		short	nDrawMode;		// see draw mode enum
-		bool	bDelete;		// true if ring should be deleted
-		bool	bSkipFill;		// true if ring should be skipped in fill mode
-		D2D1_COLOR_F	clrCur;	// current color
-		double	fPinwheel;		// additional rotation for odd vertices, in radians
-		double	fLineWidth;		// line width, in pixels
-		DPOINT	ptOrigin;		// origin in client coords relative to window center
-		double	fEvenCurve;		// even vertex curvature, as multiple of radius
-		double	fOddCurve;		// odd vertex curvature, as multiple of radius
-		double	fEvenShear;		// even vertex curve point asymmetry ratio
-		double	fOddShear;		// odd vertex curve point asymmetry ratio
+		#define RINGDEF(type, name) type name;
+		#include "WhorldDef.h"	//  generate struct members
 	};
-	struct GLOBRING {	// global ring offsets
-		double	fRot;			// rotation for all vertices, in radians
-		double	fStarRatio;		// ratio of odd radii to even radii
-		double	fPinwheel;		// additional rotation for odd vertices
-		DPOINT	ptScale;		// anisotropic scaling
-		DPOINT	ptShift;		// shear, in pixels
-		double	fEvenCurve;		// even vertex curvature, as multiple of radius
-		double	fOddCurve;		// odd vertex curvature, as multiple of radius
-		double	fEvenShear;		// even vertex curve point asymmetry ratio
-		double	fOddShear;		// odd vertex curve point asymmetry ratio
-		double	fLineWidth;		// line width, in pixels
-		int		nPolySides;		// number of sides
+	struct GLOB_RING {	// global ring offsets
+		#define GLOBRINGDEF(type, name) type name;
+		#include "WhorldDef.h"	//  generate struct members
 	};
-	static const GLOBRING	m_globalRingDefault;	// default global ring
+	static const GLOB_RING	m_globalRingDefault;	// default global ring
 
 private:
 	// use attribute methods instead, for range-checking

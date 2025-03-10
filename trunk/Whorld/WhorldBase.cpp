@@ -88,7 +88,7 @@ CString CWhorldBase::m_arrMainName[MAIN_COUNT];
 CString CWhorldBase::m_arrWaveformName[WAVEFORM_COUNT];
 int CWhorldBase::m_arrParamToGlobal[PARAM_COUNT];
 
-const CWhorldBase::GLOBRING CWhorldBase::m_globalRingDefault = {
+const CWhorldBase::GLOB_RING CWhorldBase::m_globalRingDefault = {
 	0,	// fRot
 	1,	// fStarRatio
 	0,	// fPinwheel

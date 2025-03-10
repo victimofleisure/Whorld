@@ -191,3 +191,61 @@ RENDERCMDDEF(SET_DRAW_MODE,		uintVal	)	// sets draw mode bits; m_nParam: mask, m
 
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF
+
+#ifdef STATEDEF	// state members
+
+STATEDEF(	D2D1_SIZE_F,	szTarget)	// target size in device-independent pixels
+STATEDEF(	D2D1_COLOR_F,	clrBkgnd)	// background color
+STATEDEF(	double,	fZoom)			// current zoom, as a scaling factor
+STATEDEF(	int,	nRings)			// number of elements in ring array
+STATEDEF(	bool,	bConvex)		// true if drawing in descending size order
+STATEDEF(	BYTE,	nSnapshotFlags)	// snapshot flags bitmask; see enum below
+STATEDEF(	USHORT,	nSnapReserved)	// reserved, must be zero	
+
+#undef STATEDEF
+#endif // STATEDEF
+
+#ifdef RINGDEF	// ring members
+
+RINGDEF(DPOINT,	ptShiftDelta)	// additional shear per tick
+RINGDEF(double,	fRotDelta)		// additional rotation per tick
+RINGDEF(double,	fHue)			// current hue
+RINGDEF(double,	fLightness)		// current lightness
+RINGDEF(double,	fSaturation)	// current saturation
+RINGDEF(double,	fRot)			// rotation for all vertices, in radians
+RINGDEF(double,	fRadius)		// radius of even vertices, in pixels
+RINGDEF(DPOINT,	ptScale)		// anisotropic scaling
+RINGDEF(DPOINT,	ptShift)		// shear, in pixels
+RINGDEF(double,	fStarRatio)		// ratio of odd radii to even radii
+RINGDEF(short,	nSides)			// polygon's number of sides
+RINGDEF(short,	nDrawMode)		// see draw mode enum
+RINGDEF(bool,	bDelete)		// true if ring should be deleted
+RINGDEF(bool,	bSkipFill)		// true if ring should be skipped in fill mode
+RINGDEF(D2D1_COLOR_F,	clrCur)	// current color
+RINGDEF(double,	fPinwheel)		// additional rotation for odd vertices, in radians
+RINGDEF(double,	fLineWidth)		// line width, in pixels
+RINGDEF(DPOINT,	ptOrigin)		// origin in client coords relative to window center
+RINGDEF(double,	fEvenCurve)		// even vertex curvature, as multiple of radius
+RINGDEF(double,	fOddCurve)		// odd vertex curvature, as multiple of radius
+RINGDEF(double,	fEvenShear)		// even vertex curve point asymmetry ratio
+RINGDEF(double,	fOddShear)		// odd vertex curve point asymmetry ratio
+
+#undef RINGDEF
+#endif // RINGDEF
+
+#ifdef GLOBRINGDEF	// global ring members
+
+GLOBRINGDEF(double,	fRot)			// rotation for all vertices, in radians
+GLOBRINGDEF(double,	fStarRatio)		// ratio of odd radii to even radii
+GLOBRINGDEF(double,	fPinwheel)		// additional rotation for odd vertices
+GLOBRINGDEF(DPOINT,	ptScale)		// anisotropic scaling
+GLOBRINGDEF(DPOINT,	ptShift)		// shear, in pixels
+GLOBRINGDEF(double,	fEvenCurve)		// even vertex curvature, as multiple of radius
+GLOBRINGDEF(double,	fOddCurve)		// odd vertex curvature, as multiple of radius
+GLOBRINGDEF(double,	fEvenShear)		// even vertex curve point asymmetry ratio
+GLOBRINGDEF(double,	fOddShear)		// odd vertex curve point asymmetry ratio
+GLOBRINGDEF(double,	fLineWidth)		// line width, in pixels
+GLOBRINGDEF(int,	nPolySides)		// number of sides
+
+#undef GLOBRINGDEF
+#endif // GLOBRINGDEF

@@ -627,7 +627,7 @@ bool CWhorldApp::LoadSnapshot(LPCTSTR pszPath)
 	SetSnapshotMode(true);
 	// update zoom in UI to snapshot's zoom
 	CWhorldDoc*	pDoc = GetDocument();
-	pDoc->m_master.fZoom = pSnapshot->m_state.fZoom;
+	pDoc->m_master.fZoom = pSnapshot->m_drawState.fZoom;
 	CWhorldDoc::CPropHint	hint(MASTER_Zoom);	// master property index
 	// display snapshot command updates render thread's zoom, so specify
 	// view as sender to prevent view from pushing needless zoom command

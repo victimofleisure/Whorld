@@ -14,6 +14,7 @@
 		04		28jan08	support Unicode
 		05		09feb25	refactor
 		06		02mar25	implement global parameters
+		07		10mar25	add more string conversion operators
 
 		patch container
  
@@ -27,6 +28,27 @@
 inline STD_OSTREAM& operator<<(STD_OSTREAM& os, const DPoint& pt)
 {
     os << _T("(") << pt.x << _T(",") << pt.y << _T(")");
+    return os;
+}
+
+// operator for converting Direct2D point to string
+inline STD_OSTREAM& operator<<(STD_OSTREAM& os, const D2D_POINT_2F& pt)
+{
+	os << _T("(") << pt.x << _T(",") << pt.y << _T(")");
+    return os;
+}
+
+// operator for converting Direct2D size to string
+inline STD_OSTREAM& operator<<(STD_OSTREAM& os, const D2D1_SIZE_F& sz)
+{
+	os << _T("(") << sz.width << _T(",") << sz.height << _T(")");
+    return os;
+}
+
+// operator for converting Direct2D color to string
+inline STD_OSTREAM& operator<<(STD_OSTREAM& os, const D2D1_COLOR_F& clr)
+{
+	os << _T("(") << clr.r << _T(",") << clr.g << _T(",") << clr.b << _T(",") << clr.a << _T(")");
     return os;
 }
 

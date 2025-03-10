@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00      23feb25	initial version
-		01		09mar25	add flags bitmask to state
+		01		09mar25	add flags bitmask to drawing state
 
 */
 
@@ -58,22 +58,22 @@ CSnapshot* CSnapshotV1::Read(CFile& fIn)
 	}
 	int	nStateSize;
 	ar >> nStateSize;
-	if (nStateSize > sizeof(STATE_V1))
+	if (nStateSize > sizeof(DRAW_STATE_V1))
 		ThrowBadFormat(ar);
-	STATE_V1	state;
-	ZeroMemory(&state, sizeof(STATE_V1));
-	ar.Read(&state, nStateSize);
-	ZeroMemory(&pSnapshot->m_state, sizeof(CSnapshot::STATE));
-	CvtState(state, pSnapshot->m_state);
-	pSnapshot->m_state.nRings = nRings;
-	GLOBRING_V1	globring;
+	DRAW_STATE_V1	drawState;
+	ZeroMemory(&drawState, sizeof(DRAW_STATE_V1));
+	ar.Read(&drawState, nStateSize);
+	ZeroMemory(&pSnapshot->m_drawState, sizeof(DRAW_STATE));
+	CvtState(drawState, pSnapshot->m_drawState);
+	pSnapshot->m_drawState.nRings = nRings;
+	GLOB_RING_V1	globring;
 	pSnapshot->m_globRing = m_globalRingDefault;
 	if (nVersion > 4) {	// if global parameters are supported
 		int	nGlobRingSize;
 		ar >> nGlobRingSize;
-		if (nRingSize > sizeof(GLOBRING))
+		if (nRingSize > sizeof(GLOB_RING))
 			ThrowBadFormat(ar);
-		ZeroMemory(&globring, sizeof(GLOBRING));
+		ZeroMemory(&globring, sizeof(GLOB_RING));
 		ar.Read(&globring, nGlobRingSize);
 		CvtGlobRing(globring, pSnapshot->m_globRing);
 	}
@@ -114,15 +114,16 @@ void CSnapshotV1::CvtRing(const RING_V1& ringOld, RING& ringNew)
 	ringNew.fOddShear		= ringOld.OddShear;
 }
 
-void CSnapshotV1::CvtState(const STATE_V1& stateOld, CSnapshot::STATE& stateNew)
+void CSnapshotV1::CvtState(const DRAW_STATE_V1& stateOld, DRAW_STATE& stateNew)
 {
+	stateNew.szTarget		= CD2DSizeF(1024, 768);	// assume XGA resolution
 	stateNew.clrBkgnd		= CvtColor(stateOld.BkColor);
 	stateNew.fZoom			= stateOld.Zoom;
 	stateNew.bConvex		= stateOld.Convex;
-	stateNew.nFlags			= CSnapshot::SF_V1;
+	stateNew.nSnapshotFlags	= CSnapshot::SF_V1;
 }
 
-void CSnapshotV1::CvtGlobRing(const GLOBRING_V1& grOld, GLOBRING& grNew)
+void CSnapshotV1::CvtGlobRing(const GLOB_RING_V1& grOld, GLOB_RING& grNew)
 {
 	grNew.fRot				= grOld.Rot;
 	grNew.fStarRatio		= grOld.StarRatio;

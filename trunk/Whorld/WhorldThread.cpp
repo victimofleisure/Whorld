@@ -765,14 +765,7 @@ CSnapshot* CWhorldThread::GetSnapshot() const
 	if (pSnapshot == NULL) {	// if allocation failed
 		CHECK(E_OUTOFMEMORY);	// Ran out of memory
 	}
-	// save fixed-length members
-	pSnapshot->m_state.szTarget = m_szTarget;
-	pSnapshot->m_state.clrBkgnd = m_clrBkgnd;
-	pSnapshot->m_state.fZoom = m_fZoom;
-	pSnapshot->m_state.nRings = nRings;
-	pSnapshot->m_state.bConvex = m_main.bConvex;
-	pSnapshot->m_state.nReserved = 0;
-	pSnapshot->m_state.nFlags = 0;
+	GetDrawState(nRings, pSnapshot->m_drawState);	// save drawing state
 	pSnapshot->m_globRing = m_globRing;	// save global ring data
 	// save ring list
 	RING	*pRing	= pSnapshot->m_aRing;
@@ -786,13 +779,8 @@ CSnapshot* CWhorldThread::GetSnapshot() const
 void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 {
 	ASSERT(pSnapshot != NULL);
-	// restore fixed-length members
-	m_clrBkgnd = pSnapshot->m_state.clrBkgnd;
-	m_fZoom = pSnapshot->m_state.fZoom;
-	int	nRings = pSnapshot->m_state.nRings;
-	m_main.bConvex = pSnapshot->m_state.bConvex;
-	m_nSnapshotFlags = pSnapshot->m_state.nFlags;
-	m_globRing = pSnapshot->m_globRing;
+	int	nRings = SetDrawState(pSnapshot->m_drawState);	// restore drawing state
+	m_globRing = pSnapshot->m_globRing;	// restore global ring data
 	// restore ring list
 	RemoveAllRings();	// empty ring list
 	RING*	pRing = const_cast<RING*>(pSnapshot->m_aRing);
@@ -814,6 +802,46 @@ void CWhorldThread::ExitSnapshotMode()
 		CAutoPtr<CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
 		SetSnapshot(pSnapshot);	// restore snapshot
 	}
+}
+
+inline void CWhorldThread::GetDrawState(int nRings, DRAW_STATE& drawState) const
+{
+	drawState.szTarget = m_szTarget;
+	drawState.clrBkgnd = m_clrBkgnd;
+	drawState.fZoom = m_fZoom;
+	drawState.nRings = nRings;
+	drawState.bConvex = m_main.bConvex;
+	drawState.nSnapReserved = 0;
+	drawState.nSnapshotFlags = 0;
+}
+
+inline int CWhorldThread::SetDrawState(const DRAW_STATE& drawState)
+{
+	//@@@ target size (szTarget) currently isn't handled, but should be
+	m_clrBkgnd = drawState.clrBkgnd;
+	m_fZoom = drawState.fZoom;
+	m_main.bConvex = drawState.bConvex;
+	m_nSnapshotFlags = drawState.nSnapshotFlags;
+	return drawState.nRings;	// return ring count
+}
+
+void CWhorldThread::DumpSnapshot() const
+{
+	CString	sFrameCount;
+	sFrameCount.Format(_T("%lld"), m_nFrameCount);
+	CString	sPath(_T("DumpSnapshot") + sFrameCount + _T(".txt"));
+	CStdioFile	fOut(sPath, CFile::modeWrite | CFile::modeCreate);
+	int	nRings = static_cast<int>(m_aRing.GetCount());
+	DRAW_STATE	drawState;
+	GetDrawState(nRings, drawState);
+	drawState.nSnapshotFlags = m_nSnapshotFlags;
+	fOut.WriteString(CSnapshot::FormatState(drawState));
+	POSITION	posNext = m_aRing.GetHeadPosition();
+	for (int iRing = 0; iRing < nRings; iRing++) {	// for each ring
+		const RING&	ring = m_aRing.GetNext(posNext);
+		fOut.WriteString(CSnapshot::FormatRing(iRing, ring));
+	}
+	fOut.WriteString(CSnapshot::FormatGlobRing(m_globRing));
 }
 
 CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
@@ -1152,7 +1180,8 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 {
 	pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
 	if (nFlags & EF_USE_VIEW_SIZE) {	// if using view size as image size
-		szImage = CSize(m_szTarget);	// override specified image size
+		szImage.width = Round(m_szTarget.width);	// override specified image size
+		szImage.height = Round(m_szTarget.height);
 	}
 	//
 	// 1) Create the capture bitmap, which can be a GPU target but isn't readable by the CPU.
@@ -1242,6 +1271,7 @@ bool CWhorldThread::OnDisplaySnapshot(const CSnapshot* pSnapshot)
 	m_bIsPaused = true;	// pause display; pointless otherwise
 	m_bSnapshotMode = true;
 	delete pSnapshot;	// assume snapshot was allocated on heap
+//	DumpSnapshot();	// dump snapshot's data to a text file
 	return true;
 }
 

@@ -75,7 +75,7 @@ protected:
 	CComPtr<ID2D1SolidColorBrush>	m_pDrawBrush;	// drawing brush
 	PARAM_VALS	m_params;	// parameters
 	PARAM_VALS	m_globs;	// global parameters
-	GLOBRING	m_globRing;	// global ring offsets
+	GLOB_RING	m_globRing;	// global ring offsets
 	CList<RING, RING&>	m_aRing;	// array of rings
 	COscillator	m_aOsc[PARAM_COUNT];	// array of oscillators
 	PARAM_TABLE	m_aPrevParam;	// previous parameter table
@@ -150,6 +150,9 @@ protected:
 	CSnapshot*	GetSnapshot() const;
 	void	SetSnapshot(const CSnapshot* pSnapshot);
 	void	ExitSnapshotMode();
+	void	GetDrawState(int nRings, DRAW_STATE& drawState) const;
+	int		SetDrawState(const DRAW_STATE& drawState);
+	void	DumpSnapshot() const;
 	static CString	RenderCommandToString(const CRenderCmd& cmd);
 
 // Command handlers

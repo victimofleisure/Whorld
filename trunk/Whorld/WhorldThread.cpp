@@ -766,11 +766,12 @@ CSnapshot* CWhorldThread::GetSnapshot() const
 		CHECK(E_OUTOFMEMORY);	// Ran out of memory
 	}
 	// save fixed-length members
+	pSnapshot->m_state.szTarget = m_szTarget;
 	pSnapshot->m_state.clrBkgnd = m_clrBkgnd;
 	pSnapshot->m_state.fZoom = m_fZoom;
 	pSnapshot->m_state.nRings = nRings;
 	pSnapshot->m_state.bConvex = m_main.bConvex;
-	pSnapshot->m_state.bReserved = 0;
+	pSnapshot->m_state.nReserved = 0;
 	pSnapshot->m_state.nFlags = 0;
 	pSnapshot->m_globRing = m_globRing;	// save global ring data
 	// save ring list

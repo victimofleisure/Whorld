@@ -10,6 +10,7 @@
         00      10feb25	initial version
 		01		25feb25	add edit precision for zoom, damping, and trail
 		02		09mar25	set slider's page size
+		03		10mar25	fix spread default pos
 
 */
 
@@ -35,7 +36,7 @@ const CEditSliderCtrl::INFO CMasterRowDlg::m_arrSliderInfo[MASTER_COUNT] = {
 	{0,		360,	0,		1,		30,		0,		1,		0},	// Hue Loop
 	{100,	300,	0,		100,	140,	0,		.01f,	0},	// Canvas
 	{1,		20,		0,		1,		0,		0,		1,		0},	// Copies
-	{0,		600,	0,		1,		0,		0,		1,		0},	// Spread
+	{0,		600,	0,		1,		100,	0,		1,		0},	// Spread
 };
 
 const CMasterRowDlg::DBL_RANGE CMasterRowDlg::m_arrEditRange[MASTER_COUNT] = {

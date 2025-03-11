@@ -311,6 +311,9 @@ void CWhorldApp::ApplyOptions(const COptions *pPrevOptions)
 			SetRecentFileListSize(m_options.m_General_nMRUItems);
 			SetRecentFileListSize(m_pPlaylist->m_listRecentFile, m_options.m_General_nMRUItems);
 		}
+		if (m_options.m_Snapshot_iLegacySize != pPrevOptions->m_Snapshot_iLegacySize) {
+			m_thrRender.SetSnapshotSize(m_options.GetLegacySnapshotSize());
+		}
 	}
 }
 

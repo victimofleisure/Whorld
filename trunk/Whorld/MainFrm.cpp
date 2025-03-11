@@ -21,6 +21,7 @@
 		11		07mar25	use prompt for multiple files dialog for snapshots
 		12		08mar25	add export all snapshots
 		13		10mar25	add prompting for export all
+		14		11mar25	disable take snapshot command while in snapshot mode
 
 */
 
@@ -546,6 +547,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
+	ON_UPDATE_COMMAND_UI(ID_FILE_TAKE_SNAPSHOT, OnUpdateFileTakeSnapshot)
 	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
 	ON_COMMAND(ID_PLAYLIST_NEW, OnPlaylistNew)
 	ON_COMMAND(ID_PLAYLIST_OPEN, OnPlaylistOpen)
@@ -981,6 +983,12 @@ void CMainFrame::OnFileExport()
 void CMainFrame::OnFileTakeSnapshot()
 {
 	theApp.m_thrRender.CaptureSnapshot();
+}
+
+void CMainFrame::OnUpdateFileTakeSnapshot(CCmdUI* pCmdUI)
+{
+	// don't allow taking snapshots while in snapshot mode, it's too confusing
+	pCmdUI->Enable(!theApp.IsSnapshotMode());
 }
 
 void CMainFrame::OnFileLoadSnapshot()

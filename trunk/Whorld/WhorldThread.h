@@ -56,6 +56,7 @@ public:
 	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
 	bool	SetDampedGlobal(int iParam, double fGlobal);
 	bool	SetDrawMode(UINT nMask, UINT nVal);
+	bool	SetSnapshotSize(SIZE szSnapshot);
 
 // Operations
 	static bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
@@ -180,6 +181,7 @@ protected:
 	bool	OnDisplaySnapshot(const CSnapshot* pSnapshot);
 	void	OnSetDampedGlobal(int iParam, double fGlobal);
 	void	OnSetDrawMode(UINT nMask, UINT nVal);
+	void	OnSetSnapshotSize(SIZE szSnapshot);
 };
 
 inline UINT_PTR CWhorldThread::GetRingCount() const

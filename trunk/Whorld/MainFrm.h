@@ -154,6 +154,7 @@ public:
 	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnFileExport();
 	afx_msg void OnFileTakeSnapshot();
+	afx_msg void OnUpdateFileTakeSnapshot(CCmdUI* pCmdUI);
 	afx_msg void OnFileLoadSnapshot();
 	afx_msg void OnPlaylistNew();
 	afx_msg void OnPlaylistOpen();

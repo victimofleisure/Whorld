@@ -814,19 +814,14 @@ void CWhorldThread::ExitSnapshotMode()
 
 inline void CWhorldThread::GetSnapshotDrawState(int nRings, DRAW_STATE& drawState) const
 {
-	if (m_bSnapshotMode) {	// if in snapshot mode
-		// taking a snapshot of a snapshot is a special case;
-		// preserve all of the snapshot's original properties
-		drawState = m_dsSnapshot;
-	} else {	// not in snapshot mode
-		drawState.szTarget = m_szTarget;
-		drawState.fZoom = m_fZoom;
-		drawState.clrBkgnd = m_clrBkgnd;
-		drawState.nRings = nRings;
-		drawState.bConvex = m_main.bConvex;
-		drawState.nReserved = 0;
-		drawState.nFlags = 0;
-	}
+	ASSERT(!m_bSnapshotMode);	// taking a snapshot of a snapshot is not allowed
+	drawState.szTarget = m_szTarget;
+	drawState.fZoom = m_fZoom;
+	drawState.clrBkgnd = m_clrBkgnd;
+	drawState.nRings = nRings;
+	drawState.bConvex = m_main.bConvex;
+	drawState.nReserved = 0;
+	drawState.nFlags = 0;
 }
 
 inline int CWhorldThread::SetSnapshotDrawState(const DRAW_STATE& drawState)
@@ -1001,6 +996,13 @@ bool CWhorldThread::SetDampedGlobal(int iParam, double fGlobal)
 bool CWhorldThread::SetDrawMode(UINT nMask, UINT nVal)
 {
 	return PushCommand(CRenderCmd(RC_SET_DRAW_MODE, nMask, nVal));
+}
+
+bool CWhorldThread::SetSnapshotSize(SIZE szSnapshot)
+{
+	CRenderCmd	cmd(RC_SET_SNAPSHOT_SIZE);
+	cmd.m_prop.szVal = szSnapshot;
+	return PushCommand(cmd);
 }
 
 bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
@@ -1298,6 +1300,11 @@ void CWhorldThread::OnSetDrawMode(UINT nMask, UINT nVal)
 	m_main.nDrawMode |= (nVal & nMask);	// set specified bits
 }
 
+void CWhorldThread::OnSetSnapshotSize(SIZE szSnapshot)
+{
+	m_dsSnapshot.szTarget = CD2DSizeF(szSnapshot);
+}
+
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 {
 #if _DEBUG && RENDER_CMD_NATTER
@@ -1373,6 +1380,9 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_SET_DRAW_MODE:
 		OnSetDrawMode(cmd.m_nParam, cmd.m_prop.uintVal);
+		break;
+	case RC_SET_SNAPSHOT_SIZE:
+		OnSetSnapshotSize(cmd.m_prop.szVal);
 		break;
 	default:
 		NODEFAULTCASE;	// missing command case

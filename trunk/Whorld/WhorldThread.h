@@ -155,6 +155,7 @@ protected:
 	void	GetSnapshotDrawState(int nRings, DRAW_STATE& drawState) const;
 	int		SetSnapshotDrawState(const DRAW_STATE& drawState);
 	void	DumpSnapshot() const;
+	void	DrawSnapshotLetterbox();
 	static CString	RenderCommandToString(const CRenderCmd& cmd);
 
 // Command handlers

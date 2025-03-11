@@ -728,30 +728,43 @@ BEGIN
     IDS_OPT_DESC_General_nMRUItems 
                             "Maximum number of items in recently used lists"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
+    IDS_OPT_DESC_Snapshot_bLetterbox 
+                            "Show bars around snapshot, restricting it to its frame size"
+    IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Midi      "MIDI"
+    IDS_OPT_GROUP_Snapshot  "Snapshot"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
     IDS_OPT_NAME_Export_nScalingType "Scaling Type"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
-    IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
-    IDS_OPT_NAME_Midi_iInputDevice "Input Device"
-    IDS_OPT_SCALING_TYPE_FitBoth "Fit Both"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
+    IDS_OPT_NAME_Midi_iInputDevice "Input Device"
+    IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
+    IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
+    IDS_OPT_SCALING_TYPE_FitBoth "Fit Both"
     IDS_OPT_SCALING_TYPE_FitHeight "Fit Height"
     IDS_OPT_SCALING_TYPE_FitWidth "Fit Width"
     IDS_OPT_SCALING_TYPE_None "None"
+    IDS_OPT_SCALING_TYPE_SVGA "800 x 600 (SVGA)"
+    IDS_OPT_SCALING_TYPE_VGA "640 x 480 (VGA)"
+    IDS_OPT_SCALING_TYPE_XGA "1024 x 768 (XGA)"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
+END
+
+STRINGTABLE
+BEGIN
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
@@ -760,10 +773,6 @@ BEGIN
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
-END
-
-STRINGTABLE
-BEGIN
     IDS_PARAM_RingGrowth    "Ring Growth"
     IDS_PARAM_RingSpacing   "Ring Spacing"
     IDS_PARAM_RotateSpeed   "Rotate Speed"
@@ -772,6 +781,10 @@ BEGIN
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PROPS_MORE_COLORS   "More Colors..."
+END
+
+STRINGTABLE
+BEGIN
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_Global         "Global"
@@ -780,10 +793,6 @@ BEGIN
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
-END
-
-STRINGTABLE
-BEGIN
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
@@ -792,6 +801,10 @@ BEGIN
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
+END
+
+STRINGTABLE
+BEGIN
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
@@ -799,8 +812,6 @@ BEGIN
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_OPT_GROUP_Snapshot  "Snapshot"
-    IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
 END
 
 STRINGTABLE
@@ -978,14 +989,6 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
-    IDS_OPT_SCALING_TYPE_VGA "640 x 480 (VGA)"
-    IDS_OPT_SCALING_TYPE_SVGA "800 x 600 (SVGA)"
-    IDS_OPT_SCALING_TYPE_XGA "1024 x 768 (XGA)"
 END
 
 #endif    // English (United States) resources

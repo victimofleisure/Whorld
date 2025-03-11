@@ -36,6 +36,7 @@ PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageHeight,		1080,		1,			UINT_MAX,	NULL,
 PROPDEF(	Export,		NONE,		VAR,		bool,		bUseViewSize,		1,			0,			0,			NULL,		0)
 PROPDEF(	Export,		NONE,		ENUM,		UINT,		nScalingType,		0,			0,			0,			m_oiScalingType,	SCALING_TYPES)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bPromptUser,		1,			0,			0,			NULL,		0)
+PROPDEF(	Snapshot,	NONE,		VAR,		bool,		bLetterbox,			1,			0,			0,			NULL,		0)
 PROPDEF(	Snapshot,	NONE,		ENUM,		int,		iLegacySize,		1,			0,			0,			m_oiLegacySize,		LEGACY_SIZES)
 PROPDEF(	General,	NONE,		VAR,		int,		nMRUItems,			4,			0,			16,			NULL,		0)
 

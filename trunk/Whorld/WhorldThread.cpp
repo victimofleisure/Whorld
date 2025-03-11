@@ -548,7 +548,7 @@ bool CWhorldThread::OnDraw()
 	int		nPrevVertices = 0;		// number of vertices in previous ring if it's curved
 	bool	bPrevCurved = false;	// true if previous ring is curved, else it's straight
 	double	fZoom = m_fZoom;
-	double	fSnapshotScale = 0;	// keeps compiler happy
+	double	fSnapshotScale = 0;		// prevents uninitialized variable compiler warning
 	if (m_bSnapshotMode) {	// if we're displaying a snapshot
 		double	fSnapshotHorzScale = FTOD(m_szTarget.width) / m_dsSnapshot.szTarget.width;
 		double	fSnapshotVertScale = FTOD(m_szTarget.height) / m_dsSnapshot.szTarget.height;
@@ -683,8 +683,37 @@ bool CWhorldThread::OnDraw()
 		}
 		m_nFrameCount++;
 	}
+	// if we're displaying a snapshot and it should be letterboxed
+	if (m_bSnapshotMode && theApp.m_options.m_Snapshot_bLetterbox) {
+		DrawSnapshotLetterbox();	// sets background brush color
+	}
 //	stats.Print(b.Elapsed());//@@@
 	return true;
+}
+
+void CWhorldThread::DrawSnapshotLetterbox()
+{
+	const float fMinBarEpsilon = 0.5;	// half a device-independent pixel
+	m_pBkgndBrush->SetColor(D2D1::ColorF(0));	// set background color to black
+	double	fSnapshotHorzScale = FTOD(m_szTarget.width) / m_dsSnapshot.szTarget.width;
+	double	fSnapshotVertScale = FTOD(m_szTarget.height) / m_dsSnapshot.szTarget.height;
+	if (fSnapshotHorzScale > fSnapshotVertScale) {	// if target is too wide for snapshot
+		// draw vertical bars left and right of snapshot
+		float	fBarWidth = DTOF((m_szTarget.width - (m_dsSnapshot.szTarget.width * fSnapshotVertScale)) / 2);
+		if (fBarWidth < fMinBarEpsilon)	// if width is less than epsilon
+			return;	// don't draw infinitesimal bars
+		m_pD2DDeviceContext->FillRectangle(CD2DRectF(0, 0, fBarWidth, m_szTarget.height), m_pBkgndBrush);
+		m_pD2DDeviceContext->FillRectangle(
+			CD2DRectF(m_szTarget.width - fBarWidth, 0, m_szTarget.width, m_szTarget.height), m_pBkgndBrush);
+	} else {	// if target is too narrow for snapshot
+		// draw horizontal bars above and below snapshot
+		float	fBarHeight = DTOF((m_szTarget.height - (m_dsSnapshot.szTarget.height * fSnapshotHorzScale)) / 2);
+		if (fBarHeight < fMinBarEpsilon)	// if height is less than epsilon
+			return;	// don't draw infinitesimal bars
+		m_pD2DDeviceContext->FillRectangle(CD2DRectF(0, 0, m_szTarget.width, fBarHeight), m_pBkgndBrush);
+		m_pD2DDeviceContext->FillRectangle(
+			CD2DRectF(0, m_szTarget.height - fBarHeight, m_szTarget.width, m_szTarget.height), m_pBkgndBrush);
+	}
 }
 
 void CWhorldThread::OnMasterPropChange(int iProp)

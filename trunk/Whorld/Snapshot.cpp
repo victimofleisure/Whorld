@@ -118,7 +118,7 @@ CString CSnapshot::FormatGlobRing(const GLOB_RING& globRing)
 	return sLine;
 }
 
-void CSnapshot::DumpToFile(LPCTSTR pszPath)
+void CSnapshot::DumpToFile(LPCTSTR pszPath) const
 {
 	CStdioFile	fOut(pszPath, CFile::modeWrite | CFile::modeCreate);
 	fOut.WriteString(FormatState(m_drawState));

@@ -19,7 +19,7 @@
 		09		09mar25	set target size in capture bitmap to fix origin shift
 		10		09mar25	add export scaling types
 		11		09mar25	fix color shift in legacy snapshots
-		12		10mar25	simplify snapshot zoom scaling
+		12		11mar25	disentangle snapshot zoom
 
 */
 
@@ -76,8 +76,7 @@ CWhorldThread::CWhorldThread()
 	m_fZoomTarget = 1;
 	m_nFrameRate = DEFAULT_FRAME_RATE;
 	m_nLastPushErrorTime = 0;
-	m_nSnapshotFlags = 0;
-	m_fSnapshotZoom = 1;
+	ZeroMemory(&m_dsSnapshot, sizeof(m_dsSnapshot));
 }
 
 bool CWhorldThread::CreateUserResources()
@@ -99,7 +98,7 @@ void CWhorldThread::OnResize()
 {
 	m_szTarget = m_pD2DDeviceContext->GetSize();
 #if _DEBUG
-//	printf("%f %f (%f)\n", m_szTarget.width, m_szTarget.height, m_szTarget.width / m_szTarget.height);//@@@
+	printf("%f %f (%f)\n", m_szTarget.width, m_szTarget.height, m_szTarget.width / m_szTarget.height);//@@@
 #endif
 }
 
@@ -547,9 +546,14 @@ bool CWhorldThread::OnDraw()
 	int		nPrevPoints = 0;		// number of points in previous ring
 	int		nPrevVertices = 0;		// number of vertices in previous ring if it's curved
 	bool	bPrevCurved = false;	// true if previous ring is curved, else it's straight
+	double	fZoom = m_fZoom;
 	double	fSnapshotScale = 0;	// keeps compiler happy
 	if (m_bSnapshotMode) {	// if we're displaying a snapshot
-		fSnapshotScale = m_fZoom / m_fSnapshotZoom;	// account for snapshot zoom
+		double	fHorzScale = static_cast<double>(m_szTarget.width) / m_dsSnapshot.szTarget.width;
+		double	fVertScale = static_cast<double>(m_szTarget.height) / m_dsSnapshot.szTarget.height;
+		fZoom *= min(fHorzScale, fVertScale);
+		fSnapshotScale = fZoom;
+		fZoom *= m_dsSnapshot.fZoom;
 	}
 	while (posNext != NULL) {	// ring loop
 		RING&	ring = bConvex ? m_aRing.GetPrev(posNext) : m_aRing.GetNext(posNext);
@@ -558,7 +562,7 @@ bool CWhorldThread::OnDraw()
 		if (m_bSnapshotMode) {	// if we're displaying a snapshot
 			ptOrg *= fSnapshotScale;	// apply snapshot scaling to ring's origin
 			fLineWidth *= fSnapshotScale;	// and line width
-			if (m_nSnapshotFlags & CSnapshot::SF_V1) {	// if V1 snapshot
+			if (m_dsSnapshot.nFlags & CSnapshot::SF_V1) {	// if V1 snapshot
 				// V1 shifted filled ring colors by one ring in convex mode, so V2's
 				// fix for that must be disabled to display a V1 snapshot correctly.
 				clrPrev = ring.clrCur;	// emulate legacy convex mode color behavior
@@ -570,11 +574,11 @@ bool CWhorldThread::OnDraw()
 		nSides = CLAMP(nSides, 1, MAX_SIDES);
 		double	fRot = ring.fRot + m_globRing.fRot;
 		double	afRot[2] = {fRot, fRot + ring.fPinwheel + M_PI / nSides * m_globRing.fPinwheel};
-		double	fRad = ring.fRadius * m_fZoom;
+		double	fRad = ring.fRadius * fZoom;
 		double	arRad[2] = {fRad, fRad * ring.fStarRatio * m_globRing.fStarRatio};
 		DPoint	ptScale(DPoint(ring.ptScale) * m_globRing.ptScale);
 		DPoint	aptRad[2] = {ptScale * arRad[0], ptScale * arRad[1]};
-		DPoint	ptShift((DPoint(ring.ptShift) * m_fZoom + DPoint(m_globRing.ptShift) * fRad) 
+		DPoint	ptShift((DPoint(ring.ptShift) * fZoom + DPoint(m_globRing.ptShift) * fRad) 
 			+ ptOrg + ptWndCenter);
 		double	fDelta = M_PI / nSides;
 		int		nVertices = nSides * 2;	// two vertices per side
@@ -774,7 +778,7 @@ CSnapshot* CWhorldThread::GetSnapshot() const
 	if (pSnapshot == NULL) {	// if allocation failed
 		CHECK(E_OUTOFMEMORY);	// Ran out of memory
 	}
-	GetDrawState(nRings, pSnapshot->m_drawState);	// save drawing state
+	GetSnapshotDrawState(nRings, pSnapshot->m_drawState);	// save drawing state
 	pSnapshot->m_globRing = m_globRing;	// save global ring data
 	// save ring list
 	RING	*pRing	= pSnapshot->m_aRing;
@@ -788,8 +792,7 @@ CSnapshot* CWhorldThread::GetSnapshot() const
 void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 {
 	ASSERT(pSnapshot != NULL);
-	m_fSnapshotZoom = pSnapshot->m_drawState.fZoom;
-	int	nRings = SetDrawState(pSnapshot->m_drawState);	// restore drawing state
+	int	nRings = SetSnapshotDrawState(pSnapshot->m_drawState);	// restore drawing state
 	m_globRing = pSnapshot->m_globRing;	// restore global ring data
 	// restore ring list
 	RemoveAllRings();	// empty ring list
@@ -809,24 +812,31 @@ void CWhorldThread::ExitSnapshotMode()
 	}
 }
 
-inline void CWhorldThread::GetDrawState(int nRings, DRAW_STATE& drawState) const
+inline void CWhorldThread::GetSnapshotDrawState(int nRings, DRAW_STATE& drawState) const
 {
-	drawState.szTarget = m_szTarget;
+	if (m_bSnapshotMode) {	// if in snapshot mode
+		// taking a snapshot of a snapshot is a special case;
+		// preserve snapshot's original target size and zoom
+		drawState.szTarget = m_dsSnapshot.szTarget;
+		drawState.fZoom = m_dsSnapshot.fZoom;
+	} else {	// not in snapshot mode
+		drawState.szTarget = m_szTarget;
+		drawState.fZoom = m_fZoom;
+	}
 	drawState.clrBkgnd = m_clrBkgnd;
-	drawState.fZoom = m_fZoom;
 	drawState.nRings = nRings;
 	drawState.bConvex = m_main.bConvex;
-	drawState.nSnapReserved = 0;
-	drawState.nSnapshotFlags = m_nSnapshotFlags;
+	drawState.nReserved = 0;
+	drawState.nFlags = m_dsSnapshot.nFlags;
 }
 
-inline int CWhorldThread::SetDrawState(const DRAW_STATE& drawState)
+inline int CWhorldThread::SetSnapshotDrawState(const DRAW_STATE& drawState)
 {
-	//@@@ target size (szTarget) currently isn't handled, but should be
+	m_dsSnapshot.szTarget = drawState.szTarget;
 	m_clrBkgnd = drawState.clrBkgnd;
-	m_fZoom = drawState.fZoom;
+	m_dsSnapshot.fZoom = drawState.fZoom;
 	m_main.bConvex = drawState.bConvex;
-	m_nSnapshotFlags = drawState.nSnapshotFlags;
+	m_dsSnapshot.nFlags = drawState.nFlags;
 	return drawState.nRings;	// return ring count
 }
 
@@ -838,8 +848,8 @@ void CWhorldThread::DumpSnapshot() const
 	CStdioFile	fOut(sPath, CFile::modeWrite | CFile::modeCreate);
 	int	nRings = static_cast<int>(m_aRing.GetCount());
 	DRAW_STATE	drawState;
-	GetDrawState(nRings, drawState);
-	drawState.nSnapshotFlags = m_nSnapshotFlags;
+	GetSnapshotDrawState(nRings, drawState);
+	drawState.nFlags = m_dsSnapshot.nFlags;
 	fOut.WriteString(CSnapshot::FormatState(drawState));
 	POSITION	posNext = m_aRing.GetHeadPosition();
 	for (int iRing = 0; iRing < nRings; iRing++) {	// for each ring
@@ -1208,8 +1218,8 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 		CSaveObj<CD2DSizeF>	saveTargetSize(m_szTarget);	// save target size
 		UINT	nScaleType = nFlags & EF_SCALE_FIT_BOTH;
 		if (nScaleType) {	// if scaling
-			double	fHorzScale = szImage.width / m_szTarget.width;
-			double	fVertScale = szImage.height / m_szTarget.height;
+			double	fHorzScale = static_cast<double>(szImage.width) / max(m_szTarget.width, 1);
+			double	fVertScale = static_cast<double>(szImage.height) / max(m_szTarget.height, 1);
 			double	fScale;
 			switch (nScaleType) {
 			case EF_SCALE_FIT_WIDTH:
@@ -1270,14 +1280,14 @@ bool CWhorldThread::OnDisplaySnapshot(const CSnapshot* pSnapshot)
 	if (pSnapshot == NULL) {	// if null snapshot pointer
 		CHECK(E_INVALIDARG);	// One or more arguments are invalid
 	}
-	if (m_pPrevSnapshot == NULL) {
-		m_pPrevSnapshot.Attach(GetSnapshot());
+	if (m_pPrevSnapshot == NULL) {	// if not already in snapshot mode
+		m_pPrevSnapshot.Attach(GetSnapshot());	// take snapshot of current state
+		m_fZoom = 1;	// in snapshot mode, zoom is relative to snapshot's zoom
 	}
 	SetSnapshot(pSnapshot);
 	m_bIsPaused = true;	// pause display; pointless otherwise
 	m_bSnapshotMode = true;
 	delete pSnapshot;	// assume snapshot was allocated on heap
-//	DumpSnapshot();	// dump snapshot's data to a text file
 	return true;
 }
 

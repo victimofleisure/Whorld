@@ -12,6 +12,7 @@
 		02		21feb25	customize for Whorld
 		03		26feb25	add MIDI input
         04      09mar25	add export scaling types
+		05      11mar25	add legacy snapshot sizes
 		
 */
 
@@ -42,14 +43,22 @@ public:
 		#include "OptionsDef.h"
 		SCALING_TYPES
 	};
+	enum {	// legacy sizes
+		#define LEGACYSIZEDEF(width, height, name) LEGACY_SIZE_##name,
+		#include "OptionsDef.h"
+		LEGACY_SIZES
+	};
 	static const OPTION_INFO	m_oiGroup[GROUPS];	// group names
 	static const PROPERTY_INFO	m_Info[PROPERTIES];	// fixed info for each property
 	static const OPTION_INFO	m_oiScalingType[SCALING_TYPES];	// scaling type options
+	static const OPTION_INFO	m_oiLegacySize[LEGACY_SIZES];	// legacy size options
+	static const SIZE	m_aLegacySize[LEGACY_SIZES];	// legacy sizes
 
 // Attributes
 	CSize	GetExportImageSize() const;
 	UINT	GetExportFlags() const;
 	void	SetDefaultExportImageFolder();
+	CSize	GetLegacySnapshotSize() const;
 
 // Operations
 	void	ReadProperties();
@@ -76,4 +85,10 @@ public:
 inline CSize COptions::GetExportImageSize() const
 {
 	return CSize(m_Export_nImageWidth, m_Export_nImageHeight);
+}
+
+inline CSize COptions::GetLegacySnapshotSize() const
+{
+	ASSERT(m_Snapshot_iLegacySize >= 0 && m_Snapshot_iLegacySize < LEGACY_SIZES);
+	return CSize(m_aLegacySize[m_Snapshot_iLegacySize]);
 }

@@ -199,8 +199,8 @@ STATEDEF(	D2D1_COLOR_F,	clrBkgnd)	// background color
 STATEDEF(	double,	fZoom)			// current zoom, as a scaling factor
 STATEDEF(	int,	nRings)			// number of elements in ring array
 STATEDEF(	bool,	bConvex)		// true if drawing in descending size order
-STATEDEF(	BYTE,	nSnapshotFlags)	// snapshot flags bitmask; see enum below
-STATEDEF(	USHORT,	nSnapReserved)	// reserved, must be zero	
+STATEDEF(	BYTE,	nFlags)			// snapshot flags bitmask; see enum below
+STATEDEF(	USHORT,	nReserved)		// reserved, must be zero	
 
 #undef STATEDEF
 #endif // STATEDEF

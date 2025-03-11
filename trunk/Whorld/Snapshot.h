@@ -51,7 +51,7 @@ public:
 	static CString	FormatState(const DRAW_STATE& drawState);
 	static CString	FormatRing(int iRing, const RING& ring);
 	static CString	FormatGlobRing(const GLOB_RING& globRing);
-	void	DumpToFile(LPCTSTR pszPath);
+	void	DumpToFile(LPCTSTR pszPath) const;
 
 protected:
 // Types

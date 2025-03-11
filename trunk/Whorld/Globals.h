@@ -13,6 +13,7 @@
 		03		26feb25	add device node change message
 		04		03mar25	add render queue full message
 		05		07mar25	add prompt for multiple files
+		06		11mar25	add method to test equality with epsilon
 
 */
 
@@ -110,6 +111,10 @@ inline CWinApp *FastGetApp()
 
 // base ID for dynamic submenus, far above menu resource IDs and below MFC reserved IDs
 #define ID_APP_DYNAMIC_SUBMENU_BASE 0xc800
+
+inline bool IsCloseEnough(double a, double b, double fEpsilon) {
+	return fabs(a - b) < fEpsilon;
+}
 
 enum {	// application-wide user window messages, based on WP_APP
 	UWM_FIRST = WM_APP,

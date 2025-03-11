@@ -41,7 +41,7 @@ void CCenterSliderCtrl::HScroll(UINT nSBCode, UINT nPos)
 		// normalize slider position
 		double	fNormPos = static_cast<double>(nPos - nMin) / (nMax - nMin);
 		// if slider close enough to center position
-		if (fabs(fNormPos - 0.5) < fCenterEpsilon) {
+		if (IsCloseEnough(fNormPos, 0.5, fCenterEpsilon)) {
 			SetValNorm(0.5);	// call it center
 			// not calling base class, so we're responsible for notifying parent
 			if (m_pEdit != NULL)

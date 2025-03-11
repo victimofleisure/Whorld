@@ -13,6 +13,7 @@
 		03		01mar25	add learn mode
 		04		03mar25	support full resolution pitch bend
 		05		10mar25	fix learn mode; post to mapping bar, not main frame
+		06		11mar25	remove output device from device change handler
 
 */
 
@@ -91,14 +92,9 @@ void CMidiManager::OnDeviceChange()
 	if (!m_bInMsgBox) {	// if not already displaying message box
 		CSaveObj<bool>	save(m_bInMsgBox, true);	// save and set reentry guard
 		UINT	nChangeMask;
-		bool	bResult = m_midiDevs.OnDeviceChange(nChangeMask);	// handle MIDI device change
+		m_midiDevs.OnDeviceChange(nChangeMask);	// handle MIDI device change
 		if (nChangeMask & CMidiDevices::CM_INPUT) {	// if MIDI input device changed
 			OpenInputDevice();
-		}
-		if (nChangeMask & CMidiDevices::CM_OUTPUT) {	// if MIDI output device changed
-			if (!bResult && GetDeviceCount(CMidiDevices::OUTPUT)) {	// if user canceled and an output device is available
-				SetDeviceIdx(CMidiDevices::OUTPUT, 0);	// select first output device
-			}
 		}
 		if (nChangeMask & CMidiDevices::CM_CHANGE) {	// if MIDI device state changed
 			CMainFrame	*pMainFrm = theApp.GetMainFrame();
@@ -311,7 +307,7 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 			double	fMidiVal = double(nMidiVal) / nMidiMax * nMapRange + map.m_nStart;
 			double	fNormVal = fMidiVal / MIDI_NOTE_MAX;	// normalized target value
 			// many targets are zero-centered, so we must avoid infinitesimal at center
-			if (fabs(fNormVal - 0.5) < fCenterEpsilon) {	// if within epsilon of center
+			if (IsCloseEnough(fNormVal, 0.5, fCenterEpsilon)) {	// if within epsilon of center
 				fNormVal = 0.5;	// call it center
 			}
 			// order must match order of ranges in mapping target enumeration

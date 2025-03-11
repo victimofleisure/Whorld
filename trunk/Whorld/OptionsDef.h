@@ -12,6 +12,7 @@
 		02		26feb25	add MIDI input
 		03		28feb25	add general group
 		04      09mar25	add export scaling types
+		05      11mar25	add legacy snapshot sizes
 
 */
 
@@ -19,6 +20,7 @@
 
 GROUPDEF(	Midi		)
 GROUPDEF(	Export		)
+GROUPDEF(	Snapshot	)
 GROUPDEF(	General		)
 
 #undef GROUPDEF
@@ -34,6 +36,7 @@ PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageHeight,		1080,		1,			UINT_MAX,	NULL,
 PROPDEF(	Export,		NONE,		VAR,		bool,		bUseViewSize,		1,			0,			0,			NULL,		0)
 PROPDEF(	Export,		NONE,		ENUM,		UINT,		nScalingType,		0,			0,			0,			m_oiScalingType,	SCALING_TYPES)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bPromptUser,		1,			0,			0,			NULL,		0)
+PROPDEF(	Snapshot,	NONE,		ENUM,		int,		iLegacySize,		1,			0,			0,			m_oiLegacySize,		LEGACY_SIZES)
 PROPDEF(	General,	NONE,		VAR,		int,		nMRUItems,			4,			0,			16,			NULL,		0)
 
 #undef PROPDEF
@@ -47,4 +50,13 @@ SCALINGTYPEDEF(FitHeight)
 SCALINGTYPEDEF(FitBoth)
 
 #undef SCALINGTYPEDEF
+#endif
+
+#ifdef LEGACYSIZEDEF
+
+LEGACYSIZEDEF(640, 480, VGA)
+LEGACYSIZEDEF(800, 600, SVGA)
+LEGACYSIZEDEF(1024, 768, XGA)
+
+#undef LEGACYSIZEDEF
 #endif

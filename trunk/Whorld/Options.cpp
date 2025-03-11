@@ -12,6 +12,7 @@
 		02		21feb25	customize for Whorld
 		03		26feb25	add MIDI input
         04      09mar25	add export scaling types
+		05      11mar25	add legacy snapshot sizes
 		
 */
 
@@ -36,6 +37,16 @@ const COptions::PROPERTY_INFO COptions::m_Info[PROPERTIES] = {
 
 const COptions::OPTION_INFO COptions::m_oiScalingType[SCALING_TYPES] = {
 	#define SCALINGTYPEDEF(name) {_T(#name), IDS_OPT_SCALING_TYPE_##name},
+	#include "OptionsDef.h"
+};
+
+const COptions::OPTION_INFO COptions::m_oiLegacySize[LEGACY_SIZES] = {
+	#define LEGACYSIZEDEF(width, height, name) {_T(#name), IDS_OPT_SCALING_TYPE_##name},
+	#include "OptionsDef.h"
+};
+
+const SIZE COptions::m_aLegacySize[LEGACY_SIZES] = {
+	#define LEGACYSIZEDEF(width, height, name) {width, height},
 	#include "OptionsDef.h"
 };
 

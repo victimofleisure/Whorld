@@ -9,10 +9,12 @@
 		rev		date	comments
         00      23feb25	initial version
 		01		09mar25	add flags bitmask to drawing state
+		02      11mar25	get target size from options
 
 */
 
 #include "stdafx.h"
+#include "Whorld.h"	// for legacy snapshot sizes
 #include "SnapshotV1.h"
 #include "Snapshot.h"
 
@@ -116,11 +118,12 @@ void CSnapshotV1::CvtRing(const RING_V1& ringOld, RING& ringNew)
 
 void CSnapshotV1::CvtState(const DRAW_STATE_V1& stateOld, DRAW_STATE& stateNew)
 {
-	stateNew.szTarget		= CD2DSizeF(1024, 768);	// assume XGA resolution
+	// V1 snapshot format didn't include a frame size, so user must specify it
+	stateNew.szTarget		= CD2DSizeF(theApp.m_options.GetLegacySnapshotSize());
 	stateNew.clrBkgnd		= CvtColor(stateOld.BkColor);
 	stateNew.fZoom			= stateOld.Zoom;
 	stateNew.bConvex		= stateOld.Convex;
-	stateNew.nSnapshotFlags	= CSnapshot::SF_V1;
+	stateNew.nFlags			= CSnapshot::SF_V1;
 }
 
 void CSnapshotV1::CvtGlobRing(const GLOB_RING_V1& grOld, GLOB_RING& grNew)

@@ -13,6 +13,7 @@
 		03		28feb25	add playlist
 		04		03mar25	if command queue is full, worker thread now retries
 		05		06mar25	add error logging
+		06		11mar25	disentangle snapshot zoom
 
 */
 
@@ -47,7 +48,7 @@
 #define RK_RENDER_WND _T("RenderWnd")
 #define RK_RESOURCE_VERSION _T("nResourceVersion")
 
-const int CWhorldApp::m_nNewResourceVersion = 8;	// increment if resource change breaks customization
+const int CWhorldApp::m_nNewResourceVersion = 9;	// increment if resource change breaks customization
 
 // CWhorldApp construction
 
@@ -614,7 +615,7 @@ void CWhorldApp::SetPause(bool bEnable)
 	m_thrRender.SetPause(bEnable);	// request render thread to enter specified pause state
 	m_bIsPaused = bEnable;	// update our paused state
 	if (!bEnable) {	// if we're unpausing
-		SetSnapshotMode(false);
+		SetSnapshotMode(false);	// exit snapshot mode
 	}
 }
 
@@ -624,14 +625,7 @@ bool CWhorldApp::LoadSnapshot(LPCTSTR pszPath)
 	if (pSnapshot == NULL) {	// if read failed
 		return false;	// error already handled
 	}
-	SetSnapshotMode(true);
-	// update zoom in UI to snapshot's zoom
-	CWhorldDoc*	pDoc = GetDocument();
-	pDoc->m_master.fZoom = pSnapshot->m_drawState.fZoom;
-	CWhorldDoc::CPropHint	hint(MASTER_Zoom);	// master property index
-	// display snapshot command updates render thread's zoom, so specify
-	// view as sender to prevent view from pushing needless zoom command
-	pDoc->UpdateAllViews(GetView(), HINT_MASTER, &hint);
+	SetSnapshotMode(true);	// enter snapshot mode
 	return m_thrRender.DisplaySnapshot(pSnapshot);	// request render thread to display snapshot
 }
 
@@ -647,6 +641,13 @@ void CWhorldApp::SetSnapshotMode(bool bEnable)
 			// create copy of current patch on heap and attach copy to member pointer
 			m_pPreSnapshotModePatch.Attach(new CPatch(patch));
 		}
+		// While we're in snapshot mode, zoom is relative to the snapshot's zoom.
+		// The render thread resets its zoom to 100% when it enters snapshot mode,
+		// and we must update the UI to reflect that; we specify the view as the
+		// update sender to prevent the view from pushing a needless zoom command.
+		pDoc->m_master.fZoom = 1;	// update zoom in UI to 100% to match renderer
+		CWhorldDoc::CPropHint	hint(MASTER_Zoom);	// master property index
+		pDoc->UpdateAllViews(GetView(), HINT_MASTER, &hint);	// sender is view
 	} else {	// exiting snapshot mode
 		ASSERT(m_pPreSnapshotModePatch != NULL);	// otherwise logic error
 		// snapshot is deleted when smart pointer goes out of scope

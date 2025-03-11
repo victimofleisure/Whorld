@@ -36,6 +36,7 @@
 
 #define CHECK(x) { HRESULT hr = x; if (FAILED(hr)) { HandleError(hr, __FILE__, __LINE__, __DATE__); return false; }}
 #define DTOF(x) static_cast<float>(x)
+#define FTOD(x) static_cast<double>(x)
 
 #define RENDER_CMD_NATTER 1	// set true to display render commands on console
 
@@ -189,7 +190,7 @@ void CWhorldThread::OnCopiesChange()
 
 inline double CWhorldThread::RandDouble()
 {
-	return static_cast<double>(rand()) / RAND_MAX;
+	return FTOD(rand()) / RAND_MAX;
 }
 
 void CWhorldThread::OnTempoChange()
@@ -549,9 +550,9 @@ bool CWhorldThread::OnDraw()
 	double	fZoom = m_fZoom;
 	double	fSnapshotScale = 0;	// keeps compiler happy
 	if (m_bSnapshotMode) {	// if we're displaying a snapshot
-		double	fHorzScale = static_cast<double>(m_szTarget.width) / m_dsSnapshot.szTarget.width;
-		double	fVertScale = static_cast<double>(m_szTarget.height) / m_dsSnapshot.szTarget.height;
-		fZoom *= min(fHorzScale, fVertScale);
+		double	fSnapshotHorzScale = FTOD(m_szTarget.width) / m_dsSnapshot.szTarget.width;
+		double	fSnapshotVertScale = FTOD(m_szTarget.height) / m_dsSnapshot.szTarget.height;
+		fZoom *= min(fSnapshotHorzScale, fSnapshotVertScale);
 		fSnapshotScale = fZoom;
 		fZoom *= m_dsSnapshot.fZoom;
 	}
@@ -608,17 +609,19 @@ bool CWhorldThread::OnDraw()
 				DPoint	pt;	// compute curve points from real vertex
 				pt.x = sin(fTheta) * aptRad[bOdd].x + ptShift.x;
 				pt.y = cos(fTheta) * aptRad[bOdd].y + ptShift.y;
-				CD2DPointF	spt(DTOF(pt.x), DTOF(pt.y));	// single precision
-				if (rBounds.PtInRect(spt))
+				D2D1_POINT_2F	ptStart = {DTOF(pt.x), DTOF(pt.y)};	// single precision
+				if (rBounds.PtInRect(ptStart))
 					bRingVisible = true;
 				DPoint	ptVec(pt - ptShift);	// vector from vertex to origin
 				double	rLen = fCurveLenCW[bOdd];	// get clockwise curve vector length
-				// previous segment's second control point
-				*pPt++ = CD2DPointF(DTOF(pt.x - ptVec.y * rLen), DTOF(pt.y + ptVec.x * rLen));
-				*pPt++ = spt;	// current segment's start point
+				D2D1_POINT_2F 	ptCtrl2 =
+					{DTOF(pt.x - ptVec.y * rLen), DTOF(pt.y + ptVec.x * rLen)};
+				*pPt++ = ptCtrl2;	// previous segment's second control point
+				*pPt++ = ptStart;	// current segment's start point
 				rLen = fCurveLenCCW[bOdd];	// get counter-clockwise curve vector length
-				// current segment's first control point
-				*pPt++ = CD2DPointF(DTOF(pt.x + ptVec.y * rLen), DTOF(pt.y - ptVec.x * rLen));
+				D2D1_POINT_2F	ptCtrl1 =
+					{DTOF(pt.x + ptVec.y * rLen), DTOF(pt.y - ptVec.x * rLen)};
+				*pPt++ = ptCtrl1;	// current segment's first control point
 			}
 			m_aPt[0] = m_aPt[nPoints - 1];	// set start point
 			m_aPt[1] = m_aPt[nPoints];	// set first segment's first control point
@@ -1216,8 +1219,8 @@ bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*&
 		CSaveObj<CD2DSizeF>	saveTargetSize(m_szTarget);	// save target size
 		UINT	nScaleType = nFlags & EF_SCALE_FIT_BOTH;
 		if (nScaleType) {	// if scaling
-			double	fHorzScale = static_cast<double>(szImage.width) / max(m_szTarget.width, 1);
-			double	fVertScale = static_cast<double>(szImage.height) / max(m_szTarget.height, 1);
+			double	fHorzScale = FTOD(szImage.width) / max(m_szTarget.width, 1);
+			double	fVertScale = FTOD(szImage.height) / max(m_szTarget.height, 1);
 			double	fScale;
 			switch (nScaleType) {
 			case EF_SCALE_FIT_WIDTH:
@@ -1302,7 +1305,10 @@ void CWhorldThread::OnSetDrawMode(UINT nMask, UINT nVal)
 
 void CWhorldThread::OnSetSnapshotSize(SIZE szSnapshot)
 {
-	m_dsSnapshot.szTarget = CD2DSizeF(szSnapshot);
+	// if we're currently displaying a legacy snapshot
+	if (m_dsSnapshot.nFlags & CSnapshot::SF_V1) {
+		m_dsSnapshot.szTarget = CD2DSizeF(szSnapshot);	// update its frame size
+	}
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)

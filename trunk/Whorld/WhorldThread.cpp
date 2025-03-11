@@ -816,27 +816,24 @@ inline void CWhorldThread::GetSnapshotDrawState(int nRings, DRAW_STATE& drawStat
 {
 	if (m_bSnapshotMode) {	// if in snapshot mode
 		// taking a snapshot of a snapshot is a special case;
-		// preserve snapshot's original target size and zoom
-		drawState.szTarget = m_dsSnapshot.szTarget;
-		drawState.fZoom = m_dsSnapshot.fZoom;
+		// preserve all of the snapshot's original properties
+		drawState = m_dsSnapshot;
 	} else {	// not in snapshot mode
 		drawState.szTarget = m_szTarget;
 		drawState.fZoom = m_fZoom;
+		drawState.clrBkgnd = m_clrBkgnd;
+		drawState.nRings = nRings;
+		drawState.bConvex = m_main.bConvex;
+		drawState.nReserved = 0;
+		drawState.nFlags = 0;
 	}
-	drawState.clrBkgnd = m_clrBkgnd;
-	drawState.nRings = nRings;
-	drawState.bConvex = m_main.bConvex;
-	drawState.nReserved = 0;
-	drawState.nFlags = m_dsSnapshot.nFlags;
 }
 
 inline int CWhorldThread::SetSnapshotDrawState(const DRAW_STATE& drawState)
 {
-	m_dsSnapshot.szTarget = drawState.szTarget;
-	m_clrBkgnd = drawState.clrBkgnd;
-	m_dsSnapshot.fZoom = drawState.fZoom;
-	m_main.bConvex = drawState.bConvex;
-	m_dsSnapshot.nFlags = drawState.nFlags;
+	m_dsSnapshot = drawState;	// copy entire draw state
+	m_clrBkgnd = drawState.clrBkgnd;	// update background color
+	m_main.bConvex = drawState.bConvex;	// update convex flag
 	return drawState.nRings;	// return ring count
 }
 
@@ -849,7 +846,6 @@ void CWhorldThread::DumpSnapshot() const
 	int	nRings = static_cast<int>(m_aRing.GetCount());
 	DRAW_STATE	drawState;
 	GetSnapshotDrawState(nRings, drawState);
-	drawState.nFlags = m_dsSnapshot.nFlags;
 	fOut.WriteString(CSnapshot::FormatState(drawState));
 	POSITION	posNext = m_aRing.GetHeadPosition();
 	for (int iRing = 0; iRing < nRings; iRing++) {	// for each ring

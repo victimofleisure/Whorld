@@ -189,7 +189,7 @@ RENDERCMDDEF(CAPTURE_SNAPSHOT,	intVal	)	// capture a snapshot; no parameters
 RENDERCMDDEF(DISPLAY_SNAPSHOT,	byref	)	// display a snapshot; m_nParam: none, m_prop: CSnapshot* pSnapshot
 RENDERCMDDEF(SET_DAMPED_GLOBAL,	dblVal	)	// sets a global parameter with damping; m_nParam: parameter index, m_prop: double
 RENDERCMDDEF(SET_DRAW_MODE,		uintVal	)	// sets draw mode bits; m_nParam: mask, m_prop: value
-RENDERCMDDEF(SET_SNAPSHOT_SIZE,	szVal	)	// sets legacy snapshot frame size; m_nParam: none, m_prop SIZE szSnapshot
+RENDERCMDDEF(SET_SNAPSHOT_SIZE,	szVal	)	// sets legacy snapshot frame size; m_nParam: none, m_prop: SIZE szSnapshot
 
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF

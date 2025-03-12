@@ -215,6 +215,7 @@ BEGIN
             MENUITEM "&Last",                       ID_SNAPSHOT_LAST
             MENUITEM SEPARATOR
             MENUITEM "&Export All...",              ID_SNAPSHOT_EXPORT_ALL
+            MENUITEM "&Info...",                    ID_SNAPSHOT_INFO
         END
     END
     POPUP "&View"
@@ -836,6 +837,7 @@ BEGIN
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
+    ID_SNAPSHOT_INFO        "Display information about current snapshot\nSnapshot Info"
 END
 
 STRINGTABLE
@@ -844,11 +846,11 @@ BEGIN
     ID_PLAYLIST_MRU_FILE7   "Open this playlist"
     ID_PLAYLIST_MRU_FILE8   "Open this playlist"
     ID_PLAYLIST_MRU_FILE9   "Open this playlist"
-    ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All"
-    ID_SNAPSHOT_FIRST       "Go to first item\nFirst"
-    ID_SNAPSHOT_LAST        "Go to last item\nLast"
-    ID_SNAPSHOT_NEXT        "Go to next item\nNext"
-    ID_SNAPSHOT_PREV        "Go to previous item\nPrevious"
+    ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All Snapshots"
+    ID_SNAPSHOT_FIRST       "Go to first snapshot\nFirst Snapshot"
+    ID_SNAPSHOT_LAST        "Go to last snapshot\nLast Snapshot"
+    ID_SNAPSHOT_NEXT        "Go to next snapshot\nNext  Snapshot"
+    ID_SNAPSHOT_PREV        "Go to previous snapshot\nPrevious Snapshot"
     ID_STATUS_PANE_FRAME_RATE "000.00"
     ID_STATUS_PANE_RING_COUNT "00000"
 END

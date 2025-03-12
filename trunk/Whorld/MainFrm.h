@@ -168,6 +168,7 @@ public:
 	afx_msg void OnSnapshotNext();
 	afx_msg void OnSnapshotPrev();
 	afx_msg void OnSnapshotExportAll();
+	afx_msg void OnSnapshotInfo();
 	afx_msg void OnUpdateSnapshot(CCmdUI *pCmdUI);
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		afx_msg void OnViewBar##name(); \

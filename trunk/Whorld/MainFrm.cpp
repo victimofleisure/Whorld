@@ -22,6 +22,7 @@
 		12		08mar25	add export all snapshots
 		13		10mar25	add prompting for export all
 		14		11mar25	disable take snapshot command while in snapshot mode
+		15		12mar25	add snapshot info command
 
 */
 
@@ -80,6 +81,9 @@ enum {	// application looks; alpha order to match corresponding resource IDs
 
 #define ID_VIEW_APPLOOK_FIRST ID_VIEW_APPLOOK_OFF_2003
 #define ID_VIEW_APPLOOK_LAST ID_VIEW_APPLOOK_WIN_XP
+
+#define ID_SNAPSHOT_RANGE_FIRST ID_SNAPSHOT_EXPORT_ALL
+#define ID_SNAPSHOT_RANGE_LAST ID_SNAPSHOT_PREV
 
 const UINT CMainFrame::m_arrDockingBarNameID[DOCKING_BARS] = {
 	#define MAINDOCKBARDEF(name, width, height, style) IDS_BAR_##name,
@@ -574,7 +578,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_SNAPSHOT_NEXT, OnSnapshotNext)
 	ON_COMMAND(ID_SNAPSHOT_PREV, OnSnapshotPrev)
 	ON_COMMAND(ID_SNAPSHOT_EXPORT_ALL, OnSnapshotExportAll)
-	ON_UPDATE_COMMAND_UI_RANGE(ID_SNAPSHOT_FIRST, ID_SNAPSHOT_PREV, OnUpdateSnapshot)
+	ON_COMMAND(ID_SNAPSHOT_INFO, OnSnapshotInfo)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_SNAPSHOT_RANGE_FIRST, ID_SNAPSHOT_RANGE_LAST, OnUpdateSnapshot)
 	// dock bar handlers confuse IDE's code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
@@ -1046,30 +1051,32 @@ void CMainFrame::OnImageRandomPhase()
 
 void CMainFrame::OnSnapshotFirst()
 {
-	if (!m_aSnapshotPath.IsEmpty()) {
-		theApp.LoadSnapshot(m_aSnapshotPath[0]);
+	if (m_aSnapshotPath.GetSize() && m_iCurSnapshot > 0) {
+		m_iCurSnapshot = 0;	// go to first
+		theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
 	}
 }
 
 void CMainFrame::OnSnapshotLast()
 {
-	if (!m_aSnapshotPath.IsEmpty()) {
-		theApp.LoadSnapshot(m_aSnapshotPath[m_aSnapshotPath.GetSize() - 1]);
+	if (m_iCurSnapshot < m_aSnapshotPath.GetSize() - 1) {
+		m_iCurSnapshot = m_aSnapshotPath.GetSize() - 1;	// go to last
+		theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
 	}
 }
 
 void CMainFrame::OnSnapshotNext()
 {
 	if (m_iCurSnapshot < m_aSnapshotPath.GetSize() - 1) {
-		m_iCurSnapshot++;
+		m_iCurSnapshot++;	// go to next
 		theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
 	}
 }
 
 void CMainFrame::OnSnapshotPrev()
 {
-	if (m_iCurSnapshot > 0) {
-		m_iCurSnapshot--;
+	if (m_aSnapshotPath.GetSize() && m_iCurSnapshot > 0) {
+		m_iCurSnapshot--;	// go to previous
 		theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
 	}
 }
@@ -1120,6 +1127,31 @@ void CMainFrame::OnSnapshotExportAll()
 	}
 	// restore current snapshot
 	theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
+}
+
+void CMainFrame::OnSnapshotInfo()
+{
+	if (m_iCurSnapshot < m_aSnapshotPath.GetSize()) {	// if we have a snapshot
+		LPCTSTR	pszPath = m_aSnapshotPath[m_iCurSnapshot];
+		// read snapshot and assign it to a smart pointer
+		CAutoPtr<CSnapshot>	pSnapshot(CSnapshot::Read(pszPath));
+		if (pSnapshot != NULL) {	// if snapshot read succeeded
+			CPathStr	sFilename(PathFindFileName(pszPath));
+			sFilename.RemoveExtension();
+			CString	sTargetSize(ValToString(pSnapshot->m_drawState.szTarget.width)
+				+ _T(" x ") + ValToString(pSnapshot->m_drawState.szTarget.height));
+			int	nVersion = !(pSnapshot->m_drawState.nFlags & CSnapshot::SF_V1) + 1;
+			CString	sVersion(ValToString(nVersion));
+			CString	sInfo(
+				+ _T("Name:\t") + sFilename
+				+ _T("\nSize:\t") + sTargetSize
+				+ _T("\nZoom:\t") + ValToString(pSnapshot->m_drawState.fZoom)
+				+ _T("\nRings:\t") + ValToString(pSnapshot->m_drawState.nRings)
+				+ _T("\nVersion:\t") + sVersion
+			);
+			MessageBox(sInfo, _T("Snapshot"), MB_ICONINFORMATION);
+		}
+	}
 }
 
 void CMainFrame::OnUpdateSnapshot(CCmdUI *pCmdUI)

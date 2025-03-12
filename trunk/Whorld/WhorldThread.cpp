@@ -20,6 +20,7 @@
 		10		09mar25	add export scaling types
 		11		09mar25	fix color shift in legacy snapshots
 		12		11mar25	disentangle snapshot zoom
+		13		12mar25	remove unnecessary point ctors
 
 */
 
@@ -228,10 +229,10 @@ void CWhorldThread::UpdateOrigin()
 				ScreenToClient(m_hRenderWnd, &ptCursor);	// convert to client coords
 				CRect	rClient;
 				GetClientRect(m_hRenderWnd, &rClient);	// get client window rectangle
-				DPoint	pt = DPoint(ptCursor) / rClient.Size();	// normalize cursor position
+				DPoint	pt(DPoint(ptCursor) / rClient.Size());	// normalize cursor position
 				pt.x = CLAMP(pt.x, 0, 1);	// limit to within client window
 				pt.y = CLAMP(pt.y, 0, 1);
-				m_ptOriginTarget = (pt - 0.5) * GetTargetSize();	// convert to DIPs
+				m_ptOriginTarget = (pt - 0.5) * m_szTarget;	// convert to DIPs
 			}
 		}
 		break;
@@ -239,7 +240,7 @@ void CWhorldThread::UpdateOrigin()
 		if (m_master.fTempo) {	// if non-zero tempo
 			if (m_oscOrigin.IsTrigger()) {	// if origin oscillator triggered
 				DPoint	ptRand(RandDouble(), RandDouble());	// generate normalized random point
-				m_ptOriginTarget = (ptRand - 0.5) * GetTargetSize();	// convert to DIPs
+				m_ptOriginTarget = (ptRand - 0.5) * m_szTarget;	// convert to DIPs
 			}
 		}
 		break;
@@ -1198,19 +1199,19 @@ void CWhorldThread::OnSetZoom(double fZoom, bool bDamping)
 
 void CWhorldThread::OnSetOrigin(DPoint ptOrigin, bool bDamping)
 {
-	SetOriginTarget(DPoint((ptOrigin - 0.5) * GetTargetSize()), bDamping);	// denormalize origin
+	SetOriginTarget(DPoint((ptOrigin - 0.5) * m_szTarget), bDamping);	// denormalize origin
 }
 
 void CWhorldThread::OnSetOriginX(double fOriginX, bool bDamping)
 {
-	SetOriginTarget(DPoint((fOriginX - 0.5) * GetTargetSize().x,	// denormalize x-coord
+	SetOriginTarget(DPoint((fOriginX - 0.5) * m_szTarget.width,	// denormalize x-coord
 		m_ptOriginTarget.y), bDamping);
 }
 
 void CWhorldThread::OnSetOriginY(double fOriginY, bool bDamping)
 {
 	SetOriginTarget(DPoint(m_ptOriginTarget.x, 
-		(fOriginY - 0.5) * GetTargetSize().y), bDamping);	// denormalize y-coord
+		(fOriginY - 0.5) * m_szTarget.height), bDamping);	// denormalize y-coord
 }
 
 DPoint CWhorldThread::GetOrigin() const
@@ -1218,7 +1219,7 @@ DPoint CWhorldThread::GetOrigin() const
 	if (!m_szTarget.width || !m_szTarget.height) {
 		return DPoint(0, 0);	// avoid divide by zero
 	}
-	return DPoint(m_ptOrigin) / GetTargetSize() + 0.5;
+	return DPoint(m_ptOrigin) / m_szTarget + 0.5;
 }
 
 bool CWhorldThread::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)

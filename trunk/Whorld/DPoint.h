@@ -13,6 +13,7 @@
 		04		12feb25	add POINTFLOAT ctor and conversion
 		05		14feb25	simplify base struct def
 		06		03mar25	modernize style
+		07		12mar25	add Direct2D types
 
 		double-precision 2D coordinate
 
@@ -34,6 +35,8 @@ public:
 	DPoint(const POINT& p);
 	DPoint(const SIZE& p);
 	DPoint(const POINTFLOAT& p);
+	DPoint(const D2D1_POINT_2F& p);
+	DPoint(const D2D1_SIZE_F& p);
 	DPoint& operator=(const DPoint& p);
 	DPoint& operator=(const DPOINT& p);
 	const DPoint operator+(const DPoint& p) const;
@@ -58,8 +61,9 @@ public:
 	double& operator[](int i);
   	operator POINT() const;
 	operator POINTFLOAT() const;
+	operator D2D1_POINT_2F() const;
 	static bool Equal(double a, double b);
-	static const double Epsilon;
+	static const double m_fEpsilon;
 };
 
 inline DPoint::DPoint()
@@ -100,6 +104,18 @@ inline	DPoint::DPoint(const POINTFLOAT& p)
 {
 	x = p.x;
 	y = p.y;
+}
+
+inline	DPoint::DPoint(const D2D1_POINT_2F& p)
+{
+	x = p.x;
+	y = p.y;
+}
+
+inline	DPoint::DPoint(const D2D1_SIZE_F& p)
+{
+	x = p.width;
+	y = p.height;
 }
 
 inline DPoint& DPoint::operator=(const DPoint& p)
@@ -231,6 +247,14 @@ inline DPoint::operator POINT() const
 inline DPoint::operator POINTFLOAT() const
 {
 	POINTFLOAT	pt;
+	pt.x = static_cast<float>(x);
+	pt.y = static_cast<float>(y);
+	return pt;
+}
+
+inline DPoint::operator D2D1_POINT_2F() const
+{
+	D2D1_POINT_2F	pt;
 	pt.x = static_cast<float>(x);
 	pt.y = static_cast<float>(y);
 	return pt;

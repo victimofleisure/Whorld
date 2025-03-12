@@ -15,6 +15,7 @@
 		05		02mar25	implement global parameters
 		06		09mar25	add snapshot flags bitmask
 		07		11mar25	add get/set snapshot draw state
+		08		12mar25	add target size accessor
 
 */
 
@@ -36,6 +37,7 @@ public:
 	UINT_PTR	GetFrameCount() const;
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
+	D2D1_SIZE_F	GetTargetSize() const;
 
 // Commands
 	bool	SetParam(int iParam, int iProp, VARIANT_PROP& prop);
@@ -148,7 +150,6 @@ protected:
 	void	OnMainPropChange(int iProp);
 	void	OnMasterPropChange();
 	void	OnMainPropChange();
-	DPoint	GetTargetSize() const;
 	CSnapshot*	GetSnapshot() const;
 	void	SetSnapshot(const CSnapshot* pSnapshot);
 	void	ExitSnapshotMode();
@@ -200,7 +201,7 @@ inline DWORD CWhorldThread::GetFrameRate() const
 	return m_nFrameRate;
 }
 
-inline DPoint CWhorldThread::GetTargetSize() const
+inline D2D1_SIZE_F	CWhorldThread::GetTargetSize() const
 {
-	return DPoint(m_szTarget.width, m_szTarget.height);
+	return m_szTarget;	// atomic in x64, but not in x86!
 }

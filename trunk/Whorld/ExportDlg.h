@@ -56,5 +56,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg LRESULT OnKickIdle(WPARAM, LPARAM);
 	afx_msg void OnUpdateSize(CCmdUI *pCmdUI);
-	afx_msg void OnCbnSelchangeExportScalingTypeCombo();
+	afx_msg void OnClickedUseViewSize();
 };

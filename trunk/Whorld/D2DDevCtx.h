@@ -7,6 +7,7 @@
 
 		rev		date		comments
 		00		15jan25	initial version
+		01		12mar25	remove frame size accessor
 
 */
 
@@ -31,7 +32,6 @@ public:
 	void	Destroy();
 	bool	Resize();
 	bool	SetFullScreen(bool bEnable);
-	CD2DSizeU	GetFrameSize() const;
 	bool	GetOutputDesc(DXGI_OUTPUT_DESC& desc);
 	bool	GetAdapterDesc(DXGI_ADAPTER_DESC& desc);
 	bool	GetDisplayFrequency(DWORD& dwFrequency);
@@ -61,12 +61,4 @@ inline CD2DDevCtx::~CD2DDevCtx()
 inline bool CD2DDevCtx::IsCreated() const
 {
 	return m_pTargetBitmap != NULL;
-}
-
-inline CD2DSizeU CD2DDevCtx::GetFrameSize() const
-{
-	if (m_pD2DDeviceContext != NULL)
-		return m_pD2DDeviceContext->GetPixelSize();
-	else
-		return CD2DSizeU(0, 0);
 }

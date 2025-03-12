@@ -10,6 +10,7 @@
         00      28jun05	initial version
         01      21feb25	refactor
         02      09mar25	add export scaling types
+		03		12mar25	display view size when use view size is checked
 
         export options dialog
  
@@ -49,7 +50,7 @@ BEGIN_MESSAGE_MAP(CExportDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(IDC_EXPORT_WIDTH_EDIT, OnUpdateSize)
 	ON_UPDATE_COMMAND_UI(IDC_EXPORT_HEIGHT_EDIT, OnUpdateSize)
 	ON_UPDATE_COMMAND_UI(IDC_EXPORT_SCALING_TYPE_COMBO, OnUpdateSize)
-	ON_CBN_SELCHANGE(IDC_EXPORT_SCALING_TYPE_COMBO, &CExportDlg::OnCbnSelchangeExportScalingTypeCombo)
+	ON_BN_CLICKED(IDC_EXPORT_USE_VIEW_SIZE_CHECK, OnClickedUseViewSize)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,8 +90,15 @@ void CExportDlg::OnUpdateSize(CCmdUI *pCmdUI)
 	pCmdUI->Enable(!bUseViewSize);
 }
 
-
-void CExportDlg::OnCbnSelchangeExportScalingTypeCombo()
+void CExportDlg::OnClickedUseViewSize()
 {
-	// TODO: Add your control notification handler code here
+	BOOL	bUseViewSize = IsDlgButtonChecked(IDC_EXPORT_USE_VIEW_SIZE_CHECK);
+	if (bUseViewSize) {	// if using view size
+		// display render target size in width/height edit controls
+		UpdateData(true);	// retrieve data from controls
+		D2D1_SIZE_F	szTarget = theApp.m_thrRender.GetTargetSize();
+		m_nWidth = Round(szTarget.width);
+		m_nHeight = Round(szTarget.height);
+		UpdateData(false);	// initialize controls from data
+	}
 }

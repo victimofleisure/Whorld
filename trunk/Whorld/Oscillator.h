@@ -180,7 +180,7 @@ inline CTriggerOscillator::CTriggerOscillator(double fTimerFreq, double fFreq)
 inline bool CTriggerOscillator::IsTrigger()
 {
 	TimerHook();
-	bool	bIsHigh = GetVal() >= 1 - DPoint::Epsilon;	// true if output is high
+	bool	bIsHigh = GetVal() >= 1 - DPoint::m_fEpsilon;	// true if output is high
 	bool	bIsTrigger = bIsHigh && !m_bIsHigh;	// true if transition from low to high
 	m_bIsHigh = bIsHigh;	// update previous output state
 	return bIsTrigger;

@@ -11,6 +11,7 @@
 		01		24feb25	fix outline menu item not displaying check
 		02		27feb25	disable undo/redo while in snapshot mode
 		03		03mar25	don't touch modified flag while in snapshot mode
+		04      12mar25	get wheel sensitivity from options
 
 */
 
@@ -202,8 +203,8 @@ bool CWhorldDoc::OffsetMasterProp(int iProp, double fDelta, double& fVal)
 BOOL CWhorldDoc::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
 	UNREFERENCED_PARAMETER(pt);
-	const double	fWheelSteps = 16;	// belongs in options
-	double	fDelta = static_cast<double>(zDelta) / WHEEL_DELTA / fWheelSteps;
+	double	fWheelScale = theApp.m_options.m_Input_fWheelSense / 100;
+	double	fDelta = static_cast<double>(zDelta) / WHEEL_DELTA * fWheelScale;
 	if (nFlags & MK_SHIFT) {
 		double	fDamping;
 		if (OffsetMasterProp(MASTER_Damping, fDelta, fDamping)) {

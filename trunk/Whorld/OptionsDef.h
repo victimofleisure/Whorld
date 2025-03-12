@@ -13,12 +13,14 @@
 		03		28feb25	add general group
 		04      09mar25	add export scaling types
 		05      11mar25	add legacy snapshot sizes
+		06      12mar25	add wheel sensitivity
 
 */
 
 #ifdef GROUPDEF
 
 GROUPDEF(	Midi		)
+GROUPDEF(	Input		)
 GROUPDEF(	Export		)
 GROUPDEF(	Snapshot	)
 GROUPDEF(	General		)
@@ -30,6 +32,7 @@ GROUPDEF(	General		)
 
 //			group		subgroup	proptype	type		name				initval		minval		maxval		itemname	items
 PROPDEF(	Midi,		NONE,		ENUM,		int,		iInputDevice,		0,			0,			0,			NULL,		0)
+PROPDEF(	Input,		NONE,		VAR,		float,		fWheelSense,		6.25f,		0.1f,		10.0f,		NULL,		0)
 PROPDEF(	Export,		NONE,		FOLDER,		CString,	sImageFolder,		"",			"",			"",			NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageWidth,		1920,		1,			UINT_MAX,	NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageHeight,		1080,		1,			UINT_MAX,	NULL,		0)

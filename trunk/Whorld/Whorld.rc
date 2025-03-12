@@ -727,25 +727,29 @@ BEGIN
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
     IDS_OPT_DESC_General_nMRUItems 
                             "Maximum number of items in recently used lists"
+    IDS_OPT_DESC_Input_fWheelSense 
+                            "Mouse wheel sensitivity, as a percentage of system default"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
     IDS_OPT_DESC_Snapshot_bLetterbox 
                             "Show bars around snapshot, restricting it to its frame size"
     IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
+    IDS_OPT_GROUP_Input     "Input"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_GROUP_Snapshot  "Snapshot"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
-    IDS_OPT_NAME_Export_nScalingType "Scaling Type"
-    IDS_OPT_NAME_Export_sImageFolder "Image Folder"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Export_nScalingType "Scaling Type"
+    IDS_OPT_NAME_Export_sImageFolder "Image Folder"
     IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
+    IDS_OPT_NAME_Input_fWheelSense "Wheel Sensitivity"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
     IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
@@ -758,13 +762,13 @@ BEGIN
     IDS_OPT_SCALING_TYPE_XGA "1024 x 768 (XGA)"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
-    IDS_PARAM_BkLightness   "Bk Lightness"
-    IDS_PARAM_BkSaturation  "Bk Saturation"
-    IDS_PARAM_ColorSpeed    "Color Speed"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_BkLightness   "Bk Lightness"
+    IDS_PARAM_BkSaturation  "Bk Saturation"
+    IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
@@ -778,13 +782,13 @@ BEGIN
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
-    IDS_PARAM_SkewRadius    "Skew Radius"
-    IDS_PARAM_StarFactor    "Star Factor"
-    IDS_PROPS_MORE_COLORS   "More Colors..."
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_SkewRadius    "Skew Radius"
+    IDS_PARAM_StarFactor    "Star Factor"
+    IDS_PROPS_MORE_COLORS   "More Colors..."
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
     IDS_PROW_Global         "Global"
@@ -798,13 +802,13 @@ BEGIN
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
-    IDS_WAVE_RAMP_DOWN      "Ramp Down"
-    IDS_WAVE_RAMP_UP        "Ramp Up"
-    IDS_WAVE_RANDOM         "Random"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_WAVE_RAMP_DOWN      "Ramp Down"
+    IDS_WAVE_RAMP_UP        "Ramp Up"
+    IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"

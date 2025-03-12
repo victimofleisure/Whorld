@@ -333,7 +333,9 @@ void CWhorldThread::AddRing()
 	}
 	ring.clrCur = m_clrRing;
 	ring.nSides = static_cast<short>(Round(m_params.fPolySides));
+	ring.nDrawMode = static_cast<short>(m_main.nDrawMode);
 	ring.bDelete = false;
+	ring.nReserved = 0;
 	// don't let stars get too thin, or they'll never die
 	double	fRad = max(pow(2, m_params.fStarFactor), MIN_STAR_RATIO);
 	// use trig to find distance from origin to middle of a side
@@ -341,7 +343,6 @@ void CWhorldThread::AddRing()
 	ring.fStarRatio = cos(M_PI / ring.nSides) * fRad;
 	ring.fPinwheel = M_PI / ring.nSides * m_params.fPinwheel;
 	ring.fLineWidth = DTOF(m_params.fLineWidth);
-	ring.nDrawMode = static_cast<short>(m_main.nDrawMode);
 	ring.fHue = m_fHue;
 	ring.fLightness = m_params.fLightness;
 	ring.fSaturation = m_params.fSaturation;

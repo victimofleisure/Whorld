@@ -20,6 +20,7 @@
 		10		01mar25	add commands to set origin coords individually
 		11		10mar25	change ring spacing maxval to odd number for slider
 		12		11mar25	add command to set legacy snapshot frame size
+		13		12mar25	add reserved member to ring struct
 
         define parameter attributes
 
@@ -223,6 +224,7 @@ RINGDEF(short,	nSides)			// polygon's number of sides
 RINGDEF(short,	nDrawMode)		// see draw mode enum
 RINGDEF(bool,	bDelete)		// true if ring should be deleted
 RINGDEF(bool,	bSkipFill)		// true if ring should be skipped in fill mode
+RINGDEF(short,	nReserved)		// reserved, must be zero
 RINGDEF(D2D1_COLOR_F,	clrCur)	// current color
 RINGDEF(double,	fPinwheel)		// additional rotation for odd vertices, in radians
 RINGDEF(double,	fLineWidth)		// line width, in pixels

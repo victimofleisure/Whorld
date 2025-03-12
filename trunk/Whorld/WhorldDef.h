@@ -202,7 +202,7 @@ STATEDEF(	D2D1_COLOR_F,	clrBkgnd)	// background color
 STATEDEF(	double,	fZoom)			// current zoom, as a scaling factor
 STATEDEF(	int,	nRings)			// number of elements in ring array
 STATEDEF(	bool,	bConvex)		// true if drawing in descending size order
-STATEDEF(	BYTE,	nFlags)			// snapshot flags bitmask; see enum below
+STATEDEF(	BYTE,	nFlags)			// snapshot flags bitmask; see enum
 STATEDEF(	USHORT,	nReserved)		// reserved, must be zero	
 
 #undef STATEDEF
@@ -250,6 +250,7 @@ GLOBRINGDEF(double,	fEvenShear)		// even vertex curve point asymmetry ratio
 GLOBRINGDEF(double,	fOddShear)		// odd vertex curve point asymmetry ratio
 GLOBRINGDEF(double,	fLineWidth)		// line width, in pixels
 GLOBRINGDEF(int,	nPolySides)		// number of sides
+GLOBRINGDEF(int,	nReserved)		// reserved, must be zero
 
 #undef GLOBRINGDEF
 #endif // GLOBRINGDEF

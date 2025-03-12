@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		27feb25	customize undo notify to support disabling
 		02		03mar25	override set modified flag accessor
+		03		12mar25	add zoom center command
 
 */
 
@@ -34,11 +35,12 @@ public:
 	void	SetMasterProp(int iProp, double fProp, CView *pSender = NULL);
 	void	SetMainProp(int iProp, const VARIANT_PROP& prop, CView *pSender = NULL);
 	void	SetOriginMotion(int iMotionType);
-	void	SetLoopHue(bool bEnable);
 	void	SetDrawMode(UINT nDrawMode);
+	void	SetMirror(bool bEnable);
 	void	SetReverse(bool bEnable);
 	void	SetConvex(bool bEnable);
-	void	SetMirror(bool bEnable);
+	void	SetLoopHue(bool bEnable);
+	void	SetZoomCenter(bool bEnable);
 	void	SetZoom(double fZoom, bool bDamping = true);
 	void	SetOrigin(DPoint ptOrigin, bool bDamping = true);
 	bool	OffsetMasterProp(int iProp, double fDelta, double& fVal);
@@ -96,25 +98,26 @@ protected:
 	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
 	afx_msg void OnEditRedo();
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
-	afx_msg void OnImageConvex();
-	afx_msg void OnUpdateImageConvex(CCmdUI *pCmdUI);
-	afx_msg void OnImageReverse();
-	afx_msg void OnUpdateImageReverse(CCmdUI *pCmdUI);
 	afx_msg void OnImageFill();
 	afx_msg void OnUpdateImageFill(CCmdUI *pCmdUI);
 	afx_msg void OnImageOutline();
 	afx_msg void OnUpdateImageOutline(CCmdUI *pCmdUI);
-	afx_msg void OnImageOrigin(UINT nID);
+	afx_msg void OnImageMirror();
+	afx_msg void OnUpdateImageMirror(CCmdUI *pCmdUI);
+	afx_msg void OnImageReverse();
+	afx_msg void OnUpdateImageReverse(CCmdUI *pCmdUI);
+	afx_msg void OnImageConvex();
+	afx_msg void OnUpdateImageConvex(CCmdUI *pCmdUI);
+	afx_msg void OnImageLoopHue();
+	afx_msg void OnUpdateImageLoopHue(CCmdUI *pCmdUI);
+	afx_msg void OnImageZoomCenter();
+	afx_msg void OnUpdateImageZoomCenter(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateImageOrigin(CCmdUI *pCmdUI);
 	afx_msg void OnImageOriginCenter();
 	afx_msg void OnImageOriginDrag();
 	afx_msg void OnUpdateImageOriginDrag(CCmdUI *pCmdUI);
 	afx_msg void OnImageOriginRandom();
 	afx_msg void OnUpdateImageOriginRandom(CCmdUI *pCmdUI);
-	afx_msg void OnImageMirror();
-	afx_msg void OnUpdateImageMirror(CCmdUI *pCmdUI);
-	afx_msg void OnImageLoopHue();
-	afx_msg void OnUpdateImageLoopHue(CCmdUI *pCmdUI);
 };
 
 inline CPatch& CWhorldDoc::GetPatch()

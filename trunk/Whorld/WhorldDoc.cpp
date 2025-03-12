@@ -129,16 +129,16 @@ void CWhorldDoc::SetMainProp(int iProp, const VARIANT_PROP& prop, CView *pSender
 	UpdateAllViews(pSender, HINT_MAIN, &hint);
 }
 
-void CWhorldDoc::SetLoopHue(bool bEnable)
-{
-	MAKE_VARIANT_PROP(boolVal, bEnable);
-	SetMainProp(MAIN_LoopHue, prop);
-}
-
 void CWhorldDoc::SetDrawMode(UINT nDrawMode)
 {
 	MAKE_VARIANT_PROP(uintVal, nDrawMode);
 	SetMainProp(MAIN_DrawMode, prop);
+}
+
+void CWhorldDoc::SetMirror(bool bEnable)
+{
+	MAKE_VARIANT_PROP(boolVal, bEnable);
+	SetMainProp(MAIN_Mirror, prop);
 }
 
 void CWhorldDoc::SetReverse(bool bEnable)
@@ -153,10 +153,16 @@ void CWhorldDoc::SetConvex(bool bEnable)
 	SetMainProp(MAIN_Convex, prop);
 }
 
-void CWhorldDoc::SetMirror(bool bEnable)
+void CWhorldDoc::SetLoopHue(bool bEnable)
 {
 	MAKE_VARIANT_PROP(boolVal, bEnable);
-	SetMainProp(MAIN_Mirror, prop);
+	SetMainProp(MAIN_LoopHue, prop);
+}
+
+void CWhorldDoc::SetZoomCenter(bool bEnable)
+{
+	MAKE_VARIANT_PROP(boolVal, bEnable);
+	SetMainProp(MAIN_ZoomCenter, prop);
 }
 
 void CWhorldDoc::SetOriginMotion(int iMotionType)
@@ -380,23 +386,25 @@ BEGIN_MESSAGE_MAP(CWhorldDoc, CDocument)
 	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
-	ON_COMMAND(ID_IMAGE_CONVEX, OnImageConvex)
-	ON_UPDATE_COMMAND_UI(ID_IMAGE_CONVEX, OnUpdateImageConvex)
-	ON_COMMAND(ID_IMAGE_REVERSE, OnImageReverse)
-	ON_UPDATE_COMMAND_UI(ID_IMAGE_REVERSE, OnUpdateImageReverse)
 	ON_COMMAND(ID_IMAGE_FILL, OnImageFill)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_FILL, OnUpdateImageFill)
 	ON_COMMAND(ID_IMAGE_OUTLINE, OnImageOutline)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_OUTLINE, OnUpdateImageOutline)
+	ON_COMMAND(ID_IMAGE_MIRROR, OnImageMirror)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_MIRROR, OnUpdateImageMirror)
+	ON_COMMAND(ID_IMAGE_REVERSE, OnImageReverse)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_REVERSE, OnUpdateImageReverse)
+	ON_COMMAND(ID_IMAGE_CONVEX, OnImageConvex)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_CONVEX, OnUpdateImageConvex)
+	ON_COMMAND(ID_IMAGE_LOOP_HUE, OnImageLoopHue)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_LOOP_HUE, OnUpdateImageLoopHue)
+	ON_COMMAND(ID_IMAGE_ZOOM_CENTER, OnImageZoomCenter)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_ZOOM_CENTER, OnUpdateImageZoomCenter)
 	ON_COMMAND(ID_IMAGE_ORIGIN_CENTER, OnImageOriginCenter)
 	ON_COMMAND(ID_IMAGE_ORIGIN_DRAG, OnImageOriginDrag)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_ORIGIN_DRAG, OnUpdateImageOriginDrag)
 	ON_COMMAND(ID_IMAGE_ORIGIN_RANDOM, OnImageOriginRandom)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_ORIGIN_RANDOM, OnUpdateImageOriginRandom)
-	ON_COMMAND(ID_IMAGE_MIRROR, &CWhorldDoc::OnImageMirror)
-	ON_UPDATE_COMMAND_UI(ID_IMAGE_MIRROR, &CWhorldDoc::OnUpdateImageMirror)
-	ON_COMMAND(ID_IMAGE_LOOP_HUE, &CWhorldDoc::OnImageLoopHue)
-	ON_UPDATE_COMMAND_UI(ID_IMAGE_LOOP_HUE, &CWhorldDoc::OnUpdateImageLoopHue)
 END_MESSAGE_MAP()
 
 // CWhorldDoc message handlers
@@ -423,16 +431,6 @@ void CWhorldDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetText(m_UndoMgr.m_sRedoMenuItem);
 	pCmdUI->Enable(m_UndoMgr.CanRedo() && !theApp.IsSnapshotMode());
-}
-
-void CWhorldDoc::OnImageLoopHue()
-{
-	SetLoopHue(!m_main.bLoopHue);
-}
-
-void CWhorldDoc::OnUpdateImageLoopHue(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_main.bLoopHue);
 }
 
 void CWhorldDoc::OnImageFill()
@@ -465,6 +463,16 @@ void CWhorldDoc::OnUpdateImageMirror(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(m_main.bMirror);
 }
 
+void CWhorldDoc::OnImageReverse()
+{
+	SetReverse(!m_main.bReverse);
+}
+
+void CWhorldDoc::OnUpdateImageReverse(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_main.bReverse);
+}
+
 void CWhorldDoc::OnImageConvex()
 {
 	SetConvex(!m_main.bConvex);
@@ -475,14 +483,24 @@ void CWhorldDoc::OnUpdateImageConvex(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(m_main.bConvex);
 }
 
-void CWhorldDoc::OnImageReverse()
+void CWhorldDoc::OnImageLoopHue()
 {
-	SetReverse(!m_main.bReverse);
+	SetLoopHue(!m_main.bLoopHue);
 }
 
-void CWhorldDoc::OnUpdateImageReverse(CCmdUI *pCmdUI)
+void CWhorldDoc::OnUpdateImageLoopHue(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_main.bReverse);
+	pCmdUI->SetCheck(m_main.bLoopHue);
+}
+
+void CWhorldDoc::OnImageZoomCenter()
+{
+	SetZoomCenter(!m_main.bZoomCenter);
+}
+
+void CWhorldDoc::OnUpdateImageZoomCenter(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_main.bZoomCenter);
 }
 
 void CWhorldDoc::OnImageOriginCenter()

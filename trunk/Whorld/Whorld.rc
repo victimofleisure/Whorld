@@ -191,15 +191,16 @@ BEGIN
     END
     POPUP "&Image"
     BEGIN
-        MENUITEM "&Loop Hue",                   ID_IMAGE_LOOP_HUE
-        MENUITEM SEPARATOR
-        MENUITEM "&Mirror",                     ID_IMAGE_MIRROR
         MENUITEM "&Fill",                       ID_IMAGE_FILL
         MENUITEM "&Outline",                    ID_IMAGE_OUTLINE
+        MENUITEM "&Mirror",                     ID_IMAGE_MIRROR
         MENUITEM SEPARATOR
         MENUITEM "R&everse",                    ID_IMAGE_REVERSE
         MENUITEM "&Convex",                     ID_IMAGE_CONVEX
         MENUITEM "Random &Phase",               ID_IMAGE_RANDOM_PHASE
+        MENUITEM SEPARATOR
+        MENUITEM "&Loop Hue",                   ID_IMAGE_LOOP_HUE
+        MENUITEM "&Zoom Center",                ID_IMAGE_ZOOM_CENTER
         MENUITEM SEPARATOR
         POPUP "Origi&n"
         BEGIN
@@ -242,12 +243,12 @@ BEGIN
             END
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Options...",                 ID_VIEW_OPTIONS
-        MENUITEM SEPARATOR
-        MENUITEM "&Master",                     ID_VIEW_BAR_Master
         MENUITEM "&Parameters",                 ID_VIEW_BAR_Params
+        MENUITEM "&Master",                     ID_VIEW_BAR_Master
         MENUITEM "&Globals",                    ID_VIEW_BAR_Globals
         MENUITEM "M&IDI Mapping",               ID_VIEW_BAR_Mapping
+        MENUITEM SEPARATOR
+        MENUITEM "&Options...",                 ID_VIEW_OPTIONS
         MENUITEM SEPARATOR
         MENUITEM "MIDI &Learn",                 ID_VIEW_MIDI_LEARN
     END
@@ -361,6 +362,10 @@ BEGIN
     "N",            ID_PLAYLIST_NEW,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     "O",            ID_PLAYLIST_OPEN,       VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_PLAYLIST_SAVE,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_HOME,        ID_SNAPSHOT_FIRST,      VIRTKEY, NOINVERT
+    VK_END,         ID_SNAPSHOT_LAST,       VIRTKEY, NOINVERT
+    VK_NEXT,        ID_SNAPSHOT_NEXT,       VIRTKEY, NOINVERT
+    VK_PRIOR,       ID_SNAPSHOT_PREV,       VIRTKEY, NOINVERT
     "G",            ID_VIEW_BAR_Globals,    VIRTKEY, SHIFT, NOINVERT
     "I",            ID_VIEW_BAR_Mapping,    VIRTKEY, SHIFT, NOINVERT
     "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
@@ -372,10 +377,7 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    VK_HOME,        ID_SNAPSHOT_FIRST,      VIRTKEY, NOINVERT
-    VK_END,         ID_SNAPSHOT_LAST,       VIRTKEY, NOINVERT
-    VK_NEXT,        ID_SNAPSHOT_NEXT,       VIRTKEY, NOINVERT
-    VK_PRIOR,       ID_SNAPSHOT_PREV,       VIRTKEY, NOINVERT
+    "W",            ID_IMAGE_ZOOM_CENTER,   VIRTKEY, SHIFT, NOINVERT
 END
 
 
@@ -826,18 +828,18 @@ BEGIN
     ID_VIEW_BAR_Master      "Show or hide the master pane\nShow Master"
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
-    ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
 END
 
 STRINGTABLE
 BEGIN
+    ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
+    ID_IMAGE_ZOOM_CENTER    "Enable view-centered zooming\nZoom Center"
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
-    ID_SNAPSHOT_INFO        "Display information about current snapshot\nSnapshot Info"
 END
 
 STRINGTABLE
@@ -848,6 +850,7 @@ BEGIN
     ID_PLAYLIST_MRU_FILE9   "Open this playlist"
     ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All Snapshots"
     ID_SNAPSHOT_FIRST       "Go to first snapshot\nFirst Snapshot"
+    ID_SNAPSHOT_INFO        "Display information about current snapshot\nSnapshot Info"
     ID_SNAPSHOT_LAST        "Go to last snapshot\nLast Snapshot"
     ID_SNAPSHOT_NEXT        "Go to next snapshot\nNext  Snapshot"
     ID_SNAPSHOT_PREV        "Go to previous snapshot\nPrevious Snapshot"
@@ -901,6 +904,8 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Whorld\n\nWhorld\nWhorld Files (*.whp)\n.whp\nWhorld.Document\nWhorld Document"
+    IDS_MAP_TARGET_Mirror   "Mirror"
+    IDS_MAP_TARGET_ZoomCenter "Zoom Center"
     IDR_PLAYLIST            "Playlist\n\nPlaylist\nPlaylist Files (*.whl)\n.whl\nWhorldPlaylist.Document\nWhorld Playlist"
 END
 

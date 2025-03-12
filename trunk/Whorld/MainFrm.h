@@ -151,6 +151,7 @@ public:
 	afx_msg LRESULT	OnParamChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMasterPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnMainPropChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnSetDrawMode(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnFileExport();
 	afx_msg void OnFileTakeSnapshot();

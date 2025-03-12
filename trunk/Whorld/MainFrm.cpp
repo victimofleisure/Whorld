@@ -22,7 +22,7 @@
 		12		08mar25	add export all snapshots
 		13		10mar25	add prompting for export all
 		14		11mar25	disable take snapshot command while in snapshot mode
-		15		12mar25	add snapshot info command
+		15		12mar25	add snapshot info command; handle set draw mode
 
 */
 
@@ -102,8 +102,8 @@ CMainFrame::CMainFrame()
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
 	theApp.m_pMainWnd = this;
 	m_nPrevFrameCount = 0;
-	m_bInRenderFullError = false;
 	m_iCurSnapshot = 0;
+	m_bInRenderFullError = false;
 }
 
 CMainFrame::~CMainFrame()
@@ -548,6 +548,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_PARAM_CHANGE, OnParamChange)
 	ON_MESSAGE(UWM_MASTER_PROP_CHANGE, OnMasterPropChange)
 	ON_MESSAGE(UWM_MAIN_PROP_CHANGE, OnMainPropChange)
+	ON_MESSAGE(UWM_SET_DRAW_MODE, OnSetDrawMode)
 	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
@@ -892,6 +893,22 @@ LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
 	CWhorldDoc*	pDoc = theApp.GetDocument();
 	CWhorldDoc::CDisableUndo	noUndo(pDoc);
 	pDoc->SetMainProp(iProp, var, theApp.GetView());
+	return 0;
+}
+
+LRESULT CMainFrame::OnSetDrawMode(WPARAM wParam, LPARAM lParam)
+{
+	// draw mode is a special case due to being a bitmask; RWM of entire mode
+	// wouldn't be thread-safe, so worker thread posts mask and value instead
+	UINT	nMask = static_cast<UINT>(wParam);
+	UINT	nValue = static_cast<UINT>(lParam);
+	CWhorldDoc	*pDoc = theApp.GetDocument();
+	UINT	nDrawMode = pDoc->m_main.nDrawMode;
+	VARIANT_PROP var;
+	// first clear any bits that are non-zero in the mask; then set
+	// any bits that are non-zero in both the mask and the value
+	var.uintVal = (nDrawMode & ~nMask) | (nValue & nMask);
+	pDoc->SetMainProp(MAIN_DrawMode, var, theApp.GetView());
 	return 0;
 }
 

@@ -71,6 +71,7 @@ protected:
 	void	PushMiscTarget(int iMiscTarget, double fNormVal);
 	void	PushMainBool(int iProp, bool bVal);
 	void	PushOriginMotion(int nOrgMotion);
+	void	PushDrawMode(UINT nMask, bool bEnable);
 	void	OnMidiEvent(DWORD dwEvent);
 	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, W64UINT dwInstance, W64UINT dwParam1, W64UINT dwParam2);
 };

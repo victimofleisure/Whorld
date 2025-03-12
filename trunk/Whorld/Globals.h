@@ -14,6 +14,7 @@
 		04		03mar25	add render queue full message
 		05		07mar25	add prompt for multiple files
 		06		11mar25	add method to test equality with epsilon
+		07		12mar25	add set draw mode message
 
 */
 
@@ -131,6 +132,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_MAIN_PROP_CHANGE,		// wParam: iProp, lParam: variant
 	UWM_MIDI_EVENT,				// wParam: MIDI event, lParam: none
 	UWM_RENDER_QUEUE_FULL,		// wParam: none, lParam: none
+	UWM_SET_DRAW_MODE,			// wParam: mask, lParam: value
 };
 
 // undo natter should always be zero in a shipping version

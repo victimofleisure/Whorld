@@ -14,6 +14,7 @@
 		04		03mar25	support full resolution pitch bend
 		05		10mar25	fix learn mode; post to mapping bar, not main frame
 		06		11mar25	remove output device from device change handler
+		07		12mar25	fix draw mode change not updating UI
 
 */
 
@@ -221,10 +222,13 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 		theApp.m_thrRender.SetOriginY(fNormVal, true);	// with damping
 		break;
 	case MT_Fill:
-		theApp.m_thrRender.SetDrawMode(DM_FILL, fNormVal != 0 ? DM_FILL : 0);
+		PushDrawMode(DM_FILL, fNormVal != 0);
 		break;
 	case MT_Outline:
-		theApp.m_thrRender.SetDrawMode(DM_OUTLINE, fNormVal != 0 ? DM_OUTLINE : 0);
+		PushDrawMode(DM_OUTLINE, fNormVal != 0);
+		break;
+	case MT_Mirror:
+		// not implemented yet
 		break;
 	case MT_OriginDrag:
 		PushOriginMotion(fNormVal != 0 ? OM_DRAG : OM_PARK);
@@ -240,6 +244,9 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 		break;
 	case MT_LoopHue:
 		PushMainBool(MAIN_LoopHue, fNormVal != 0);
+		break;
+	case MT_ZoomCenter:
+		PushMainBool(MAIN_ZoomCenter, fNormVal != 0);
 		break;
 	case MT_RandomPhase:
 		theApp.m_thrRender.RandomPhase();
@@ -270,6 +277,13 @@ void CMidiManager::PushOriginMotion(int nOrgMotion)
 	prop.intVal = nOrgMotion;
 	theApp.m_thrRender.SetMainProp(MAIN_OrgMotion, prop);
 	PostMsgToMainWnd(UWM_MAIN_PROP_CHANGE, MAIN_OrgMotion, prop.intVal);
+}
+
+void CMidiManager::PushDrawMode(UINT nMask, bool bEnable)
+{
+	UINT	nValue = bEnable ? nMask : 0;
+	theApp.m_thrRender.SetDrawMode(nMask, nValue);
+	PostMsgToMainWnd(UWM_SET_DRAW_MODE, nMask, nValue);
 }
 
 void CMidiManager::OnMidiEvent(DWORD dwEvent)

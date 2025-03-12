@@ -20,7 +20,7 @@
 		10		09mar25	add export scaling types
 		11		09mar25	fix color shift in legacy snapshots
 		12		11mar25	disentangle snapshot zoom
-		13		12mar25	remove unnecessary point ctors
+		13		12mar25	remove needless point ctors; implement view-centric zoom
 
 */
 
@@ -100,7 +100,7 @@ void CWhorldThread::OnResize()
 {
 	m_szTarget = m_pD2DDeviceContext->GetSize();
 #if _DEBUG
-	printf("%f %f (%f)\n", m_szTarget.width, m_szTarget.height, m_szTarget.width / m_szTarget.height);//@@@
+//	printf("%f %f (%f)\n", m_szTarget.width, m_szTarget.height, m_szTarget.width / m_szTarget.height);//@@@
 #endif
 }
 
@@ -256,7 +256,14 @@ void CWhorldThread::UpdateZoom()
 	m_fZoom += (m_fZoomTarget - m_fZoom) * m_master.fDamping;
 	// apply zoom to ring origins to match V1 trail behavior
 	double	fDeltaZoom = m_fZoom / fPrevZoom;	// delta is a scaling factor
-	DPoint	ptLeadOrg(m_ptOrigin);
+	DPoint	ptLeadOrg;
+	if (m_main.bZoomCenter) {	// if zooming relative to center of view
+		ptLeadOrg = DPoint(0, 0);	// zoom rings in view-centric space
+		m_ptOrigin *= fDeltaZoom;
+		m_ptOriginTarget *= fDeltaZoom;
+	} else {	// zoom relative to center of rings
+		ptLeadOrg = m_ptOrigin;	// zoom rings in ring-centric space
+	}
 	POSITION	pos = m_aRing.GetHeadPosition();
 	while (pos != NULL) {	// for each ring
 		// subtract lead origin, scale by delta zoom, add lead origin

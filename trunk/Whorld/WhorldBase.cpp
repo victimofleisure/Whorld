@@ -29,7 +29,7 @@ const CWhorldBase::PARAM_INFO CWhorldBase::m_arrParamInfo[PARAM_COUNT] = {
 };
 
 const CWhorldBase::PARAM_PROP_INFO CWhorldBase::m_arrParamPropInfo[PARAM_PROP_COUNT] = {
-#define PARAMPROPDEF(name, type, prefix, variant) {_T(#name), IDS_PROW_##name},
+	#define PARAMPROPDEF(name, type, prefix, variant) {_T(#name), IDS_PROW_##name},
 	#include "WhorldDef.h"	// generate array init list
 };
 

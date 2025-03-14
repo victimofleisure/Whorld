@@ -15,6 +15,7 @@
 		05		07mar25	add prompt for multiple files
 		06		11mar25	add method to test equality with epsilon
 		07		12mar25	add set draw mode message
+		08		14mar25	add safe string duplicator
 
 */
 
@@ -116,6 +117,19 @@ inline CWinApp *FastGetApp()
 inline bool IsCloseEnough(double a, double b, double fEpsilon)
 {
 	return fabs(a - b) < fEpsilon;
+}
+
+inline LPTSTR SafeStrDup(LPCTSTR pszSrc)
+{
+	// secure string duplicator that doesn't use any deprecated
+	// methods and returns a copy that can be deleted as usual
+	if (pszSrc != NULL) {	// if source string provided
+		size_t	nBufLen = _tcslen(pszSrc) + 1;	// one extra for null terminator
+		LPTSTR	pszCopy = new TCHAR[nBufLen];	// allocate buffer on heap
+		_tcscpy_s(pszCopy, nBufLen, pszSrc);	// copy string to buffer
+		return pszCopy;	// return copy; caller is responsible for deleting it
+	}
+	return NULL;	// no source string, so no copy either
 }
 
 enum {	// application-wide user window messages, based on WP_APP

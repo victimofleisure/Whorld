@@ -193,6 +193,7 @@
     <ClInclude Include="ArrayExAlgoDef.h" />
     <ClInclude Include="AuxiliaryDoc.h" />
     <ClInclude Include="Benchmark.h" />
+    <ClInclude Include="BlockArray.h" />
     <ClInclude Include="CenterSliderCtrl.h" />
     <ClInclude Include="ClickSliderCtrl.h" />
     <ClInclude Include="CritSec.h" />
@@ -240,6 +241,7 @@
     <ClInclude Include="PropertiesGrid.h" />
     <ClInclude Include="RegTempl.h" />
     <ClInclude Include="RegTemplTypes.h" />
+    <ClInclude Include="SnapMovie.h" />
     <ClInclude Include="Snapshot.h" />
     <ClInclude Include="SnapshotV1.h" />
     <ClInclude Include="StdioFileEx.h" />
@@ -329,6 +331,7 @@
     <ClCompile Include="PopupNumEdit.cpp" />
     <ClCompile Include="Properties.cpp" />
     <ClCompile Include="PropertiesGrid.cpp" />
+    <ClCompile Include="SnapMovie.cpp" />
     <ClCompile Include="Snapshot.cpp" />
     <ClCompile Include="SnapshotV1.cpp" />
     <ClCompile Include="PatchUndoTest.cpp" />

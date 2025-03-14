@@ -21,6 +21,7 @@
 		11		10mar25	change ring spacing maxval to odd number for slider
 		12		11mar25	add command to set legacy snapshot frame size
 		13		12mar25	add reserved member to ring struct
+		14		14mar25	add movie record and play commands
 
         define parameter attributes
 
@@ -191,6 +192,8 @@ RENDERCMDDEF(DISPLAY_SNAPSHOT,	byref	)	// display a snapshot; m_nParam: none, m_
 RENDERCMDDEF(SET_DAMPED_GLOBAL,	dblVal	)	// sets a global parameter with damping; m_nParam: parameter index, m_prop: double
 RENDERCMDDEF(SET_DRAW_MODE,		uintVal	)	// sets draw mode bits; m_nParam: mask, m_prop: value
 RENDERCMDDEF(SET_SNAPSHOT_SIZE,	szVal	)	// sets legacy snapshot frame size; m_nParam: none, m_prop: SIZE szSnapshot
+RENDERCMDDEF(RECORD_MOVIE,		byref	)	// records a movie; m_nParam: unused, m_prop: LPCTSTR pszPath or NULL to stop
+RENDERCMDDEF(PLAY_MOVIE,		byref	)	// plays a movie; m_nParam: unused, m_prop: LPCTSTR pszPath or NULL to stop
 
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF

@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Whorld.rc
 //
 #define IDR_MAINFRAME                   101
@@ -241,66 +241,68 @@
 #define ID_IMAGE_REVERSE                32786
 #define ID_IMAGE_ZOOM_CENTER            32787
 #define ID_LIST_COL_HDR_RESET           32788
-#define ID_PLAYLIST_MRU_FILE1           32789
-#define ID_PLAYLIST_MRU_FILE10          32790
-#define ID_PLAYLIST_MRU_FILE11          32791
-#define ID_PLAYLIST_MRU_FILE12          32792
-#define ID_PLAYLIST_MRU_FILE13          32793
-#define ID_PLAYLIST_MRU_FILE14          32794
-#define ID_PLAYLIST_MRU_FILE15          32795
-#define ID_PLAYLIST_MRU_FILE16          32796
-#define ID_PLAYLIST_MRU_FILE2           32797
-#define ID_PLAYLIST_MRU_FILE3           32798
-#define ID_PLAYLIST_MRU_FILE4           32799
-#define ID_PLAYLIST_MRU_FILE5           32800
-#define ID_PLAYLIST_MRU_FILE6           32801
-#define ID_PLAYLIST_MRU_FILE7           32802
-#define ID_PLAYLIST_MRU_FILE8           32803
-#define ID_PLAYLIST_MRU_FILE9           32804
-#define ID_PLAYLIST_NEW                 32805
-#define ID_PLAYLIST_OPEN                32806
-#define ID_PLAYLIST_SAVE                32807
-#define ID_PLAYLIST_SAVE_AS             32808
-#define ID_SNAPSHOT_EXPORT_ALL          32809
-#define ID_SNAPSHOT_FIRST               32810
-#define ID_SNAPSHOT_INFO                32811
-#define ID_SNAPSHOT_LAST                32812
-#define ID_SNAPSHOT_NEXT                32813
-#define ID_SNAPSHOT_PREV                32814
-#define ID_STATUS_PANE_FRAME_RATE       32815
-#define ID_STATUS_PANE_RING_COUNT       32816
-#define ID_VIEW_APPLOOK_OFF_2003        32817
-#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32818
-#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32819
-#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32820
-#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32821
-#define ID_VIEW_APPLOOK_OFF_XP          32822
-#define ID_VIEW_APPLOOK_VS_2005         32823
-#define ID_VIEW_APPLOOK_VS_2008         32824
-#define ID_VIEW_APPLOOK_WINDOWS_7       32825
-#define ID_VIEW_APPLOOK_WIN_2000        32826
-#define ID_VIEW_APPLOOK_WIN_XP          32827
-#define ID_VIEW_BAR_Globals             32828
-#define ID_VIEW_BAR_Mapping             32829
-#define ID_VIEW_BAR_Master              32830
-#define ID_VIEW_BAR_Params              32831
-#define ID_VIEW_CUSTOMIZE               32832
-#define ID_VIEW_MIDI_LEARN              32833
-#define ID_VIEW_OPTIONS                 32834
-#define ID_WINDOW_CLEAR                 32835
-#define ID_WINDOW_DETACH                32836
-#define ID_WINDOW_FULLSCREEN            32837
-#define ID_WINDOW_PAUSE                 32838
-#define ID_WINDOW_RESET_LAYOUT          32839
-#define ID_WINDOW_STEP                  32840
+#define ID_MOVIE_PLAY                   32789
+#define ID_MOVIE_RECORD                 32790
+#define ID_PLAYLIST_MRU_FILE1           32791
+#define ID_PLAYLIST_MRU_FILE10          32792
+#define ID_PLAYLIST_MRU_FILE11          32793
+#define ID_PLAYLIST_MRU_FILE12          32794
+#define ID_PLAYLIST_MRU_FILE13          32795
+#define ID_PLAYLIST_MRU_FILE14          32796
+#define ID_PLAYLIST_MRU_FILE15          32797
+#define ID_PLAYLIST_MRU_FILE16          32798
+#define ID_PLAYLIST_MRU_FILE2           32799
+#define ID_PLAYLIST_MRU_FILE3           32800
+#define ID_PLAYLIST_MRU_FILE4           32801
+#define ID_PLAYLIST_MRU_FILE5           32802
+#define ID_PLAYLIST_MRU_FILE6           32803
+#define ID_PLAYLIST_MRU_FILE7           32804
+#define ID_PLAYLIST_MRU_FILE8           32805
+#define ID_PLAYLIST_MRU_FILE9           32806
+#define ID_PLAYLIST_NEW                 32807
+#define ID_PLAYLIST_OPEN                32808
+#define ID_PLAYLIST_SAVE                32809
+#define ID_PLAYLIST_SAVE_AS             32810
+#define ID_SNAPSHOT_EXPORT_ALL          32811
+#define ID_SNAPSHOT_FIRST               32812
+#define ID_SNAPSHOT_INFO                32813
+#define ID_SNAPSHOT_LAST                32814
+#define ID_SNAPSHOT_NEXT                32815
+#define ID_SNAPSHOT_PREV                32816
+#define ID_STATUS_PANE_FRAME_RATE       32817
+#define ID_STATUS_PANE_RING_COUNT       32818
+#define ID_VIEW_APPLOOK_OFF_2003        32819
+#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32820
+#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32821
+#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32822
+#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32823
+#define ID_VIEW_APPLOOK_OFF_XP          32824
+#define ID_VIEW_APPLOOK_VS_2005         32825
+#define ID_VIEW_APPLOOK_VS_2008         32826
+#define ID_VIEW_APPLOOK_WINDOWS_7       32827
+#define ID_VIEW_APPLOOK_WIN_2000        32828
+#define ID_VIEW_APPLOOK_WIN_XP          32829
+#define ID_VIEW_BAR_Globals             32830
+#define ID_VIEW_BAR_Mapping             32831
+#define ID_VIEW_BAR_Master              32832
+#define ID_VIEW_BAR_Params              32833
+#define ID_VIEW_CUSTOMIZE               32834
+#define ID_VIEW_MIDI_LEARN              32835
+#define ID_VIEW_OPTIONS                 32836
+#define ID_WINDOW_CLEAR                 32837
+#define ID_WINDOW_DETACH                32838
+#define ID_WINDOW_FULLSCREEN            32839
+#define ID_WINDOW_PAUSE                 32840
+#define ID_WINDOW_RESET_LAYOUT          32841
+#define ID_WINDOW_STEP                  32842
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_3D_CONTROLS                1
+#define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        379
-#define _APS_NEXT_COMMAND_VALUE         32841
+#define _APS_NEXT_COMMAND_VALUE         32843
 #define _APS_NEXT_CONTROL_VALUE         1027
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

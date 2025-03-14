@@ -21,6 +21,7 @@
 		11		09mar25	fix color shift in legacy snapshots
 		12		11mar25	disentangle snapshot zoom
 		13		12mar25	remove needless point ctors; implement view-centric zoom
+		14		14mar25	add movie recording and playback
 
 */
 
@@ -536,6 +537,13 @@ bool CWhorldThread::OnDraw()
 	ResizeCanvas();	// order matters: AddRing uses m_rCanvas
 	if (!m_bIsPaused) {	// if unpaused
 		TimerHook();
+	} else {	// paused
+		if (m_movie.IsReading()) {	// if playing movie
+			CAutoPtr<CSnapshot>	pSnapshot(m_movie.Read());
+			if (pSnapshot != NULL) {
+				SetSnapshot(pSnapshot);
+			}
+		}
 	}
 	m_pD2DDeviceContext->Clear(m_clrBkgnd);	// clear to specified color
 	m_pBkgndBrush->SetColor(m_clrBkgnd);
@@ -691,10 +699,15 @@ bool CWhorldThread::OnDraw()
 			ring.bDelete = true;	// cascade delete
 		}
 		m_nFrameCount++;
-	}
-	// if we're displaying a snapshot and it should be letterboxed
-	if (m_bSnapshotMode && theApp.m_options.m_Snapshot_bLetterbox) {
-		DrawSnapshotLetterbox();	// sets background brush color
+		if (m_movie.IsWriting()) {
+			CAutoPtr<CSnapshot>	pSnapshot(GetSnapshot());
+			m_movie.Write(pSnapshot);
+		}
+	} else {	// paused
+		// if we're displaying a snapshot and it should be letterboxed
+		if (m_bSnapshotMode && theApp.m_options.m_Snapshot_bLetterbox) {
+			DrawSnapshotLetterbox();	// sets background brush color
+		}
 	}
 //	stats.Print(b.Elapsed());//@@@
 	return true;
@@ -841,6 +854,17 @@ void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 	for (int iRing = 0; iRing < nRings; iRing++) {	// for each snapshot ring
 		m_aRing.AddTail(*pRing++);	// add ring to list
 	}
+}
+
+void CWhorldThread::EnterSnapshotMode()
+{
+	ASSERT(!m_bSnapshotMode);	// else logic error
+	if (m_pPrevSnapshot == NULL) {	// if not already in snapshot mode
+		m_pPrevSnapshot.Attach(GetSnapshot());	// take snapshot of current state
+		m_fZoom = 1;	// in snapshot mode, zoom is relative to snapshot's zoom
+	}
+	m_bIsPaused = true;	// pause display; pointless otherwise
+	m_bSnapshotMode = true;
 }
 
 void CWhorldThread::ExitSnapshotMode()
@@ -1044,6 +1068,20 @@ bool CWhorldThread::SetSnapshotSize(SIZE szSnapshot)
 {
 	CRenderCmd	cmd(RC_SET_SNAPSHOT_SIZE);
 	cmd.m_prop.szVal = szSnapshot;
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::RecordMovie(LPCTSTR pszPath)
+{
+	CRenderCmd	cmd(RC_RECORD_MOVIE);
+	cmd.m_prop.byref = SafeStrDup(pszPath);
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::PlayMovie(LPCTSTR pszPath)
+{
+	CRenderCmd	cmd(RC_PLAY_MOVIE);
+	cmd.m_prop.byref = SafeStrDup(pszPath);
 	return PushCommand(cmd);
 }
 
@@ -1319,13 +1357,8 @@ bool CWhorldThread::OnDisplaySnapshot(const CSnapshot* pSnapshot)
 	if (pSnapshot == NULL) {	// if null snapshot pointer
 		CHECK(E_INVALIDARG);	// One or more arguments are invalid
 	}
-	if (m_pPrevSnapshot == NULL) {	// if not already in snapshot mode
-		m_pPrevSnapshot.Attach(GetSnapshot());	// take snapshot of current state
-		m_fZoom = 1;	// in snapshot mode, zoom is relative to snapshot's zoom
-	}
+	EnterSnapshotMode();
 	SetSnapshot(pSnapshot);
-	m_bIsPaused = true;	// pause display; pointless otherwise
-	m_bSnapshotMode = true;
 	delete pSnapshot;	// assume snapshot was allocated on heap
 	return true;
 }
@@ -1346,6 +1379,39 @@ void CWhorldThread::OnSetSnapshotSize(SIZE szSnapshot)
 	// if we're currently displaying a legacy snapshot
 	if (m_dsSnapshot.nFlags & CSnapshot::SF_V1) {
 		m_dsSnapshot.szTarget = CD2DSizeF(szSnapshot);	// update its frame size
+	}
+}
+
+void CWhorldThread::OnRecordMovie(LPCTSTR pszPath)
+{
+	if (pszPath != NULL) {	// if path specified
+		// start recording
+		CString	sPath(pszPath);
+		delete [] pszPath;
+		m_movie.SetFrameRate(static_cast<float>(m_nFrameRate));
+		m_movie.SetTargetSize(m_szTarget);
+		if (!m_movie.Open(sPath, true)) {
+			//@@@ notify user that record failed
+			return;
+		}
+	} else {	// no path; stop recording
+		m_movie.Close();
+	}
+}
+
+void CWhorldThread::OnPlayMovie(LPCTSTR pszPath)
+{
+	if (pszPath != NULL) {	// if path specified
+		// start playback
+		CString	sPath(pszPath);
+		delete [] pszPath;
+		if (!m_movie.Open(sPath, false)) {
+			//@@@ notify user that playback failed
+			return;
+		}
+		EnterSnapshotMode();
+	} else {	// no path; stop playback
+		m_movie.Close();
 	}
 }
 
@@ -1427,6 +1493,12 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_SET_SNAPSHOT_SIZE:
 		OnSetSnapshotSize(cmd.m_prop.szVal);
+		break;
+	case RC_RECORD_MOVIE:
+		OnRecordMovie(static_cast<LPCTSTR>(cmd.m_prop.byref));
+		break;
+	case RC_PLAY_MOVIE:
+		OnPlayMovie(static_cast<LPCTSTR>(cmd.m_prop.byref));
 		break;
 	default:
 		NODEFAULTCASE;	// missing command case

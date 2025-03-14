@@ -38,11 +38,14 @@ public:
 	int		GetSize() const;
 
 // Operations
+	static UINT	MakeFourCC(char ch0, char ch1, char ch2, char ch3);
 	static CSnapshot*	Alloc(int nRings);
 	static void	Write(const CSnapshot* pSnapshot, LPCTSTR pszPath);
 	static CSnapshot*	Read(LPCTSTR pszPath);
 	static void	Read(CFile& file, void* lpBuf, UINT nCount);
 	static UINT	GetSize(int nRings);
+
+// Formatting
 	template<class T> 
 	static void FormatItem(LPCTSTR pszCaption, const T& val, CString& sLine)
 	{
@@ -63,6 +66,11 @@ protected:
 		USHORT	nRingSize;		// size of RING in bytes
 	};
 };
+
+inline UINT	CSnapshot::MakeFourCC(char ch0, char ch1, char ch2, char ch3)
+{
+	return ch0 | (ch1 << 8) | (ch2 << 16) | (ch3 << 24);
+}
 
 inline int CSnapshot::GetSize() const
 {

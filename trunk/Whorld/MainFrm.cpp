@@ -23,6 +23,7 @@
 		13		10mar25	add prompting for export all
 		14		11mar25	disable take snapshot command while in snapshot mode
 		15		12mar25	add snapshot info command; handle set draw mode
+		16		14mar25	add movie recording and playback
 
 */
 
@@ -94,6 +95,8 @@ const LPCTSTR CMainFrame::m_pszExportExt = _T("png");
 const LPCTSTR CMainFrame::m_pszExportFilter = _T("PNG Files (*.png)|*.png|All Files (*.*)|*.*||");
 const LPCTSTR CMainFrame::m_pszSnapshotExt = _T("whs");
 const LPCTSTR CMainFrame::m_pszSnapshotFilter = _T("Snapshot Files (*.whs)|*.whs|All Files (*.*)|*.*||");
+const LPCTSTR CMainFrame::m_pszMovieExt = _T("whm");
+const LPCTSTR CMainFrame::m_pszMovieFilter = _T("Movie Files (*.whm)|*.whm|All Files (*.*)|*.*||");
 
 // CMainFrame construction/destruction
 
@@ -104,6 +107,7 @@ CMainFrame::CMainFrame()
 	m_nPrevFrameCount = 0;
 	m_iCurSnapshot = 0;
 	m_bInRenderFullError = false;
+	m_nMovieIOState = CSnapMovie::MIO_CLOSED;
 }
 
 CMainFrame::~CMainFrame()
@@ -581,6 +585,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_SNAPSHOT_EXPORT_ALL, OnSnapshotExportAll)
 	ON_COMMAND(ID_SNAPSHOT_INFO, OnSnapshotInfo)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_SNAPSHOT_RANGE_FIRST, ID_SNAPSHOT_RANGE_LAST, OnUpdateSnapshot)
+	ON_COMMAND(ID_MOVIE_RECORD, OnMovieRecord)
+	ON_UPDATE_COMMAND_UI(ID_MOVIE_RECORD, OnUpdateMovieRecord)
+	ON_COMMAND(ID_MOVIE_PLAY, OnMoviePlay)
+	ON_UPDATE_COMMAND_UI(ID_MOVIE_PLAY, OnUpdateMoviePlay)
 	// dock bar handlers confuse IDE's code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
@@ -1264,4 +1272,61 @@ void CMainFrame::OnWindowResetLayout()
 		theApp.m_bCleanStateOnExit = true;
 		PostMessage(WM_CLOSE);
 	}
+}
+
+void CMainFrame::OnMovieRecord()
+{
+	switch (m_nMovieIOState) {
+	case CSnapMovie::MIO_CLOSED:
+		{
+			CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
+			if (fd.DoModal() == IDOK) {
+				if (theApp.m_thrRender.RecordMovie(fd.GetPathName())) {
+					m_nMovieIOState = CSnapMovie::MIO_WRITE;
+				}
+			}
+		}
+		break;
+	case CSnapMovie::MIO_WRITE:
+		theApp.m_thrRender.RecordMovie(NULL);
+		m_nMovieIOState = CSnapMovie::MIO_CLOSED;
+		break;
+	default:
+		NODEFAULTCASE;	// logic error
+	}
+}
+
+void CMainFrame::OnUpdateMovieRecord(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::MIO_WRITE);
+	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::MIO_READ);
+}
+
+void CMainFrame::OnMoviePlay()
+{
+	switch (m_nMovieIOState) {
+	case CSnapMovie::MIO_CLOSED:
+		{
+			CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter);
+			if (fd.DoModal() == IDOK) {
+				if (theApp.m_thrRender.PlayMovie(fd.GetPathName())) {
+					theApp.SetSnapshotMode(true);
+					m_nMovieIOState = CSnapMovie::MIO_READ;
+				}
+			}
+		}
+		break;
+	case CSnapMovie::MIO_READ:
+		theApp.m_thrRender.PlayMovie(NULL);
+		m_nMovieIOState = CSnapMovie::MIO_CLOSED;
+		break;
+	default:
+		NODEFAULTCASE;	// logic error
+	}
+}
+
+void CMainFrame::OnUpdateMoviePlay(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::MIO_READ);
+	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::MIO_WRITE);
 }

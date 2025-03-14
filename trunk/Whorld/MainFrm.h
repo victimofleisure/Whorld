@@ -19,6 +19,7 @@
 		09		06mar25	add snapshot path array
 		10		07mar25	add snapshot submenu handlers
 		11		08mar25	add wait for posted message
+		12		14mar25	add movie recording and playback
 
 */
 
@@ -110,6 +111,8 @@ public:
 	static const LPCTSTR m_pszExportFilter;
 	static const LPCTSTR m_pszSnapshotExt;
 	static const LPCTSTR m_pszSnapshotFilter;
+	static const LPCTSTR m_pszMovieExt;
+	static const LPCTSTR m_pszMovieFilter;
 
 // Data members
 	UINT_PTR	m_nPrevFrameCount;	// previous frame count, for measuring frame rate
@@ -120,6 +123,7 @@ public:
 	CStringArrayEx	m_aSnapshotPath;	// array of snapshot paths
 	int		m_iCurSnapshot;			// index of snapshot currently being displayed 
 	bool	m_bInRenderFullError;	// true if handling render command queue full error
+	int		m_nMovieIOState;		// movie input/output state; see CSnapMovie
 	
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -188,6 +192,10 @@ public:
 	afx_msg void OnUpdateWindowStep(CCmdUI *pCmdUI);
 	afx_msg void OnWindowClear();
 	afx_msg void OnWindowResetLayout();
+	afx_msg void OnMovieRecord();
+	afx_msg void OnUpdateMovieRecord(CCmdUI *pCmdUI);
+	afx_msg void OnMoviePlay();
+	afx_msg void OnUpdateMoviePlay(CCmdUI *pCmdUI);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

@@ -16,13 +16,7 @@
 #include "SnapshotV1.h"
 #include "Patch.h"	// for string conversion operators
 
-#ifndef MAKEFOURCC
-	#define MAKEFOURCC(ch0, ch1, ch2, ch3) \
-		((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) | \
-		((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
-#endif //defined(MAKEFOURCC)
-
-const UINT CSnapshot::m_nFileID = MAKEFOURCC('W', 'H', 'S', '2');
+const UINT CSnapshot::m_nFileID = MakeFourCC('W', 'H', 'S', '2');
 const USHORT CSnapshot::m_nFileVersion = 1;
 
 UINT CSnapshot::GetSize(int nRings)

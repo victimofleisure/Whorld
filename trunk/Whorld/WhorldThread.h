@@ -16,6 +16,7 @@
 		06		09mar25	add snapshot flags bitmask
 		07		11mar25	add get/set snapshot draw state
 		08		12mar25	add target size accessor
+		09		14mar25	add movie recording and playback
 
 */
 
@@ -26,6 +27,7 @@
 #include "Oscillator.h"
 #include "D2DHelper.h"
 #include "Snapshot.h"
+#include "SnapMovie.h"
 
 class CWhorldThread : protected CPatch, public CRenderThread {
 public:
@@ -59,6 +61,8 @@ public:
 	bool	SetDampedGlobal(int iParam, double fGlobal);
 	bool	SetDrawMode(UINT nMask, UINT nVal);
 	bool	SetSnapshotSize(SIZE szSnapshot);
+	bool	RecordMovie(LPCTSTR pszPath);
+	bool	PlayMovie(LPCTSTR pszPath);
 
 // Operations
 	static bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
@@ -111,6 +115,7 @@ protected:
 	CAutoPtr<CSnapshot>	m_pPrevSnapshot;	// render state before snapshot mode
 	LONGLONG	m_nLastPushErrorTime;	// when push command retries last failed
 	DRAW_STATE	m_dsSnapshot;	// snapshot draw state
+	CSnapMovie	m_movie;	// snapshot movie for recording and playback
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
@@ -152,6 +157,7 @@ protected:
 	void	OnMainPropChange();
 	CSnapshot*	GetSnapshot() const;
 	void	SetSnapshot(const CSnapshot* pSnapshot);
+	void	EnterSnapshotMode();
 	void	ExitSnapshotMode();
 	void	GetSnapshotDrawState(int nRings, DRAW_STATE& drawState) const;
 	int		SetSnapshotDrawState(const DRAW_STATE& drawState);
@@ -184,6 +190,8 @@ protected:
 	void	OnSetDampedGlobal(int iParam, double fGlobal);
 	void	OnSetDrawMode(UINT nMask, UINT nVal);
 	void	OnSetSnapshotSize(SIZE szSnapshot);
+	void	OnRecordMovie(LPCTSTR pszPath);
+	void	OnPlayMovie(LPCTSTR pszPath);
 };
 
 inline UINT_PTR CWhorldThread::GetRingCount() const

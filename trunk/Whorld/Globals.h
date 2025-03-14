@@ -113,7 +113,8 @@ inline CWinApp *FastGetApp()
 // base ID for dynamic submenus, far above menu resource IDs and below MFC reserved IDs
 #define ID_APP_DYNAMIC_SUBMENU_BASE 0xc800
 
-inline bool IsCloseEnough(double a, double b, double fEpsilon) {
+inline bool IsCloseEnough(double a, double b, double fEpsilon)
+{
 	return fabs(a - b) < fEpsilon;
 }
 

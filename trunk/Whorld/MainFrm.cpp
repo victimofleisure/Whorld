@@ -107,7 +107,7 @@ CMainFrame::CMainFrame()
 	m_nPrevFrameCount = 0;
 	m_iCurSnapshot = 0;
 	m_bInRenderFullError = false;
-	m_nMovieIOState = CSnapMovie::MIO_CLOSED;
+	m_nMovieIOState = CSnapMovie::IO_CLOSED;
 }
 
 CMainFrame::~CMainFrame()
@@ -1277,19 +1277,19 @@ void CMainFrame::OnWindowResetLayout()
 void CMainFrame::OnMovieRecord()
 {
 	switch (m_nMovieIOState) {
-	case CSnapMovie::MIO_CLOSED:
+	case CSnapMovie::IO_CLOSED:
 		{
 			CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
 			if (fd.DoModal() == IDOK) {
 				if (theApp.m_thrRender.RecordMovie(fd.GetPathName())) {
-					m_nMovieIOState = CSnapMovie::MIO_WRITE;
+					m_nMovieIOState = CSnapMovie::IO_WRITE;
 				}
 			}
 		}
 		break;
-	case CSnapMovie::MIO_WRITE:
+	case CSnapMovie::IO_WRITE:
 		theApp.m_thrRender.RecordMovie(NULL);
-		m_nMovieIOState = CSnapMovie::MIO_CLOSED;
+		m_nMovieIOState = CSnapMovie::IO_CLOSED;
 		break;
 	default:
 		NODEFAULTCASE;	// logic error
@@ -1298,27 +1298,27 @@ void CMainFrame::OnMovieRecord()
 
 void CMainFrame::OnUpdateMovieRecord(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::MIO_WRITE);
-	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::MIO_READ);
+	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::IO_WRITE);
+	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::IO_READ);
 }
 
 void CMainFrame::OnMoviePlay()
 {
 	switch (m_nMovieIOState) {
-	case CSnapMovie::MIO_CLOSED:
+	case CSnapMovie::IO_CLOSED:
 		{
 			CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter);
 			if (fd.DoModal() == IDOK) {
 				if (theApp.m_thrRender.PlayMovie(fd.GetPathName())) {
 					theApp.SetSnapshotMode(true);
-					m_nMovieIOState = CSnapMovie::MIO_READ;
+					m_nMovieIOState = CSnapMovie::IO_READ;
 				}
 			}
 		}
 		break;
-	case CSnapMovie::MIO_READ:
+	case CSnapMovie::IO_READ:
 		theApp.m_thrRender.PlayMovie(NULL);
-		m_nMovieIOState = CSnapMovie::MIO_CLOSED;
+		m_nMovieIOState = CSnapMovie::IO_CLOSED;
 		break;
 	default:
 		NODEFAULTCASE;	// logic error
@@ -1327,6 +1327,6 @@ void CMainFrame::OnMoviePlay()
 
 void CMainFrame::OnUpdateMoviePlay(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::MIO_READ);
-	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::MIO_WRITE);
+	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::IO_READ);
+	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::IO_WRITE);
 }

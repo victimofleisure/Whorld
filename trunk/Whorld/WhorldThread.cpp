@@ -700,8 +700,7 @@ bool CWhorldThread::OnDraw()
 		}
 		m_nFrameCount++;
 		if (m_movie.IsWriting()) {
-			CAutoPtr<CSnapshot>	pSnapshot(GetSnapshot());
-			m_movie.Write(pSnapshot);
+			m_movie.Write(GetSnapshot());
 		}
 	} else {	// paused
 		// if we're displaying a snapshot and it should be letterboxed

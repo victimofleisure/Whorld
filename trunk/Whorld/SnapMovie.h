@@ -25,10 +25,10 @@ public:
 	~CSnapMovie();
 
 // Constants
-	enum {	// movie input/output states
-		MIO_CLOSED = -1,	// movie is closed
-		MIO_READ,			// movie is being read
-		MIO_WRITE,			// movie is being written
+	enum {	// input/output states
+		IO_CLOSED = -1,	// file is closed
+		IO_READ,		// file is being read
+		IO_WRITE,		// file is being written
 	};
 	static const UINT m_nFileID;
 	static const USHORT m_nFileVersion;
@@ -58,6 +58,11 @@ protected:
 		// block size is in elements, and must be a power of two for efficient
 		// division; this is enough for over a minute at 60 frames per second
 		FRAME_INDEX_BLOCK_SIZE = 1 << 12,	// 4096 elements
+		WRITE_BUFFERS = 4,		// maximum number of pending writes
+	};
+	enum {	// write states
+		WS_PENDING,
+		WS_COMPLETED,
 	};
 
 // Types
@@ -74,6 +79,11 @@ protected:
 	};
 	typedef CBlockArray<FRAME_INDEX_ENTRY, FRAME_INDEX_BLOCK_SIZE> CFrameIndexBlockArray;
 	typedef CArrayEx<FRAME_INDEX_ENTRY, FRAME_INDEX_ENTRY> CFrameIndexArray;
+	class CWriteBuf {	// class to encapsulate a pending write
+	public:
+		OVERLAPPED	m_ovl;		// asynchronous I/O state
+		CAutoPtr<CSnapshot>	m_pSnapshot;	// pointer to snapshot being written
+	};
 
 // Data members
 	HANDLE	m_hFile;			// handle of the movie file
@@ -82,16 +92,22 @@ protected:
 	CFrameIndexBlockArray	m_aWriteFrameIndex;	// during writing, each frame's byte offset
 	CFrameIndexArray	m_aReadFrameIndex;	// during reading, each frame's byte offset
 	HEADER	m_hdr;				// file header if reading
-	int		m_nState;			// see enum above
+	int		m_nIOState;			// movie input/output state; see enum above
+	CWriteBuf	m_arrWriteBuf[WRITE_BUFFERS];	// array of write buffers
 
 // Helpers
-	bool	WriteBuf(LPCVOID lpBuffer, DWORD nBytesToWrite);
-	bool	ReadBuf(LPVOID lpBuffer, DWORD nBytesToRead);
-	bool	WriteHeader();
-	bool	WriteFrameIndex();
-	bool	ReadFrameIndex();
-	bool	FinalizeWrite();
+	bool	PreparedForWrite() const;
 	bool	ReadHeader();
+	bool	WriteHeader();
+	bool	ReadFrameIndex();
+	bool	WriteFrameIndex();
+	bool	FinalizeWrite();
+	int		WaitForFreeWriteBuffer();
+	int		FindWriteBuffer(bool bDesiredState);
+	bool	CompletePendingWrites();
+	bool	ReadBuf(LPVOID lpBuffer, DWORD nBytesToRead);
+	bool	WriteBuf(LPCVOID lpBuffer, DWORD nBytesToWrite);
+	bool	WriteWait(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nFilePos);
 };
 
 inline bool CSnapMovie::IsOpen() const
@@ -101,17 +117,17 @@ inline bool CSnapMovie::IsOpen() const
 
 inline bool CSnapMovie::IsReading() const
 {
-	return m_nState == MIO_READ;
+	return m_nIOState == IO_READ;
 }
 
 inline bool CSnapMovie::IsWriting() const
 {
-	return m_nState > MIO_READ;
+	return m_nIOState > IO_READ;
 }
 
 inline int CSnapMovie::GetIOState() const
 {
-	return m_nState;
+	return m_nIOState;
 }
 
 inline ULONGLONG CSnapMovie::GetFramesWritten() const
@@ -142,6 +158,12 @@ inline D2D1_SIZE_F CSnapMovie::GetTargetSize() const
 inline void CSnapMovie::SetTargetSize(const D2D1_SIZE_F& szTarget)
 {
 	m_hdr.szTarget = szTarget;
+}
+
+inline bool CSnapMovie::PreparedForWrite() const
+{
+	// true if frame rate and target size are specified
+	return m_hdr.fFrameRate > 0 && m_hdr.szTarget.width > 0 && m_hdr.szTarget.height > 0;
 }
 
 inline bool CSnapMovie::WriteBuf(LPCVOID lpBuffer, DWORD nBytesToWrite)

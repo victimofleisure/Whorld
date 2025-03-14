@@ -367,12 +367,17 @@ bool CMainFrame::FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& 
 	return true;
 }
 
+inline bool CMainFrame::PromptingForExport() const
+{
+	return theApp.m_options.m_Export_bPromptUser	// true if user wants to be prompted
+		&& !theApp.IsFullScreenSingleMonitor();		// and prompting is permissible
+}
+
 bool CMainFrame::WriteSnapshot(CSnapshot *pSnapshot)
 {
 	ASSERT(pSnapshot != NULL);
 	CString	sSnapshotPath;
-	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
-	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+	if (PromptingForExport()) {
 		CFileDialog	fd(false, m_pszSnapshotExt, NULL, OFN_OVERWRITEPROMPT, m_pszSnapshotFilter);
 		if (fd.DoModal() != IDOK) {	// display file dialog
 			return false;	// user canceled
@@ -513,6 +518,47 @@ void CMainFrame::OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINM
 		ptBR.Offset(szNCBrass + szScrollBars);
 		pMMI->ptMaxTrackSize = ptBR;
 	}
+}
+
+bool CMainFrame::PlayMovie(LPCTSTR pszPath)
+{
+	switch (m_nMovieIOState) {
+	case CSnapMovie::IO_CLOSED:
+		ASSERT(pszPath != NULL);	// path is required
+		if (!theApp.m_thrRender.PlayMovie(pszPath)) {	// start playback
+			return false;
+		}
+		theApp.SetSnapshotMode(true);
+		m_nMovieIOState = CSnapMovie::IO_READ;
+		break;
+	case CSnapMovie::IO_READ:
+		theApp.m_thrRender.PlayMovie(NULL);	// stop playback
+		m_nMovieIOState = CSnapMovie::IO_CLOSED;
+		break;
+	default:
+		NODEFAULTCASE;	// logic error
+	}
+	return true;
+}
+
+bool CMainFrame::RecordMovie(LPCTSTR pszPath)
+{
+	switch (m_nMovieIOState) {
+	case CSnapMovie::IO_CLOSED:
+		ASSERT(pszPath != NULL);	// path is required
+		if (!theApp.m_thrRender.RecordMovie(pszPath)) {	// start recording
+			return false;
+		}
+		m_nMovieIOState = CSnapMovie::IO_WRITE;
+		break;
+	case CSnapMovie::IO_WRITE:
+		theApp.m_thrRender.RecordMovie(NULL);	// stop recording
+		m_nMovieIOState = CSnapMovie::IO_CLOSED;
+		break;
+	default:
+		NODEFAULTCASE;	// logic error
+	}
+	return true;
 }
 
 // CMainFrame diagnostics
@@ -718,6 +764,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	CString	sPatchPath;
 	CString	sPlaylistPath;
 	CStringArrayEx	aSnapshotPath;	// can load multiple snapshots at once
+	CString	sMoviePath;
 	for (UINT iFile = 0; iFile < nFiles; iFile++) {	// for each dropped file
 		UINT	nPathLen = DragQueryFile(hDropInfo, iFile, NULL, 0);
 		if (nPathLen > 0) {	// if valid path length
@@ -729,16 +776,21 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 			DragQueryFile(hDropInfo, iFile, pszPath, MAX_PATH);
 			sPath.ReleaseBuffer(nPathLen + 1);
 			CString	sExt = PathFindExtension(sPath) + 1;	// skip dot 
-			// if dropped file has the snapshot extension
-			if (!_tcsicmp(sExt, m_pszSnapshotExt)) {
-				aSnapshotPath.Add(sPath);	// add to list of snapshots
-			} else {	// not a snapshot
-				// if dropped file has the playlist extension
-				if (!_tcsicmp(sExt, CPlaylist::m_pszPlaylistExt)) {
-					sPlaylistPath = sPath;	// store playlist path
-				} else {	// not a playlist
-					// assume dropped file is a patch
-					sPatchPath = sPath;	// store patch path
+			// if dropped file has the playlist extension
+			if (!_tcsicmp(sExt, CPlaylist::m_pszPlaylistExt)) {
+				sPlaylistPath = sPath;	// store playlist path
+			} else {	// not a playlist
+				// if dropped file has the snapshot extension
+				if (!_tcsicmp(sExt, m_pszSnapshotExt)) {
+					aSnapshotPath.Add(sPath);	// add to list of snapshots
+				} else {	// not a snapshot
+					// if dropped file has the movie extension
+					if (!_tcsicmp(sExt, m_pszMovieExt)) {
+						sMoviePath = sPath;	// store movie path
+					} else {	// not a movie
+						// assume dropped file is a patch
+						sPatchPath = sPath;	// store patch path
+					}
 				}
 			}
 		}
@@ -753,6 +805,8 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 		VERIFY(theApp.LoadSnapshot(aSnapshotPath[0]));	// load first snapshot
 		m_aSnapshotPath.Swap(aSnapshotPath);	// swap array pointers, avoiding array copy
 		m_iCurSnapshot = 0;	// reset current snapshot index
+	} else {
+		PlayMovie(sMoviePath);
 	}
 }
 
@@ -975,8 +1029,7 @@ LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 void CMainFrame::OnFileExport()
 {
 	CString	sExportPath;
-	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
-	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+	if (PromptingForExport()) {
 		CPathStr sFileName;
 		if (theApp.IsSnapshotMode()) {	// if in snapshot mode
 			sFileName = PathFindFileName(m_aSnapshotPath[m_iCurSnapshot]);
@@ -1112,8 +1165,7 @@ void CMainFrame::OnSnapshotExportAll()
 	if (nSnapshots <= 0)	// if no snapshots loaded
 		return;	// nothing to do
 	CString	sExportFolder(theApp.m_options.m_Export_sImageFolder);
-	if (theApp.m_options.m_Export_bPromptUser	// if user wants to be prompted
-	&& !theApp.IsFullScreenSingleMonitor()) {	// and prompting is permissible
+	if (PromptingForExport()) {
 		// prompt user for export destination folder
 		UINT	nFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
 		CString	sFDlgTitle(LDS(IDS_EXPORT_ALL_SNAPSHOTS));
@@ -1279,17 +1331,22 @@ void CMainFrame::OnMovieRecord()
 	switch (m_nMovieIOState) {
 	case CSnapMovie::IO_CLOSED:
 		{
-			CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
-			if (fd.DoModal() == IDOK) {
-				if (theApp.m_thrRender.RecordMovie(fd.GetPathName())) {
-					m_nMovieIOState = CSnapMovie::IO_WRITE;
+			CString	sMoviePath;
+			if (PromptingForExport()) {
+				CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
+				if (fd.DoModal() != IDOK) {	// display file dialog
+					return;	// user canceled
 				}
+				sMoviePath = fd.GetPathName();
+			} else {	// not prompting
+				if (!MakeUniqueExportPath(sMoviePath, m_pszMovieExt))	// generate path
+					return;	// unable to generate path
 			}
+			RecordMovie(sMoviePath);	// start recording
 		}
 		break;
 	case CSnapMovie::IO_WRITE:
-		theApp.m_thrRender.RecordMovie(NULL);
-		m_nMovieIOState = CSnapMovie::IO_CLOSED;
+		RecordMovie(NULL);	// stop recording
 		break;
 	default:
 		NODEFAULTCASE;	// logic error
@@ -1309,16 +1366,12 @@ void CMainFrame::OnMoviePlay()
 		{
 			CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter);
 			if (fd.DoModal() == IDOK) {
-				if (theApp.m_thrRender.PlayMovie(fd.GetPathName())) {
-					theApp.SetSnapshotMode(true);
-					m_nMovieIOState = CSnapMovie::IO_READ;
-				}
+				PlayMovie(fd.GetPathName());	// start playback
 			}
 		}
 		break;
 	case CSnapMovie::IO_READ:
-		theApp.m_thrRender.PlayMovie(NULL);
-		m_nMovieIOState = CSnapMovie::IO_CLOSED;
+		PlayMovie(NULL);	// stop playback
 		break;
 	default:
 		NODEFAULTCASE;	// logic error

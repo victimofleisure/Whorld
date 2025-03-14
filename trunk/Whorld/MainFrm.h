@@ -130,7 +130,10 @@ public:
 	bool	FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& sText, int& nCurTextLength);
 	void	ApplyOptions(const COptions *pPrevOptions);
 	bool	WriteSnapshot(CSnapshot *pSnapshot);
+	bool	PromptingForExport() const;
 	bool	MakeUniqueExportPath(CString& sExportPath, LPCTSTR pszExt);
+	bool	PlayMovie(LPCTSTR pszPath);
+	bool	RecordMovie(LPCTSTR pszPath);
 	static bool	WaitForPostedMessage(UINT message, CProgressDlg& dlgProgress);
 
 // Generated message map functions

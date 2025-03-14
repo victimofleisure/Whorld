@@ -220,13 +220,13 @@ bool CSnapMovie::WriteWait(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nFil
 {
 	OVERLAPPED	ovl;
 	ZeroMemory(&ovl, sizeof(ovl));
-	LARGE_INTEGER	li;
+	LARGE_INTEGER	li;	// split 64-bit file position in half, for legacy reasons
 	li.QuadPart = nFilePos;
-	ovl.Offset = li.LowPart;	// necessary for 32-bit builds
+	ovl.Offset = li.LowPart;
 	ovl.OffsetHigh = li.HighPart;
 	// start asynchronous write; if it fails but last error is I/O pending, it's OK
 	BOOL	bResult = WriteFile(m_hFile, lpBuffer, nBytesToWrite, NULL, &ovl);
-	if (!bResult && GetLastError() != ERROR_IO_PENDING) {
+	if (!bResult && GetLastError() != ERROR_IO_PENDING) {	// if any error other than pending
 		return false;	// fail
 	}
 	// write was successfully started, so now wait for it to finish
@@ -248,19 +248,20 @@ bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 	int	iBuf = FindWriteBuffer(WS_COMPLETED);	// very efficient
 	if (iBuf < 0) {	// if no free buffers were found
 		// all buffers are in use; system is fully loaded
-		iBuf = WaitForFreeWriteBuffer();	// this method waits
+		iBuf = WaitForFreeWriteBuffer();	// waits for a completion signal
 		if (iBuf < 0) {	// if still no free buffer found; something's wrong
+			delete pSnapshot;	// avoid memory leak
 			return false;	// fail
 		}
 	}
 	// got a free buffer
 	CWriteBuf&	buf = m_arrWriteBuf[iBuf];	// for brevity
-	buf.m_pSnapshot.Free();	// it's safe to free previous snapshot
+	buf.m_pSnapshot.Free();	// it's now safe to free previous snapshot
 	buf.m_pSnapshot.Attach(const_cast<CSnapshot*>(pSnapshot));	// attach new snapshot to buffer
 	ZeroMemory(&buf.m_ovl, sizeof(OVERLAPPED));	// clear overlapped struct, as required
-	LARGE_INTEGER	li;
+	LARGE_INTEGER	li;	// split 64-bit file position in half, for legacy reasons
 	li.QuadPart = m_nWriteBytes;
-	buf.m_ovl.Offset = li.LowPart;	// necessary for 32-bit builds
+	buf.m_ovl.Offset = li.LowPart;
 	buf.m_ovl.OffsetHigh = li.HighPart;
 	DWORD	nSnapSize = pSnapshot->GetSize();	// get snapshot size
 	// start asynchronous write; if it fails but last error is I/O pending, it's OK

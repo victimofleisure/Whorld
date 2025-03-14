@@ -201,7 +201,7 @@ inline DWORD CWhorldThread::GetFrameRate() const
 	return m_nFrameRate;
 }
 
-inline D2D1_SIZE_F	CWhorldThread::GetTargetSize() const
+inline D2D1_SIZE_F CWhorldThread::GetTargetSize() const
 {
 	return m_szTarget;	// atomic in x64, but not in x86!
 }

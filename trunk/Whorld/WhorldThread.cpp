@@ -927,7 +927,8 @@ CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
 	return sRet;
 }
 
-// Commands
+// These accessors provide thread-safe access to render functions.
+// They shouldn't touch any bass class members except PushCommand.
 
 bool CWhorldThread::SetParam(int iParam, int iProp, VARIANT_PROP& prop)
 {
@@ -1097,7 +1098,7 @@ bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
 	return true;
 }
 
-// Command handlers
+// Command handlers: these run in the render thread's context
 
 void CWhorldThread::OnSetParam(int iParam, double fVal)
 {
@@ -1306,12 +1307,11 @@ void CWhorldThread::OnCaptureBitmap(UINT nFlags, SIZE szImage)
 	PostMsgToMainWnd(UWM_BITMAP_CAPTURE, 0, lParam);	// post pointer to main window
 }
 
-bool CWhorldThread::OnCaptureSnapshot() const
+void CWhorldThread::OnCaptureSnapshot() const
 {
 	CSnapshot	*pSnapshot = GetSnapshot();
 	LPARAM	lParam = reinterpret_cast<LPARAM>(pSnapshot);
 	PostMsgToMainWnd(UWM_SNAPSHOT_CAPTURE, 0, lParam);	// post pointer to main window
-	return true;
 }
 
 bool CWhorldThread::OnDisplaySnapshot(const CSnapshot* pSnapshot)

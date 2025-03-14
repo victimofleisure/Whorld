@@ -195,6 +195,9 @@ RENDERCMDDEF(SET_SNAPSHOT_SIZE,	szVal	)	// sets legacy snapshot frame size; m_nP
 #undef RENDERCMDDEF
 #endif // RENDERCMDDEF
 
+// APPEND ONLY: Do not delete or reorder rows in the following three
+// structs, otherwise existing snapshot files will not load correctly.
+
 #ifdef STATEDEF	// state members
 
 STATEDEF(	D2D1_SIZE_F,	szTarget)	// target size in device-independent pixels

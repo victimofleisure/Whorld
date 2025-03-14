@@ -841,7 +841,7 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 		CString	sExportPath(m_aOutputPath[0]);	// copy oldest output path
 		m_aOutputPath.RemoveAt(0);	// remove oldest output path from array
 		if (pBitmap != NULL) {	// if capture succeeded
-			theApp.m_thrRender.WriteCapturedBitmap(pBitmap, sExportPath);	// export image
+			CWhorldThread::WriteCapturedBitmap(pBitmap, sExportPath);	// export image
 		}
 	}
 	return 0;

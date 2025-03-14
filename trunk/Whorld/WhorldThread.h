@@ -179,7 +179,7 @@ protected:
 	void	OnSetOriginX(double fOriginX, bool bDamping);
 	void	OnSetOriginY(double rOriginY, bool bDamping);
 	void	OnCaptureBitmap(UINT nFlags, SIZE szImage);
-	bool	OnCaptureSnapshot() const;
+	void	OnCaptureSnapshot() const;
 	bool	OnDisplaySnapshot(const CSnapshot* pSnapshot);
 	void	OnSetDampedGlobal(int iParam, double fGlobal);
 	void	OnSetDrawMode(UINT nMask, UINT nVal);

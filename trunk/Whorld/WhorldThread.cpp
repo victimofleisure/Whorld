@@ -16,7 +16,7 @@
 		06		09mar25	set target size in capture bitmap to fix origin shift
 		07		09mar25	add export scaling types
 		08		14mar25	add movie recording and playback
-		09		15mar25	move queue-related methods to separate class
+		09		15mar25	move queue-related methods here
 
 */
 
@@ -38,6 +38,7 @@
 CWhorldThread::CWhorldThread() 
 {
 	m_nLastPushErrorTime = 0;
+	m_nNextTaskID = 0;
 }
 
 // The following methods provide thread-safe access to rendering functions.
@@ -160,17 +161,17 @@ bool CWhorldThread::SetSnapshotSize(SIZE szSnapshot)
 	return PushCommand(cmd);
 }
 
-bool CWhorldThread::MovieRecord(LPCTSTR pszPath)
+bool CWhorldThread::MovieRecord(LPCTSTR pszMoviePath)
 {
 	CRenderCmd	cmd(RC_MOVIE_RECORD);
-	cmd.m_prop.byref = SafeStrDup(pszPath);
+	cmd.m_prop.byref = SafeStrDup(pszMoviePath);	// duplicate string
 	return PushCommand(cmd);
 }
 
-bool CWhorldThread::MoviePlay(LPCTSTR pszPath, bool bPaused)
+bool CWhorldThread::MoviePlay(LPCTSTR pszMoviePath, bool bPaused)
 {
 	CRenderCmd	cmd(RC_MOVIE_PLAY, bPaused);
-	cmd.m_prop.byref = SafeStrDup(pszPath);
+	cmd.m_prop.byref = SafeStrDup(pszMoviePath);	// duplicate string
 	return PushCommand(cmd);
 }
 
@@ -182,6 +183,14 @@ bool CWhorldThread::MoviePause(bool bEnable)
 bool CWhorldThread::MovieSeek(LONGLONG iFrame)
 {
 	return PushCommand(CRenderCmd(RC_MOVIE_SEEK, 0, iFrame));
+}
+
+bool CWhorldThread::MovieExport(const CMovieExportParams& params, LONG& nTaskID)
+{
+	nTaskID = GetNextTaskID();
+	CRenderCmd	cmd(RC_MOVIE_EXPORT, nTaskID);
+	cmd.m_prop.byref = new CMovieExportParams(params);	// duplicate parameters
+	return PushCommand(cmd);
 }
 
 // Helper methods
@@ -280,6 +289,11 @@ void CWhorldThread::OnMainPropChange()
 	for (int iProp = 0; iProp < MAIN_COUNT; iProp++) {	// for each main property
 		OnMainPropChange(iProp);
 	}
+}
+
+LONG CWhorldThread::GetNextTaskID()
+{
+	return InterlockedIncrement(&m_nNextTaskID);
 }
 
 CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
@@ -454,7 +468,7 @@ DPoint CWhorldThread::GetOrigin() const
 void CWhorldThread::OnCaptureBitmap(UINT nFlags, SIZE szImage)
 {
 	ID2D1Bitmap1*	pBitmap;
-	CWhorldDraw::CaptureBitmap(nFlags, CD2DSizeU(szImage), pBitmap);
+	CWhorldDraw::CaptureBitmap(nFlags, CD2DSizeU(szImage), &pBitmap);
 	LPARAM	lParam = reinterpret_cast<LPARAM>(pBitmap);	
 	PostMsgToMainWnd(UWM_BITMAP_CAPTURE, 0, lParam);	// post pointer to main window
 }
@@ -496,18 +510,16 @@ void CWhorldThread::OnSetSnapshotSize(SIZE szSnapshot)
 	}
 }
 
-void CWhorldThread::OnMovieRecord(LPCTSTR pszPath)
+void CWhorldThread::OnMovieRecord(LPCTSTR pszMoviePath)
 {
-	if (pszPath != NULL) {	// if path specified
+	if (pszMoviePath != NULL) {	// if path specified
 		// start recording
-		CString	sPath(pszPath);
-		delete [] pszPath;
+		CString	sPath(pszMoviePath);
+		delete [] pszMoviePath;
 		m_movie.SetFrameRate(static_cast<float>(m_nFrameRate));
 		m_movie.SetTargetSize(m_szTarget);
 		if (!m_movie.Open(sPath, true)) {
-			CSnapMovie::ERROR_STATE	errLast;
-			m_movie.GetLastErrorState(errLast);
-			printf("%d %d %s %s\n", errLast.nError, errLast.nLineNum, errLast.pszSrcFileName, errLast.pszSrcFileDate);//@@@
+			OnMovieError();
 			return;
 		}
 	} else {	// no path; stop recording
@@ -515,16 +527,14 @@ void CWhorldThread::OnMovieRecord(LPCTSTR pszPath)
 	}
 }
 
-void CWhorldThread::OnMoviePlay(LPCTSTR pszPath, bool bPaused)
+void CWhorldThread::OnMoviePlay(LPCTSTR pszMoviePath, bool bPaused)
 {
-	if (pszPath != NULL) {	// if path specified
+	if (pszMoviePath != NULL) {	// if path specified
 		// start playback
-		CString	sPath(pszPath);
-		delete [] pszPath;
+		CString	sPath(pszMoviePath);
+		delete [] pszMoviePath;
 		if (!m_movie.Open(sPath, false)) {
-			CSnapMovie::ERROR_STATE	errLast;
-			m_movie.GetLastErrorState(errLast);
-			printf("%d %d %s %s\n", errLast.nError, errLast.nLineNum, errLast.pszSrcFileName, errLast.pszSrcFileDate);//@@@
+			OnMovieError();
 			return;
 		}
 		m_bIsMoviePaused = bPaused;
@@ -541,7 +551,45 @@ void CWhorldThread::OnMoviePause(bool bEnable)
 
 void CWhorldThread::OnMovieSeek(LONGLONG iFrame)
 {
-	m_movie.SeekFrame(iFrame);
+	if (m_movie.SeekFrame(iFrame)) {	// if seek succeeds
+		if (m_bIsMoviePaused) {	// if movie is paused
+			m_bMovieSingleStep = true;	// set single step flag
+			ReadMovieFrame();	// read exactly one frame
+		}
+	} else {	// seek failed
+		OnMovieError();
+	}
+}
+
+
+void CWhorldThread::OnMovieExport(const CMovieExportParams* pParams, LONG nTaskID)
+{
+	ASSERT(pParams != NULL);
+	CAutoPtr<const CMovieExportParams>	pMEP(pParams);	// take ownership of parameters
+	CString	sFolderPath(pMEP->m_sFolderPath);
+	m_bIsMoviePaused = true;	// pause playback during export
+	// end frame is inclusive, hence the plus one
+	LONGLONG	nFrames = pMEP->m_nEndFrame - pMEP->m_nStartFrame + 1;
+	if (!m_movie.SeekFrame(pMEP->m_nStartFrame)) {
+		OnMovieError();
+		return;
+	}
+	// for each frame in specified range of frames
+	for (LONGLONG iFrame = 0; iFrame < nFrames; iFrame++) {
+		if (m_nCancelTaskID >= nTaskID) {	// if task canceled
+			return;
+		}
+		m_bMovieSingleStep = true;
+		if (!ReadMovieFrame()) {	// if can't read frame
+			return;
+		}
+		CComPtr<ID2D1Bitmap1> pBitmap;
+		CWhorldDraw::CaptureBitmap(pMEP->m_nExportFlags, pMEP->m_szFrame, &pBitmap);
+		CString	sSeqNum;
+		sSeqNum.Format(_T("%06lld"), iFrame);
+		CString	sImagePath(sFolderPath + _T("\\img") + sSeqNum + _T(".png"));
+		WriteCapturedBitmap(pBitmap, sImagePath);
+	}
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
@@ -634,6 +682,9 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_MOVIE_SEEK:
 		OnMovieSeek(cmd.m_prop.intVal);
+		break;
+	case RC_MOVIE_EXPORT:
+		OnMovieExport(static_cast<const CMovieExportParams*>(cmd.m_prop.byref), cmd.m_nParam);
 		break;
 	default:
 		NODEFAULTCASE;	// missing command case

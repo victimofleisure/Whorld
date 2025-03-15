@@ -82,7 +82,7 @@ public:
 	bool	UpdateFrameRate();
 	CString	GetTimestampFileName() const;
 	void	MidiInit();
-	bool	LoadSnapshot(LPCTSTR pszPath);
+	bool	LoadSnapshot(LPCTSTR pszSnapPath);
 
 // Overrides
 public:
@@ -114,7 +114,7 @@ protected:
 	bool	m_bDetachedPreFullScreen;	// true if render window was already detached when full-screen started
 	bool	m_bIsDualMonitor;	// true if render window is on a different monitor than user interface
 	bool	m_bIsPaused;		// true if render updates are paused from main thread's point of view
-	CAutoPtr<CPatch> m_pPreSnapshotModePatch;	// backup of patch before we entered snapshot mode
+	CAutoPtr<const CPatch> m_pPreSnapshotModePatch;	// backup of patch before we entered snapshot mode
 	HHOOK	m_hKeyboardHook;	// handle to keyboard hook
 	int		m_nOldResourceVersion;	// previous resource version number
 	static const int	m_nNewResourceVersion;	// current resource version number

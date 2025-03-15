@@ -118,7 +118,7 @@ void CWhorldDraw::HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, L
 	CString	sSrcFileName(pszSrcFileName);	// convert to Unicode
 	CString	sSrcFileDate(pszSrcFileDate);
 	CString	sErrorMsg;
-	sErrorMsg.Format(_T("COM error 0x%x in %s line %d (%s)"), hr, 
+	sErrorMsg.Format(_T("Error %d (0x%x) in %s line %d (%s)"), hr, hr,
 		sSrcFileName.GetString(), nLineNum, sSrcFileDate.GetString());
 	sErrorMsg += '\n' + FormatSystemError(hr);
 	theApp.WriteLogEntry(sErrorMsg);
@@ -535,20 +535,10 @@ bool CWhorldDraw::OnDraw()
 //	CBenchmark b;//@@@
 	ResizeCanvas();	// order matters: AddRing uses m_rCanvas
 	if (!m_bIsPaused) {	// if unpaused
-		TimerHook();
+		TimerHook();	// do time-based updates
 	} else {	// paused
 		if (m_movie.IsReading()) {	// if playing movie
-			if (!m_movie.IsEndOfFile() && (!m_bIsMoviePaused || m_bMovieSingleStep)) {
-				m_bMovieSingleStep = false;	// reset single step flag
-				CAutoPtr<CSnapshot>	pSnapshot(m_movie.Read());
-				if (pSnapshot != NULL) {
-					SetSnapshot(pSnapshot);
-				} else {
-					CSnapMovie::ERROR_STATE	errLast;
-					m_movie.GetLastErrorState(errLast);
-					printf("%d %d %s %s\n", errLast.nError, errLast.nLineNum, errLast.pszSrcFileName, errLast.pszSrcFileDate);//@@@
-				}
-			}
+			ReadMovieFrame();	// read its next frame
 		}
 	}
 	m_pD2DDeviceContext->Clear(m_clrBkgnd);	// clear to specified color
@@ -743,9 +733,10 @@ void CWhorldDraw::DrawSnapshotLetterbox()
 	}
 }
 
-bool CWhorldDraw::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap)
+bool CWhorldDraw::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1** pBitmap)
 {
-	pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
+	ASSERT(pBitmap != NULL);
+	*pBitmap = NULL;	// failsafe: clear destination bitmap pointer first
 	if (nFlags & EF_USE_VIEW_SIZE) {	// if using view size as image size
 		szImage.width = Round(m_szTarget.width);	// override specified image size
 		szImage.height = Round(m_szTarget.height);
@@ -807,7 +798,7 @@ bool CWhorldDraw::CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& p
 	//
 	// 5) Return readable bitmap to caller for mapping and writing.
 	//
-	pBitmap = pReadableBitmap.Detach();	// detach bitmap from its smart pointer
+	*pBitmap = pReadableBitmap.Detach();	// detach bitmap from its smart pointer
 	return true;
 }
 
@@ -899,7 +890,7 @@ void CWhorldDraw::ExitSnapshotMode()
 	m_bSnapshotMode = false;
 	if (m_pPrevSnapshot != NULL) {	// if previous snapshot exists
 		// snapshot is deleted when smart pointer goes out of scope
-		CAutoPtr<CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
+		CAutoPtr<const CSnapshot>	pSnapshot(m_pPrevSnapshot);	// take ownership
 		SetSnapshot(pSnapshot);	// restore snapshot
 	}
 }
@@ -951,4 +942,31 @@ bool CWhorldDraw::SetFrameRate(DWORD nFrameRate)
 	m_nFrameRate = nFrameRate;
 	m_oscOrigin.SetTimerFreq(nFrameRate);
 	return true;
+}
+
+bool CWhorldDraw::ReadMovieFrame()
+{
+	if (m_movie.IsEndOfFile()) {	// if end of movie reached
+		return true;	// nothing to do
+	}
+	// if movie is paused and single step flag isn't set
+	if (m_bIsMoviePaused && !m_bMovieSingleStep) {
+		return true;	// nothing to do
+	}
+	m_bMovieSingleStep = false;	// reset single step flag
+	CAutoPtr<const CSnapshot>	pSnapshot(m_movie.Read());
+	if (pSnapshot == NULL) {	// if read snapshot failed
+		OnMovieError();
+		return false;
+	}
+	SetSnapshot(pSnapshot);
+	return true;
+}
+
+void CWhorldDraw::OnMovieError()
+{
+	CSnapMovie::ERROR_STATE	errLast;
+	m_movie.GetLastErrorState(errLast);
+	m_movie.Close();	// close movie to avoid flood of errors
+	HandleError(errLast.nError, errLast.pszSrcFileName, errLast.nLineNum, errLast.pszSrcFileDate);
 }

@@ -16,7 +16,7 @@
 		06		11mar25	add get/set snapshot draw state
 		07		12mar25	add target size accessor
 		08		14mar25	add movie recording and playback
-		09		15mar25	move queue-related methods to separate class
+		09		15mar25	move queue-related methods here
 
 */
 
@@ -35,6 +35,9 @@ public:
 	DWORD	GetFrameRate() const;
 	DPoint	GetOrigin() const;
 	D2D1_SIZE_F	GetTargetSize() const;
+	LONGLONG	GetMovieFrameCount() const;
+	LONGLONG	GetReadFrameIdx() const;
+	void	CancelTask(LONG nTaskID);
 
 // Operations
 	bool	SetParam(int iParam, int iProp, VARIANT_PROP& prop);
@@ -56,14 +59,17 @@ public:
 	bool	SetDampedGlobal(int iParam, double fGlobal);
 	bool	SetDrawMode(UINT nMask, UINT nVal);
 	bool	SetSnapshotSize(SIZE szSnapshot);
-	bool	MovieRecord(LPCTSTR pszPath);
-	bool	MoviePlay(LPCTSTR pszPath, bool bPaused = false);
+	bool	MovieRecord(LPCTSTR pszMoviePath);
+	bool	MoviePlay(LPCTSTR pszMoviePath, bool bPaused = false);
 	bool	MoviePause(bool bEnable);
 	bool	MovieSeek(LONGLONG iFrame);
+	bool	MovieExport(const CMovieExportParams& params, LONG& nTaskID);
 
 protected:
 // Data members
 	LONGLONG	m_nLastPushErrorTime;	// when push command retries last failed
+	LONG	m_nNextTaskID;			// next available task ID
+	LONG	m_nCancelTaskID;		// ID of task to be canceled
 
 // Overrides
 	virtual void	OnRenderCommand(const CRenderCmd& cmd);
@@ -74,6 +80,7 @@ protected:
 	void	OnMainPropChange(int iProp);
 	void	OnMasterPropChange();
 	void	OnMainPropChange();
+	LONG	GetNextTaskID();
 	static CString	RenderCommandToString(const CRenderCmd& cmd);
 
 // Command handlers
@@ -101,10 +108,11 @@ protected:
 	void	OnSetDampedGlobal(int iParam, double fGlobal);
 	void	OnSetDrawMode(UINT nMask, UINT nVal);
 	void	OnSetSnapshotSize(SIZE szSnapshot);
-	void	OnMovieRecord(LPCTSTR pszPath);
-	void	OnMoviePlay(LPCTSTR pszPath, bool bPaused);
+	void	OnMovieRecord(LPCTSTR pszMoviePath);
+	void	OnMoviePlay(LPCTSTR pszMoviePath, bool bPaused);
 	void	OnMoviePause(bool bEnable);
 	void	OnMovieSeek(LONGLONG iFrame);
+	void	OnMovieExport(const CMovieExportParams* pParams, LONG nTaskID);
 };
 
 inline UINT_PTR CWhorldThread::GetRingCount() const
@@ -125,4 +133,19 @@ inline DWORD CWhorldThread::GetFrameRate() const
 inline D2D1_SIZE_F CWhorldThread::GetTargetSize() const
 {
 	return m_szTarget;	// atomic in x64, but not in x86!
+}
+
+inline LONGLONG CWhorldThread::GetMovieFrameCount() const
+{
+	return m_movie.GetFrameCount();
+}
+
+inline LONGLONG CWhorldThread::GetReadFrameIdx() const
+{
+	return m_movie.GetReadFrameIdx();
+}
+
+inline void CWhorldThread::CancelTask(LONG nTaskID)
+{
+	m_nCancelTaskID = nTaskID;
 }

@@ -374,7 +374,7 @@ inline bool CMainFrame::PromptingForExport() const
 		&& !theApp.IsFullScreenSingleMonitor();		// and prompting is permissible
 }
 
-bool CMainFrame::WriteSnapshot(CSnapshot *pSnapshot)
+bool CMainFrame::WriteSnapshot(const CSnapshot *pSnapshot)
 {
 	ASSERT(pSnapshot != NULL);
 	CString	sSnapshotPath;
@@ -521,7 +521,7 @@ void CMainFrame::OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINM
 	}
 }
 
-bool CMainFrame::PlayMovie(LPCTSTR pszPath)
+bool CMainFrame::PlayMovie(LPCTSTR pszMoviePath, bool bPaused)
 {
 	if (IsMovieOpen()) {	// if movie is open
 		ASSERT(IsPlayingMovie());	// else we shouldn't be here
@@ -529,8 +529,8 @@ bool CMainFrame::PlayMovie(LPCTSTR pszPath)
 		m_nMovieIOState = MOVIE_NONE;
 		theApp.SetPause(false);	// exit snapshot mode and resume patch
 	} else {	// movie is closed
-		ASSERT(pszPath != NULL);	// path is required
-		if (!theApp.m_thrRender.MoviePlay(pszPath)) {	// start playback
+		ASSERT(pszMoviePath != NULL);	// path is required
+		if (!theApp.m_thrRender.MoviePlay(pszMoviePath, bPaused)) {	// start playback
 			return false;
 		}
 		// can't display snapshots while playing movie
@@ -541,15 +541,15 @@ bool CMainFrame::PlayMovie(LPCTSTR pszPath)
 	return true;
 }
 
-bool CMainFrame::RecordMovie(LPCTSTR pszPath)
+bool CMainFrame::RecordMovie(LPCTSTR pszMoviePath)
 {
 	if (IsMovieOpen()) {	// if movie is open
 		ASSERT(IsRecordingMovie());	// else we shouldn't be here
 		theApp.m_thrRender.MovieRecord(NULL);	// stop recording
 		m_nMovieIOState = MOVIE_NONE;
 	} else {	// movie is closed
-		ASSERT(pszPath != NULL);	// path is required
-		if (!theApp.m_thrRender.MovieRecord(pszPath)) {	// start recording
+		ASSERT(pszMoviePath != NULL);	// path is required
+		if (!theApp.m_thrRender.MovieRecord(pszMoviePath)) {	// start recording
 			return false;
 		}
 		m_nMovieIOState = MOVIE_RECORDING;
@@ -647,6 +647,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_MOVIE_PLAY, OnUpdateMoviePlay)
 	ON_COMMAND(ID_MOVIE_EXPORT, OnMovieExport)
 	ON_UPDATE_COMMAND_UI(ID_MOVIE_EXPORT, OnUpdateMovieExport)
+	ON_COMMAND(ID_MOVIE_REWIND, OnMovieRewind)
+	ON_UPDATE_COMMAND_UI(ID_MOVIE_REWIND, OnUpdateMovieRewind)
 	// dock bar handlers confuse IDE's code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
@@ -924,7 +926,7 @@ LRESULT	CMainFrame::OnBitmapCapture(WPARAM wParam, LPARAM lParam)
 LRESULT	CMainFrame::OnSnapshotCapture(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
-	CAutoPtr<CSnapshot> pSnapshot(reinterpret_cast<CSnapshot*>(lParam));
+	CAutoPtr<const CSnapshot> pSnapshot(reinterpret_cast<CSnapshot*>(lParam));
 	if (pSnapshot != NULL) {	// if capture succeeded
 		WriteSnapshot(pSnapshot);
 	}
@@ -1018,7 +1020,10 @@ LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 	// if the MIDI input callback was spamming the command queue, 
 	// it's no longer doing so, because we nuked the MIDI mappings
 	CProgressDlg	dlgProgress;
-	dlgProgress.Create();	// create progress dialog
+	if (!dlgProgress.Create()) {	// create progress dialog
+		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
+		return 0;
+	}
 	// we don't know how long this will take, so use a marquee progress bar
 	dlgProgress.SetMarquee(true, 0);
 	// loop until the command queue drains down at least halfway
@@ -1200,7 +1205,10 @@ void CMainFrame::OnSnapshotExportAll()
 		return;	// fail
 	}
 	CProgressDlg	dlgProgress;
-	dlgProgress.Create();
+	if (!dlgProgress.Create()) {
+		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
+		return;	// fail
+	}
 	dlgProgress.SetRange(0, nSnapshots);
 	for (int iSnapshot = 0; iSnapshot < nSnapshots; iSnapshot++) {	// for each snapshot
 		CString	sSnapshotPath(m_aSnapshotPath[iSnapshot]);
@@ -1218,7 +1226,7 @@ void CMainFrame::OnSnapshotExportAll()
 			m_aOutputPath.RemoveAll();	// clean up paths
 			break;	// user canceled, or error
 		}
-		dlgProgress.SetPos(iSnapshot);
+		dlgProgress.SetPos(iSnapshot);	// pumps messages
 	}
 	// restore current snapshot
 	theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
@@ -1229,7 +1237,7 @@ void CMainFrame::OnSnapshotInfo()
 	if (m_iCurSnapshot < m_aSnapshotPath.GetSize()) {	// if we have a snapshot
 		LPCTSTR	pszPath = m_aSnapshotPath[m_iCurSnapshot];
 		// read snapshot and assign it to a smart pointer
-		CAutoPtr<CSnapshot>	pSnapshot(CSnapshot::Read(pszPath));
+		CAutoPtr<const CSnapshot>	pSnapshot(CSnapshot::Read(pszPath));
 		if (pSnapshot != NULL) {	// if snapshot read succeeded
 			CPathStr	sFilename(PathFindFileName(pszPath));
 			sFilename.RemoveExtension();
@@ -1399,9 +1407,56 @@ void CMainFrame::OnUpdateMoviePlay(CCmdUI *pCmdUI)
 
 void CMainFrame::OnMovieExport()
 {
+	CString	sExportFolder(theApp.m_options.m_Export_sImageFolder);
+	UINT	nFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+	CString	sFDlgTitle(LDS(IDS_EXPORT_MOVIE));
+	if (!CFolderDialog::BrowseFolder(sFDlgTitle, sExportFolder, NULL, nFlags, sExportFolder))
+		return;	// user canceled
+	CProgressDlg	dlgProgress;
+	if (!dlgProgress.Create()) {
+		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
+		return;	// fail
+	}
+	dlgProgress.SetWindowText(sFDlgTitle);
+	LONGLONG	nFrames = theApp.m_thrRender.GetMovieFrameCount();
+	dlgProgress.SetRange(0, static_cast<int>(nFrames));
+	CMovieExportParams	mep;
+	mep.m_sFolderPath = sExportFolder;
+	mep.m_szFrame = CSize(640, 480);
+	mep.m_nStartFrame = 0;
+	mep.m_nEndFrame = nFrames - 1;
+	mep.m_nExportFlags = 0;
+	LONG	nTaskID;
+	if (!theApp.m_thrRender.MovieExport(mep, nTaskID)) {
+		return;	// command queue was full and error recovery failed
+	}
+	// the render thread sensibly pauses movie playback during export
+	m_bIsMoviePaused = true;	// so keep the UI consistent with that
+	// We need to update the toolbar explicitly instead of relying on update
+	// notifications, because we're modal and the progress dialog has focus.
+	m_wndToolBar.OnUpdateCmdUI(this, false);	// update pause button
+	LONGLONG	iFrame;
+	// loop until all frames are exported or the user cancels
+	while ((iFrame = theApp.m_thrRender.GetReadFrameIdx()) < nFrames) {
+		dlgProgress.SetPos(static_cast<int>(iFrame));	// pumps messages
+		if (dlgProgress.Canceled()) {	// if user clicked cancel
+			theApp.m_thrRender.CancelTask(nTaskID);	// cancel task
+			break;
+		}
+	}
 }
 
 void CMainFrame::OnUpdateMovieExport(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(!IsRecordingMovie());
+	pCmdUI->Enable(IsPlayingMovie());
+}
+
+void CMainFrame::OnMovieRewind()
+{
+	theApp.m_thrRender.MovieSeek(0);
+}
+
+void CMainFrame::OnUpdateMovieRewind(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(IsPlayingMovie());
 }

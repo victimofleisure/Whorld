@@ -622,9 +622,9 @@ void CWhorldApp::SetPause(bool bEnable)
 	}
 }
 
-bool CWhorldApp::LoadSnapshot(LPCTSTR pszPath)
+bool CWhorldApp::LoadSnapshot(LPCTSTR pszSnapPath)
 {
-	CSnapshot	*pSnapshot = CSnapshot::Read(pszPath);
+	CSnapshot	*pSnapshot = CSnapshot::Read(pszSnapPath);
 	if (pSnapshot == NULL) {	// if read failed
 		return false;	// error already handled
 	}
@@ -654,7 +654,7 @@ void CWhorldApp::SetSnapshotMode(bool bEnable)
 	} else {	// exiting snapshot mode
 		ASSERT(m_pPreSnapshotModePatch != NULL);	// otherwise logic error
 		// snapshot is deleted when smart pointer goes out of scope
-		CAutoPtr<CPatch> pOldPatch(m_pPreSnapshotModePatch);	// take ownership
+		CAutoPtr<const CPatch> pOldPatch(m_pPreSnapshotModePatch);	// take ownership
 		CWhorldDoc*	pDoc = GetDocument();
 		pDoc->GetPatch() = *pOldPatch;	// copy previously saved patch to document
 		pDoc->UpdateAllViews(NULL);	// notify views of new patch

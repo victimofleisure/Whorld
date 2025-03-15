@@ -79,8 +79,8 @@ public:
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	static void	OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINMAXINFO *pMMI);
-	bool	PlayMovie(LPCTSTR pszPath);
-	bool	RecordMovie(LPCTSTR pszPath);
+	bool	PlayMovie(LPCTSTR pszMoviePath, bool bPaused = false);
+	bool	RecordMovie(LPCTSTR pszMoviePath);
 	bool	PauseMovie(bool bEnable);
 
 // Overrides
@@ -142,7 +142,7 @@ public:
 	BOOL	CreateDockingWindows();
 	bool	FastSetPaneText(CMFCStatusBar& bar, int nIndex, const CString& sText, int& nCurTextLength);
 	void	ApplyOptions(const COptions *pPrevOptions);
-	bool	WriteSnapshot(CSnapshot *pSnapshot);
+	bool	WriteSnapshot(const CSnapshot *pSnapshot);
 	bool	PromptingForExport() const;
 	bool	MakeUniqueExportPath(CString& sExportPath, LPCTSTR pszExt);
 	static bool	WaitForPostedMessage(UINT message, CProgressDlg& dlgProgress);
@@ -214,6 +214,8 @@ public:
 	afx_msg void OnUpdateMoviePlay(CCmdUI *pCmdUI);
 	afx_msg void OnMovieExport();
 	afx_msg void OnUpdateMovieExport(CCmdUI *pCmdUI);
+	afx_msg void OnMovieRewind();
+	afx_msg void OnUpdateMovieRewind(CCmdUI *pCmdUI);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const
@@ -244,8 +246,8 @@ inline bool CMainFrame::IsPlayingMovie() const
 inline bool CMainFrame::IsPaused() const
 {
 	if (IsPlayingMovie()) {	// if playing movie
-		return m_bIsMoviePaused;	// movie pause state overrides
+		return m_bIsMoviePaused;	// movie owns the pause state
 	} else {	// not playing movie
-		return theApp.IsPaused();	// normal pause behavior
+		return theApp.IsPaused();	// do normal pause behavior
 	}
 }

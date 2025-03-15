@@ -109,6 +109,15 @@ public:
 		CPropHint(int iProp = 0) : m_iProp(iProp) {}
 		int		m_iProp;	// index of property
 	};
+	class CMovieExportParams {
+	public:
+		CMovieExportParams();
+		CString	m_sFolderPath;	// path of destination folder
+		CSize	m_szFrame;		// output frame size, in pixels
+		int		m_nExportFlags;	// see image export flags enum
+		LONGLONG	m_nStartFrame;	// first frame to export
+		LONGLONG	m_nEndFrame;	// last frame to export
+	};
 
 // Constants
 	enum {	// parameter properties

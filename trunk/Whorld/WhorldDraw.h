@@ -82,7 +82,7 @@ protected:
 	double	m_fZoom;		// current zoom, as a scaling factor
 	double	m_fZoomTarget;	// target zoom for damped zooming
 	DWORD	m_nFrameRate;	// current frame rate in Hertz
-	CAutoPtr<CSnapshot>	m_pPrevSnapshot;	// render state before snapshot mode
+	CAutoPtr<const CSnapshot>	m_pPrevSnapshot;	// render state before snapshot mode
 	DRAW_STATE	m_dsSnapshot;	// snapshot draw state
 	CSnapMovie	m_movie;	// snapshot movie for recording and playback
 	bool	m_bIsMoviePaused;	// true if movie playback is paused
@@ -119,7 +119,7 @@ protected:
 		ID2D1GeometrySink* pSink, D2D1_FIGURE_BEGIN nBeginType, 
 		int iFirstPoint, int nPoints, int nVertices, bool bCurved) const;
 	void	DrawOutline(ID2D1PathGeometry* pPath, const RING& ring, float fLineWidth) const;
-	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1*& pBitmap);
+	bool	CaptureBitmap(UINT nFlags, CD2DSizeU szImage, ID2D1Bitmap1** pBitmap);
 	CSnapshot*	GetSnapshot() const;
 	void	SetSnapshot(const CSnapshot* pSnapshot);
 	void	EnterSnapshotMode();
@@ -129,4 +129,6 @@ protected:
 	void	DumpSnapshot() const;
 	void	DrawSnapshotLetterbox();
 	bool	SetFrameRate(DWORD nFrameRate);
+	bool	ReadMovieFrame();
+	void	OnMovieError();
 };

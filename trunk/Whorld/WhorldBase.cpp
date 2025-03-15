@@ -139,3 +139,11 @@ void CWhorldBase::InitWhorldBase()
 		m_arrParamToGlobal[iParam] = iGlobal;	// store global's index in parameter's element
 	}
 }
+
+CWhorldBase::CMovieExportParams::CMovieExportParams()
+{
+	m_szFrame = CSize(0, 0);
+	m_nExportFlags = 0;
+	m_nStartFrame = 0;
+	m_nEndFrame = 0;
+}

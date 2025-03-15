@@ -94,7 +94,7 @@ protected:
 	class CWriteBuf {	// class to encapsulate a pending write
 	public:
 		OVERLAPPED	m_ovl;		// asynchronous I/O state
-		CAutoPtr<CSnapshot>	m_pSnapshot;	// pointer to snapshot being written
+		CAutoPtr<const CSnapshot>	m_pSnapshot;	// pointer to snapshot being written
 	};
 
 // Data members

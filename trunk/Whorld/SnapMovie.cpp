@@ -293,7 +293,7 @@ bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 	// got a free buffer
 	CWriteBuf&	buf = m_aWriteBuf[iBuf];	// for brevity
 	buf.m_pSnapshot.Free();	// it's now safe to free previous snapshot
-	buf.m_pSnapshot.Attach(const_cast<CSnapshot*>(pSnapshot));	// attach new snapshot to buffer
+	buf.m_pSnapshot.Attach(pSnapshot);	// attach new snapshot to buffer
 	ZeroMemory(&buf.m_ovl, sizeof(OVERLAPPED));	// clear overlapped struct, as required
 	LARGE_INTEGER	li;	// split 64-bit file position in half, for legacy reasons
 	li.QuadPart = m_nWriteBytes;

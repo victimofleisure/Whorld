@@ -61,8 +61,10 @@ public:
 	bool	SetDampedGlobal(int iParam, double fGlobal);
 	bool	SetDrawMode(UINT nMask, UINT nVal);
 	bool	SetSnapshotSize(SIZE szSnapshot);
-	bool	RecordMovie(LPCTSTR pszPath);
-	bool	PlayMovie(LPCTSTR pszPath);
+	bool	MovieRecord(LPCTSTR pszPath);
+	bool	MoviePlay(LPCTSTR pszPath);
+	bool	MoviePause(bool bEnable);
+	bool	MovieSeek(LONGLONG iFrame);
 
 // Operations
 	static bool	WriteCapturedBitmap(ID2D1Bitmap1* pBitmap, LPCTSTR pszImagePath);
@@ -116,6 +118,8 @@ protected:
 	LONGLONG	m_nLastPushErrorTime;	// when push command retries last failed
 	DRAW_STATE	m_dsSnapshot;	// snapshot draw state
 	CSnapMovie	m_movie;	// snapshot movie for recording and playback
+	bool	m_bIsMoviePaused;	// true if movie playback is paused
+	bool	m_bMovieSingleStep;	// true to single-step movie while it's paused
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
@@ -190,8 +194,10 @@ protected:
 	void	OnSetDampedGlobal(int iParam, double fGlobal);
 	void	OnSetDrawMode(UINT nMask, UINT nVal);
 	void	OnSetSnapshotSize(SIZE szSnapshot);
-	void	OnRecordMovie(LPCTSTR pszPath);
-	void	OnPlayMovie(LPCTSTR pszPath);
+	void	OnMovieRecord(LPCTSTR pszPath);
+	void	OnMoviePlay(LPCTSTR pszPath);
+	void	OnMoviePause(bool bEnable);
+	void	OnMovieSeek(LONGLONG iFrame);
 };
 
 inline UINT_PTR CWhorldThread::GetRingCount() const

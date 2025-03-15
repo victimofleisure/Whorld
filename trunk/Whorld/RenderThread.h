@@ -45,9 +45,10 @@ public:
 		CRenderCmd() {}
 		CRenderCmd(UINT nCmd, UINT nParam = 0);
 		CRenderCmd(UINT nCmd, UINT nParam, int& iProp);
-		CRenderCmd(UINT nCmd, UINT nParam, UINT& iProp);
+		CRenderCmd(UINT nCmd, UINT nParam, UINT& uProp);
 		CRenderCmd(UINT nCmd, UINT nParam, double& fProp);
 		CRenderCmd(UINT nCmd, UINT nParam, bool& bProp);
+		CRenderCmd(UINT nCmd, UINT nParam, LONGLONG& iProp);
 		UINT	m_nCmd;			// render command; see enum
 		UINT	m_nParam;		// optional parameter
 		VARIANT_PROP	m_prop;	// variant property
@@ -66,10 +67,10 @@ inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, int& iP
 	m_prop.intVal = iProp;
 }
 
-inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, UINT& iProp)
+inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, UINT& uProp)
 	: m_nCmd(nCmd), m_nParam(nParam)
 {
-	m_prop.uintVal = iProp;
+	m_prop.uintVal = uProp;
 }
 
 inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, double& fProp)
@@ -82,6 +83,12 @@ inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, bool& b
 	: m_nCmd(nCmd), m_nParam(nParam)
 {
 	m_prop.boolVal = bProp;
+}
+
+inline CRenderThreadBase::CRenderCmd::CRenderCmd(UINT nCmd, UINT nParam, LONGLONG& iProp)
+	: m_nCmd(nCmd), m_nParam(nParam)
+{
+	m_prop.llVal = iProp;
 }
 
 class CRenderThread : protected CD2DDevCtx, public CRenderThreadBase {

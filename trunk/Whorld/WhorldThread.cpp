@@ -80,6 +80,8 @@ CWhorldThread::CWhorldThread()
 	m_nFrameRate = DEFAULT_FRAME_RATE;
 	m_nLastPushErrorTime = 0;
 	ZeroMemory(&m_dsSnapshot, sizeof(m_dsSnapshot));
+	m_bIsMoviePaused = false;
+	m_bMovieSingleStep = false;
 }
 
 bool CWhorldThread::CreateUserResources()
@@ -539,9 +541,16 @@ bool CWhorldThread::OnDraw()
 		TimerHook();
 	} else {	// paused
 		if (m_movie.IsReading()) {	// if playing movie
-			CAutoPtr<CSnapshot>	pSnapshot(m_movie.Read());
-			if (pSnapshot != NULL) {
-				SetSnapshot(pSnapshot);
+			if (!m_movie.IsEndOfFile() && (!m_bIsMoviePaused || m_bMovieSingleStep)) {
+				m_bMovieSingleStep = false;	// reset single step flag
+				CAutoPtr<CSnapshot>	pSnapshot(m_movie.Read());
+				if (pSnapshot != NULL) {
+					SetSnapshot(pSnapshot);
+				} else {
+					CSnapMovie::ERROR_STATE	errLast;
+					m_movie.GetLastErrorState(errLast);
+					printf("%d %d %s %s\n", errLast.nError, errLast.nLineNum, errLast.pszSrcFileName, errLast.pszSrcFileDate);//@@@
+				}
 			}
 		}
 	}
@@ -857,7 +866,6 @@ void CWhorldThread::SetSnapshot(const CSnapshot* pSnapshot)
 
 void CWhorldThread::EnterSnapshotMode()
 {
-	ASSERT(!m_bSnapshotMode);	// else logic error
 	if (m_pPrevSnapshot == NULL) {	// if not already in snapshot mode
 		m_pPrevSnapshot.Attach(GetSnapshot());	// take snapshot of current state
 		m_fZoom = 1;	// in snapshot mode, zoom is relative to snapshot's zoom
@@ -1070,18 +1078,28 @@ bool CWhorldThread::SetSnapshotSize(SIZE szSnapshot)
 	return PushCommand(cmd);
 }
 
-bool CWhorldThread::RecordMovie(LPCTSTR pszPath)
+bool CWhorldThread::MovieRecord(LPCTSTR pszPath)
 {
-	CRenderCmd	cmd(RC_RECORD_MOVIE);
+	CRenderCmd	cmd(RC_MOVIE_RECORD);
 	cmd.m_prop.byref = SafeStrDup(pszPath);
 	return PushCommand(cmd);
 }
 
-bool CWhorldThread::PlayMovie(LPCTSTR pszPath)
+bool CWhorldThread::MoviePlay(LPCTSTR pszPath)
 {
-	CRenderCmd	cmd(RC_PLAY_MOVIE);
+	CRenderCmd	cmd(RC_MOVIE_PLAY);
 	cmd.m_prop.byref = SafeStrDup(pszPath);
 	return PushCommand(cmd);
+}
+
+bool CWhorldThread::MoviePause(bool bEnable)
+{
+	return PushCommand(CRenderCmd(RC_MOVIE_PAUSE, bEnable));
+}
+
+bool CWhorldThread::MovieSeek(LONGLONG iFrame)
+{
+	return PushCommand(CRenderCmd(RC_MOVIE_SEEK, 0, iFrame));
 }
 
 bool CWhorldThread::PushCommand(const CRenderCmd& cmd)
@@ -1218,7 +1236,13 @@ void CWhorldThread::OnSetPause(bool bIsPaused)
 void CWhorldThread::OnSingleStep()
 {
 	if (m_bIsPaused) {
-		TimerHook();
+		if (m_movie.IsReading()) {
+			if (m_bIsMoviePaused) {
+				m_bMovieSingleStep = true;
+			}
+		} else {
+			TimerHook();
+		}
 	}
 }
 
@@ -1381,7 +1405,7 @@ void CWhorldThread::OnSetSnapshotSize(SIZE szSnapshot)
 	}
 }
 
-void CWhorldThread::OnRecordMovie(LPCTSTR pszPath)
+void CWhorldThread::OnMovieRecord(LPCTSTR pszPath)
 {
 	if (pszPath != NULL) {	// if path specified
 		// start recording
@@ -1398,7 +1422,7 @@ void CWhorldThread::OnRecordMovie(LPCTSTR pszPath)
 	}
 }
 
-void CWhorldThread::OnPlayMovie(LPCTSTR pszPath)
+void CWhorldThread::OnMoviePlay(LPCTSTR pszPath)
 {
 	if (pszPath != NULL) {	// if path specified
 		// start playback
@@ -1412,6 +1436,16 @@ void CWhorldThread::OnPlayMovie(LPCTSTR pszPath)
 	} else {	// no path; stop playback
 		m_movie.Close();
 	}
+}
+
+void CWhorldThread::OnMoviePause(bool bEnable)
+{
+	m_bIsMoviePaused = bEnable;
+}
+
+void CWhorldThread::OnMovieSeek(LONGLONG iFrame)
+{
+	m_movie.SeekFrame(iFrame);
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
@@ -1493,11 +1527,17 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 	case RC_SET_SNAPSHOT_SIZE:
 		OnSetSnapshotSize(cmd.m_prop.szVal);
 		break;
-	case RC_RECORD_MOVIE:
-		OnRecordMovie(static_cast<LPCTSTR>(cmd.m_prop.byref));
+	case RC_MOVIE_RECORD:
+		OnMovieRecord(static_cast<LPCTSTR>(cmd.m_prop.byref));
 		break;
-	case RC_PLAY_MOVIE:
-		OnPlayMovie(static_cast<LPCTSTR>(cmd.m_prop.byref));
+	case RC_MOVIE_PLAY:
+		OnMoviePlay(static_cast<LPCTSTR>(cmd.m_prop.byref));
+		break;
+	case RC_MOVIE_PAUSE:
+		OnMoviePause(cmd.m_nParam != 0);
+		break;
+	case RC_MOVIE_SEEK:
+		OnMovieSeek(cmd.m_prop.intVal);
 		break;
 	default:
 		NODEFAULTCASE;	// missing command case

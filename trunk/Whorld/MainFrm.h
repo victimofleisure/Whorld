@@ -71,10 +71,17 @@ public:
 // Attributes
 	HACCEL	GetAccelTable() const;
 	bool	InRenderFullError() const;
+	bool	IsMovieOpen() const;
+	bool	IsRecordingMovie() const;
+	bool	IsPlayingMovie() const;
+	bool	IsPaused() const;
 
 // Operations
 	void	OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	static void	OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINMAXINFO *pMMI);
+	bool	PlayMovie(LPCTSTR pszPath);
+	bool	RecordMovie(LPCTSTR pszPath);
+	bool	PauseMovie(bool bEnable);
 
 // Overrides
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -107,6 +114,11 @@ public:
 		FRAME_RATE_TIMER_ID = 2025,
 		FRAME_RATE_TIMER_PERIOD = 1000,
 	};
+	enum {	// movie input/output states
+		MOVIE_NONE = -1,	// no movie
+		MOVIE_PLAYING,		// playing a movie
+		MOVIE_RECORDING,	// recording a movie
+	};
 	static const LPCTSTR m_pszExportExt;
 	static const LPCTSTR m_pszExportFilter;
 	static const LPCTSTR m_pszSnapshotExt;
@@ -123,7 +135,8 @@ public:
 	CStringArrayEx	m_aSnapshotPath;	// array of snapshot paths
 	int		m_iCurSnapshot;			// index of snapshot currently being displayed 
 	bool	m_bInRenderFullError;	// true if handling render command queue full error
-	int		m_nMovieIOState;		// movie input/output state; see CSnapMovie
+	int		m_nMovieIOState;		// movie input/output state; see enum above
+	bool	m_bIsMoviePaused;		// true if movie playback is paused
 	
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -132,8 +145,6 @@ public:
 	bool	WriteSnapshot(CSnapshot *pSnapshot);
 	bool	PromptingForExport() const;
 	bool	MakeUniqueExportPath(CString& sExportPath, LPCTSTR pszExt);
-	bool	PlayMovie(LPCTSTR pszPath);
-	bool	RecordMovie(LPCTSTR pszPath);
 	static bool	WaitForPostedMessage(UINT message, CProgressDlg& dlgProgress);
 
 // Generated message map functions
@@ -164,6 +175,7 @@ public:
 	afx_msg void OnFileTakeSnapshot();
 	afx_msg void OnUpdateFileTakeSnapshot(CCmdUI* pCmdUI);
 	afx_msg void OnFileLoadSnapshot();
+	afx_msg void OnUpdateFileLoadSnapshot(CCmdUI* pCmdUI);
 	afx_msg void OnPlaylistNew();
 	afx_msg void OnPlaylistOpen();
 	afx_msg void OnPlaylistSave();
@@ -194,6 +206,7 @@ public:
 	afx_msg void OnWindowStep();
 	afx_msg void OnUpdateWindowStep(CCmdUI *pCmdUI);
 	afx_msg void OnWindowClear();
+	afx_msg void OnUpdateWindowClear(CCmdUI *pCmdUI);
 	afx_msg void OnWindowResetLayout();
 	afx_msg void OnMovieRecord();
 	afx_msg void OnUpdateMovieRecord(CCmdUI *pCmdUI);
@@ -209,4 +222,28 @@ inline HACCEL CMainFrame::GetAccelTable() const
 inline bool CMainFrame::InRenderFullError() const
 {
 	return m_bInRenderFullError;
+}
+
+inline bool CMainFrame::IsMovieOpen() const
+{
+	return m_nMovieIOState >= MOVIE_PLAYING;
+}
+
+inline bool CMainFrame::IsRecordingMovie() const
+{
+	return m_nMovieIOState > MOVIE_PLAYING;
+}
+
+inline bool CMainFrame::IsPlayingMovie() const
+{
+	return m_nMovieIOState == MOVIE_PLAYING;
+}
+
+inline bool CMainFrame::IsPaused() const
+{
+	if (IsPlayingMovie()) {	// if playing movie
+		return m_bIsMoviePaused;	// movie pause state overrides
+	} else {	// not playing movie
+		return theApp.IsPaused();	// normal pause behavior
+	}
 }

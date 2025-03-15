@@ -24,6 +24,14 @@ public:
 	CSnapMovie();
 	~CSnapMovie();
 
+// Types
+	struct ERROR_STATE {
+		DWORD	nError;			// system error code
+		int		nLineNum;		// line number at which error occurred
+		LPCSTR	pszSrcFileName;	// file name of relevant source file
+		LPCSTR	pszSrcFileDate;	// source file's compilation date
+	};
+
 // Constants
 	enum {	// input/output states
 		IO_CLOSED = -1,	// file is closed
@@ -34,12 +42,15 @@ public:
 	static const USHORT m_nFileVersion;
 
 // Attributes
+	void	GetLastErrorState(ERROR_STATE& errLast) const;
 	bool	IsOpen() const;
 	bool	IsReading() const;
 	bool	IsWriting() const;
 	int		GetIOState() const;
-	ULONGLONG	GetFramesWritten() const;
-	ULONGLONG	GetFrameCount() const;
+	bool	IsEndOfFile() const;
+	LONGLONG	GetFramesWritten() const;
+	LONGLONG	GetFrameCount() const;
+	LONGLONG	GetReadFrameIdx() const;
 	float	GetFrameRate() const;
 	void	SetFrameRate(float fFrameRate);
 	D2D1_SIZE_F	GetTargetSize() const;
@@ -50,6 +61,7 @@ public:
 	bool	Close();
 	bool	Write(const CSnapshot *pSnapshot);
 	CSnapshot*	Read();
+	bool	SeekFrame(LONGLONG iFrame);
 
 protected:
 // Constants
@@ -74,7 +86,7 @@ protected:
 		USHORT	nRingSize;		// size of RING in bytes
 		float	fFrameRate;		// frame rate in frames per second
 		D2D1_SIZE_F	szTarget;	// target size in device-independent pixels
-		ULONGLONG	nFrameCount;	// number of frames in movie
+		LONGLONG	nFrameCount;	// number of frames in movie
 		ULONGLONG	nIndexOffset;	// file offset of frame index in bytes
 	};
 	typedef CBlockArray<FRAME_INDEX_ENTRY, FRAME_INDEX_BLOCK_SIZE> CFrameIndexBlockArray;
@@ -87,13 +99,15 @@ protected:
 
 // Data members
 	HANDLE	m_hFile;			// handle of the movie file
-	ULONGLONG	m_nWriteFrames;	// during writing, number of frames written so far
+	CWriteBuf	m_aWriteBuf[WRITE_BUFFERS];	// array of write buffers
+	LONGLONG	m_nWriteFrames;	// during writing, number of frames written so far
 	ULONGLONG	m_nWriteBytes;	// during writing, byte offset of current frame
 	CFrameIndexBlockArray	m_aWriteFrameIndex;	// during writing, each frame's byte offset
 	CFrameIndexArray	m_aReadFrameIndex;	// during reading, each frame's byte offset
-	HEADER	m_hdr;				// file header if reading
+	HEADER	m_hdr;				// file header; used during both reading and writing
+	LONGLONG	m_iReadFrame;	// during reading, current position as a frame index
 	int		m_nIOState;			// movie input/output state; see enum above
-	CWriteBuf	m_arrWriteBuf[WRITE_BUFFERS];	// array of write buffers
+	int		m_nLastErrorLine;	// line number on which last error occurred
 
 // Helpers
 	bool	PreparedForWrite() const;
@@ -130,14 +144,25 @@ inline int CSnapMovie::GetIOState() const
 	return m_nIOState;
 }
 
-inline ULONGLONG CSnapMovie::GetFramesWritten() const
+inline bool CSnapMovie::IsEndOfFile() const
+{
+	ASSERT(IsReading());	// only supported for reading
+	return m_iReadFrame >= m_hdr.nFrameCount;
+}
+
+inline LONGLONG CSnapMovie::GetFramesWritten() const
 {
 	return m_nWriteFrames;
 }
 
-inline ULONGLONG CSnapMovie::GetFrameCount() const
+inline LONGLONG CSnapMovie::GetFrameCount() const
 {
 	return m_hdr.nFrameCount;
+}
+
+inline LONGLONG CSnapMovie::GetReadFrameIdx() const
+{
+	return m_iReadFrame;
 }
 
 inline float CSnapMovie::GetFrameRate() const

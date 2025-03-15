@@ -107,7 +107,8 @@ CMainFrame::CMainFrame()
 	m_nPrevFrameCount = 0;
 	m_iCurSnapshot = 0;
 	m_bInRenderFullError = false;
-	m_nMovieIOState = CSnapMovie::IO_CLOSED;
+	m_nMovieIOState = MOVIE_NONE;
+	m_bIsMoviePaused = false;
 }
 
 CMainFrame::~CMainFrame()
@@ -522,42 +523,49 @@ void CMainFrame::OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINM
 
 bool CMainFrame::PlayMovie(LPCTSTR pszPath)
 {
-	switch (m_nMovieIOState) {
-	case CSnapMovie::IO_CLOSED:
+	if (IsMovieOpen()) {	// if movie is open
+		ASSERT(IsPlayingMovie());	// else we shouldn't be here
+		theApp.m_thrRender.MoviePlay(NULL);	// stop playback
+		m_nMovieIOState = MOVIE_NONE;
+		theApp.SetPause(false);	// exit snapshot mode and resume patch
+	} else {	// movie is closed
 		ASSERT(pszPath != NULL);	// path is required
-		if (!theApp.m_thrRender.PlayMovie(pszPath)) {	// start playback
+		if (!theApp.m_thrRender.MoviePlay(pszPath)) {	// start playback
 			return false;
 		}
+		// can't display snapshots while playing movie
+		m_aSnapshotPath.RemoveAll();	// empty snapshot array
 		theApp.SetSnapshotMode(true);
-		m_nMovieIOState = CSnapMovie::IO_READ;
-		break;
-	case CSnapMovie::IO_READ:
-		theApp.m_thrRender.PlayMovie(NULL);	// stop playback
-		m_nMovieIOState = CSnapMovie::IO_CLOSED;
-		break;
-	default:
-		NODEFAULTCASE;	// logic error
+		m_nMovieIOState = MOVIE_PLAYING;
 	}
 	return true;
 }
 
 bool CMainFrame::RecordMovie(LPCTSTR pszPath)
 {
-	switch (m_nMovieIOState) {
-	case CSnapMovie::IO_CLOSED:
+	if (IsMovieOpen()) {	// if movie is open
+		ASSERT(IsRecordingMovie());	// else we shouldn't be here
+		theApp.m_thrRender.MovieRecord(NULL);	// stop recording
+		m_nMovieIOState = MOVIE_NONE;
+	} else {	// movie is closed
 		ASSERT(pszPath != NULL);	// path is required
-		if (!theApp.m_thrRender.RecordMovie(pszPath)) {	// start recording
+		if (!theApp.m_thrRender.MovieRecord(pszPath)) {	// start recording
 			return false;
 		}
-		m_nMovieIOState = CSnapMovie::IO_WRITE;
-		break;
-	case CSnapMovie::IO_WRITE:
-		theApp.m_thrRender.RecordMovie(NULL);	// stop recording
-		m_nMovieIOState = CSnapMovie::IO_CLOSED;
-		break;
-	default:
-		NODEFAULTCASE;	// logic error
+		m_nMovieIOState = MOVIE_RECORDING;
 	}
+	return true;
+}
+
+bool CMainFrame::PauseMovie(bool bEnable)
+{
+	if (bEnable == m_bIsMoviePaused) {	// if already in requested state
+		return true;	// nothing to do
+	}
+	if (!theApp.m_thrRender.MoviePause(bEnable)) {
+		return false;
+	}
+	m_bIsMoviePaused = bEnable;
 	return true;
 }
 
@@ -604,6 +612,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
 	ON_UPDATE_COMMAND_UI(ID_FILE_TAKE_SNAPSHOT, OnUpdateFileTakeSnapshot)
 	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
+	ON_UPDATE_COMMAND_UI(ID_FILE_LOAD_SNAPSHOT, OnUpdateFileLoadSnapshot)
 	ON_COMMAND(ID_PLAYLIST_NEW, OnPlaylistNew)
 	ON_COMMAND(ID_PLAYLIST_OPEN, OnPlaylistOpen)
 	ON_COMMAND(ID_PLAYLIST_SAVE, OnPlaylistSave)
@@ -623,6 +632,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_WINDOW_STEP, OnWindowStep)
 	ON_UPDATE_COMMAND_UI(ID_WINDOW_STEP, OnUpdateWindowStep)
 	ON_COMMAND(ID_WINDOW_CLEAR, OnWindowClear)
+	ON_UPDATE_COMMAND_UI(ID_WINDOW_CLEAR, OnUpdateWindowClear)
 	ON_COMMAND(ID_WINDOW_RESET_LAYOUT, OnWindowResetLayout)
 	ON_COMMAND(ID_SNAPSHOT_FIRST, OnSnapshotFirst)
 	ON_COMMAND(ID_SNAPSHOT_LAST, OnSnapshotLast)
@@ -805,7 +815,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 		VERIFY(theApp.LoadSnapshot(aSnapshotPath[0]));	// load first snapshot
 		m_aSnapshotPath.Swap(aSnapshotPath);	// swap array pointers, avoiding array copy
 		m_iCurSnapshot = 0;	// reset current snapshot index
-	} else {
+	} else {	// snapshots weren't dropped
 		PlayMovie(sMoviePath);
 	}
 }
@@ -1092,6 +1102,12 @@ void CMainFrame::OnFileLoadSnapshot()
 	}
 }
 
+void CMainFrame::OnUpdateFileLoadSnapshot(CCmdUI* pCmdUI)
+{
+	// you can view snapshots or play a movie, but not both
+	pCmdUI->Enable(!IsPlayingMovie());
+}
+
 void CMainFrame::OnPlaylistNew()
 {
 	theApp.m_pPlaylist->New();
@@ -1293,12 +1309,16 @@ void CMainFrame::OnUpdateWindowDetach(CCmdUI* pCmdUI)
 
 void CMainFrame::OnWindowPause()
 {
-	theApp.SetPause(!theApp.IsPaused());
+	if (IsPlayingMovie()) {
+		PauseMovie(!m_bIsMoviePaused);
+	} else {
+		theApp.SetPause(!theApp.IsPaused());
+	}
 }
 
 void CMainFrame::OnUpdateWindowPause(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(theApp.IsPaused());
+	pCmdUI->SetCheck(IsPaused());
 }
 
 void CMainFrame::OnWindowStep()
@@ -1308,12 +1328,17 @@ void CMainFrame::OnWindowStep()
 
 void CMainFrame::OnUpdateWindowStep(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(theApp.IsPaused());
+	pCmdUI->Enable(IsPaused());
 }
 
 void CMainFrame::OnWindowClear()
 {
 	theApp.m_thrRender.SetEmpty();
+}
+
+void CMainFrame::OnUpdateWindowClear(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(!IsPlayingMovie());
 }
 
 void CMainFrame::OnWindowResetLayout()
@@ -1328,58 +1353,44 @@ void CMainFrame::OnWindowResetLayout()
 
 void CMainFrame::OnMovieRecord()
 {
-	switch (m_nMovieIOState) {
-	case CSnapMovie::IO_CLOSED:
-		{
-			CString	sMoviePath;
-			if (PromptingForExport()) {
-				CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
-				if (fd.DoModal() != IDOK) {	// display file dialog
-					return;	// user canceled
-				}
-				sMoviePath = fd.GetPathName();
-			} else {	// not prompting
-				if (!MakeUniqueExportPath(sMoviePath, m_pszMovieExt))	// generate path
-					return;	// unable to generate path
-			}
-			RecordMovie(sMoviePath);	// start recording
-		}
-		break;
-	case CSnapMovie::IO_WRITE:
+	if (IsMovieOpen()) {	// if movie is open
 		RecordMovie(NULL);	// stop recording
-		break;
-	default:
-		NODEFAULTCASE;	// logic error
+	} else {	// movie is closed
+		CString	sMoviePath;
+		if (PromptingForExport()) {
+			CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
+			if (fd.DoModal() != IDOK) {	// display file dialog
+				return;	// user canceled
+			}
+			sMoviePath = fd.GetPathName();
+		} else {	// not prompting
+			if (!MakeUniqueExportPath(sMoviePath, m_pszMovieExt))	// generate path
+				return;	// unable to generate path
+		}
+		RecordMovie(sMoviePath);	// start recording
 	}
 }
 
 void CMainFrame::OnUpdateMovieRecord(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::IO_WRITE);
-	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::IO_READ);
+	pCmdUI->SetCheck(m_nMovieIOState == MOVIE_RECORDING);
+	pCmdUI->Enable(m_nMovieIOState != MOVIE_PLAYING);
 }
 
 void CMainFrame::OnMoviePlay()
 {
-	switch (m_nMovieIOState) {
-	case CSnapMovie::IO_CLOSED:
-		{
-			CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter);
-			if (fd.DoModal() == IDOK) {
-				PlayMovie(fd.GetPathName());	// start playback
-			}
-		}
-		break;
-	case CSnapMovie::IO_READ:
+	if (IsMovieOpen()) {	// if movie is open
 		PlayMovie(NULL);	// stop playback
-		break;
-	default:
-		NODEFAULTCASE;	// logic error
+	} else {	// movie is closed
+		CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter);
+		if (fd.DoModal() == IDOK) {
+			PlayMovie(fd.GetPathName());	// start playback
+		}
 	}
 }
 
 void CMainFrame::OnUpdateMoviePlay(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_nMovieIOState == CSnapMovie::IO_READ);
-	pCmdUI->Enable(m_nMovieIOState != CSnapMovie::IO_WRITE);
+	pCmdUI->SetCheck(m_nMovieIOState == MOVIE_PLAYING);
+	pCmdUI->Enable(m_nMovieIOState != MOVIE_RECORDING);
 }

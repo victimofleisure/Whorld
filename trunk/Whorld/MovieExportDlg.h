@@ -7,30 +7,39 @@
  
 		revision history:
 		rev		date	comments
-        00      28jun05	initial version
-        01      21feb25	refactor
-        02      09mar25	add export scaling types
+        00      03sep05	initial version
+        01      15mar25	refactor
 
-        export options dialog
+        movie export options dialog
  
 */
 
 #pragma once
 
-// ExportDlg.h : header file
+// MovieExportDlg.h : header file
 //
 
 /////////////////////////////////////////////////////////////////////////////
-// CExportDlg dialog
+// CMovieExportDlg dialog
 
-class CExportDlg : public CDialog
+class CMovieExportDlg : public CDialog
 {
-	DECLARE_DYNAMIC(CExportDlg);
+	DECLARE_DYNAMIC(CMovieExportDlg);
 // Construction
 public:
-	CExportDlg(CWnd* pParent = NULL);   // standard constructor
+	CMovieExportDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Attributes
+
+// Public data
+	CSize	m_szFrame;
+	int		m_nFrameSelType;
+	int		m_nTimeUnit;
+	int		m_nFrameSizePreset;
+	int		m_nScalingType;
+	int		m_nRangeStart;
+	int		m_nRangeEnd;
+	int		m_nDuration;
 
 // Overrides
 	protected:
@@ -39,10 +48,8 @@ public:
 // Implementation
 protected:
 // Dialog Data
-	enum { IDD = IDD_EXPORT };
-	BOOL	m_bUseViewSize;
-	int		m_nWidth;
-	int		m_nHeight;
+	enum { IDD = IDD_MOVIE_EXPORT };
+	CComboBox m_comboFrameSize;
 	CComboBox m_comboScalingType;
 
 // Overrides
@@ -52,6 +59,9 @@ protected:
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
 	afx_msg LRESULT OnKickIdle(WPARAM, LPARAM);
-	afx_msg void OnUpdateSize(CCmdUI *pCmdUI);
-	afx_msg void OnClickedUseViewSize();
+	afx_msg void OnUpdateFrameSize(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateScalingType(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateFrameSelType(CCmdUI *pCmdUI);
+	afx_msg void OnSelchangeFrameSize();
+	afx_msg void OnClickedFrameSelType();
 };

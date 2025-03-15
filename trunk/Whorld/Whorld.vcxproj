@@ -227,6 +227,7 @@
     <ClInclude Include="MidiDevices.h" />
     <ClInclude Include="MidiManager.h" />
     <ClInclude Include="MidiWrap.h" />
+    <ClInclude Include="MovieExportDlg.h" />
     <ClInclude Include="MyDockablePane.h" />
     <ClInclude Include="MyRowView.h" />
     <ClInclude Include="Options.h" />
@@ -321,6 +322,7 @@
     <ClCompile Include="MidiDevices.cpp" />
     <ClCompile Include="MidiManager.cpp" />
     <ClCompile Include="MidiWrap.cpp" />
+    <ClCompile Include="MovieExportDlg.cpp" />
     <ClCompile Include="MyDockablePane.cpp" />
     <ClCompile Include="MyRowView.cpp" />
     <ClCompile Include="Options.cpp" />

@@ -493,6 +493,34 @@ BEGIN
     CONTROL         "",IDC_PROW_VAL_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,181,0,11,12
 END
 
+IDD_MOVIE_EXPORT DIALOGEX 0, 0, 239, 130
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Movie Export Options"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Frame Si&ze",IDC_STATIC,7,7,108,94,WS_GROUP
+    COMBOBOX        IDC_MEX_FRAME_SIZE_COMBO,17,20,86,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Width:",IDC_STATIC,17,37,23,8
+    EDITTEXT        IDC_MEX_FRAME_WIDTH_EDIT,17,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "&Height:",IDC_STATIC,64,37,24,8
+    EDITTEXT        IDC_MEX_FRAME_HEIGHT_EDIT,64,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "S&caling Type:",IDC_STATIC,17,68,46,8
+    COMBOBOX        IDC_MEX_SCALING_TYPE_COMBO,17,78,87,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&All",IDC_MEX_FRAME_SEL_TYPE_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,144,21,24,10
+    CONTROL         "&Range",IDC_MEX_FRAME_SEL_TYPE_2,"Button",BS_AUTORADIOBUTTON,182,21,37,10
+    LTEXT           "&Start:",IDC_STATIC,135,37,20,8
+    EDITTEXT        IDC_MEX_RANGE_START_EDIT,135,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "&End:",IDC_STATIC,181,37,16,8
+    EDITTEXT        IDC_MEX_RANGE_END_EDIT,181,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "&Duration:",IDC_STATIC,134,67,31,8
+    EDITTEXT        IDC_MEX_DURATION_EDIT,134,77,40,14,ES_AUTOHSCROLL
+    CONTROL         "&Frames",IDC_MEX_TIME_UNIT_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,187,69,41,10
+    CONTROL         "&Time",IDC_MEX_TIME_UNIT_2,"Button",BS_AUTORADIOBUTTON,187,83,33,10
+    GROUPBOX        "Frame Selection",IDC_STATIC,124,7,108,94,WS_GROUP
+    PUSHBUTTON      "OK",IDOK,65,109,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,124,109,50,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -549,6 +577,14 @@ BEGIN
     IDD_GLOBAL_ROW, DIALOG
     BEGIN
     END
+
+    IDD_MOVIE_EXPORT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 232
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 123
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -585,6 +621,17 @@ BEGIN
 0x303e, 0x2f3c, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 0x6972, 
 0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 0x526e, 0x776f, 0x3e73, 
 
+    0
+END
+
+IDD_MOVIE_EXPORT DLGINIT
+BEGIN
+    IDC_MEX_FRAME_SIZE_COMBO, 0x403, 11, 0
+0x6f4d, 0x6976, 0x2065, 0x6953, 0x657a, "\000" 
+    IDC_MEX_FRAME_SIZE_COMBO, 0x403, 10, 0
+0x6956, 0x7765, 0x5320, 0x7a69, 0x0065, 
+    IDC_MEX_FRAME_SIZE_COMBO, 0x403, 7, 0
+0x7543, 0x7473, 0x6d6f, "\000" 
     0
 END
 
@@ -661,6 +708,7 @@ BEGIN
     IDS_EDIT_SORT           "Sort"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
     IDS_EXPORT_ALL_SNAPSHOTS "Export All Snapshots"
+    IDS_EXPORT_MOVIE        "Export Movie"
     IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
@@ -673,11 +721,11 @@ BEGIN
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
     IDS_MAPPING_COL_CHANNEL "Channel"
-    IDS_MAPPING_COL_CONTROL "Control"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAPPING_COL_CONTROL "Control"
     IDS_MAPPING_COL_END     "End"
     IDS_MAPPING_COL_EVENT   "Event"
     IDS_MAPPING_COL_NUMBER  "#"
@@ -693,11 +741,11 @@ BEGIN
     IDS_MAP_TARGET_OriginRandom "Origin Random"
     IDS_MAP_TARGET_OriginX  "Origin X"
     IDS_MAP_TARGET_OriginY  "Origin Y"
-    IDS_MAP_TARGET_Outline  "Outline"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_Outline  "Outline"
     IDS_MAP_TARGET_Pause    "Pause"
     IDS_MAP_TARGET_RandomPhase "Random Phase"
     IDS_MAP_TARGET_Reverse  "Reverse"
@@ -713,11 +761,11 @@ BEGIN
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
     IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
-    IDS_MIDI_INPUT          "Input"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_INPUT          "Input"
     IDS_MIDI_OUTPUT         "Output"
     IDS_MIDI_SYS_STAT_ACTIVE_SENSING "Active Sensing"
     IDS_MIDI_SYS_STAT_CLOCK "Clock"
@@ -733,12 +781,12 @@ BEGIN
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
     IDS_NONE                "<None>"
     IDS_NOT_APPLICABLE      "N/A"
-    IDS_OPT_DESC_Export_bPromptUser 
-                            "Prompt user for destination folder, filename, and options"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Export_bPromptUser 
+                            "Prompt user for destination folder, filename, and options"
     IDS_OPT_DESC_Export_bUseViewSize 
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
@@ -759,11 +807,11 @@ BEGIN
     IDS_OPT_GROUP_Input     "Input"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_GROUP_Snapshot  "Snapshot"
-    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
@@ -779,11 +827,11 @@ BEGIN
     IDS_OPT_SCALING_TYPE_FitWidth "Fit Width"
     IDS_OPT_SCALING_TYPE_None "None"
     IDS_OPT_SCALING_TYPE_SVGA "800 x 600 (SVGA)"
-    IDS_OPT_SCALING_TYPE_VGA "640 x 480 (VGA)"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_SCALING_TYPE_VGA "640 x 480 (VGA)"
     IDS_OPT_SCALING_TYPE_XGA "1024 x 768 (XGA)"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
@@ -799,11 +847,11 @@ BEGIN
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
-    IDS_PARAM_RingSpacing   "Ring Spacing"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_RingSpacing   "Ring Spacing"
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
@@ -819,11 +867,11 @@ BEGIN
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
-    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
 END
 
 STRINGTABLE
 BEGIN
+    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
@@ -926,7 +974,6 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Whorld\n\nWhorld\nWhorld Files (*.whp)\n.whp\nWhorld.Document\nWhorld Document"
-    IDS_EXPORT_MOVIE        "Export Movie"
     IDR_PLAYLIST            "Playlist\n\nPlaylist\nPlaylist Files (*.whl)\n.whl\nWhorldPlaylist.Document\nWhorld Playlist"
 END
 

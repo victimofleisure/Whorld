@@ -45,6 +45,7 @@
 #include "SaveObj.h"
 #include "ProgressDlg.h"
 #include "FolderDialog.h"
+#include "MovieExportDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -417,7 +418,7 @@ bool CMainFrame::MakeUniqueExportPath(CString& sExportPath, LPCTSTR pszExt)
 bool CMainFrame::WaitForPostedMessage(UINT message, CProgressDlg& dlgProgress)
 {
 	// loop until the specified posted message is received and processed,
-	// pr the user cancels in the progress dialog, or an error occurs
+	// or the user cancels in the progress dialog, or an error occurs
 	while (1) {
 		MSG msg;
 		// check if we have a posted message, and read it if we do
@@ -1019,7 +1020,7 @@ LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 	}
 	// if the MIDI input callback was spamming the command queue, 
 	// it's no longer doing so, because we nuked the MIDI mappings
-	CProgressDlg	dlgProgress;
+	CProgressDlg	dlgProgress(IDD_PROGRESS, this);
 	if (!dlgProgress.Create()) {	// create progress dialog
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return 0;
@@ -1204,7 +1205,7 @@ void CMainFrame::OnSnapshotExportAll()
 		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
 		return;	// fail
 	}
-	CProgressDlg	dlgProgress;
+	CProgressDlg	dlgProgress(IDD_PROGRESS, this);
 	if (!dlgProgress.Create()) {
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return;	// fail
@@ -1410,9 +1411,14 @@ void CMainFrame::OnMovieExport()
 	CString	sExportFolder(theApp.m_options.m_Export_sImageFolder);
 	UINT	nFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
 	CString	sFDlgTitle(LDS(IDS_EXPORT_MOVIE));
-	if (!CFolderDialog::BrowseFolder(sFDlgTitle, sExportFolder, NULL, nFlags, sExportFolder))
+	if (!CFolderDialog::BrowseFolder(sFDlgTitle, sExportFolder, NULL, nFlags, sExportFolder)) {
 		return;	// user canceled
-	CProgressDlg	dlgProgress;
+	}
+	CMovieExportDlg	dlgMovieExport;
+	if (dlgMovieExport.DoModal() != IDOK) {
+		return;	// user canceled
+	}
+	CProgressDlg	dlgProgress(IDD_PROGRESS, this);
 	if (!dlgProgress.Create()) {
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return;	// fail
@@ -1422,16 +1428,16 @@ void CMainFrame::OnMovieExport()
 	dlgProgress.SetRange(0, static_cast<int>(nFrames));
 	CMovieExportParams	mep;
 	mep.m_sFolderPath = sExportFolder;
-	mep.m_szFrame = CSize(640, 480);
+	mep.m_szFrame = dlgMovieExport.m_szFrame;
 	mep.m_nStartFrame = 0;
 	mep.m_nEndFrame = nFrames - 1;
-	mep.m_nExportFlags = 0;
+	mep.m_nExportFlags = dlgMovieExport.m_nScalingType;
 	LONG	nTaskID;
 	if (!theApp.m_thrRender.MovieExport(mep, nTaskID)) {
 		return;	// command queue was full and error recovery failed
 	}
-	// the render thread sensibly pauses movie playback during export
-	m_bIsMoviePaused = true;	// so keep the UI consistent with that
+	// render thread pauses movie playback while exporting movie
+	m_bIsMoviePaused = true;	// so keep UI consistent with that
 	// We need to update the toolbar explicitly instead of relying on update
 	// notifications, because we're modal and the progress dialog has focus.
 	m_wndToolBar.OnUpdateCmdUI(this, false);	// update pause button
@@ -1443,6 +1449,7 @@ void CMainFrame::OnMovieExport()
 			theApp.m_thrRender.CancelTask(nTaskID);	// cancel task
 			break;
 		}
+		WaitMessage();	// suspend until a message arrives
 	}
 }
 

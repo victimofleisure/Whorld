@@ -37,6 +37,7 @@ public:
 	D2D1_SIZE_F	GetTargetSize() const;
 	LONGLONG	GetMovieFrameCount() const;
 	LONGLONG	GetReadFrameIdx() const;
+	D2D1_SIZE_F	GetMovieFrameSize() const;
 	void	CancelTask(LONG nTaskID);
 
 // Operations
@@ -143,6 +144,11 @@ inline LONGLONG CWhorldThread::GetMovieFrameCount() const
 inline LONGLONG CWhorldThread::GetReadFrameIdx() const
 {
 	return m_movie.GetReadFrameIdx();
+}
+
+inline D2D1_SIZE_F CWhorldThread::GetMovieFrameSize() const
+{
+	return m_movie.GetTargetSize();
 }
 
 inline void CWhorldThread::CancelTask(LONG nTaskID)

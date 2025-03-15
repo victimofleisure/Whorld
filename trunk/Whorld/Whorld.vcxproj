@@ -283,6 +283,7 @@
     <ClInclude Include="WhorldBase.h" />
     <ClInclude Include="WhorldDef.h" />
     <ClInclude Include="WhorldDoc.h" />
+    <ClInclude Include="WhorldDraw.h" />
     <ClInclude Include="WhorldThread.h" />
     <ClInclude Include="WhorldView.h" />
     <ClInclude Include="Win32Console.h" />
@@ -365,6 +366,7 @@
     <ClCompile Include="Whorld.cpp" />
     <ClCompile Include="WhorldBase.cpp" />
     <ClCompile Include="WhorldDoc.cpp" />
+    <ClCompile Include="WhorldDraw.cpp" />
     <ClCompile Include="WhorldThread.cpp" />
     <ClCompile Include="WhorldView.cpp" />
     <ClCompile Include="Win32Console.cpp" />

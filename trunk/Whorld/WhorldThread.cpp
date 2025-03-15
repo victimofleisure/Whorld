@@ -167,9 +167,9 @@ bool CWhorldThread::MovieRecord(LPCTSTR pszPath)
 	return PushCommand(cmd);
 }
 
-bool CWhorldThread::MoviePlay(LPCTSTR pszPath)
+bool CWhorldThread::MoviePlay(LPCTSTR pszPath, bool bPaused)
 {
-	CRenderCmd	cmd(RC_MOVIE_PLAY);
+	CRenderCmd	cmd(RC_MOVIE_PLAY, bPaused);
 	cmd.m_prop.byref = SafeStrDup(pszPath);
 	return PushCommand(cmd);
 }
@@ -505,7 +505,9 @@ void CWhorldThread::OnMovieRecord(LPCTSTR pszPath)
 		m_movie.SetFrameRate(static_cast<float>(m_nFrameRate));
 		m_movie.SetTargetSize(m_szTarget);
 		if (!m_movie.Open(sPath, true)) {
-			//@@@ notify user that record failed
+			CSnapMovie::ERROR_STATE	errLast;
+			m_movie.GetLastErrorState(errLast);
+			printf("%d %d %s %s\n", errLast.nError, errLast.nLineNum, errLast.pszSrcFileName, errLast.pszSrcFileDate);//@@@
 			return;
 		}
 	} else {	// no path; stop recording
@@ -513,16 +515,19 @@ void CWhorldThread::OnMovieRecord(LPCTSTR pszPath)
 	}
 }
 
-void CWhorldThread::OnMoviePlay(LPCTSTR pszPath)
+void CWhorldThread::OnMoviePlay(LPCTSTR pszPath, bool bPaused)
 {
 	if (pszPath != NULL) {	// if path specified
 		// start playback
 		CString	sPath(pszPath);
 		delete [] pszPath;
 		if (!m_movie.Open(sPath, false)) {
-			//@@@ notify user that playback failed
+			CSnapMovie::ERROR_STATE	errLast;
+			m_movie.GetLastErrorState(errLast);
+			printf("%d %d %s %s\n", errLast.nError, errLast.nLineNum, errLast.pszSrcFileName, errLast.pszSrcFileDate);//@@@
 			return;
 		}
+		m_bIsMoviePaused = bPaused;
 		EnterSnapshotMode();
 	} else {	// no path; stop playback
 		m_movie.Close();
@@ -622,7 +627,7 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		OnMovieRecord(static_cast<LPCTSTR>(cmd.m_prop.byref));
 		break;
 	case RC_MOVIE_PLAY:
-		OnMoviePlay(static_cast<LPCTSTR>(cmd.m_prop.byref));
+		OnMoviePlay(static_cast<LPCTSTR>(cmd.m_prop.byref), cmd.m_nParam != 0);
 		break;
 	case RC_MOVIE_PAUSE:
 		OnMoviePause(cmd.m_nParam != 0);

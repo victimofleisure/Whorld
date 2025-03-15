@@ -212,6 +212,8 @@ public:
 	afx_msg void OnUpdateMovieRecord(CCmdUI *pCmdUI);
 	afx_msg void OnMoviePlay();
 	afx_msg void OnUpdateMoviePlay(CCmdUI *pCmdUI);
+	afx_msg void OnMovieExport();
+	afx_msg void OnUpdateMovieExport(CCmdUI *pCmdUI);
 };
 
 inline HACCEL CMainFrame::GetAccelTable() const

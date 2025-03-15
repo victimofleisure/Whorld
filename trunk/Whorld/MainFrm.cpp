@@ -645,6 +645,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_MOVIE_RECORD, OnUpdateMovieRecord)
 	ON_COMMAND(ID_MOVIE_PLAY, OnMoviePlay)
 	ON_UPDATE_COMMAND_UI(ID_MOVIE_PLAY, OnUpdateMoviePlay)
+	ON_COMMAND(ID_MOVIE_EXPORT, OnMovieExport)
+	ON_UPDATE_COMMAND_UI(ID_MOVIE_EXPORT, OnUpdateMovieExport)
 	// dock bar handlers confuse IDE's code completion, so keep them last
 	#define MAINDOCKBARDEF(name, width, height, style) \
 		ON_COMMAND(ID_VIEW_BAR_##name, OnViewBar##name) \
@@ -1373,8 +1375,8 @@ void CMainFrame::OnMovieRecord()
 
 void CMainFrame::OnUpdateMovieRecord(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_nMovieIOState == MOVIE_RECORDING);
-	pCmdUI->Enable(m_nMovieIOState != MOVIE_PLAYING);
+	pCmdUI->SetCheck(IsRecordingMovie());
+	pCmdUI->Enable(!IsPlayingMovie());
 }
 
 void CMainFrame::OnMoviePlay()
@@ -1391,6 +1393,15 @@ void CMainFrame::OnMoviePlay()
 
 void CMainFrame::OnUpdateMoviePlay(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(m_nMovieIOState == MOVIE_PLAYING);
-	pCmdUI->Enable(m_nMovieIOState != MOVIE_RECORDING);
+	pCmdUI->SetCheck(IsPlayingMovie());
+	pCmdUI->Enable(!IsRecordingMovie());
+}
+
+void CMainFrame::OnMovieExport()
+{
+}
+
+void CMainFrame::OnUpdateMovieExport(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(!IsRecordingMovie());
 }

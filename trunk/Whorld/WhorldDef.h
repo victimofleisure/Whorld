@@ -193,7 +193,7 @@ RENDERCMDDEF(SET_DAMPED_GLOBAL,	dblVal	)	// sets a global parameter with damping
 RENDERCMDDEF(SET_DRAW_MODE,		uintVal	)	// sets draw mode bits; m_nParam: mask, m_prop: value
 RENDERCMDDEF(SET_SNAPSHOT_SIZE,	szVal	)	// sets legacy snapshot frame size; m_nParam: none, m_prop: SIZE szSnapshot
 RENDERCMDDEF(MOVIE_RECORD,		byref	)	// records a movie; m_nParam: unused, m_prop: LPCTSTR pszPath or NULL to stop
-RENDERCMDDEF(MOVIE_PLAY,		byref	)	// plays a movie; m_nParam: unused, m_prop: LPCTSTR pszPath or NULL to stop
+RENDERCMDDEF(MOVIE_PLAY,		byref	)	// plays a movie; m_nParam: bPaused, m_prop: LPCTSTR pszPath or NULL to stop
 RENDERCMDDEF(MOVIE_PAUSE,		intVal	)	// pauses movie playback; m_nParam: bool bEnable, m_prop: none
 RENDERCMDDEF(MOVIE_SEEK,		intVal	)	// seeks movie playback; m_nParam: none, m_prop: frame index
 

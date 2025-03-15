@@ -57,7 +57,7 @@ public:
 	bool	SetDrawMode(UINT nMask, UINT nVal);
 	bool	SetSnapshotSize(SIZE szSnapshot);
 	bool	MovieRecord(LPCTSTR pszPath);
-	bool	MoviePlay(LPCTSTR pszPath);
+	bool	MoviePlay(LPCTSTR pszPath, bool bPaused = false);
 	bool	MoviePause(bool bEnable);
 	bool	MovieSeek(LONGLONG iFrame);
 
@@ -102,7 +102,7 @@ protected:
 	void	OnSetDrawMode(UINT nMask, UINT nVal);
 	void	OnSetSnapshotSize(SIZE szSnapshot);
 	void	OnMovieRecord(LPCTSTR pszPath);
-	void	OnMoviePlay(LPCTSTR pszPath);
+	void	OnMoviePlay(LPCTSTR pszPath, bool bPaused);
 	void	OnMoviePause(bool bEnable);
 	void	OnMovieSeek(LONGLONG iFrame);
 };

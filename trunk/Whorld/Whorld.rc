@@ -182,6 +182,7 @@ BEGIN
         BEGIN
             MENUITEM "&Record...",                  ID_MOVIE_RECORD
             MENUITEM "&Play...",                    ID_MOVIE_PLAY
+            MENUITEM "&Export...",                  ID_MOVIE_EXPORT
         END
         MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
@@ -856,6 +857,7 @@ BEGIN
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
+    ID_MOVIE_EXPORT         "Export a recorded movie\nExport Movie"
 END
 
 STRINGTABLE

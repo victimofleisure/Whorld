@@ -18,7 +18,13 @@
 const UINT CSnapMovie::m_nFileID = CSnapshot::MakeFourCC('W', 'H', 'M', '2');
 const USHORT CSnapMovie::m_nFileVersion = 1;
 
-#define RETURN_FALSE m_nLastErrorLine = __LINE__; return 0;
+// Use this version to handle failure of a system function;
+// it assumes the function has already called SetLastError.
+#define ABORT { m_nLastErrorLine = __LINE__; return false; }
+
+// Use this version to handle application-specific failures;
+// it obliges you to specify a suitable Windows error code.
+#define ABORT2(errcode) { m_nLastErrorLine = __LINE__; SetLastError(errcode); return false; }
 
 CSnapMovie::CSnapMovie()
 {
@@ -52,8 +58,8 @@ bool CSnapMovie::Open(LPCTSTR pszPath, bool bWrite)
 	DWORD	dwCreationDisposition;
 	if (bWrite) {	// if opening for write
 		// frame rate and target size must be specified before opening
-		if (!PreparedForWrite()) {	// if caller hasn't done so
-			RETURN_FALSE;	// fail
+		if (!PreparedForWrite()) {	// if caller hasn't prepared
+			ABORT2(ERROR_INVALID_STATE);	// fail
 		}
 		dwDesiredAccess = GENERIC_WRITE;
 		dwCreationDisposition = CREATE_ALWAYS;
@@ -67,22 +73,22 @@ bool CSnapMovie::Open(LPCTSTR pszPath, bool bWrite)
 	m_hFile = CreateFile(pszPath, dwDesiredAccess, 
 		0, NULL, dwCreationDisposition, dwAttributes, 0);
 	if (!IsOpen()) {	// if file not open
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to open file
 	}
 	m_aWriteFrameIndex.RemoveAll();
 	m_aReadFrameIndex.RemoveAll();
 	if (bWrite) {	// if opening for write
 		// write dummy header; real header will be written by Close
 		if (!WriteHeader()) {	// if we can't write header
-			return false;	// fail
+			return false;	// fail; error already handled
 		}
 		m_nWriteBytes = sizeof(m_hdr);	// set output position past header
 	} else {	// opening for read
 		if (!ReadHeader()) {	// if we can't read header
-			return false;	// fail
+			return false;	// fail; error already handled
 		}
 		if (!ReadFrameIndex()) {	// if we can't read frame index
-			return false;	// fail
+			return false;	// fail; error already handled
 		}
 		m_iReadFrame = 0;	// read starts with first frame
 	}
@@ -93,7 +99,7 @@ bool CSnapMovie::Open(LPCTSTR pszPath, bool bWrite)
 bool CSnapMovie::Close()
 {
 	if (!IsOpen()) {	// if file isn't open
-		return false;	// nothing to do
+		return true;	// nothing to do, but not an error
 	}
 	bool	bRetVal = true;
 	if (IsWriting()) {	// if we're writing
@@ -110,10 +116,10 @@ bool CSnapMovie::ReadHeader()
 {
 	ZeroMemory(&m_hdr, sizeof(m_hdr));
 	if (!ReadBuf(&m_hdr, sizeof(m_hdr))) {	// if we can't read header
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to read header
 	}
-	if (m_hdr.nFileID != m_nFileID) {	// if unexpected file identifier
-		RETURN_FALSE;	// fail
+	if (m_hdr.nFileID != m_nFileID) {	// if file identifiers don't match
+		ABORT2(ERROR_INVALID_DATA);	// unexpected file format
 	}
 	return true;	// success
 }
@@ -122,7 +128,7 @@ bool CSnapMovie::WriteHeader()
 {
 	// frame rate and target size must be specified beforehand
 	if (!PreparedForWrite()) {	// if caller didn't do so
-		RETURN_FALSE;	// fail
+		ABORT2(ERROR_INVALID_STATE);	// fail
 	}
 	m_hdr.nFileID = m_nFileID;
 	m_hdr.nVersion = m_nFileVersion;
@@ -132,7 +138,7 @@ bool CSnapMovie::WriteHeader()
 	m_hdr.nFrameCount = m_nWriteFrames;
 	m_hdr.nIndexOffset = m_nWriteBytes;
 	if (!WriteWait(&m_hdr, sizeof(m_hdr), 0)) {	// if we can't write header
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to write header
 	}
 	return true;	// success
 }
@@ -144,18 +150,18 @@ bool CSnapMovie::ReadFrameIndex()
 	LARGE_INTEGER	nFilePos;
 	nFilePos.QuadPart = m_hdr.nIndexOffset;
 	if (!SetFilePointerEx(m_hFile, nFilePos, NULL, FILE_BEGIN)) {	// if we can't seek
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to seek to start of file
 	}
 	// read frame index
 	m_aReadFrameIndex.SetSize(m_hdr.nFrameCount);
 	DWORD	nBufSize = static_cast<DWORD>(m_hdr.nFrameCount * sizeof(FRAME_INDEX_ENTRY));
 	if (!ReadBuf(m_aReadFrameIndex.GetData(), nBufSize)) {	// if we can't read
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to read frame index
 	}
 	// seek to first snapshot
 	nFilePos.QuadPart = sizeof(m_hdr);
 	if (!SetFilePointerEx(m_hFile, nFilePos, NULL, FILE_BEGIN)) {	// if we can't seek
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to seek to first snapshot
 	}
 	return true;	// success
 }
@@ -169,7 +175,7 @@ bool CSnapMovie::WriteFrameIndex()
 		DWORD	nIdxEntries = static_cast<DWORD>(m_aWriteFrameIndex.GetBlockSize(iBlock));
 		DWORD	nBufSize = nIdxEntries * sizeof(FRAME_INDEX_ENTRY);
 		if (!WriteWait(pEntry, nBufSize, nFilePos)) {	// if we can't write block
-			RETURN_FALSE;	// fail
+			ABORT;	// failed to write frame index block
 		}
 		nFilePos += nBufSize;	// increment file position by amount we wrote
 	}
@@ -184,28 +190,28 @@ CSnapshot* CSnapMovie::Read()
 	DRAW_STATE	drawState;
 	ZeroMemory(&drawState, sizeof(DRAW_STATE));
 	if (!ReadBuf(&drawState, min(m_hdr.nDrawStateSize, sizeof(DRAW_STATE)))) {
-		RETURN_FALSE;	// failed to read draw state
+		ABORT;	// failed to read draw state
 	}
 	// Allocate a snapshot having sufficient space for the specified number
 	// of rings, and attach it to a smart pointer for automatic cleanup.
 	CAutoPtr<CSnapshot>	pSnapshot(CSnapshot::Alloc(drawState.nRings));
 	if (pSnapshot == NULL) {	// if allocation failed
-		RETURN_FALSE;	// can't proceed without buffer
+		ABORT;	// failed to allocate snapshot
 	}
 	pSnapshot->m_drawState = drawState;
 	ZeroMemory(&pSnapshot->m_globRing, sizeof(GLOB_RING));
 	if (!ReadBuf(&pSnapshot->m_globRing, min(m_hdr.nGlobRingSize, sizeof(GLOB_RING)))) {
-		RETURN_FALSE;	// failed to read global ring
+		ABORT;	// failed to read global ring
 	}
 	if (m_hdr.nRingSize == sizeof(RING)) {	// if ring is current size
 		if (!ReadBuf(pSnapshot->m_aRing, sizeof(RING) * drawState.nRings)) {
-			RETURN_FALSE;	// failed to read rings
+			ABORT;	// failed to read ring array
 		}
 	} else {	// legacy ring size; must read rings one at a time
 		int	nRingSize = min(m_hdr.nRingSize, sizeof(RING));
 		for (int iRing = 0; iRing < drawState.nRings; iRing++) {
 			if (!ReadBuf(&pSnapshot->m_aRing[iRing], nRingSize)) {
-				RETURN_FALSE;	// failed to read ring
+				ABORT;	// failed to read ring
 			}
 		}
 	}
@@ -216,17 +222,17 @@ CSnapshot* CSnapMovie::Read()
 
 bool CSnapMovie::SeekFrame(LONGLONG iFrame)
 {
-	if (!IsReading()) {
-		RETURN_FALSE;	// seek is only supported while reading
+	if (!IsReading()) {	// if not reading
+		ABORT2(ERROR_INVALID_OPERATION);	// attempted seek while not reading
 	}
-	if (iFrame < 0 || iFrame >= GetFrameCount()) {
-		RETURN_FALSE;	// frame index is out of range
+	if (iFrame < 0 || iFrame >= GetFrameCount()) {	// if range error
+		ABORT2(ERROR_INVALID_INDEX);	// frame index is out of range
 	}
 	// seek to specified frame
 	LARGE_INTEGER	nFilePos;
 	nFilePos.QuadPart = m_aReadFrameIndex[iFrame];
 	if (!SetFilePointerEx(m_hFile, nFilePos, NULL, FILE_BEGIN)) {	// if we can't seek
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to seek to specified frame
 	}
 	m_iReadFrame = iFrame;	// set read position
 	return true;
@@ -235,13 +241,13 @@ bool CSnapMovie::SeekFrame(LONGLONG iFrame)
 bool CSnapMovie::FinalizeWrite()
 {
 	if (!CompletePendingWrites()) {	// if we can't complete writes
-		return false;	// fail
+		return false;	// fail; error already handled
 	}
 	if (!WriteFrameIndex()) {	// if we can't write the frame index
-		return false;	// fail
+		return false;	// fail; error already handled
 	}
 	if (!WriteHeader()) {	// if we can't rewrite the header
-		return false;	// fail
+		return false;	// fail; error already handled
 	}
 	return true;	// success
 }
@@ -257,13 +263,13 @@ bool CSnapMovie::WriteWait(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nFil
 	// start asynchronous write; if it fails but last error is I/O pending, it's OK
 	BOOL	bResult = WriteFile(m_hFile, lpBuffer, nBytesToWrite, NULL, &ovl);
 	if (!bResult && GetLastError() != ERROR_IO_PENDING) {	// if any error other than pending
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to write data
 	}
 	// write was successfully started, so now wait for it to finish
 	DWORD	nBytesWritten;
 	bResult = GetOverlappedResult(m_hFile, &ovl, &nBytesWritten, true);
 	if (!bResult || nBytesWritten != nBytesToWrite) {	// if any error other than pending
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to obtain overlapped result
 	}
 	return true;	// success
 }
@@ -271,7 +277,7 @@ bool CSnapMovie::WriteWait(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nFil
 bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 {
 	if (pSnapshot == NULL) {	// if null snapshot
-		RETURN_FALSE;	// fail
+		ABORT2(ERROR_INVALID_PARAMETER);	// fail
 	}
 	// Look for a free buffer, but without waiting; in normal conditions
 	// this first method will succeed and likely return the first buffer.
@@ -281,7 +287,7 @@ bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 		iBuf = WaitForFreeWriteBuffer();	// waits for a completion signal
 		if (iBuf < 0) {	// if still no free buffer found; something's wrong
 			delete pSnapshot;	// avoid memory leak
-			RETURN_FALSE;	// fail
+			ABORT2(ERROR_NO_SYSTEM_RESOURCES);	// failed to obtain a write buffer
 		}
 	}
 	// got a free buffer
@@ -297,7 +303,7 @@ bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 	// start asynchronous write; if it fails but last error is I/O pending, it's OK
 	BOOL	bResult = WriteFile(m_hFile, buf.m_pSnapshot, nSnapSize, NULL, &buf.m_ovl);
 	if (!bResult && GetLastError() != ERROR_IO_PENDING) {	// if any error other than pending
-		RETURN_FALSE;	// fail
+		ABORT;	// failed to write snapshot
 	}
 	m_aWriteFrameIndex.Add(m_nWriteBytes);	// add file position to frame index
 	m_nWriteBytes += nSnapSize;	// add snapshot size to total bytes written
@@ -346,7 +352,7 @@ bool CSnapMovie::CompletePendingWrites()
 		// wait for pending write to finish
 		BOOL	bResult = GetOverlappedResult(m_hFile, &buf.m_ovl, &nBytesWritten, true);
 		if (!bResult) {	// if we can't get overlapped result
-			RETURN_FALSE;	// fail
+			ABORT;	// failed to obtain overlapped result
 		}
 	}
 	// We don't free ANY snapshots until ALL writes are completed, due to

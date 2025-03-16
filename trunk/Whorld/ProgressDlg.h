@@ -11,6 +11,7 @@
 		01		10aug07	add template resource ID to ctor
 		02		27dec09	add ShowPercent
 		03		12dec22	add marquee mode; make pump messages public
+		04		03mar25	modernize style
 
         progress dialog
  
@@ -34,10 +35,10 @@ public:
 	bool	Create(CWnd* pParent = NULL);
 
 // Attributes
-	void	SetPos(int Pos);
-	void	SetRange(int Lower, int Upper);
+	void	SetPos(int nPos);
+	void	SetRange(int nLower, int nUpper);
 	bool	Canceled() const;
-	void	ShowPercent(bool Enable);
+	void	ShowPercent(bool bEnable);
 	void	SetMarquee(bool bEnable = true, int nInterval = 0);
 
 // Operations
@@ -54,22 +55,20 @@ public:
 protected:
 // Dialog Data
 	enum { IDD = IDD_PROGRESS };
-	CProgressCtrl	m_Progress;
-	CStatic	m_Percent;
+	CProgressCtrl	m_wndProgress;
+	CStatic	m_wndPercent;
 
 // Generated message map functions
 	virtual void OnCancel();
 	DECLARE_MESSAGE_MAP()
 
 // Member data
-	UINT	m_IDTemplate;		// template resource ID
-    CWnd	*m_ParentWnd;		// pointer to parent window
-	bool	m_ParentDisabled;	// true if parent window is disabled
-	bool	m_Canceled;			// true if cancel button was pressed
-	bool	m_ShowPercent;		// true if showing percentage
-	int		m_Lower;			// lower limit of range
-	int		m_Upper;			// upper limit of range
-	int		m_PrevPercent;		// previous percentage
+	UINT	m_nIDTemplate;		// template resource ID
+    CWnd	*m_pParentWnd;		// pointer to parent window
+	bool	m_bParentDisabled;	// true if parent window is disabled
+	bool	m_bCanceled;		// true if cancel button was pressed
+	bool	m_bShowPercent;		// true if showing percentage
+	int		m_nPrevPercent;		// previous percentage
 
 // Helpers
 	void	ReenableParent();
@@ -77,12 +76,12 @@ protected:
 
 inline bool CProgressDlg::Canceled() const
 {
-	return m_Canceled;
+	return m_bCanceled;
 }
 
-inline void CProgressDlg::ShowPercent(bool Enable)
+inline void CProgressDlg::ShowPercent(bool bEnable)
 {
-	m_ShowPercent = Enable;
+	m_bShowPercent = bEnable;
 }
 
 inline void CProgressDlg::PumpMessages()

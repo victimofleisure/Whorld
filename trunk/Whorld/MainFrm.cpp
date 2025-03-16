@@ -24,6 +24,7 @@
 		14		11mar25	disable take snapshot command while in snapshot mode
 		15		12mar25	add snapshot info command; handle set draw mode
 		16		14mar25	add movie recording and playback
+		17		16mar25	add movie export
 
 */
 
@@ -610,6 +611,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_SET_DRAW_MODE, OnSetDrawMode)
 	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
+	ON_UPDATE_COMMAND_UI(ID_FILE_EXPORT, OnUpdateFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
 	ON_UPDATE_COMMAND_UI(ID_FILE_TAKE_SNAPSHOT, OnUpdateFileTakeSnapshot)
 	ON_COMMAND(ID_FILE_LOAD_SNAPSHOT, OnFileLoadSnapshot)
@@ -1020,7 +1022,7 @@ LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 	}
 	// if the MIDI input callback was spamming the command queue, 
 	// it's no longer doing so, because we nuked the MIDI mappings
-	CProgressDlg	dlgProgress(IDD_PROGRESS, this);
+	CProgressDlg	dlgProgress;
 	if (!dlgProgress.Create()) {	// create progress dialog
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return 0;
@@ -1050,7 +1052,9 @@ void CMainFrame::OnFileExport()
 	if (PromptingForExport()) {
 		CPathStr sFileName;
 		if (theApp.IsSnapshotMode()) {	// if in snapshot mode
-			sFileName = PathFindFileName(m_aSnapshotPath[m_iCurSnapshot]);
+			if (IsCurrentSnapshotValid()) {
+				sFileName = PathFindFileName(m_aSnapshotPath[m_iCurSnapshot]);
+			}
 		} else {	// not in snapshot mode
 			if (!theApp.GetDocument()->GetPathName().IsEmpty()) {	// if document was opened
 				sFileName = theApp.GetDocument()->GetTitle();
@@ -1081,6 +1085,11 @@ void CMainFrame::OnFileExport()
 	// bitmap capture message may already be waiting for us in message queue
 }
 
+void CMainFrame::OnUpdateFileExport(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(!IsPlayingMovie());
+}
+
 void CMainFrame::OnFileTakeSnapshot()
 {
 	theApp.m_thrRender.CaptureSnapshot();
@@ -1100,7 +1109,7 @@ void CMainFrame::OnFileLoadSnapshot()
 		{L"All Files", L"*.*"},
 	};
 	HRESULT hr = PromptForFiles(m_aSnapshotPath, _countof(aFilter), aFilter);
-	if (SUCCEEDED(hr)) {	// if prompt succeeded
+	if (SUCCEEDED(hr) && !m_aSnapshotPath.IsEmpty()) {	// if prompt succeeded
 		m_iCurSnapshot = 0;	// reset current snapshot index
 		VERIFY(theApp.LoadSnapshot(m_aSnapshotPath[0]));	// load the first snapshot
 	} else {	// prompt failed
@@ -1205,7 +1214,8 @@ void CMainFrame::OnSnapshotExportAll()
 		AfxMessageBox(IDS_APP_ERR_BAD_EXPORT_IMAGE_FOLDER);
 		return;	// fail
 	}
-	CProgressDlg	dlgProgress(IDD_PROGRESS, this);
+	CProgressDlg	dlgProgress;
+	dlgProgress.SetWindowText(LDS(IDS_EXPORT_ALL_SNAPSHOTS));
 	if (!dlgProgress.Create()) {
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return;	// fail
@@ -1230,12 +1240,14 @@ void CMainFrame::OnSnapshotExportAll()
 		dlgProgress.SetPos(iSnapshot);	// pumps messages
 	}
 	// restore current snapshot
-	theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
+	if (IsCurrentSnapshotValid()) {
+		theApp.LoadSnapshot(m_aSnapshotPath[m_iCurSnapshot]);
+	}
 }
 
 void CMainFrame::OnSnapshotInfo()
 {
-	if (m_iCurSnapshot < m_aSnapshotPath.GetSize()) {	// if we have a snapshot
+	if (IsCurrentSnapshotValid()) {	// if we have a snapshot
 		LPCTSTR	pszPath = m_aSnapshotPath[m_iCurSnapshot];
 		// read snapshot and assign it to a smart pointer
 		CAutoPtr<const CSnapshot>	pSnapshot(CSnapshot::Read(pszPath));
@@ -1418,7 +1430,7 @@ void CMainFrame::OnMovieExport()
 	if (dlgMovieExport.DoModal() != IDOK) {
 		return;	// user canceled
 	}
-	CProgressDlg	dlgProgress(IDD_PROGRESS, this);
+	CProgressDlg	dlgProgress;
 	if (!dlgProgress.Create()) {
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return;	// fail
@@ -1436,11 +1448,10 @@ void CMainFrame::OnMovieExport()
 	if (!theApp.m_thrRender.MovieExport(mep, nTaskID)) {
 		return;	// command queue was full and error recovery failed
 	}
+	const int nPollingFrequency = 25;	// in Hertz
+	int	nPollingPeriod = 1000 / nPollingFrequency;	// in milliseconds
 	// render thread pauses movie playback while exporting movie
 	m_bIsMoviePaused = true;	// so keep UI consistent with that
-	// We need to update the toolbar explicitly instead of relying on update
-	// notifications, because we're modal and the progress dialog has focus.
-	m_wndToolBar.OnUpdateCmdUI(this, false);	// update pause button
 	LONGLONG	iFrame;
 	// loop until all frames are exported or the user cancels
 	while ((iFrame = theApp.m_thrRender.GetReadFrameIdx()) < nFrames) {
@@ -1449,7 +1460,7 @@ void CMainFrame::OnMovieExport()
 			theApp.m_thrRender.CancelTask(nTaskID);	// cancel task
 			break;
 		}
-		WaitMessage();	// suspend until a message arrives
+		Sleep(nPollingPeriod);	// give our core a rest
 	}
 }
 

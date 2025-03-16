@@ -20,6 +20,7 @@
 		10		07mar25	add snapshot submenu handlers
 		11		08mar25	add wait for posted message
 		12		14mar25	add movie recording and playback
+		13		16mar25	add movie export
 
 */
 
@@ -71,6 +72,7 @@ public:
 // Attributes
 	HACCEL	GetAccelTable() const;
 	bool	InRenderFullError() const;
+	bool	IsCurrentSnapshotValid();
 	bool	IsMovieOpen() const;
 	bool	IsRecordingMovie() const;
 	bool	IsPlayingMovie() const;
@@ -172,6 +174,7 @@ public:
 	afx_msg LRESULT OnSetDrawMode(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnFileExport();
+	afx_msg void OnUpdateFileExport(CCmdUI* pCmdUI);
 	afx_msg void OnFileTakeSnapshot();
 	afx_msg void OnUpdateFileTakeSnapshot(CCmdUI* pCmdUI);
 	afx_msg void OnFileLoadSnapshot();
@@ -226,6 +229,11 @@ inline HACCEL CMainFrame::GetAccelTable() const
 inline bool CMainFrame::InRenderFullError() const
 {
 	return m_bInRenderFullError;
+}
+
+inline bool CMainFrame::IsCurrentSnapshotValid()
+{
+	return m_iCurSnapshot < m_aSnapshotPath.GetSize();
 }
 
 inline bool CMainFrame::IsMovieOpen() const

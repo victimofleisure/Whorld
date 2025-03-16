@@ -147,6 +147,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_MAIN_PROP_CHANGE,		// wParam: iProp, lParam: variant
 	UWM_MIDI_EVENT,				// wParam: MIDI event, lParam: none
 	UWM_RENDER_QUEUE_FULL,		// wParam: none, lParam: none
+	UWM_RENDER_TASK_DONE,		// wParam: task ID, lParam: none
 	UWM_SET_DRAW_MODE,			// wParam: mask, lParam: value
 };
 

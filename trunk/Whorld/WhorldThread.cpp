@@ -38,7 +38,9 @@
 CWhorldThread::CWhorldThread() 
 {
 	m_nLastPushErrorTime = 0;
+	m_nTaskItemsDone = 0;
 	m_nNextTaskID = 0;
+	m_nCancelTaskID = 0;
 }
 
 // The following methods provide thread-safe access to rendering functions.
@@ -572,16 +574,17 @@ void CWhorldThread::OnMovieExport(const CMovieExportParams* pParams, LONG nTaskI
 	LONGLONG	nFrames = pMEP->m_nEndFrame - pMEP->m_nStartFrame + 1;
 	if (!m_movie.SeekFrame(pMEP->m_nStartFrame)) {
 		OnMovieError();
-		return;
+		return;	// fail
 	}
+	m_nTaskItemsDone = 0;	// watch out for race when reading this
 	// for each frame in specified range of frames
 	for (LONGLONG iFrame = 0; iFrame < nFrames; iFrame++) {
 		if (m_nCancelTaskID >= nTaskID) {	// if task canceled
-			return;
+			break;	// abort
 		}
 		m_bMovieSingleStep = true;
 		if (!ReadMovieFrame()) {	// if can't read frame
-			return;
+			break;	// fail
 		}
 		CComPtr<ID2D1Bitmap1> pBitmap;
 		CWhorldDraw::CaptureBitmap(pMEP->m_nExportFlags, pMEP->m_szFrame, &pBitmap);
@@ -589,7 +592,9 @@ void CWhorldThread::OnMovieExport(const CMovieExportParams* pParams, LONG nTaskI
 		sSeqNum.Format(_T("%06lld"), iFrame);
 		CString	sImagePath(sFolderPath + _T("\\img") + sSeqNum + _T(".png"));
 		WriteCapturedBitmap(pBitmap, sImagePath);
+		m_nTaskItemsDone = iFrame;
 	}
+	PostMsgToMainWnd(UWM_RENDER_TASK_DONE, nTaskID);	// notify main thread
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)

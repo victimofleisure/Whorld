@@ -139,6 +139,7 @@ public:
 	bool	m_bInRenderFullError;	// true if handling render command queue full error
 	int		m_nMovieIOState;		// movie input/output state; see enum above
 	bool	m_bIsMoviePaused;		// true if movie playback is paused
+	int		m_nTaskDoneID;			// ID of last completed task
 	
 // Helpers
 	BOOL	CreateDockingWindows();
@@ -173,6 +174,7 @@ public:
 	afx_msg LRESULT	OnMainPropChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnSetDrawMode(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnRenderTaskDone(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnFileExport();
 	afx_msg void OnUpdateFileExport(CCmdUI* pCmdUI);
 	afx_msg void OnFileTakeSnapshot();

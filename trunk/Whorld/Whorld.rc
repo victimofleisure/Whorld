@@ -493,7 +493,7 @@ BEGIN
     CONTROL         "",IDC_PROW_VAL_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,181,0,11,12
 END
 
-IDD_MOVIE_EXPORT DIALOGEX 0, 0, 239, 130
+IDD_MOVIE_EXPORT DIALOGEX 0, 0, 274, 131
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Movie Export Options"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
@@ -506,19 +506,19 @@ BEGIN
     EDITTEXT        IDC_MEX_FRAME_HEIGHT_EDIT,64,47,40,14,ES_AUTOHSCROLL
     LTEXT           "S&cale to fit:",IDC_STATIC,17,68,39,8
     COMBOBOX        IDC_MEX_SCALE_TO_FIT_COMBO,17,78,87,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "&All",IDC_MEX_FRAME_SEL_TYPE_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,144,21,24,10
-    CONTROL         "&Range",IDC_MEX_FRAME_SEL_TYPE_2,"Button",BS_AUTORADIOBUTTON,182,21,37,10
-    LTEXT           "&Start:",IDC_STATIC,135,37,20,8
-    EDITTEXT        IDC_MEX_RANGE_START_EDIT,135,47,40,14,ES_AUTOHSCROLL
-    LTEXT           "&End:",IDC_STATIC,181,37,16,8
-    EDITTEXT        IDC_MEX_RANGE_END_EDIT,181,47,40,14,ES_AUTOHSCROLL
-    LTEXT           "&Duration:",IDC_STATIC,134,67,31,8
-    EDITTEXT        IDC_MEX_DURATION_EDIT,134,77,40,14,ES_AUTOHSCROLL
-    CONTROL         "&Frames",IDC_MEX_TIME_UNIT_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,187,69,41,10
-    CONTROL         "&Time",IDC_MEX_TIME_UNIT_2,"Button",BS_AUTORADIOBUTTON,187,83,33,10
-    GROUPBOX        "Frame Selection",IDC_STATIC,124,7,108,94,WS_GROUP
-    PUSHBUTTON      "OK",IDOK,65,109,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,124,109,50,14
+    CONTROL         "&All",IDC_MEX_FRAME_SEL_TYPE_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,158,21,24,10
+    CONTROL         "&Range",IDC_MEX_FRAME_SEL_TYPE_2,"Button",BS_AUTORADIOBUTTON,187,21,37,10
+    LTEXT           "&Start:",IDC_STATIC,134,37,20,8
+    EDITTEXT        IDC_MEX_RANGE_START_EDIT,134,47,50,14,ES_AUTOHSCROLL
+    LTEXT           "&End:",IDC_STATIC,191,37,16,8
+    EDITTEXT        IDC_MEX_RANGE_END_EDIT,191,47,49,14,ES_AUTOHSCROLL
+    LTEXT           "&Duration:",IDC_STATIC,135,67,31,8
+    EDITTEXT        IDC_MEX_DURATION_EDIT,134,77,50,14,ES_AUTOHSCROLL
+    CONTROL         "&Time",IDC_MEX_TIME_UNIT_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,196,69,33,10
+    CONTROL         "&Frames",IDC_MEX_TIME_UNIT_2,"Button",BS_AUTORADIOBUTTON,196,83,41,10
+    GROUPBOX        "Frame Selection",IDC_STATIC,124,7,126,94,WS_GROUP
+    PUSHBUTTON      "OK",IDOK,82,110,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,141,110,50,14
 END
 
 
@@ -581,9 +581,9 @@ BEGIN
     IDD_MOVIE_EXPORT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 232
+        RIGHTMARGIN, 267
         TOPMARGIN, 7
-        BOTTOMMARGIN, 123
+        BOTTOMMARGIN, 124
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -760,11 +760,13 @@ BEGIN
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
-    IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
+    IDS_MEX_BAD_RANGE       "Invalid range."
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MEX_BAD_TIME        "Invalid time."
+    IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
     IDS_MIDI_INPUT          "Input"
     IDS_MIDI_OUTPUT         "Output"
     IDS_MIDI_SYS_STAT_ACTIVE_SENSING "Active Sensing"
@@ -779,12 +781,12 @@ BEGIN
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
-    IDS_NONE                "<None>"
-    IDS_NOT_APPLICABLE      "N/A"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_NONE                "<None>"
+    IDS_NOT_APPLICABLE      "N/A"
     IDS_OPT_DESC_Export_bPromptUser 
                             "Prompt user for destination folder, filename, and options"
     IDS_OPT_DESC_Export_bUseViewSize 
@@ -805,12 +807,15 @@ BEGIN
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Input     "Input"
-    IDS_OPT_GROUP_Midi      "MIDI"
-    IDS_OPT_GROUP_Snapshot  "Snapshot"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_GROUP_Midi      "MIDI"
+    IDS_OPT_GROUP_Snapshot  "Snapshot"
+    IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
+    IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
+    IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
@@ -822,17 +827,14 @@ BEGIN
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
     IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
-    IDS_OPT_SCALE_TO_FIT_Both "Both"
-    IDS_OPT_SCALE_TO_FIT_Height "Height"
-    IDS_OPT_SCALE_TO_FIT_Width "Width"
-    IDS_OPT_SCALE_TO_FIT_None "None"
-    IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
-    IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
+    IDS_OPT_SCALE_TO_FIT_Both "Both"
+    IDS_OPT_SCALE_TO_FIT_Height "Height"
+    IDS_OPT_SCALE_TO_FIT_None "None"
+    IDS_OPT_SCALE_TO_FIT_Width "Width"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
@@ -845,12 +847,12 @@ BEGIN
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
-    IDS_PARAM_PolySides     "Ring Sides"
-    IDS_PARAM_RingGrowth    "Ring Growth"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_PolySides     "Ring Sides"
+    IDS_PARAM_RingGrowth    "Ring Growth"
     IDS_PARAM_RingSpacing   "Ring Spacing"
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
@@ -865,12 +867,12 @@ BEGIN
     IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
-    IDS_PROW_Wave           "Waveform"
-    IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_Wave           "Waveform"
+    IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"

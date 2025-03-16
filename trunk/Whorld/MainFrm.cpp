@@ -111,6 +111,7 @@ CMainFrame::CMainFrame()
 	m_bInRenderFullError = false;
 	m_nMovieIOState = MOVIE_NONE;
 	m_bIsMoviePaused = false;
+	m_nTaskDoneID = 0;
 }
 
 CMainFrame::~CMainFrame()
@@ -610,6 +611,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_MAIN_PROP_CHANGE, OnMainPropChange)
 	ON_MESSAGE(UWM_SET_DRAW_MODE, OnSetDrawMode)
 	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
+	ON_MESSAGE(UWM_RENDER_TASK_DONE, OnRenderTaskDone)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 	ON_UPDATE_COMMAND_UI(ID_FILE_EXPORT, OnUpdateFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
@@ -1046,6 +1048,13 @@ LRESULT CMainFrame::OnRenderQueueFull(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+LRESULT CMainFrame::OnRenderTaskDone(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	m_nTaskDoneID = static_cast<int>(wParam);
+	return 0;
+}
+
 void CMainFrame::OnFileExport()
 {
 	CString	sExportPath;
@@ -1430,20 +1439,20 @@ void CMainFrame::OnMovieExport()
 	if (dlgMovieExport.DoModal() != IDOK) {
 		return;	// user canceled
 	}
+	CMovieExportParams	mep;
+	mep.m_sFolderPath = sExportFolder;
+	mep.m_szFrame = dlgMovieExport.m_szFrame;
+	mep.m_nExportFlags = dlgMovieExport.GetExportFlags();
+	mep.m_nStartFrame = dlgMovieExport.m_nRangeStart;
+	mep.m_nEndFrame = dlgMovieExport.m_nRangeEnd;
 	CProgressDlg	dlgProgress;
 	if (!dlgProgress.Create()) {
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return;	// fail
 	}
+	int	nFrames = dlgMovieExport.m_nRangeEnd - dlgMovieExport.m_nRangeStart + 1;
 	dlgProgress.SetWindowText(sFDlgTitle);
-	LONGLONG	nFrames = theApp.m_thrRender.GetMovieFrameCount();
-	dlgProgress.SetRange(0, static_cast<int>(nFrames));
-	CMovieExportParams	mep;
-	mep.m_sFolderPath = sExportFolder;
-	mep.m_szFrame = dlgMovieExport.m_szFrame;
-	mep.m_nStartFrame = 0;
-	mep.m_nEndFrame = nFrames - 1;
-	mep.m_nExportFlags = dlgMovieExport.m_nScaleToFit;
+	dlgProgress.SetRange(0, nFrames);
 	LONG	nTaskID;
 	if (!theApp.m_thrRender.MovieExport(mep, nTaskID)) {
 		return;	// command queue was full and error recovery failed
@@ -1452,15 +1461,16 @@ void CMainFrame::OnMovieExport()
 	int	nPollingPeriod = 1000 / nPollingFrequency;	// in milliseconds
 	// render thread pauses movie playback while exporting movie
 	m_bIsMoviePaused = true;	// so keep UI consistent with that
-	LONGLONG	iFrame;
+	LONGLONG	iFrame = 0;
 	// loop until all frames are exported or the user cancels
-	while ((iFrame = theApp.m_thrRender.GetReadFrameIdx()) < nFrames) {
+	while (m_nTaskDoneID != nTaskID) {
+		Sleep(nPollingPeriod);	// give our core a rest
+		iFrame = theApp.m_thrRender.GetTaskItemsDone();
 		dlgProgress.SetPos(static_cast<int>(iFrame));	// pumps messages
 		if (dlgProgress.Canceled()) {	// if user clicked cancel
 			theApp.m_thrRender.CancelTask(nTaskID);	// cancel task
 			break;
 		}
-		Sleep(nPollingPeriod);	// give our core a rest
 	}
 }
 

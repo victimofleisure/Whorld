@@ -164,13 +164,13 @@ void COptions::WriteProperties() const
 	#include "OptionsDef.h"	// generate code to read properties
 }
 
-UINT COptions::GetExportFlags() const
+UINT COptions::GetExportFlags(bool bUseViewSize, int nScaleToFit)
 {
 	UINT	nFlags = 0;
-	if (m_Export_bUseViewSize) {
+	if (bUseViewSize) {
 		nFlags |= CWhorldBase::EF_USE_VIEW_SIZE;
 	}
-	switch (m_Export_nScaleToFit) {
+	switch (nScaleToFit) {
 	case SCALE_TO_FIT_Width:
 		nFlags |= CWhorldBase::EF_SCALE_FIT_WIDTH;
 		break;

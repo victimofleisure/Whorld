@@ -57,6 +57,7 @@ public:
 // Attributes
 	CSize	GetExportImageSize() const;
 	UINT	GetExportFlags() const;
+	static UINT	GetExportFlags(bool bUseViewSize, int nScaleToFit);
 	void	SetDefaultExportImageFolder();
 	CSize	GetLegacySnapshotSize() const;
 
@@ -85,6 +86,11 @@ public:
 inline CSize COptions::GetExportImageSize() const
 {
 	return CSize(m_Export_nImageWidth, m_Export_nImageHeight);
+}
+
+inline UINT COptions::GetExportFlags() const
+{
+	return GetExportFlags(m_Export_bUseViewSize, m_Export_nScaleToFit);
 }
 
 inline CSize COptions::GetLegacySnapshotSize() const

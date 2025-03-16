@@ -36,9 +36,10 @@ public:
 	DPoint	GetOrigin() const;
 	D2D1_SIZE_F	GetTargetSize() const;
 	LONGLONG	GetMovieFrameCount() const;
-	LONGLONG	GetReadFrameIdx() const;
 	D2D1_SIZE_F	GetMovieFrameSize() const;
+	float	GetMovieFrameRate() const;
 	void	CancelTask(LONG nTaskID);
+	LONGLONG	GetTaskItemsDone() const;
 
 // Operations
 	bool	SetParam(int iParam, int iProp, VARIANT_PROP& prop);
@@ -69,6 +70,7 @@ public:
 protected:
 // Data members
 	LONGLONG	m_nLastPushErrorTime;	// when push command retries last failed
+	LONGLONG	m_nTaskItemsDone;	// number of task items completed so far
 	LONG	m_nNextTaskID;			// next available task ID
 	LONG	m_nCancelTaskID;		// ID of task to be canceled
 
@@ -141,17 +143,22 @@ inline LONGLONG CWhorldThread::GetMovieFrameCount() const
 	return m_movie.GetFrameCount();
 }
 
-inline LONGLONG CWhorldThread::GetReadFrameIdx() const
-{
-	return m_movie.GetReadFrameIdx();
-}
-
 inline D2D1_SIZE_F CWhorldThread::GetMovieFrameSize() const
 {
 	return m_movie.GetTargetSize();
 }
 
+inline float CWhorldThread::GetMovieFrameRate() const
+{
+	return m_movie.GetFrameRate();
+}
+
 inline void CWhorldThread::CancelTask(LONG nTaskID)
 {
 	m_nCancelTaskID = nTaskID;
+}
+
+inline LONGLONG CWhorldThread::GetTaskItemsDone() const
+{
+	return m_nTaskItemsDone;
 }

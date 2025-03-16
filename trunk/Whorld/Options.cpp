@@ -11,7 +11,7 @@
 		01		20feb19	rename option info vars
 		02		21feb25	customize for Whorld
 		03		26feb25	add MIDI input
-        04      09mar25	add export scaling types
+        04      09mar25	add export scale to fit
 		05      11mar25	add legacy snapshot sizes
 		
 */
@@ -35,13 +35,13 @@ const COptions::PROPERTY_INFO COptions::m_Info[PROPERTIES] = {
 	#include "OptionsDef.h"
 };
 
-const COptions::OPTION_INFO COptions::m_oiScalingType[SCALING_TYPES] = {
-	#define SCALINGTYPEDEF(name) {_T(#name), IDS_OPT_SCALING_TYPE_##name},
+const COptions::OPTION_INFO COptions::m_oiScaleToFit[SCALE_TO_FIT_TYPES] = {
+	#define SCALETOFITDEF(name) {_T(#name), IDS_OPT_SCALE_TO_FIT_##name},
 	#include "OptionsDef.h"
 };
 
 const COptions::OPTION_INFO COptions::m_oiLegacySize[LEGACY_SIZES] = {
-	#define LEGACYSIZEDEF(width, height, name) {_T(#name), IDS_OPT_SCALING_TYPE_##name},
+	#define LEGACYSIZEDEF(width, height, name) {_T(#name), IDS_OPT_LEGACY_SIZE_##name},
 	#include "OptionsDef.h"
 };
 
@@ -170,14 +170,14 @@ UINT COptions::GetExportFlags() const
 	if (m_Export_bUseViewSize) {
 		nFlags |= CWhorldBase::EF_USE_VIEW_SIZE;
 	}
-	switch (m_Export_nScalingType) {
-	case SCALING_TYPE_FitWidth:
+	switch (m_Export_nScaleToFit) {
+	case SCALE_TO_FIT_Width:
 		nFlags |= CWhorldBase::EF_SCALE_FIT_WIDTH;
 		break;
-	case SCALING_TYPE_FitHeight:
+	case SCALE_TO_FIT_Height:
 		nFlags |= CWhorldBase::EF_SCALE_FIT_HEIGHT;
 		break;
-	case SCALING_TYPE_FitBoth:
+	case SCALE_TO_FIT_Both:
 		nFlags |= CWhorldBase::EF_SCALE_FIT_BOTH;
 		break;
 	}

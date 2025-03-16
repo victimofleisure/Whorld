@@ -9,7 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		02mar25	implement global parameters
-        02      09mar25	add export scaling types
+        02      09mar25	add export scale to fit
 
 */
 

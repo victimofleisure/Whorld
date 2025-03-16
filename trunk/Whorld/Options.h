@@ -11,7 +11,7 @@
 		01		20feb19	rename option info vars
 		02		21feb25	customize for Whorld
 		03		26feb25	add MIDI input
-        04      09mar25	add export scaling types
+        04      09mar25	add export scale to fit
 		05      11mar25	add legacy snapshot sizes
 		
 */
@@ -38,10 +38,10 @@ public:
 		#include "OptionsDef.h"
 		PROPERTIES
 	};
-	enum {	// scaling types
-		#define SCALINGTYPEDEF(x) SCALING_TYPE_##x,
+	enum {	// scale to fit types
+		#define SCALETOFITDEF(x) SCALE_TO_FIT_##x,
 		#include "OptionsDef.h"
-		SCALING_TYPES
+		SCALE_TO_FIT_TYPES
 	};
 	enum {	// legacy sizes
 		#define LEGACYSIZEDEF(width, height, name) LEGACY_SIZE_##name,
@@ -50,7 +50,7 @@ public:
 	};
 	static const OPTION_INFO	m_oiGroup[GROUPS];	// group names
 	static const PROPERTY_INFO	m_Info[PROPERTIES];	// fixed info for each property
-	static const OPTION_INFO	m_oiScalingType[SCALING_TYPES];	// scaling type options
+	static const OPTION_INFO	m_oiScaleToFit[SCALE_TO_FIT_TYPES];	// scale to fit options
 	static const OPTION_INFO	m_oiLegacySize[LEGACY_SIZES];	// legacy size options
 	static const SIZE	m_aLegacySize[LEGACY_SIZES];	// legacy sizes
 

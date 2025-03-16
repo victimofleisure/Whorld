@@ -9,7 +9,7 @@
 		rev		date	comments
         00      28jun05	initial version
         01      21feb25	refactor
-        02      09mar25	add export scaling types
+        02      09mar25	add export scale to fit
 
         export options dialog
  
@@ -43,7 +43,7 @@ protected:
 	BOOL	m_bUseViewSize;
 	int		m_nWidth;
 	int		m_nHeight;
-	CComboBox m_comboScalingType;
+	CComboBox m_comboScaleToFit;
 
 // Overrides
 	virtual BOOL OnInitDialog();

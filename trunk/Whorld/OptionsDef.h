@@ -11,7 +11,7 @@
 		01		21feb25	customize for Whorld
 		02		26feb25	add MIDI input
 		03		28feb25	add general group
-		04      09mar25	add export scaling types
+		04      09mar25	add export scale to fit
 		05      11mar25	add legacy snapshot sizes
 		06      12mar25	add wheel sensitivity
 
@@ -37,23 +37,23 @@ PROPDEF(	Export,		NONE,		FOLDER,		CString,	sImageFolder,		"",			"",			"",			NULL
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageWidth,		1920,		1,			UINT_MAX,	NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		UINT,		nImageHeight,		1080,		1,			UINT_MAX,	NULL,		0)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bUseViewSize,		1,			0,			0,			NULL,		0)
-PROPDEF(	Export,		NONE,		ENUM,		UINT,		nScalingType,		0,			0,			0,			m_oiScalingType,	SCALING_TYPES)
+PROPDEF(	Export,		NONE,		ENUM,		UINT,		nScaleToFit,		0,			0,			0,			m_oiScaleToFit,	SCALE_TO_FIT_TYPES)
 PROPDEF(	Export,		NONE,		VAR,		bool,		bPromptUser,		1,			0,			0,			NULL,		0)
 PROPDEF(	Snapshot,	NONE,		VAR,		bool,		bLetterbox,			1,			0,			0,			NULL,		0)
-PROPDEF(	Snapshot,	NONE,		ENUM,		int,		iLegacySize,		1,			0,			0,			m_oiLegacySize,		LEGACY_SIZES)
+PROPDEF(	Snapshot,	NONE,		ENUM,		int,		iLegacySize,		1,			0,			0,			m_oiLegacySize,	LEGACY_SIZES)
 PROPDEF(	General,	NONE,		VAR,		int,		nMRUItems,			4,			0,			16,			NULL,		0)
 
 #undef PROPDEF
 #endif
 
-#ifdef SCALINGTYPEDEF
+#ifdef SCALETOFITDEF
 
-SCALINGTYPEDEF(None)
-SCALINGTYPEDEF(FitWidth)
-SCALINGTYPEDEF(FitHeight)
-SCALINGTYPEDEF(FitBoth)
+SCALETOFITDEF(None)
+SCALETOFITDEF(Width)
+SCALETOFITDEF(Height)
+SCALETOFITDEF(Both)
 
-#undef SCALINGTYPEDEF
+#undef SCALETOFITDEF
 #endif
 
 #ifdef LEGACYSIZEDEF

@@ -16,7 +16,7 @@
 		06		02mar25	implement global parameters
 		07		04mar25	fix points buffer overrun caused by global ring sides
 		08		09mar25	set target size in capture bitmap to fix origin shift
-		09		09mar25	add export scaling types
+		09		09mar25	add export scale to fit
 		10		09mar25	fix color shift in legacy snapshots
 		11		11mar25	disentangle snapshot zoom
 		12		12mar25	remove needless point ctors; implement view-centric zoom

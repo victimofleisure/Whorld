@@ -9,7 +9,7 @@
 		rev		date	comments
         00      28jun05	initial version
         01      21feb25	refactor
-        02      09mar25	add export scaling types
+        02      09mar25	add export scale to fit
 		03		12mar25	display view size when use view size is checked
 
         export options dialog
@@ -42,14 +42,14 @@ void CExportDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_EXPORT_USE_VIEW_SIZE_CHECK, m_bUseViewSize);
 	DDX_Text(pDX, IDC_EXPORT_WIDTH_EDIT, m_nWidth);
 	DDX_Text(pDX, IDC_EXPORT_HEIGHT_EDIT, m_nHeight);
-	DDX_Control(pDX, IDC_EXPORT_SCALING_TYPE_COMBO, m_comboScalingType);
+	DDX_Control(pDX, IDC_EXPORT_SCALE_TO_FIT_COMBO, m_comboScaleToFit);
 }
 
 BEGIN_MESSAGE_MAP(CExportDlg, CDialog)
 	ON_MESSAGE(WM_KICKIDLE, OnKickIdle)
 	ON_UPDATE_COMMAND_UI(IDC_EXPORT_WIDTH_EDIT, OnUpdateSize)
 	ON_UPDATE_COMMAND_UI(IDC_EXPORT_HEIGHT_EDIT, OnUpdateSize)
-	ON_UPDATE_COMMAND_UI(IDC_EXPORT_SCALING_TYPE_COMBO, OnUpdateSize)
+	ON_UPDATE_COMMAND_UI(IDC_EXPORT_SCALE_TO_FIT_COMBO, OnUpdateSize)
 	ON_BN_CLICKED(IDC_EXPORT_USE_VIEW_SIZE_CHECK, OnClickedUseViewSize)
 END_MESSAGE_MAP()
 
@@ -60,11 +60,11 @@ BOOL CExportDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	// initialize scaling type drop list from options
-	for (int iScaT = 0; iScaT < COptions::SCALING_TYPES; iScaT++) {
-		m_comboScalingType.AddString(LDS(COptions::m_oiScalingType[iScaT].nNameID));
+	// initialize scale to fit drop list from options
+	for (int iSTF = 0; iSTF < COptions::SCALE_TO_FIT_TYPES; iSTF++) {
+		m_comboScaleToFit.AddString(LDS(COptions::m_oiScaleToFit[iSTF].nNameID));
 	}
-	m_comboScalingType.SetCurSel(theApp.m_options.m_Export_nScalingType);
+	m_comboScaleToFit.SetCurSel(theApp.m_options.m_Export_nScaleToFit);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
@@ -75,7 +75,7 @@ void CExportDlg::OnOK()
 	theApp.m_options.m_Export_bUseViewSize = m_bUseViewSize != 0;
 	theApp.m_options.m_Export_nImageWidth = m_nWidth;
 	theApp.m_options.m_Export_nImageHeight = m_nHeight;
-	theApp.m_options.m_Export_nScalingType = max(m_comboScalingType.GetCurSel(), 0);
+	theApp.m_options.m_Export_nScaleToFit = max(m_comboScaleToFit.GetCurSel(), 0);
 }
 
 LRESULT CExportDlg::OnKickIdle(WPARAM, LPARAM)

@@ -36,7 +36,7 @@ public:
 	int		m_nFrameSelType;
 	int		m_nTimeUnit;
 	int		m_nFrameSizePreset;
-	int		m_nScalingType;
+	int		m_nScaleToFit;
 	int		m_nRangeStart;
 	int		m_nRangeEnd;
 	int		m_nDuration;
@@ -50,7 +50,7 @@ protected:
 // Dialog Data
 	enum { IDD = IDD_MOVIE_EXPORT };
 	CComboBox m_comboFrameSize;
-	CComboBox m_comboScalingType;
+	CComboBox m_comboScaleToFit;
 
 // Overrides
 	virtual BOOL OnInitDialog();
@@ -60,7 +60,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg LRESULT OnKickIdle(WPARAM, LPARAM);
 	afx_msg void OnUpdateFrameSize(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateScalingType(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateScaleToFit(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateFrameSelType(CCmdUI *pCmdUI);
 	afx_msg void OnSelchangeFrameSize();
 	afx_msg void OnClickedFrameSelType();

@@ -33,7 +33,7 @@ CMovieExportDlg::CMovieExportDlg(CWnd* pParent /*=NULL*/)
 	m_nFrameSelType = 0;
 	m_nTimeUnit = 0;
 	m_nFrameSizePreset = 0;
-	m_nScalingType = 0;
+	m_nScaleToFit = 0;
 	m_nRangeStart = 0;
 	m_nRangeEnd = 0;
 }
@@ -42,7 +42,7 @@ void CMovieExportDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_MEX_FRAME_SIZE_COMBO, m_comboFrameSize);
-	DDX_Control(pDX, IDC_MEX_SCALING_TYPE_COMBO, m_comboScalingType);
+	DDX_Control(pDX, IDC_MEX_SCALE_TO_FIT_COMBO, m_comboScaleToFit);
 	DDX_Text(pDX, IDC_MEX_FRAME_WIDTH_EDIT, m_szFrame.cx);
 	DDX_Text(pDX, IDC_MEX_FRAME_HEIGHT_EDIT, m_szFrame.cy);
 	DDX_Radio(pDX, IDC_MEX_FRAME_SEL_TYPE_1, m_nFrameSelType);
@@ -56,7 +56,7 @@ BEGIN_MESSAGE_MAP(CMovieExportDlg, CDialog)
 	ON_MESSAGE(WM_KICKIDLE, OnKickIdle)
 	ON_UPDATE_COMMAND_UI(IDC_MEX_FRAME_WIDTH_EDIT, OnUpdateFrameSize)
 	ON_UPDATE_COMMAND_UI(IDC_MEX_FRAME_HEIGHT_EDIT, OnUpdateFrameSize)
-	ON_UPDATE_COMMAND_UI(IDC_MEX_SCALING_TYPE_COMBO, OnUpdateScalingType)
+	ON_UPDATE_COMMAND_UI(IDC_MEX_SCALE_TO_FIT_COMBO, OnUpdateScaleToFit)
 	ON_UPDATE_COMMAND_UI(IDC_MEX_RANGE_START_EDIT, OnUpdateFrameSelType)
 	ON_UPDATE_COMMAND_UI(IDC_MEX_RANGE_END_EDIT, OnUpdateFrameSelType)
 	ON_UPDATE_COMMAND_UI(IDC_MEX_DURATION_EDIT, OnUpdateFrameSelType)
@@ -72,12 +72,12 @@ BOOL CMovieExportDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	// initialize scaling type drop list from options
-	for (int iScaT = 0; iScaT < COptions::SCALING_TYPES; iScaT++) {
-		m_comboScalingType.AddString(LDS(COptions::m_oiScalingType[iScaT].nNameID));
+	// initialize scale to fit drop list from options
+	for (int iSTF = 0; iSTF < COptions::SCALE_TO_FIT_TYPES; iSTF++) {
+		m_comboScaleToFit.AddString(LDS(COptions::m_oiScaleToFit[iSTF].nNameID));
 	}
 	m_comboFrameSize.SetCurSel(m_nFrameSizePreset);
-	m_comboScalingType.SetCurSel(m_nScalingType);
+	m_comboScaleToFit.SetCurSel(m_nScaleToFit);
 	OnSelchangeFrameSize();
 	OnClickedFrameSelType();
 
@@ -101,7 +101,7 @@ void CMovieExportDlg::OnUpdateFrameSize(CCmdUI *pCmdUI)
 	pCmdUI->Enable(nOpt == 2);
 }
 
-void CMovieExportDlg::OnUpdateScalingType(CCmdUI *pCmdUI)
+void CMovieExportDlg::OnUpdateScaleToFit(CCmdUI *pCmdUI)
 {
 	int	nOpt = m_comboFrameSize.GetCurSel();
 	pCmdUI->Enable(nOpt > 0);

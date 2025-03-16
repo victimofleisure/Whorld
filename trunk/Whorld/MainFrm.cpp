@@ -1443,7 +1443,7 @@ void CMainFrame::OnMovieExport()
 	mep.m_szFrame = dlgMovieExport.m_szFrame;
 	mep.m_nStartFrame = 0;
 	mep.m_nEndFrame = nFrames - 1;
-	mep.m_nExportFlags = dlgMovieExport.m_nScalingType;
+	mep.m_nExportFlags = dlgMovieExport.m_nScaleToFit;
 	LONG	nTaskID;
 	if (!theApp.m_thrRender.MovieExport(mep, nTaskID)) {
 		return;	// command queue was full and error recovery failed

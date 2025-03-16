@@ -477,8 +477,8 @@ BEGIN
     EDITTEXT        IDC_EXPORT_WIDTH_EDIT,54,24,40,14,ES_AUTOHSCROLL
     RTEXT           "&Height:",IDC_STATIC,20,44,30,12,SS_CENTERIMAGE
     EDITTEXT        IDC_EXPORT_HEIGHT_EDIT,54,44,40,14,ES_AUTOHSCROLL
-    LTEXT           "&Scaling Type:",IDC_STATIC,24,64,46,8
-    COMBOBOX        IDC_EXPORT_SCALING_TYPE_COMBO,24,74,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Scale to fit:",IDC_STATIC,24,64,39,8
+    COMBOBOX        IDC_EXPORT_SCALE_TO_FIT_COMBO,24,74,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "OK",IDOK,7,95,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,63,95,50,14
 END
@@ -504,8 +504,8 @@ BEGIN
     EDITTEXT        IDC_MEX_FRAME_WIDTH_EDIT,17,47,40,14,ES_AUTOHSCROLL
     LTEXT           "&Height:",IDC_STATIC,64,37,24,8
     EDITTEXT        IDC_MEX_FRAME_HEIGHT_EDIT,64,47,40,14,ES_AUTOHSCROLL
-    LTEXT           "S&caling Type:",IDC_STATIC,17,68,46,8
-    COMBOBOX        IDC_MEX_SCALING_TYPE_COMBO,17,78,87,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "S&cale to fit:",IDC_STATIC,17,68,39,8
+    COMBOBOX        IDC_MEX_SCALE_TO_FIT_COMBO,17,78,87,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "&All",IDC_MEX_FRAME_SEL_TYPE_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,144,21,24,10
     CONTROL         "&Range",IDC_MEX_FRAME_SEL_TYPE_2,"Button",BS_AUTORADIOBUTTON,182,21,37,10
     LTEXT           "&Start:",IDC_STATIC,135,37,20,8
@@ -791,7 +791,7 @@ BEGIN
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
-    IDS_OPT_DESC_Export_nScalingType 
+    IDS_OPT_DESC_Export_nScaleToFit 
                             "Type of scaling to apply to image size; ignored if using view size"
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
     IDS_OPT_DESC_General_nMRUItems 
@@ -815,24 +815,24 @@ BEGIN
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
-    IDS_OPT_NAME_Export_nScalingType "Scaling Type"
+    IDS_OPT_NAME_Export_nScaleToFit "Scale to Fit"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
     IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
     IDS_OPT_NAME_Input_fWheelSense "Wheel Sensitivity"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
     IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
-    IDS_OPT_SCALING_TYPE_FitBoth "Fit Both"
-    IDS_OPT_SCALING_TYPE_FitHeight "Fit Height"
-    IDS_OPT_SCALING_TYPE_FitWidth "Fit Width"
-    IDS_OPT_SCALING_TYPE_None "None"
-    IDS_OPT_SCALING_TYPE_SVGA "800 x 600 (SVGA)"
+    IDS_OPT_SCALE_TO_FIT_Both "Both"
+    IDS_OPT_SCALE_TO_FIT_Height "Height"
+    IDS_OPT_SCALE_TO_FIT_Width "Width"
+    IDS_OPT_SCALE_TO_FIT_None "None"
+    IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_OPT_SCALING_TYPE_VGA "640 x 480 (VGA)"
-    IDS_OPT_SCALING_TYPE_XGA "1024 x 768 (XGA)"
+    IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
+    IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"

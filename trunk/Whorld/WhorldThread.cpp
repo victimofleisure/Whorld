@@ -14,7 +14,7 @@
 		04		01mar25	add commands to set origin coords individually
 		05		02mar25	implement global parameters
 		06		09mar25	set target size in capture bitmap to fix origin shift
-		07		09mar25	add export scaling types
+		07		09mar25	add export scale to fit
 		08		14mar25	add movie recording and playback
 		09		15mar25	move queue-related methods here
 

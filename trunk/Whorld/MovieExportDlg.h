@@ -41,6 +41,7 @@ public:
 	int		m_nRangeEnd;
 	int		m_nDuration;
 	int		m_nTimeUnit;
+	float	m_fFrameRate;
 
 // Overrides
 	protected:
@@ -74,7 +75,6 @@ protected:
 	CComboBox m_comboFrameSize;
 	CComboBox m_comboScaleToFit;
 	int		m_nFrameCount;
-	float	m_fFrameRate;
 
 // Overrides
 	virtual BOOL OnInitDialog();
@@ -102,4 +102,5 @@ protected:
 	afx_msg void OnClickedTimeUnit(UINT nID);
 	afx_msg void OnKillFocusRange();
 	afx_msg void OnKillFocusDuration();
+	afx_msg void OnUpdateFrameRate(CCmdUI *pCmdUI);
 };

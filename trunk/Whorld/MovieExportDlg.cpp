@@ -37,8 +37,8 @@ CMovieExportDlg::CMovieExportDlg(CWnd* pParent /*=NULL*/)
 	m_nRangeEnd = 0;
 	m_nDuration = 0;
 	m_nTimeUnit = 0;
-	m_nFrameCount = 0;
 	m_fFrameRate = 0;
+	m_nFrameCount = 0;
 }
 
 UINT CMovieExportDlg::GetExportFlags() const
@@ -146,6 +146,7 @@ void CMovieExportDlg::DoDataExchange(CDataExchange* pDX)
 			DDV_Fail(pDX, IDC_MEX_RANGE_END_EDIT);
 		}
 	}
+	DDX_Text(pDX, IDC_MEX_FRAME_RATE_EDIT, m_fFrameRate);
 }
 
 BEGIN_MESSAGE_MAP(CMovieExportDlg, CDialog)
@@ -162,6 +163,7 @@ BEGIN_MESSAGE_MAP(CMovieExportDlg, CDialog)
 	ON_EN_KILLFOCUS(IDC_MEX_RANGE_START_EDIT, OnKillFocusRange)
 	ON_EN_KILLFOCUS(IDC_MEX_RANGE_END_EDIT, OnKillFocusRange)
 	ON_EN_KILLFOCUS(IDC_MEX_DURATION_EDIT, OnKillFocusDuration)
+	ON_UPDATE_COMMAND_UI(IDC_MEX_FRAME_RATE_EDIT, OnUpdateFrameRate)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -269,3 +271,9 @@ void CMovieExportDlg::OnKillFocusDuration()
     UpdateRangeEnd();
 	UpdateData(false);	// initialize controls from data
 }
+
+void CMovieExportDlg::OnUpdateFrameRate(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(false);
+}
+

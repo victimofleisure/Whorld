@@ -588,13 +588,17 @@ void CWhorldThread::OnMovieExport(const CMovieExportParams* pParams, LONG nTaskI
 		}
 		CComPtr<ID2D1Bitmap1> pBitmap;
 		CWhorldDraw::CaptureBitmap(pMEP->m_nExportFlags, pMEP->m_szFrame, &pBitmap);
-		CString	sSeqNum;
-		sSeqNum.Format(_T("%06lld"), iFrame);
-		CString	sImagePath(sFolderPath + _T("\\img") + sSeqNum + _T(".png"));
-		WriteCapturedBitmap(pBitmap, sImagePath);
+		WriteCapturedBitmap(pBitmap, MakeImageSequenceFileName(sFolderPath, iFrame));
 		m_nTaskItemsDone = iFrame;
 	}
 	PostMsgToMainWnd(UWM_RENDER_TASK_DONE, nTaskID);	// notify main thread
+}
+
+CString CWhorldThread::MakeImageSequenceFileName(CString sFolderPath, LONGLONG iFrame)
+{
+	CString	sSeqNum;
+	sSeqNum.Format(_T("%06lld"), iFrame);
+	return sFolderPath + _T("\\img") + sSeqNum + _T(".png");
 }
 
 void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)

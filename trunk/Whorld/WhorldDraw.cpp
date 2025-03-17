@@ -995,9 +995,10 @@ bool CWhorldDraw::DrawMovieFrameNumber()
 		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, nFontSize, L"en-us", &pWriteTextFormat));
 	m_pDrawBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
 	CString	sFrame;
+	// minus one to account for movie read incrementing its index after it reads
 	sFrame.Format(_T("%lld"), m_movie.GetReadFrameIdx() - 1);
 	m_pD2DDeviceContext->DrawText(sFrame, sFrame.GetLength(), pWriteTextFormat, 
 		CD2DRectF(10, 0, m_szTarget.width, nFontSize), m_pDrawBrush);
 #endif // SHOW_MOVIE_FRAME_NUMBERS
-	return true;	// in Release build, this method is optimized away
+	return true;	// this method is optimized away in Release build
 }

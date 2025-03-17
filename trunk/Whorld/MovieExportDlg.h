@@ -32,23 +32,12 @@ public:
 // Attributes
 	UINT	GetExportFlags() const;
 
-// Public data
-	int		m_iFrameSizePreset;
-	CSize	m_szFrame;
-	int		m_iScaleToFit;
-	int		m_iFrameSelType;
-	int		m_nRangeStart;
-	int		m_nRangeEnd;
-	int		m_nDuration;
-	int		m_iTimeUnit;
-	float	m_fFrameRate;
+// Operations
+	static void	FrameToTime(int nFrame, COleDateTime& dt, float fFrameRate);
+	static int	TimeToFrame(const COleDateTime& dt, float fFrameRate);
+	static CString	FrameToTimeString(int nFrame, float fFrameRate);
+	static bool	TimeStringToFrame(CString sTime, int& nFrame, float fFrameRate);
 
-// Overrides
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-// Implementation
-protected:
 // Constants
 	enum {	// frame size presets
 		FSP_MOVIE,		// use movie's frame size
@@ -70,11 +59,28 @@ protected:
 		SECONDS_PER_DAY = 24 * 3600		// for COleDateTime conversion
 	};
 
+// Public data
+	int		m_iFrameSizePreset;	// frame size preset; see enum above
+	CSize	m_szFrame;			// size of frame, in device-independent pixels
+	int		m_iScaleToFit;		// scale to fit type; see enum in COptions
+	int		m_iFrameSelType;	// frame selection type; see enum above
+	int		m_nRangeStart;		// first frame of range
+	int		m_nRangeEnd;		// last frame of range, inclusive
+	int		m_nDuration;		// number of frames in range: last - first + 1
+	int		m_iTimeUnit;		// time unit; see enum above
+	float	m_fFrameRate;		// frame rate in frames per second
+
+// Overrides
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
+// Implementation
+protected:
 // Dialog Data
 	enum { IDD = IDD_MOVIE_EXPORT };
 	CComboBox m_comboFrameSize;		// preset frame size drop list
 	CComboBox m_comboScaleToFit;	// scale to fit options drop list
-	int		m_nFrameCount;	// actual number of frames in the movie file
+	int		m_nFrameCount;		// actual number of frames in movie file
 
 // Overrides
 	virtual BOOL OnInitDialog();
@@ -82,10 +88,6 @@ protected:
 
 // Helpers
 	void	UpdateFrameSize(int iFrameSizePreset);
-	static void	FrameToTime(int nFrame, COleDateTime& dt, float fFrameRate);
-	static int	TimeToFrame(const COleDateTime& dt, float fFrameRate);
-	static CString	FrameToTimeString(int nFrame, float fFrameRate);
-	static bool	TimeStringToFrame(CString sTime, int& nFrame, float fFrameRate);
 	CString	FrameToTimeString(int nFrame) const;
 	bool	TimeStringToFrame(CString sTime, int& nFrame) const;
 	void	DDX_FrameTime(CDataExchange* pDX, int nIDC, int& value) const;

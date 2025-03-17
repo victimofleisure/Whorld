@@ -168,8 +168,8 @@ void CMovieExportDlg::DoDataExchange(CDataExchange* pDX)
 		// order matters: retrieve time unit AFTER retrieving times
 		DDX_Radio(pDX, IDC_MEX_TIME_UNIT_1, m_iTimeUnit);
 		if (m_nRangeStart > m_nRangeEnd) {	// if range out of order
-			AfxMessageBox(IDS_MEX_BAD_RANGE);
-			DDV_Fail(pDX, IDC_MEX_RANGE_END_EDIT);
+			AfxMessageBox(IDS_MEX_BAD_RANGE);	// gong user
+			DDV_Fail(pDX, IDC_MEX_RANGE_END_EDIT);	// fail
 		}
 	}
 	DDX_Text(pDX, IDC_MEX_FRAME_RATE_EDIT, m_fFrameRate);
@@ -268,7 +268,7 @@ void CMovieExportDlg::OnSelchangeFrameSize()
 	if (iPreset < FSP_CUSTOM) {
 		// display render target size in width/height edit controls
 		UpdateData(true);	// retrieve data from controls
-		UpdateFrameSize(iPreset);
+		UpdateFrameSize(iPreset);	// set frame size
 		UpdateData(false);	// initialize controls from data
 	}
 }
@@ -279,7 +279,7 @@ void CMovieExportDlg::OnClickedFrameSelType(UINT nID)
 	int	iFrameSelType = IsDlgButtonChecked(IDC_MEX_FRAME_SEL_TYPE_1);
 	if (iFrameSelType == FST_ALL) {	// if frame selection type is ALL
 		UpdateData(true);	// retrieve data from controls
-		UpdateFrameSelection(iFrameSelType);
+		UpdateFrameSelection(iFrameSelType);	// set frame range
 		UpdateData(false);	// initialize controls from data
 	}
 }
@@ -288,25 +288,25 @@ void CMovieExportDlg::OnClickedTimeUnit(UINT nID)
 {
 	UNREFERENCED_PARAMETER(nID);
 	UpdateData(true);	// retrieve data from controls
-    UpdateRangeEnd();
+    UpdateRangeEnd();	// set range end from duration
 	UpdateData(false);	// initialize controls from data
 }
 
 void CMovieExportDlg::OnKillFocusRange()
 {
 	UpdateData(true);	// retrieve data from controls
-    UpdateDuration();
+    UpdateDuration();	// set duration from range end
 	UpdateData(false);	// initialize controls from data
 }
 
 void CMovieExportDlg::OnKillFocusDuration()
 {
 	UpdateData(true);	// retrieve data from controls
-    UpdateRangeEnd();
+    UpdateRangeEnd();	// set range end from duration
 	UpdateData(false);	// initialize controls from data
 }
 
 void CMovieExportDlg::OnUpdateFrameRate(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(false);
+	pCmdUI->Enable(false);	// frame rate isn't editable
 }

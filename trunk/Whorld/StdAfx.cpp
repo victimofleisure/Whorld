@@ -9,6 +9,7 @@
 		rev		date	comments
         00      06feb25	initial version
 		01		07mar25	add prompt for multiple files
+		02		17mar25	add wildcard delete file
 
 */
 
@@ -276,3 +277,21 @@ HRESULT PromptForFiles(CStringArrayEx& saPath, int nFilters, const COMDLG_FILTER
 	saPath.Swap(saTempPath);	// swap array pointers, transferring paths to caller
 	return S_OK;	// success
 }
+
+int WildcardDeleteFile(CString sPath)
+{
+	// Note that the destination path is double-null terminated. CString's
+	// get buffer method allocates the specified number of characters plus
+	// one for the null terminator, but we need space for two terminators,
+	// hence we must increment nPathLen.
+	int	nPathLen = sPath.GetLength();
+	LPTSTR	pszPath = sPath.GetBufferSetLength(nPathLen + 1);
+	pszPath[nPathLen + 1] = '\0';	// double-null terminated string
+	SHFILEOPSTRUCT	SHFileOp;
+	ZeroMemory(&SHFileOp, sizeof(SHFileOp));
+	SHFileOp.wFunc = FO_DELETE;
+	SHFileOp.pFrom = pszPath;
+	SHFileOp.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_FILESONLY | FOF_NORECURSION;
+	return SHFileOperation(&SHFileOp);
+}
+

@@ -1452,7 +1452,19 @@ void CMainFrame::OnMovieExport()
 	theApp.WriteProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_SCALE_TO_FIT, dlgMovieExport.m_iScaleToFit);
 	theApp.WriteProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_TIME_UNIT, dlgMovieExport.m_iTimeUnit);
 	// options successfully obtained
-	theApp.m_options.m_Export_sImageFolder = sExportFolder;
+	theApp.m_options.m_Export_sImageFolder = sExportFolder;	// update options
+	// check for pre-existing image sequence in export folder
+	CString	sFirstFramePath(CWhorldThread::MakeImageSequenceFileName(sExportFolder, 0));
+	if (PathFileExists(sFirstFramePath)) {	// if first frame exists
+		UINT	nType = MB_YESNO | MB_DEFBUTTON2 | MB_ICONWARNING;
+		if (AfxMessageBox(IDS_MOVIE_EXPORT_OVERWRITE_WARN, nType) != IDYES)
+			return;	// user chickened out
+	}
+	// delete pre-existing image sequence if any
+	CPathStr	sWildcardPath(sExportFolder);
+	sWildcardPath.Append(_T("*.") + CString(m_pszExportExt));
+	WildcardDeleteFile(sWildcardPath);
+	// initialize parameters of movie export command
 	CMovieExportParams	mep;
 	mep.m_sFolderPath = sExportFolder;
 	mep.m_szFrame = dlgMovieExport.m_szFrame;
@@ -1460,15 +1472,15 @@ void CMainFrame::OnMovieExport()
 	mep.m_nStartFrame = dlgMovieExport.m_nRangeStart;
 	mep.m_nEndFrame = dlgMovieExport.m_nRangeEnd;
 	CProgressDlg	dlgProgress;
-	if (!dlgProgress.Create()) {
+	if (!dlgProgress.Create()) {	// if can't create progress dialog
 		AfxMessageBox(IDS_APP_ERR_CANT_CREATE_PROGRESS_DLG);
 		return;	// fail
 	}
 	int	nFrames = dlgMovieExport.m_nRangeEnd - dlgMovieExport.m_nRangeStart + 1;
 	dlgProgress.SetWindowText(sFDlgTitle);
 	dlgProgress.SetRange(0, nFrames);
-	LONG	nTaskID;
-	if (!theApp.m_thrRender.MovieExport(mep, nTaskID)) {
+	LONG	nTaskID;	// export returns a unique task ID
+	if (!theApp.m_thrRender.MovieExport(mep, nTaskID)) {	// push command
 		return;	// command queue was full and error recovery failed
 	}
 	const int nPollingFrequency = 25;	// in Hertz
@@ -1477,7 +1489,7 @@ void CMainFrame::OnMovieExport()
 	m_bIsMoviePaused = true;	// so keep UI consistent with that
 	LONGLONG	iFrame = 0;
 	// loop until all frames are exported or the user cancels
-	while (m_nTaskDoneID != nTaskID) {
+	while (m_nTaskDoneID != nTaskID) {	// see OnRenderTaskDone
 		Sleep(nPollingPeriod);	// give our core a rest
 		iFrame = theApp.m_thrRender.GetTaskItemsDone();
 		dlgProgress.SetPos(static_cast<int>(iFrame));	// pumps messages

@@ -16,6 +16,7 @@
 		06		11mar25	add method to test equality with epsilon
 		07		12mar25	add set draw mode message
 		08		14mar25	add safe string duplicator
+		09		17mar25	add wildcard delete file
 
 */
 
@@ -68,6 +69,7 @@ bool FormatNumberCommas(LPCTSTR pszSrc, CString& sDst, int nPrecision = 0);
 int StringReplaceNoCase(CString& str, LPCTSTR pszOld, LPCTSTR pszNew);
 bool ShowListColumnHeaderMenu(CWnd *pWnd, CListCtrl& list, CPoint point);
 HRESULT PromptForFiles(CStringArrayEx& saPath, int nFilters = 0, const COMDLG_FILTERSPEC* pFilter = NULL, int iSelFilter = 0);
+int WildcardDeleteFile(CString sPath);
 
 // data validation method to flunk a control
 void DDV_Fail(CDataExchange* pDX, int nIDC);

@@ -66,6 +66,7 @@ public:
 	bool	MoviePause(bool bEnable);
 	bool	MovieSeek(LONGLONG iFrame);
 	bool	MovieExport(const CMovieExportParams& params, LONG& nTaskID);
+	static CString MakeImageSequenceFileName(CString sFolderPath, LONGLONG iFrame);
 
 protected:
 // Data members

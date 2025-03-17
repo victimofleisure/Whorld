@@ -100,6 +100,11 @@ const LPCTSTR CMainFrame::m_pszSnapshotFilter = _T("Snapshot Files (*.whs)|*.whs
 const LPCTSTR CMainFrame::m_pszMovieExt = _T("whm");
 const LPCTSTR CMainFrame::m_pszMovieFilter = _T("Movie Files (*.whm)|*.whm|All Files (*.*)|*.*||");
 
+static const LPCTSTR RK_MOVIE_EXPORT_DLG = _T("MovieExportDlg");
+static const LPCTSTR RK_MEX_FRAME_SIZE_PRESET = _T("FrameSizePreset");
+static const LPCTSTR RK_MEX_SCALE_TO_FIT = _T("ScaleToFit");
+static const LPCTSTR RK_MEX_TIME_UNIT = _T("TimeUnit");
+
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
@@ -1429,6 +1434,7 @@ void CMainFrame::OnUpdateMoviePlay(CCmdUI *pCmdUI)
 
 void CMainFrame::OnMovieExport()
 {
+	// movie and image export share the same persistent folder path
 	CString	sExportFolder(theApp.m_options.m_Export_sImageFolder);
 	UINT	nFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
 	CString	sFDlgTitle(LDS(IDS_EXPORT_MOVIE));
@@ -1436,9 +1442,17 @@ void CMainFrame::OnMovieExport()
 		return;	// user canceled
 	}
 	CMovieExportDlg	dlgMovieExport;
+	dlgMovieExport.m_iFrameSizePreset = theApp.GetProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_FRAME_SIZE_PRESET, 0);
+	dlgMovieExport.m_iScaleToFit = theApp.GetProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_SCALE_TO_FIT, 0);
+	dlgMovieExport.m_iTimeUnit = theApp.GetProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_TIME_UNIT, 0);
 	if (dlgMovieExport.DoModal() != IDOK) {
 		return;	// user canceled
 	}
+	theApp.WriteProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_FRAME_SIZE_PRESET, dlgMovieExport.m_iFrameSizePreset);
+	theApp.WriteProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_SCALE_TO_FIT, dlgMovieExport.m_iScaleToFit);
+	theApp.WriteProfileInt(RK_MOVIE_EXPORT_DLG, RK_MEX_TIME_UNIT, dlgMovieExport.m_iTimeUnit);
+	// options successfully obtained
+	theApp.m_options.m_Export_sImageFolder = sExportFolder;
 	CMovieExportParams	mep;
 	mep.m_sFolderPath = sExportFolder;
 	mep.m_szFrame = dlgMovieExport.m_szFrame;

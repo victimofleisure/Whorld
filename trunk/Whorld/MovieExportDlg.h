@@ -33,14 +33,14 @@ public:
 	UINT	GetExportFlags() const;
 
 // Public data
+	int		m_iFrameSizePreset;
 	CSize	m_szFrame;
-	int		m_nFrameSizePreset;
-	int		m_nScaleToFit;
-	int		m_nFrameSelType;
+	int		m_iScaleToFit;
+	int		m_iFrameSelType;
 	int		m_nRangeStart;
 	int		m_nRangeEnd;
 	int		m_nDuration;
-	int		m_nTimeUnit;
+	int		m_iTimeUnit;
 	float	m_fFrameRate;
 
 // Overrides
@@ -57,30 +57,31 @@ protected:
 		FRAME_SIZE_PRESETS
 	};
 	enum {	// frame selection types
-		FST_ALL,
-		FST_RANGE,
-		SELECTION_TYPES
+		FST_ALL,		// select all frames
+		FST_RANGE,		// select specified range of frames
+		FRAME_SELECTION_TYPES
 	};
 	enum {	// time units
-		UNIT_TIME,
-		UNIT_FRAMES,
+		UNIT_TIME,		// time in hours, minutes and seconds
+		UNIT_FRAMES,	// time in frames at specifed frame rate
 		TIME_UNITS
 	};
 	enum {
-		SECONDS_PER_DAY = 24 * 3600		// for COleDateTime
+		SECONDS_PER_DAY = 24 * 3600		// for COleDateTime conversion
 	};
 
 // Dialog Data
 	enum { IDD = IDD_MOVIE_EXPORT };
-	CComboBox m_comboFrameSize;
-	CComboBox m_comboScaleToFit;
-	int		m_nFrameCount;
+	CComboBox m_comboFrameSize;		// preset frame size drop list
+	CComboBox m_comboScaleToFit;	// scale to fit options drop list
+	int		m_nFrameCount;	// actual number of frames in the movie file
 
 // Overrides
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 
 // Helpers
+	void	UpdateFrameSize(int iFrameSizePreset);
 	static void	FrameToTime(int nFrame, COleDateTime& dt, float fFrameRate);
 	static int	TimeToFrame(const COleDateTime& dt, float fFrameRate);
 	static CString	FrameToTimeString(int nFrame, float fFrameRate);
@@ -90,6 +91,7 @@ protected:
 	void	DDX_FrameTime(CDataExchange* pDX, int nIDC, int& value) const;
 	void	UpdateDuration();
 	void	UpdateRangeEnd();
+	void	UpdateFrameSelection(int iFrameSelType);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()

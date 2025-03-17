@@ -576,7 +576,7 @@ void CWhorldThread::OnMovieExport(const CMovieExportParams* pParams, LONG nTaskI
 		OnMovieError();
 		return;	// fail
 	}
-	m_nTaskItemsDone = 0;	// watch out for race when reading this
+	m_nTaskItemsDone = 0;	// watch out for races when reading this
 	// for each frame in specified range of frames
 	for (LONGLONG iFrame = 0; iFrame < nFrames; iFrame++) {
 		if (m_nCancelTaskID >= nTaskID) {	// if task canceled

@@ -45,6 +45,8 @@ const double CWhorldDraw::MIN_STAR_RATIO = 1e-2;
 
 static CStatistics stats(60);//@@@
 
+#define SHOW_MOVIE_FRAME_NUMBERS 0	// allowed in Debug build only
+
 CWhorldDraw::CWhorldDraw() 
 	: m_oscOrigin(DEFAULT_FRAME_RATE, 1)
 {
@@ -703,6 +705,10 @@ bool CWhorldDraw::OnDraw()
 		if (m_bSnapshotMode && theApp.m_options.m_Snapshot_bLetterbox) {
 			DrawSnapshotLetterbox();	// sets background brush color
 		}
+		// if we're playing a movie and frame numbers are desired
+		if (m_movie.IsReading() && SHOW_MOVIE_FRAME_NUMBERS) {
+			DrawMovieFrameNumber();	// sets foreground brush color
+		}
 	}
 //	stats.Print(b.Elapsed());//@@@
 	return true;
@@ -969,4 +975,29 @@ void CWhorldDraw::OnMovieError()
 	m_movie.GetLastErrorState(errLast);
 	m_movie.Close();	// close movie to avoid flood of errors
 	HandleError(errLast.nError, errLast.pszSrcFileName, errLast.nLineNum, errLast.pszSrcFileDate);
+}
+
+bool CWhorldDraw::DrawMovieFrameNumber()
+{
+#if SHOW_MOVIE_FRAME_NUMBERS
+#ifndef _DEBUG
+#error	// movie frame numbers are not allowed in Release build
+#endif
+	#pragma comment(lib, "dwrite.lib")	// link DirectWrite library
+	// Ideally we shouldn't create the text format interface every time,
+	// but it only takes a few microseconds and this is test code for now.
+	CComPtr<IDWriteFactory> pDWriteFactory;
+    CHECK(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+		reinterpret_cast<IUnknown**>(&pDWriteFactory)));	// create factory
+	CComPtr<IDWriteTextFormat>	pWriteTextFormat;
+	const float nFontSize = 50;	// in DIPs
+	CHECK(pDWriteFactory->CreateTextFormat(_T("Arial"), NULL, DWRITE_FONT_WEIGHT_NORMAL, 
+		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, nFontSize, L"en-us", &pWriteTextFormat));
+	m_pDrawBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+	CString	sFrame;
+	sFrame.Format(_T("%lld"), m_movie.GetReadFrameIdx() - 1);
+	m_pD2DDeviceContext->DrawText(sFrame, sFrame.GetLength(), pWriteTextFormat, 
+		CD2DRectF(10, 0, m_szTarget.width, nFontSize), m_pDrawBrush);
+#endif // SHOW_MOVIE_FRAME_NUMBERS
+	return true;	// in Release build, this method is optimized away
 }

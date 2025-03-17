@@ -131,4 +131,5 @@ protected:
 	bool	SetFrameRate(DWORD nFrameRate);
 	bool	ReadMovieFrame();
 	void	OnMovieError();
+	bool	DrawMovieFrameNumber();
 };

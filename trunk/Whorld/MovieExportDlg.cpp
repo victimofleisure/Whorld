@@ -20,6 +20,7 @@
 #include "stdafx.h"
 #include "Whorld.h"
 #include "MovieExportDlg.h"
+#include "Options.h"	// for scale to fit types
 
 /////////////////////////////////////////////////////////////////////////////
 // CMovieExportDlg dialog
@@ -29,21 +30,33 @@ IMPLEMENT_DYNAMIC(CMovieExportDlg, CDialog);
 CMovieExportDlg::CMovieExportDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMovieExportDlg::IDD, pParent)
 {
+	m_iFrameSizePreset = FSP_MOVIE;
 	m_szFrame = CSize(0, 0);
-	m_nFrameSizePreset = 0;
-	m_nScaleToFit = 0;
-	m_nFrameSelType = 0;
+	m_iScaleToFit = 0;
+	m_iFrameSelType = FST_ALL;
 	m_nRangeStart = 0;
 	m_nRangeEnd = 0;
 	m_nDuration = 0;
-	m_nTimeUnit = 0;
+	m_iTimeUnit = UNIT_TIME;
 	m_fFrameRate = 0;
 	m_nFrameCount = 0;
 }
 
 UINT CMovieExportDlg::GetExportFlags() const
 {
-	return COptions::GetExportFlags(m_nFrameSizePreset > 0, m_nScaleToFit);
+	return COptions::GetExportFlags(m_iFrameSizePreset == FSP_VIEW, m_iScaleToFit);
+}
+
+void CMovieExportDlg::UpdateFrameSize(int iFrameSizePreset)
+{
+	D2D1_SIZE_F	szTarget;
+	if (iFrameSizePreset == FSP_MOVIE) {	// if getting frame size from movie
+		szTarget = theApp.m_thrRender.GetMovieFrameSize();
+	} else {	// get frame size from render target size
+		szTarget = theApp.m_thrRender.GetTargetSize();
+	}
+	m_szFrame.cx = Round(szTarget.width);
+	m_szFrame.cy = Round(szTarget.height);
 }
 
 void CMovieExportDlg::FrameToTime(int nFrames, COleDateTime& dt, float fFrameRate)
@@ -85,7 +98,7 @@ bool CMovieExportDlg::TimeStringToFrame(CString sTime, int& nFrame) const
 
 void CMovieExportDlg::DDX_FrameTime(CDataExchange* pDX, int nIDC, int& value) const
 {
-	if (m_nTimeUnit == UNIT_TIME) {	// if unit is time
+	if (m_iTimeUnit == UNIT_TIME) {	// if unit is time
 		CString	sTime;
 		if (!pDX->m_bSaveAndValidate) {	// if initializing controls from data
 			sTime = FrameToTimeString(value);
@@ -95,6 +108,10 @@ void CMovieExportDlg::DDX_FrameTime(CDataExchange* pDX, int nIDC, int& value) co
 			if (!TimeStringToFrame(sTime, value)) {	// if can't parse time
 				AfxMessageBox(IDS_MEX_BAD_TIME);
 				DDV_Fail(pDX, nIDC);
+			}
+			// if retrieving range end, and range end is greater than zero
+			if (nIDC == IDC_MEX_RANGE_END_EDIT && value > 0) {
+				value--;	// ensure range end is one less than duration
 			}
 		}
 	} else {	// unit is frames
@@ -122,6 +139,15 @@ void CMovieExportDlg::UpdateRangeEnd()
 	m_nRangeEnd = max(m_nRangeEnd, m_nRangeStart);
 }
 
+void CMovieExportDlg::UpdateFrameSelection(int iFrameSelType)
+{
+	if (iFrameSelType == FST_ALL) {
+		m_nRangeStart = 0;
+		m_nRangeEnd = m_nFrameCount - 1;
+		m_nDuration = m_nFrameCount;
+	}
+}
+
 void CMovieExportDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
@@ -129,10 +155,10 @@ void CMovieExportDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MEX_SCALE_TO_FIT_COMBO, m_comboScaleToFit);
 	DDX_Text(pDX, IDC_MEX_FRAME_WIDTH_EDIT, m_szFrame.cx);
 	DDX_Text(pDX, IDC_MEX_FRAME_HEIGHT_EDIT, m_szFrame.cy);
-	DDX_Radio(pDX, IDC_MEX_FRAME_SEL_TYPE_1, m_nFrameSelType);
+	DDX_Radio(pDX, IDC_MEX_FRAME_SEL_TYPE_1, m_iFrameSelType);
 	if (!pDX->m_bSaveAndValidate) {	// if initializing controls from data
 		// order matters: initialize time unit BEFORE initializing times
-		DDX_Radio(pDX, IDC_MEX_TIME_UNIT_1, m_nTimeUnit);
+		DDX_Radio(pDX, IDC_MEX_TIME_UNIT_1, m_iTimeUnit);
 	}
 	DDX_FrameTime(pDX, IDC_MEX_RANGE_START_EDIT, m_nRangeStart);
 	DDX_FrameTime(pDX, IDC_MEX_RANGE_END_EDIT, m_nRangeEnd);
@@ -140,7 +166,7 @@ void CMovieExportDlg::DoDataExchange(CDataExchange* pDX)
 	// if retrieving data from controls and not canceling dialog
 	if (pDX->m_bSaveAndValidate && m_nModalResult != IDCANCEL) {
 		// order matters: retrieve time unit AFTER retrieving times
-		DDX_Radio(pDX, IDC_MEX_TIME_UNIT_1, m_nTimeUnit);
+		DDX_Radio(pDX, IDC_MEX_TIME_UNIT_1, m_iTimeUnit);
 		if (m_nRangeStart > m_nRangeEnd) {	// if range out of order
 			AfxMessageBox(IDS_MEX_BAD_RANGE);
 			DDV_Fail(pDX, IDC_MEX_RANGE_END_EDIT);
@@ -171,20 +197,24 @@ END_MESSAGE_MAP()
 
 BOOL CMovieExportDlg::OnInitDialog() 
 {
-	m_nDuration = 1;
+	m_nDuration = 1;	// avoids spurious DDV error
 	m_nFrameCount = static_cast<int>(theApp.m_thrRender.GetMovieFrameCount());
 	m_fFrameRate = theApp.m_thrRender.GetMovieFrameRate();
+	ASSERT(m_nFrameCount > 0);
+	ASSERT(m_fFrameRate > 0);
+	UpdateFrameSize(m_iFrameSizePreset);
+	// Initialize the frame range regardless of the current frame selection type,
+	// because the frame range isn't an input to this dialog, it's output only.
+	UpdateFrameSelection(FST_ALL);
 
 	CDialog::OnInitDialog();
 
-	// initialize scale to fit drop list from options
+	m_comboFrameSize.SetCurSel(CLAMP(m_iFrameSizePreset, 0, FRAME_SIZE_PRESETS - 1));
+	// initialize scale to fit combo; scale to fit types are owned by options
 	for (int iFitType = 0; iFitType < COptions::SCALE_TO_FIT_TYPES; iFitType++) {
 		m_comboScaleToFit.AddString(LDS(COptions::m_oiScaleToFit[iFitType].nNameID));
 	}
-	m_comboFrameSize.SetCurSel(m_nFrameSizePreset);
-	m_comboScaleToFit.SetCurSel(m_nScaleToFit);
-	OnSelchangeFrameSize();
-	OnClickedFrameSelType(0);
+	m_comboScaleToFit.SetCurSel(CLAMP(m_iScaleToFit, 0, COptions::SCALE_TO_FIT_TYPES - 1));
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
@@ -192,6 +222,20 @@ BOOL CMovieExportDlg::OnInitDialog()
 void CMovieExportDlg::OnOK()
 {
 	CDialog::OnOK();
+	// get index of frame size preset from combo
+	m_iFrameSizePreset = m_comboFrameSize.GetCurSel();
+	ASSERT(m_iFrameSizePreset >= 0 && m_iFrameSizePreset < FRAME_SIZE_PRESETS);
+	m_iFrameSizePreset = CLAMP(m_iFrameSizePreset, 0, FRAME_SIZE_PRESETS - 1);
+	// get index of scale to fit type from combo
+	m_iScaleToFit = m_comboScaleToFit.GetCurSel();
+	ASSERT(m_iScaleToFit >= 0 && m_iScaleToFit < COptions::SCALE_TO_FIT_TYPES);
+	m_iScaleToFit = CLAMP(m_iScaleToFit, 0, COptions::SCALE_TO_FIT_TYPES - 1);
+	// If the frame selection type is ALL, update the frame range from the
+	// movie's actual frame count, avoiding imprecision due to time rounding.
+	UpdateFrameSelection(m_iFrameSelType);
+	if (m_iFrameSizePreset == FSP_MOVIE) {	// if frame size preset is movie
+		UpdateFrameSize(m_iFrameSizePreset);	// refresh frame size just in case
+	}
 }
 
 LRESULT CMovieExportDlg::OnKickIdle(WPARAM, LPARAM)
@@ -224,14 +268,7 @@ void CMovieExportDlg::OnSelchangeFrameSize()
 	if (iPreset < FSP_CUSTOM) {
 		// display render target size in width/height edit controls
 		UpdateData(true);	// retrieve data from controls
-		D2D1_SIZE_F	szTarget;
-		if (iPreset == FSP_MOVIE) {	// if getting frame size from movie
-			szTarget = theApp.m_thrRender.GetMovieFrameSize();
-		} else {	// get frame size from render target size
-			szTarget = theApp.m_thrRender.GetTargetSize();
-		}
-		m_szFrame.cx = Round(szTarget.width);
-		m_szFrame.cy = Round(szTarget.height);
+		UpdateFrameSize(iPreset);
 		UpdateData(false);	// initialize controls from data
 	}
 }
@@ -239,13 +276,10 @@ void CMovieExportDlg::OnSelchangeFrameSize()
 void CMovieExportDlg::OnClickedFrameSelType(UINT nID)
 {
 	UNREFERENCED_PARAMETER(nID);
-	int	iSelType = IsDlgButtonChecked(IDC_MEX_FRAME_SEL_TYPE_1);
-	if (iSelType > FST_ALL) {
+	int	iFrameSelType = IsDlgButtonChecked(IDC_MEX_FRAME_SEL_TYPE_1);
+	if (iFrameSelType == FST_ALL) {	// if frame selection type is ALL
 		UpdateData(true);	// retrieve data from controls
-		int	nFrames = static_cast<int>(m_nFrameCount);
-		m_nRangeStart = 0;
-		m_nRangeEnd = nFrames - 1;
-		m_nDuration = nFrames;
+		UpdateFrameSelection(iFrameSelType);
 		UpdateData(false);	// initialize controls from data
 	}
 }
@@ -276,4 +310,3 @@ void CMovieExportDlg::OnUpdateFrameRate(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(false);
 }
-

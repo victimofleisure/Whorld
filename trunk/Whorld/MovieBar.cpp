@@ -34,10 +34,22 @@ int CMovieBar::FrameToSliderPos(LONGLONG iFrame)
 	return Round(static_cast<double>(iFrame) / (nFrames - 1) * 1000);
 }
 
-LONGLONG CMovieBar::SliderPosToFrame(int iPos)
+LONGLONG CMovieBar::SliderPosToFrame(int nPos)
 {
 	LONGLONG	nFrames = theApp.m_thrRender.GetMovieFrameCount();
-	return Round(static_cast<double>(iPos) / 1000 * (nFrames - 1));
+	return Round(static_cast<double>(nPos) / 1000 * (nFrames - 1));
+}
+
+void CMovieBar::OnSliderScroll(int nPos)
+{
+	if (nPos != m_nSliderPos) {	// if slider position changed
+		m_nSliderPos = nPos;	// updated cached copy
+		if (theApp.GetMainFrame()->IsMoviePlaying()) {
+			LONGLONG	iFrame = SliderPosToFrame(nPos);
+			theApp.m_thrRender.MovieSeek(iFrame);
+			UpdateTime(iFrame);
+		}
+	}
 }
 
 void CMovieBar::OnPlay(bool bEnable)
@@ -69,6 +81,33 @@ BOOL CMovieBar::OnShowControlBarMenu(CPoint point)
 BOOL CMovieBar::CanAutoHide() const
 {
 	return false;	// disable auto-hide
+}
+
+BOOL CMovieBar::PreTranslateMessage(MSG* pMsg)
+{
+	if (pMsg->message == WM_KEYDOWN) {	// if key down message
+		// we should only get messages if slider has focus but check anyway
+		HWND	hWnd = ::GetFocus();
+		if (hWnd == m_wndSlider.m_hWnd) {	// if slider has input focus
+			// The following keys may be used as main frame accelerators,
+			// but the slider should respond to them when it has focus,
+			// so intercept these keys and relay them to the slider.
+			switch (pMsg->wParam) {
+			case VK_PRIOR:
+			case VK_NEXT:
+			case VK_END:
+			case VK_HOME:
+			case VK_LEFT:
+			case VK_UP:
+			case VK_RIGHT:
+			case VK_DOWN:
+				// relay key down message to slider
+				m_wndSlider.SendMessage(WM_KEYDOWN, pMsg->wParam, pMsg->lParam);
+				break;
+			}
+		}
+	}
+	return CMyDockablePane::PreTranslateMessage(pMsg);
 }
 
 // CMovieBar message map
@@ -139,15 +178,7 @@ void CMovieBar::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	case SB_THUMBPOSITION:
 		break;
 	default:
-		int	nSliderPos = m_wndSlider.GetPos();
-		if (nSliderPos != m_nSliderPos) {	// if slider position changed
-			m_nSliderPos = nSliderPos;	// updated cached copy
-			if (theApp.GetMainFrame()->IsMoviePlaying()) {
-				LONGLONG	iFrame = SliderPosToFrame(nSliderPos);
-				theApp.m_thrRender.MovieSeek(iFrame);
-				UpdateTime(iFrame);
-			}
-		}
+		OnSliderScroll(m_wndSlider.GetPos());
 	}
 }
 

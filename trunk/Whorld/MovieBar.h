@@ -51,13 +51,15 @@ protected:
 
 // Helpers
 	static int	FrameToSliderPos(LONGLONG iFrame);
-	static LONGLONG	SliderPosToFrame(int iPos);
+	static LONGLONG	SliderPosToFrame(int nPos);
+	void	OnSliderScroll(int nPos);
 	void	UpdateTime(LONGLONG iFrame);
 
 // Overrides
 	virtual BOOL OnBeforeFloat(CRect& rectFloat, AFX_DOCK_METHOD dockMethod);
 	virtual BOOL OnShowControlBarMenu(CPoint point);
 	virtual BOOL CanAutoHide() const;
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()

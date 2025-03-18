@@ -216,7 +216,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 #if 0	// disable menu personalization of most-recently used commands
 	// enable menu personalization (most-recently used commands)
-	// TODO: define your own basic commands, ensuring that each pulldown menu has at least one basic command.
 	CList<UINT, UINT> lstBasicCommands;
 
 	lstBasicCommands.AddTail(ID_FILE_NEW);

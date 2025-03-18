@@ -38,6 +38,7 @@ public:
 	LONGLONG	GetMovieFrameCount() const;
 	D2D1_SIZE_F	GetMovieFrameSize() const;
 	float	GetMovieFrameRate() const;
+	LONGLONG	GetMoviePlaybackPos() const;
 	void	CancelTask(LONG nTaskID);
 	LONGLONG	GetTaskItemsDone() const;
 
@@ -152,6 +153,11 @@ inline D2D1_SIZE_F CWhorldThread::GetMovieFrameSize() const
 inline float CWhorldThread::GetMovieFrameRate() const
 {
 	return m_movie.GetFrameRate();
+}
+
+inline LONGLONG CWhorldThread::GetMoviePlaybackPos() const
+{
+	return m_movie.GetReadFrameIdx();
 }
 
 inline void CWhorldThread::CancelTask(LONG nTaskID)

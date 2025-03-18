@@ -696,7 +696,6 @@ bool CWhorldDraw::OnDraw()
 			RING&	ring = m_aRing.GetNext(m_posDel);
 			ring.bDelete = true;	// cascade delete
 		}
-		m_nFrameCount++;
 		if (m_movie.IsWriting()) {
 			m_movie.Write(GetSnapshot());
 		}
@@ -710,6 +709,7 @@ bool CWhorldDraw::OnDraw()
 			DrawMovieFrameNumber();	// sets foreground brush color
 		}
 	}
+	m_nFrameCount++;
 //	stats.Print(b.Elapsed());//@@@
 	return true;
 }

@@ -21,6 +21,7 @@
 		11		08mar25	add wait for posted message
 		12		14mar25	add movie recording and playback
 		13		16mar25	add movie export
+		14		17mar25	add movie bar
 
 */
 
@@ -34,6 +35,7 @@
 #include "MasterBar.h"
 #include "MappingBar.h"
 #include "GlobalsBar.h"
+#include "MovieBar.h"
 
 // docking bar IDs are relative to AFX_IDW_CONTROLBAR_FIRST
 enum {	// docking bar IDs; don't change, else bar placement won't be restored
@@ -74,8 +76,8 @@ public:
 	bool	InRenderFullError() const;
 	bool	IsCurrentSnapshotValid();
 	bool	IsMovieOpen() const;
-	bool	IsRecordingMovie() const;
-	bool	IsPlayingMovie() const;
+	bool	IsMovieRecording() const;
+	bool	IsMoviePlaying() const;
 	bool	IsPaused() const;
 
 // Operations
@@ -112,7 +114,7 @@ public:
 
 // Constants
 	static const UINT m_arrDockingBarNameID[DOCKING_BARS];	// array of docking bar name IDs
-	enum {
+	enum {	// timers
 		FRAME_RATE_TIMER_ID = 2025,
 		FRAME_RATE_TIMER_PERIOD = 1000,
 	};
@@ -243,19 +245,19 @@ inline bool CMainFrame::IsMovieOpen() const
 	return m_nMovieIOState >= MOVIE_PLAYING;
 }
 
-inline bool CMainFrame::IsRecordingMovie() const
+inline bool CMainFrame::IsMovieRecording() const
 {
 	return m_nMovieIOState > MOVIE_PLAYING;
 }
 
-inline bool CMainFrame::IsPlayingMovie() const
+inline bool CMainFrame::IsMoviePlaying() const
 {
 	return m_nMovieIOState == MOVIE_PLAYING;
 }
 
 inline bool CMainFrame::IsPaused() const
 {
-	if (IsPlayingMovie()) {	// if playing movie
+	if (IsMoviePlaying()) {	// if playing movie
 		return m_bIsMoviePaused;	// movie owns the pause state
 	} else {	// not playing movie
 		return theApp.IsPaused();	// do normal pause behavior

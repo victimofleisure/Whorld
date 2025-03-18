@@ -10,6 +10,7 @@
         00		08feb25	initial version
 		01		26feb25	add mapping
 		02		02mar25	add globals
+		03		17mar25	add movie
 		
 */
 
@@ -22,6 +23,7 @@ MAINDOCKBARDEF(Params,		200,	300,	dwBaseStyle | CBRS_LEFT)
 MAINDOCKBARDEF(Master,		200,	300,	dwBaseStyle | CBRS_RIGHT)
 MAINDOCKBARDEF(Mapping,		300,	200,	dwBaseStyle | CBRS_BOTTOM)
 MAINDOCKBARDEF(Globals,		200,	300,	dwBaseStyle | CBRS_RIGHT)
+MAINDOCKBARDEF(Movie,		300,	20,		dwBaseStyle | CBRS_BOTTOM)
 
 // After adding a new dockable bar here:
 // 1. Add a resource string IDS_BAR_Foo where Foo is the bar name.

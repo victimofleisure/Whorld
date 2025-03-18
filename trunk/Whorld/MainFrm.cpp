@@ -25,6 +25,7 @@
 		15		12mar25	add snapshot info command; handle set draw mode
 		16		14mar25	add movie recording and playback
 		17		16mar25	add movie export
+		18		17mar25	add movie bar
 
 */
 
@@ -532,7 +533,7 @@ void CMainFrame::OnFrameGetMinMaxInfo(CDockablePane* pPane, HWND hFrameWnd, MINM
 bool CMainFrame::PlayMovie(LPCTSTR pszMoviePath, bool bPaused)
 {
 	if (IsMovieOpen()) {	// if movie is open
-		ASSERT(IsPlayingMovie());	// else we shouldn't be here
+		ASSERT(IsMoviePlaying());	// else we shouldn't be here
 		theApp.m_thrRender.MoviePlay(NULL);	// stop playback
 		m_nMovieIOState = MOVIE_NONE;
 		theApp.SetPause(false);	// exit snapshot mode and resume patch
@@ -546,13 +547,14 @@ bool CMainFrame::PlayMovie(LPCTSTR pszMoviePath, bool bPaused)
 		theApp.SetSnapshotMode(true);
 		m_nMovieIOState = MOVIE_PLAYING;
 	}
+	m_wndMovieBar.OnPlay(IsMoviePlaying());
 	return true;
 }
 
 bool CMainFrame::RecordMovie(LPCTSTR pszMoviePath)
 {
 	if (IsMovieOpen()) {	// if movie is open
-		ASSERT(IsRecordingMovie());	// else we shouldn't be here
+		ASSERT(IsMovieRecording());	// else we shouldn't be here
 		theApp.m_thrRender.MovieRecord(NULL);	// stop recording
 		m_nMovieIOState = MOVIE_NONE;
 	} else {	// movie is closed
@@ -1101,7 +1103,7 @@ void CMainFrame::OnFileExport()
 
 void CMainFrame::OnUpdateFileExport(CCmdUI* pCmdUI)
 {
-	pCmdUI->Enable(!IsPlayingMovie());
+	pCmdUI->Enable(!IsMoviePlaying());
 }
 
 void CMainFrame::OnFileTakeSnapshot()
@@ -1136,7 +1138,7 @@ void CMainFrame::OnFileLoadSnapshot()
 void CMainFrame::OnUpdateFileLoadSnapshot(CCmdUI* pCmdUI)
 {
 	// you can view snapshots or play a movie, but not both
-	pCmdUI->Enable(!IsPlayingMovie());
+	pCmdUI->Enable(!IsMoviePlaying());
 }
 
 void CMainFrame::OnPlaylistNew()
@@ -1346,7 +1348,7 @@ void CMainFrame::OnUpdateWindowDetach(CCmdUI* pCmdUI)
 
 void CMainFrame::OnWindowPause()
 {
-	if (IsPlayingMovie()) {
+	if (IsMoviePlaying()) {
 		PauseMovie(!m_bIsMoviePaused);
 	} else {
 		theApp.SetPause(!theApp.IsPaused());
@@ -1375,7 +1377,7 @@ void CMainFrame::OnWindowClear()
 
 void CMainFrame::OnUpdateWindowClear(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(!IsPlayingMovie());
+	pCmdUI->Enable(!IsMoviePlaying());
 }
 
 void CMainFrame::OnWindowResetLayout()
@@ -1410,8 +1412,8 @@ void CMainFrame::OnMovieRecord()
 
 void CMainFrame::OnUpdateMovieRecord(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(IsRecordingMovie());
-	pCmdUI->Enable(!IsPlayingMovie());
+	pCmdUI->SetCheck(IsMovieRecording());
+	pCmdUI->Enable(!IsMoviePlaying());
 }
 
 void CMainFrame::OnMoviePlay()
@@ -1428,8 +1430,8 @@ void CMainFrame::OnMoviePlay()
 
 void CMainFrame::OnUpdateMoviePlay(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(IsPlayingMovie());
-	pCmdUI->Enable(!IsRecordingMovie());
+	pCmdUI->SetCheck(IsMoviePlaying());
+	pCmdUI->Enable(!IsMovieRecording());
 }
 
 void CMainFrame::OnMovieExport()
@@ -1487,11 +1489,10 @@ void CMainFrame::OnMovieExport()
 	int	nPollingPeriod = 1000 / nPollingFrequency;	// in milliseconds
 	// render thread pauses movie playback while exporting movie
 	m_bIsMoviePaused = true;	// so keep UI consistent with that
-	LONGLONG	iFrame = 0;
 	// loop until all frames are exported or the user cancels
 	while (m_nTaskDoneID != nTaskID) {	// see OnRenderTaskDone
 		Sleep(nPollingPeriod);	// give our core a rest
-		iFrame = theApp.m_thrRender.GetTaskItemsDone();
+		LONGLONG	iFrame = theApp.m_thrRender.GetTaskItemsDone();
 		dlgProgress.SetPos(static_cast<int>(iFrame));	// pumps messages
 		if (dlgProgress.Canceled()) {	// if user clicked cancel
 			theApp.m_thrRender.CancelTask(nTaskID);	// cancel task
@@ -1502,7 +1503,7 @@ void CMainFrame::OnMovieExport()
 
 void CMainFrame::OnUpdateMovieExport(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(IsPlayingMovie());
+	pCmdUI->Enable(IsMoviePlaying());
 }
 
 void CMainFrame::OnMovieRewind()
@@ -1512,5 +1513,5 @@ void CMainFrame::OnMovieRewind()
 
 void CMainFrame::OnUpdateMovieRewind(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(IsPlayingMovie());
+	pCmdUI->Enable(IsMoviePlaying());
 }

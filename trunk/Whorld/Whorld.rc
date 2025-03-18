@@ -787,6 +787,8 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_MOVIE_EXPORT_OVERWRITE_WARN 
+                            "Destination folder already contains an image sequence.\nDo you want to replace it?"
     IDS_NONE                "<None>"
     IDS_NOT_APPLICABLE      "N/A"
     IDS_OPT_DESC_Export_bPromptUser 
@@ -808,11 +810,11 @@ BEGIN
     IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
     IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
-    IDS_OPT_GROUP_Input     "Input"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_GROUP_Input     "Input"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_GROUP_Snapshot  "Snapshot"
     IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
@@ -828,11 +830,11 @@ BEGIN
     IDS_OPT_NAME_Input_fWheelSense "Wheel Sensitivity"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
-    IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
     IDS_OPT_SCALE_TO_FIT_Both "Both"
     IDS_OPT_SCALE_TO_FIT_Height "Height"
     IDS_OPT_SCALE_TO_FIT_None "None"
@@ -848,11 +850,11 @@ BEGIN
     IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
-    IDS_PARAM_Pinwheel      "Pinwheel"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
     IDS_PARAM_RingSpacing   "Ring Spacing"
@@ -868,11 +870,11 @@ BEGIN
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
-    IDS_PROW_Val            "Value"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
@@ -889,8 +891,6 @@ BEGIN
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_MOVIE_EXPORT_OVERWRITE_WARN 
-                            "Destination folder already contains an image sequence.\nDo you want to replace it?"
 END
 
 STRINGTABLE
@@ -1074,6 +1074,12 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_BAR_Movie           "Movie"
+    ID_VIEW_BAR_Movie       "Show or hide the movie bar\nShow Movie"
 END
 
 #endif    // English (United States) resources

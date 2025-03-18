@@ -13,6 +13,7 @@
 		03		18feb09	in OnLButtonDown, temporarily disable paging
 		04		10feb25	fix warnings on casting window handle
 		05		03mar25	modernize style
+		06		17mar25 fix delayed response to left-click in thumb track
 
 		slider with jump to position and default
  
@@ -100,11 +101,10 @@ void CClickSliderCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 	SetPageSize(1);	// disable paging so base class doesn't change position
 	CSliderCtrl::OnLButtonDown(nFlags, point);	// do base class behavior
 	SetPageSize(nPageSize);	// restore page size
-	// if click was outside channel, MFC doesn't post HScroll
-	CRect	rChan;
-	GetChannelRect(rChan);
-	if (!rChan.PtInRect(point))
-		PostPos();
+	// Legacy version only posted if point was outside channel, but that's no
+	// longer viable, as in that case, slider doesn't respond to left-click in
+	// thumb track until mouse button is released; cause of change is unknown.
+	PostPos();	// posting notification unconditionally seems to work better
 }
 
 void CClickSliderCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 

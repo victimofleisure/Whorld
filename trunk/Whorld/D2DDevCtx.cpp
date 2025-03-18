@@ -21,7 +21,10 @@ CD2DDevCtx::CD2DDevCtx()
 
 void CD2DDevCtx::OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
 {
-	printf("COM error %x in %s line %d (%s)\n", hr, pszSrcFileName, nLineNum, pszSrcFileDate); 
+	UNREFERENCED_PARAMETER(hr);
+	UNREFERENCED_PARAMETER(pszSrcFileName);
+	UNREFERENCED_PARAMETER(nLineNum);
+	UNREFERENCED_PARAMETER(pszSrcFileDate);
 }
 
 bool CD2DDevCtx::CreateUserResources()

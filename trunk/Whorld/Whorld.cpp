@@ -185,6 +185,18 @@ int CWhorldApp::ExitInstance()
 	return CWinAppEx::ExitInstance();
 }
 
+void CWhorldApp::OnClosingMainFrame(CFrameImpl* pFrameImpl)
+{
+	// The framework calls this method when the frame is definitely closing,
+	// but before any panes are destroyed. If a movie is playing, the movie
+	// bar is visible, but we must hide it so it's not unexpectedly visible
+	// the next time the app runs, and this is the right moment to do that.
+	if (GetMainFrame()->IsMoviePlaying()) {	// if playing a movie
+		GetMainFrame()->m_wndMovieBar.ShowPane(false, 0, 0);	// hide movie bar
+	}
+	CWinAppEx::OnClosingMainFrame(pFrameImpl);	// base saves the UI state
+}
+
 void CWhorldApp::ResetWindowLayout()
 {
 	// registry keys listed here will be deleted

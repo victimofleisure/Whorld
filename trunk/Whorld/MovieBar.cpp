@@ -68,13 +68,14 @@ BOOL CMovieBar::OnShowControlBarMenu(CPoint point)
 
 BOOL CMovieBar::CanAutoHide() const
 {
-	return false;
+	return false;	// disable auto-hide
 }
 
 // CMovieBar message map
 
 BEGIN_MESSAGE_MAP(CMovieBar, CMyDockablePane)
 	ON_WM_CREATE()
+	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
 	ON_WM_HSCROLL()
 	ON_WM_TIMER()
@@ -87,28 +88,46 @@ int CMovieBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
     if (CMyDockablePane::OnCreate(lpCreateStruct) == -1)
         return -1;
 
+	// The gripper (AKA caption bar) would look absurd and must be avoided.
+	// In addition to clearing this flag, we must never allow the bar to float.
 	m_bHasGripper = false;	// prevent caption bar
     // create slider
     CRect	rDummy(0, 0, 0, 0); // placeholder size
+	// a rectangular slider thumb with no ticks looks best
 	DWORD	dwSliderStyle = WS_CHILD | WS_VISIBLE | WS_DISABLED | TBS_BOTH | TBS_NOTICKS;
     if (!m_wndSlider.Create(dwSliderStyle, rDummy, this, IDC_MOVIE_SLIDER)) {
 		return -1;
 	}
+	// center text vertically within the control
 	DWORD	dwStaticStyle = WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE;
 	if (!m_wndTime.Create(NULL, dwStaticStyle, rDummy, this, IDC_TIME_STATIC)) {
 		return -1;
 	}
 	m_wndSlider.SetRange(0, MOVIE_SLIDER_RANGE);
+	// tell the control to use the default GUI font; cryptic but easy
 	m_wndTime.SendMessage(WM_SETFONT, WPARAM(GetStockObject(DEFAULT_GUI_FONT)));
+	// specify a minimum height; there is no easy way to specify a maximum
 	SetMinSize(CSize(BAR_MIN_WIDTH, BAR_MIN_HEIGHT));
 
     return 0;
 }
 
+BOOL CMovieBar::OnEraseBkgnd(CDC* pDC)
+{
+	// By default, the background is unpainted because CBasePane overrides
+	// OnEraseBkgnd to do nothing. That's fine if the child controls cover
+	// the entire client area, but it's unhelpful in this case, because we
+	// have a margin between our child controls. In this scenario the pane
+	// should clip children, which it does; see CreateDockingWindows.
+    DoPaint(pDC); // fill background with the standard theme color
+    return true;  // no further erasing is required
+}
+
 void CMovieBar::OnSize(UINT nType, int cx, int cy)
 {
 	CMyDockablePane::OnSize(nType, cx, cy);
-	m_wndSlider.MoveWindow(0, 0, cx - TIME_WIDTH, cy);
+	int	nMargin = GetSystemMetrics(SM_CXPADDEDBORDER);
+	m_wndSlider.MoveWindow(0, 0, cx - TIME_WIDTH - nMargin, cy);
 	m_wndTime.MoveWindow(cx - TIME_WIDTH, 0, cx, cy);
 }
 
@@ -121,8 +140,8 @@ void CMovieBar::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		break;
 	default:
 		int	nSliderPos = m_wndSlider.GetPos();
-		if (nSliderPos != m_nSliderPos) {
-			m_nSliderPos = nSliderPos;
+		if (nSliderPos != m_nSliderPos) {	// if slider position changed
+			m_nSliderPos = nSliderPos;	// updated cached copy
 			if (theApp.GetMainFrame()->IsMoviePlaying()) {
 				LONGLONG	iFrame = SliderPosToFrame(nSliderPos);
 				theApp.m_thrRender.MovieSeek(iFrame);
@@ -134,11 +153,17 @@ void CMovieBar::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 void CMovieBar::UpdateTime(LONGLONG iFrame)
 {
+	// This method is called by OnTimer, so its overhead must be considered.
+	// It takes 10 microseconds if it doesn't update the control, but as much
+	// as half a millisecond if it does, hence change detection is warranted.
+	// We'd like to avoid reallocating a string every time, but that's hopeless
+	// because COleDateTime::Format returns a string instead using a reference.
 	float	fFrameRate = theApp.m_thrRender.GetMovieFrameRate();
-	CString	sTime(CMovieExportDlg::FrameToTimeString(static_cast<int>(iFrame), fFrameRate));
-	if (sTime != m_sTime) {
-		m_wndTime.SetWindowText(_T("   ") + sTime);
-		m_sTime = sTime;
+	CString	sTime;
+	CMovieExportDlg::FrameToTimeString(static_cast<int>(iFrame), sTime, fFrameRate);
+	if (sTime != m_sTime) {	// if time changed
+		m_wndTime.SetWindowText(sTime);	// updating window is relatively slow
+		m_sTime = sTime;	// update cached copy
 	}
 }
 
@@ -148,8 +173,9 @@ void CMovieBar::OnTimer(UINT_PTR nIDEvent)
 	case MOVIE_POS_TIMER_ID:
 		if (!theApp.GetMainFrame()->IsPaused()) {
 			LONGLONG	iFrame = theApp.m_thrRender.GetMoviePlaybackPos();
-			int	m_nSliderPos = FrameToSliderPos(iFrame);
-			m_wndSlider.SetPos(m_nSliderPos);
+			int	nSliderPos = FrameToSliderPos(iFrame);
+			m_wndSlider.SetPos(nSliderPos);
+			m_nSliderPos = nSliderPos;
 			UpdateTime(iFrame);
 		}
 		return;

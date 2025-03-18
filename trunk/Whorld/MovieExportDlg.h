@@ -33,10 +33,10 @@ public:
 	UINT	GetExportFlags() const;
 
 // Operations
-	static void	FrameToTime(int nFrame, COleDateTime& dt, float fFrameRate);
-	static int	TimeToFrame(const COleDateTime& dt, float fFrameRate);
-	static CString	FrameToTimeString(int nFrame, float fFrameRate);
-	static bool	TimeStringToFrame(CString sTime, int& nFrame, float fFrameRate);
+	static void	FrameToTime(int iFrame, COleDateTime& dt, float fFrameRate);
+	static int TimeToFrame(const COleDateTime& dt, float fFrameRate);
+	static void	FrameToTimeString(int iFrame, CString& sTime, float fFrameRate);
+	static bool	TimeStringToFrame(CString sTime, int& iFrame, float fFrameRate);
 
 // Constants
 	enum {	// frame size presets
@@ -88,8 +88,8 @@ protected:
 
 // Helpers
 	void	UpdateFrameSize(int iFrameSizePreset);
-	CString	FrameToTimeString(int nFrame) const;
-	bool	TimeStringToFrame(CString sTime, int& nFrame) const;
+	void	FrameToTimeString(int iFrame, CString& sTime) const;
+	bool	TimeStringToFrame(CString sTime, int& iFrame) const;
 	void	DDX_FrameTime(CDataExchange* pDX, int nIDC, int& value) const;
 	void	UpdateDuration();
 	void	UpdateRangeEnd();

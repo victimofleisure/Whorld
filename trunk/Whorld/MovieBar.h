@@ -31,23 +31,23 @@ public:
 protected:
 // Constants
 	enum {	// child controls
-		IDC_MOVIE_SLIDER = 5013,
+		IDC_MOVIE_SLIDER = 16523,
 		IDC_TIME_STATIC,
 	};
 	enum {
-		MOVIE_POS_TIMER_ID = 2026,
-		MOVIE_POS_TIMER_PERIOD = 40,
-		MOVIE_SLIDER_RANGE = 1000,
-		BAR_MIN_WIDTH = 100,
-		BAR_MIN_HEIGHT = 20,
-		TIME_WIDTH = 80,
+		MOVIE_POS_TIMER_ID = 2026,	// don't change this
+		MOVIE_POS_TIMER_PERIOD = 40,	// in milliseconds
+		MOVIE_SLIDER_RANGE = 1000,	// trade-off between speed and precision
+		BAR_MIN_WIDTH = 100,	// not relevant as we're horizontal
+		BAR_MIN_HEIGHT = 20,	// essential, prevents invisible bar
+		TIME_WIDTH = 66,		// determined empirically; not too tight
 	};
 
 // Data members
-	CClickSliderCtrl	m_wndSlider;
-	CStatic	m_wndTime;
-	int		m_nSliderPos;
-	CString	m_sTime;
+	CClickSliderCtrl	m_wndSlider;	// slider for showing movie position and seeking
+	CStatic	m_wndTime;			// static control for showing movie position as a time
+	int		m_nSliderPos;		// current slider position, for change detection
+	CString	m_sTime;			// current time, for change detection
 
 // Helpers
 	static int	FrameToSliderPos(LONGLONG iFrame);
@@ -62,6 +62,7 @@ protected:
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);

@@ -59,9 +59,9 @@ void CMovieExportDlg::UpdateFrameSize(int iFrameSizePreset)
 	m_szFrame.cy = Round(szTarget.height);
 }
 
-void CMovieExportDlg::FrameToTime(int nFrames, COleDateTime& dt, float fFrameRate)
+void CMovieExportDlg::FrameToTime(int iFrame, COleDateTime& dt, float fFrameRate)
 {
-	dt.m_dt = nFrames / fFrameRate / SECONDS_PER_DAY;
+	dt.m_dt = iFrame / fFrameRate / SECONDS_PER_DAY;
 }
 
 int CMovieExportDlg::TimeToFrame(const COleDateTime& dt, float fFrameRate)
@@ -69,31 +69,31 @@ int CMovieExportDlg::TimeToFrame(const COleDateTime& dt, float fFrameRate)
 	return Round(dt.m_dt * fFrameRate * SECONDS_PER_DAY);
 }
 
-CString CMovieExportDlg::FrameToTimeString(int nFrames, float fFrameRate)
+void CMovieExportDlg::FrameToTimeString(int iFrame, CString& sTime, float fFrameRate)
 {
 	COleDateTime	dt;
-	FrameToTime(nFrames, dt, fFrameRate);
-	return dt.Format(_T("%H:%M:%S"));
+	FrameToTime(iFrame, dt, fFrameRate);
+	sTime = dt.Format(_T("%H:%M:%S"));
 }
 
-bool CMovieExportDlg::TimeStringToFrame(CString sTime, int& nFrame, float fFrameRate)
+bool CMovieExportDlg::TimeStringToFrame(CString sTime, int& iFrame, float fFrameRate)
 {
 	COleDateTime	dt;
 	if (!dt.ParseDateTime(sTime)) {	// if can't parse time
 		return false;	// fail
 	}
-	nFrame = TimeToFrame(dt, fFrameRate);
+	iFrame = TimeToFrame(dt, fFrameRate);
 	return true;
 }
 
-CString CMovieExportDlg::FrameToTimeString(int nFrame) const
+void CMovieExportDlg::FrameToTimeString(int iFrame, CString& sTime) const
 {
-	return FrameToTimeString(nFrame, m_fFrameRate);
+	FrameToTimeString(iFrame, sTime, m_fFrameRate);
 }
 
-bool CMovieExportDlg::TimeStringToFrame(CString sTime, int& nFrame) const
+bool CMovieExportDlg::TimeStringToFrame(CString sTime, int& iFrame) const
 {
-	return TimeStringToFrame(sTime, nFrame, m_fFrameRate);
+	return TimeStringToFrame(sTime, iFrame, m_fFrameRate);
 }
 
 void CMovieExportDlg::DDX_FrameTime(CDataExchange* pDX, int nIDC, int& value) const
@@ -101,7 +101,7 @@ void CMovieExportDlg::DDX_FrameTime(CDataExchange* pDX, int nIDC, int& value) co
 	if (m_iTimeUnit == UNIT_TIME) {	// if unit is time
 		CString	sTime;
 		if (!pDX->m_bSaveAndValidate) {	// if initializing controls from data
-			sTime = FrameToTimeString(value);
+			FrameToTimeString(value, sTime);
 		}
 		DDX_Text(pDX, nIDC, sTime);
 		if (pDX->m_bSaveAndValidate) {	// if retrieving data from controls

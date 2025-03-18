@@ -88,6 +88,7 @@ public:
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
+	virtual void OnClosingMainFrame(CFrameImpl* pFrameImpl);
 
 // Implementation
 	UINT  m_nAppLook;

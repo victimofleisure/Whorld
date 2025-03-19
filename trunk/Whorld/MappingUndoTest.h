@@ -14,6 +14,7 @@
 		04		19nov20	add randomized docking bar visibility
 		05		10sep24	add method to randomize channel property
 		06		02mar25	adapt for Whorld
+		07		19mar25	make mapping range real instead of integer
 
 		automated undo test for Whorld mapping
  
@@ -47,7 +48,7 @@ protected:
 	virtual	LONGLONG	GetSnapshot() const;
 
 // Helpers
-	int		MakeRandomMappingProperty(int iProp);
+	VARIANT_PROP	MakeRandomMappingProperty(int iProp);
 	bool	MakeRandomSelection(int nItems, CIntArrayEx& arrSelection) const;
 	CString	PrintSelection(CIntArrayEx& arrSelection) const;
 };

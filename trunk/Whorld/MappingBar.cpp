@@ -20,6 +20,7 @@
 		10		27feb25	add undo
 		11		01mar25	add learn mode
 		12		05mar25	indicate learn mode by changing list selection color
+		13		19mar25	make mapping range real instead of integer
 		
 */
 
@@ -40,14 +41,14 @@ IMPLEMENT_DYNAMIC(CMappingBar, CMyDockablePane)
 
 const CGridCtrl::COL_INFO CMappingBar::m_arrColInfo[COLUMNS] = {
 	#define MAPPINGDEF_INCLUDE_NUMBER
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
 		{IDS_MAPPING_COL_##name, LVCFMT_##align, width},
 	#include "MappingDef.h"	// generate list column info
 };
 
 const CMappingBar::COL_RANGE CMappingBar::m_arrColRange[COLUMNS] = {
 	#define MAPPINGDEF_INCLUDE_NUMBER
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
 		{minval, maxval},
 	#include "MappingDef.h"	// generate list column info
 };
@@ -148,19 +149,19 @@ void CMappingBar::SetModifiedFlag(bool bModified)
 	theApp.m_pPlaylist->SetModifiedFlag(bModified);
 }
 
-void CMappingBar::SetProperty(int iMapping, int iProp, int nVal)
+void CMappingBar::SetProperty(int iMapping, int iProp, VARIANT_PROP prop)
 {
 	NotifyUndoableEdit(iMapping, MAKELONG(UCODE_PROPERTY, iProp));
-	midiMaps.SetProperty(iMapping, iProp, nVal);
+	midiMaps.SetProperty(iMapping, iProp, prop);
 	SetModifiedFlag();
 }
 
-void CMappingBar::SetProperty(const CIntArrayEx& arrSelection, int iProp, int nVal)
+void CMappingBar::SetProperty(const CIntArrayEx& arrSelection, int iProp, VARIANT_PROP prop)
 {
 	m_parrSelection = &arrSelection;
 	NotifyUndoableEdit(iProp, UCODE_MULTI_PROPERTY);
 	m_parrSelection = NULL;
-	midiMaps.SetProperty(arrSelection, iProp, nVal);
+	midiMaps.SetProperty(arrSelection, iProp, prop);
 	SetModifiedFlag();
 }
 
@@ -243,7 +244,8 @@ void CMappingBar::Sort(int iProp, bool bDescending)
 CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID)
 {
 	UNREFERENCED_PARAMETER(pParentWnd);
-	int	nVal = midiMaps.GetProperty(m_iEditRow, m_iEditCol - 1);	// skip number column
+	int	iProp = m_iEditCol - 1;	// skip number column
+	VARIANT_PROP prop = midiMaps.GetProperty(m_iEditRow, iProp);
 	switch (m_iEditCol) {
 	case COL_EVENT:
 	case COL_CHANNEL:
@@ -252,7 +254,7 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 		{
 			if (m_iEditCol == COL_PROPERTY) {	// if property column
 				// target doesn't have a property, so property combo is inapplicable
-				if (!TargetHasProperty(midiMaps.GetProperty(m_iEditRow, PROP_TARGET))) {
+				if (!TargetHasProperty(midiMaps.GetProperty(m_iEditRow, PROP_TARGET).intVal)) {
 					return NULL;	// tell caller to skip this column
 				}
 			}
@@ -269,7 +271,7 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 					for (int iEvent = 1; iEvent < EVENTS; iEvent++) {
 						pCombo->AddString(GetEventName(iEvent));
 					}
-					nVal--;	// compensate for excluding note off
+					prop.intVal--;	// compensate for excluding note off
 				}
 				break;
 			case COL_TARGET:
@@ -289,14 +291,18 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 			default:
 				NODEFAULTCASE;
 			}
-			pCombo->SetCurSel(nVal);
+			pCombo->SetCurSel(prop.intVal);
 			pCombo->ShowDropDown();
 			return pCombo;
 		}
 		break;
 	default:
 		CPopupNumEdit	*pEdit = new CPopupNumEdit;
-		pEdit->SetFormat(CNumEdit::DF_INT | CNumEdit::DF_SPIN);
+		int	nFormat = CNumEdit::DF_SPIN;
+		if (CMapping::IsIntegerProperty(iProp)) {	// if integer property
+			nFormat |= CNumEdit::DF_INT;	// restrict input to integers
+		}
+		pEdit->SetFormat(nFormat);
 		if (!pEdit->Create(dwStyle, rect, this, nID)) {	// create edit control
 			delete pEdit;
 			return NULL;
@@ -312,10 +318,10 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 {
 	UNREFERENCED_PARAMETER(pszText);
-	int	nVal;
+	VARIANT_PROP prop = {0};	// clear entire property
 	int	iMapping = m_iEditRow;
 	int	iProp = m_iEditCol - 1;	// skip number column
-	int	nPrevVal = midiMaps.GetProperty(iMapping, iProp);
+	VARIANT_PROP propPrev = midiMaps.GetProperty(iMapping, iProp);
 	switch (m_iEditCol) {
 	case COL_EVENT:
 	case COL_CHANNEL:
@@ -332,27 +338,32 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 				break;
 			case COL_TARGET:
 				// if target had a property and now doesn't, or vice versa
-				if (TargetHasProperty(iSelItem) != TargetHasProperty(nPrevVal)) {
+				if (TargetHasProperty(iSelItem) != TargetHasProperty(propPrev.intVal)) {
 					RedrawSubItem(m_iEditRow, COL_PROPERTY);	// update property
 				}
 				break;
 			}
-			nVal = iSelItem;
+			prop.intVal = iSelItem;
 		}
 		break;
 	default:
 		CPopupNumEdit	*pEdit = STATIC_DOWNCAST(CPopupNumEdit, m_pEditCtrl);
-		nVal = pEdit->GetIntVal();
+		if (CMapping::IsIntegerProperty(iProp)) {	// if integer property
+			prop.intVal = pEdit->GetIntVal();	// retrieve integer
+		} else {	// not integer property
+			prop.dblVal = pEdit->GetVal();	// retrieve double
+		}
 	}
-	if (nVal != nPrevVal) {	// if value actually changed
+	// if property value actually changed
+	if (CMapping::Compare(iProp, prop, propPrev)) {
 		CMappingBar*	pParent = STATIC_DOWNCAST(CMappingBar, GetParent());
 		CIntArrayEx	arrSelection;
 		GetSelection(arrSelection);
 		// if multiple mappings selected and edit is within selection
 		if (arrSelection.GetSize() > 1 && arrSelection.Find(m_iEditRow) >= 0) {
-			pParent->SetProperty(arrSelection, iProp, nVal);
+			pParent->SetProperty(arrSelection, iProp, prop);
 		} else {	// edit single mapping
-			pParent->SetProperty(iMapping, iProp, nVal);
+			pParent->SetProperty(iMapping, iProp, prop);
 		}
 	}
 }
@@ -384,14 +395,15 @@ void CMappingBar::SaveProperty(CUndoState& State) const
 {
 	int	iMapping = State.GetCtrlID();
 	int	iProp = HIWORD(State.GetCode());
-	State.m_Val.p.x.i = midiMaps.GetProperty(iMapping, iProp);
+	State.m_Val.i64 = midiMaps.GetProperty(iMapping, iProp).llVal;
 }
 
 void CMappingBar::RestoreProperty(const CUndoState& State)
 {
 	int	iMapping = State.GetCtrlID();
 	int	iProp = HIWORD(State.GetCode());
-	midiMaps.SetProperty(iMapping, iProp, State.m_Val.p.x.i);
+	VARIANT_PROP	prop = {State.m_Val.i64};
+	midiMaps.SetProperty(iMapping, iProp, prop);
 	UpdateGrid(iMapping, iProp);
 	if (iProp == PROP_TARGET) {	// if restoring target
 		UpdateGrid(iMapping, PROP_PROPERTY);	// target can affect property
@@ -406,10 +418,10 @@ void CMappingBar::SaveMultiProperty(CUndoState& State) const
 		ASSERT(m_parrSelection != NULL);
 		parrSelection = m_parrSelection;	// get fresh selection
 	} else {	// undoing or redoing; selection may have changed, so don't rely on it
-		const CUndoMultiIntegerProp	*pInfo = static_cast<CUndoMultiIntegerProp*>(State.GetObj());
+		const CUndoMultiVariantProp	*pInfo = static_cast<CUndoMultiVariantProp*>(State.GetObj());
 		parrSelection = &pInfo->m_arrSelection;	// use edit's original selection
 	}
-	CRefPtr<CUndoMultiIntegerProp>	pInfo;
+	CRefPtr<CUndoMultiVariantProp>	pInfo;
 	pInfo.CreateObj();
 	pInfo->m_arrSelection = *parrSelection;
 	pInfo->m_arrProp.SetSize(parrSelection->GetSize());
@@ -420,7 +432,7 @@ void CMappingBar::SaveMultiProperty(CUndoState& State) const
 void CMappingBar::RestoreMultiProperty(const CUndoState& State)
 {
 	int	iProp = State.GetCtrlID();
-	const CUndoMultiIntegerProp	*pInfo = static_cast<CUndoMultiIntegerProp*>(State.GetObj());
+	const CUndoMultiVariantProp	*pInfo = static_cast<CUndoMultiVariantProp*>(State.GetObj());
 	midiMaps.SetProperty(pInfo->m_arrSelection, iProp, pInfo->m_arrProp);
 	UpdateGrid(pInfo->m_arrSelection, iProp);
 	if (iProp == PROP_TARGET) {	// if restoring target
@@ -768,10 +780,10 @@ void CMappingBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 			}
 			break;
 		case COL_START:
-			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nStart); 
+			_stprintf_s(item.pszText, item.cchTextMax, _T("%g"), map.m_fStart); 
 			break;
 		case COL_END:
-			_stprintf_s(item.pszText, item.cchTextMax, _T("%d"), map.m_nEnd); 
+			_stprintf_s(item.pszText, item.cchTextMax, _T("%g"), map.m_fEnd); 
 			break;
 		default:
 			NODEFAULTCASE;	// missing column

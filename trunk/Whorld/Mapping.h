@@ -16,6 +16,7 @@
 		06		19feb22	use INI file class directly instead of via profile
 		07		26feb25	adapt for Whorld
 		08		01mar25	add misc targets
+		09		19mar25	make mapping range real instead of integer
 
 */
 
@@ -31,7 +32,7 @@ class CMappingBase : public CWhorldBase {
 public:
 // Constants
 	enum {	// properties, corresponding to mapping columns
-		#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) PROP_##name,
+		#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) PROP_##name,
 		#include "MappingDef.h"	// generate member var enumeration
 		PROPERTIES
 	};
@@ -74,6 +75,7 @@ public:
 	static CString	GetTargetName(int iTarget);
 	static int		FindEventTag(LPCTSTR pszName);
 	static int		FindTargetTag(LPCTSTR pszName);
+	static bool		IsIntegerProperty(int iProp);
 
 // Operations
 	static void	Initialize();
@@ -164,16 +166,27 @@ inline int CMappingBase::FindTargetTag(LPCTSTR pszName)
 	return ARRAY_FIND(m_arrTargetTag, pszName);
 }
 
+inline bool CMappingBase::IsIntegerProperty(int iProp)
+{
+	switch (iProp) {
+	case PROP_START:	// list non-integer properties here
+	case PROP_END:
+		return false;
+	default:
+		return true;
+	}
+}
+
 class CMapping : public CMappingBase {
 public:
 // Public data
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
-		int	m_##prefix##member;
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
+		type m_##prefix##member;
 	#include "MappingDef.h"	// generate member var definitions
 
 // Attributes
-	int		GetProperty(int iProp) const;
-	void	SetProperty(int iProp, int nVal);
+	VARIANT_PROP	GetProperty(int iProp) const;
+	void	SetProperty(int iProp, VARIANT_PROP prop);
 	DWORD	GetInputMidiMsg() const;
 	void	SetInputMidiMsg(DWORD nInMidiMsg);
 	int		IsInputMatch(DWORD nInMidiMsg) const;
@@ -183,11 +196,18 @@ public:
 	void	SetDefaults();
 	void	Read(CIniFile& fIn, LPCTSTR pszSection);
 	void	Write(CIniFile& fOut, LPCTSTR pszSection) const;
+	int		Compare(int iProp, const CMapping& mapping) const;
+	static int	Compare(int iProp, VARIANT_PROP prop1, VARIANT_PROP prop2);
 };
 
 inline bool CMapping::TargetHasProperty() const
 {
 	return CMappingBase::TargetHasProperty(m_iTarget);
+}
+
+inline int CMapping::Compare(int iProp, const CMapping& mapping) const
+{
+	return Compare(iProp, GetProperty(iProp), mapping.GetProperty(iProp));
 }
 
 class CMappingArray : public CArrayEx<CMapping, CMapping&> {
@@ -196,7 +216,7 @@ public:
 	void	Write(CIniFile& fOut) const;
 };
 
-class CSafeMapping {
+class CSafeMapping : public CWhorldBase {
 public:
 // Attributes
 	WCritSec&	GetCritSec();
@@ -205,11 +225,11 @@ public:
 	void	SetAt(int iMapping, const CMapping& mapping);
 	const CMappingArray&	GetArray() const;
 	void	SetArray(const CMappingArray& arrMapping);
-	int		GetProperty(int iMapping, int iProp) const;
-	void	SetProperty(int iMapping, int iProp, int nVal);
-	void	GetProperty(const CIntArrayEx& arrSelection, int iProp, CIntArrayEx& arrProp) const;
-	void	SetProperty(const CIntArrayEx& arrSelection, int iProp, const CIntArrayEx& arrProp);
-	void	SetProperty(const CIntArrayEx& arrSelection, int iProp, int nVal);
+	VARIANT_PROP	GetProperty(int iMapping, int iProp) const;
+	void	SetProperty(int iMapping, int iProp, VARIANT_PROP prop);
+	void	GetProperty(const CIntArrayEx& arrSelection, int iProp, CVariantPropArray& arrProp) const;
+	void	SetProperty(const CIntArrayEx& arrSelection, int iProp, const CVariantPropArray& arrProp);
+	void	SetProperty(const CIntArrayEx& arrSelection, int iProp, VARIANT_PROP prop);
 	void	GetRange(int iFirst, int nMappings, CMappingArray& arrMapping) const;
 	void	GetSelection(const CIntArrayEx& arrSelection, CMappingArray& arrMapping) const;
 	void	SetInputMidiMsg(int iMapping, DWORD nInMidiMsg);
@@ -257,7 +277,7 @@ inline const CMappingArray& CSafeMapping::GetArray() const
 	return m_arrMapping;
 }
 
-inline int CSafeMapping::GetProperty(int iMapping, int iProp) const
+inline CSafeMapping::VARIANT_PROP CSafeMapping::GetProperty(int iMapping, int iProp) const
 {
 	return m_arrMapping[iMapping].GetProperty(iProp);
 }

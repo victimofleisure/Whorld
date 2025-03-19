@@ -23,7 +23,9 @@ public:
 		RC_SET_FULLSCREEN,		// Param: bool; Data: none
 		BASE_RENDER_COMMANDS	// start of derived class commands
 	};
-	union VARIANT_PROP {	// subset of VARIANT types
+	union VARIANT_PROP {	// subset of VARIANT types that fit in 8 bytes
+		LONGLONG	llVal;	// first so initializer list sets all bytes
+		ULONGLONG	ullVal;
 		bool	boolVal;
 		char	cVal;
 		BYTE	bVal;
@@ -33,13 +35,14 @@ public:
 		UINT	uintVal;
 		float	fltVal;
 		double	dblVal;
-		LONGLONG	llVal;
-		ULONGLONG	ullVal;
 		PVOID	byref;
 		POINT	ptVal;
 		SIZE	szVal;
 		POINTFLOAT	fltPt;	// pair of float; non-standard
+		float	floatVal;	// alias, useful in macros
+		double	doubleVal;	// alias, useful in macros
 	};
+	typedef CArrayEx<VARIANT_PROP, VARIANT_PROP> CVariantPropArray;
 	class CRenderCmd {
 	public:
 		CRenderCmd() {}

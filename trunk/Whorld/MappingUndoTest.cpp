@@ -24,6 +24,7 @@
 		14		22jan22	limit channel tests to event properties
 		15		10sep24	add method to randomize channel property
 		16		02mar25	adapt for Whorld
+		17		19mar25	make mapping range real instead of integer
 
 		automated undo test for Whorld mapping
  
@@ -101,20 +102,33 @@ LONGLONG CMappingUndoTest::GetSnapshot() const
 	return nSum;
 }
 
-int CMappingUndoTest::MakeRandomMappingProperty(int iProp)
+CMappingBase::VARIANT_PROP CMappingUndoTest::MakeRandomMappingProperty(int iProp)
 {
+	VARIANT_PROP	prop = {0};	// clear entire property
 	switch (iProp) {
 	case PROP_EVENT:
-		return Random(EVENTS);
-	case PROP_TARGET:
-		return Random(TARGETS);
-	case PROP_PROPERTY:
-		return Random(PARAM_PROP_COUNT);
+		prop.intVal = Random(EVENTS);
+		break;
 	case PROP_CHANNEL:
-		return Random(MIDI_CHANNELS);
+		prop.intVal = Random(MIDI_CHANNELS);
+		break;
+	case PROP_CONTROL:
+		prop.intVal = Random(MIDI_NOTE_MAX);
+		break;
+	case PROP_TARGET:
+		prop.intVal = Random(TARGETS);
+		break;
+	case PROP_PROPERTY:
+		prop.intVal = Random(PARAM_PROP_COUNT);
+		break;
+	case PROP_START:
+	case PROP_END:
+		prop.dblVal = RandomFloat(MIDI_NOTE_MAX);
+		break;
 	default:
-		return Random(MIDI_NOTE_MAX);
+		ASSERT(0);	// missing case
 	}
+	return prop;
 }
 
 bool CMappingUndoTest::MakeRandomSelection(int nItems, CIntArrayEx& arrSelection) const
@@ -157,8 +171,8 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 			if (iMapping < 0)
 				return DISABLED;
 			int	iProp = Random(PROPERTIES);
-			int	nVal = MakeRandomMappingProperty(iProp);
-			midiPane.SetProperty(iMapping, iProp, nVal);
+			VARIANT_PROP	prop = MakeRandomMappingProperty(iProp);
+			midiPane.SetProperty(iMapping, iProp, prop);
 		}
 		break;
 	case UCODE_MULTI_PROPERTY:
@@ -168,8 +182,8 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 			if (!MakeRandomSelection(nMappings, arrSelection))
 				return DISABLED;
 			int	iProp = Random(PROPERTIES);
-			int	nVal = MakeRandomMappingProperty(iProp);
-			midiPane.SetProperty(arrSelection, iProp, nVal);
+			VARIANT_PROP	prop = MakeRandomMappingProperty(iProp);
+			midiPane.SetProperty(arrSelection, iProp, prop);
 		}
 		break;
 	case UCODE_INSERT:

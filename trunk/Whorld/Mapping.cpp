@@ -24,6 +24,7 @@
 		14		26feb25	adapt for Whorld
 		15		01mar25	add misc targets
 		16		03mar25	support full resolution pitch bend
+		17		19mar25	make mapping range real instead of integer
 
 */
 
@@ -108,36 +109,49 @@ void CMappingBase::Initialize()
 
 void CMapping::SetDefaults()
 {
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
 		m_##prefix##member = initval;
 	#include "MappingDef.h"	// generate member var initialization
 }
 
-int CMapping::GetProperty(int iProp) const
+CMapping::VARIANT_PROP CMapping::GetProperty(int iProp) const
 {
 	ASSERT(iProp >= 0 && iProp < PROPERTIES);
+	VARIANT_PROP	prop = {0};	// clear entire property
 	switch (iProp) {
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
-		case PROP_##name: return m_##prefix##member;
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
+		case PROP_##name: prop.type##Val = m_##prefix##member; break;
 	#include "MappingDef.h"	// generate cases for each member var
 	}
-	return 0;	// error
+	return prop;
 }
 
-void CMapping::SetProperty(int iProp, int nVal)
+void CMapping::SetProperty(int iProp, VARIANT_PROP prop)
 {
 	ASSERT(iProp >= 0 && iProp < PROPERTIES);
 	switch (iProp) {
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
-		case PROP_##name: m_##prefix##member = nVal; break;
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
+		case PROP_##name: m_##prefix##member = prop.type##Val; break;
 	#include "MappingDef.h"	// generate cases for each member
 	}
+}
+
+int	CMapping::Compare(int iProp, VARIANT_PROP prop1, VARIANT_PROP prop2)
+{
+	ASSERT(iProp >= 0 && iProp < PROPERTIES);
+	switch (iProp) {
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
+		case PROP_##name: return SortCompareTpl(prop1.type##Val, prop2.type##Val);
+	#include "MappingDef.h"	// generate cases for each member
+	}
+	return 0;
 }
 
 #define STAY_POSITIVE(x) x = max(x, 0)
 
 void CMapping::Read(CIniFile& fIn, LPCTSTR pszSection)
 {
+	SetDefaults();	// init members to default values
 	CString	sTag;
 	// read event tag
 	sTag = fIn.GetString(pszSection, RK_MAPPING_EVENT);
@@ -159,8 +173,8 @@ void CMapping::Read(CIniFile& fIn, LPCTSTR pszSection)
 		m_iProp = PARAM_PROP_Val;	// set property to reasonable default
 	}
 	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already read above
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
-		m_##prefix##member = fIn.GetInt(pszSection, _T(#member), initval);
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
+		fIn.Get(pszSection, _T(#member), m_##prefix##member);
 	#include "MappingDef.h"	// generate profile reads for remaining members
 }
 
@@ -177,15 +191,15 @@ void CMapping::Write(CIniFile& fOut, LPCTSTR pszSection) const
 	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already written above
 	// mandatory members are always written, regardless of their value
 	#define MAPPINGDEF_OPTIONAL 0	// include mandatory members, exclude optional ones
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
-		fOut.WriteInt(pszSection, _T(#member), m_##prefix##member);
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
+		fOut.Put(pszSection, _T(#member), m_##prefix##member);
 	#include "MappingDef.h"	// generate profile writes for mandatory members
 	#define MAPPINGDEF_EXCLUDE_TAGS	// tags were already written above
 	// optional members are only written if they differ from their initial value
 	#define MAPPINGDEF_OPTIONAL 1	// include optional members, exclude mandatory ones
-	#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) \
+	#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) \
 		if (m_##prefix##member != initval) \
-			fOut.WriteInt(pszSection, _T(#member), m_##prefix##member);
+			fOut.Put(pszSection, _T(#member), m_##prefix##member);
 	#include "MappingDef.h"	// generate profile writes for optional members
 }
 
@@ -270,10 +284,10 @@ void CSafeMapping::SetArray(const CMappingArray& arrMapping)
 	m_arrMapping = arrMapping;
 }
 
-void CSafeMapping::SetProperty(int iMapping, int iProp, int nVal)
+void CSafeMapping::SetProperty(int iMapping, int iProp, VARIANT_PROP prop)
 {
 	LOCK_MAPPINGS; // exclusive write
-	m_arrMapping[iMapping].SetProperty(iProp, nVal);
+	m_arrMapping[iMapping].SetProperty(iProp, prop);
 }
 
 void CSafeMapping::GetSelection(const CIntArrayEx& arrSelection, CMappingArray& arrMapping) const
@@ -287,7 +301,7 @@ void CSafeMapping::SetInputMidiMsg(int iMapping, DWORD nInMidiMsg)
 	m_arrMapping[iMapping].SetInputMidiMsg(nInMidiMsg);
 }
 
-void CSafeMapping::GetProperty(const CIntArrayEx& arrSelection, int iProp, CIntArrayEx& arrProp) const
+void CSafeMapping::GetProperty(const CIntArrayEx& arrSelection, int iProp, CVariantPropArray& arrProp) const
 {
 	int	nSels = arrSelection.GetSize();
 	arrProp.SetSize(nSels);
@@ -297,7 +311,7 @@ void CSafeMapping::GetProperty(const CIntArrayEx& arrSelection, int iProp, CIntA
 	}
 }
 
-void CSafeMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, const CIntArrayEx& arrProp)
+void CSafeMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, const CVariantPropArray& arrProp)
 {
 	LOCK_MAPPINGS; // exclusive write
 	int	nSels = arrSelection.GetSize();
@@ -307,13 +321,13 @@ void CSafeMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, const
 	}
 }
 
-void CSafeMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, int nVal)
+void CSafeMapping::SetProperty(const CIntArrayEx& arrSelection, int iProp, VARIANT_PROP prop)
 {
 	LOCK_MAPPINGS; // exclusive write
 	int	nSels = arrSelection.GetSize();
 	for (int iSel = 0; iSel < nSels; iSel++) {	// for each selected mapping
 		int	iMapping = arrSelection[iSel];
-		m_arrMapping[iMapping].SetProperty(iProp, nVal);
+		m_arrMapping[iMapping].SetProperty(iProp, prop);
 	}
 }
 
@@ -362,7 +376,7 @@ int CSafeMapping::SortCompare(const void *arg1, const void *arg2)
 {
 	const CMapping*	pMap1 = (CMapping *)arg1;
 	const CMapping*	pMap2 = (CMapping *)arg2;
-	return SortCompareTpl(pMap1->GetProperty(m_iSortProp), pMap2->GetProperty(m_iSortProp));
+	return pMap1->Compare(m_iSortProp, *pMap2);
 }
 
 void CSafeMapping::GetInputMidiMsg(const CIntArrayEx& arrSelection, CIntArrayEx& arrInMidiMsg) const

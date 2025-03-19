@@ -105,13 +105,18 @@ W64INT CUndoTest::RandW64INT(W64INT nVals)
 {
 	if (nVals <= 0)
 		return -1;
-	W64INT	i = TruncW64INT(rand() / double(RAND_MAX) * nVals);
+	W64INT	i = TruncW64INT(rand() / static_cast<double>(RAND_MAX) * nVals);
 	return min(i, nVals - 1);
 }
 
 double CUndoTest::RandomFloat(double fLimit)
 {
-	return (double)rand() / RAND_MAX * fLimit;	// poor granularity but usable
+	return static_cast<double>(rand()) / RAND_MAX * fLimit;	// poor granularity but usable
+}
+
+float CUndoTest::RandomSingleFloat(float fLimit)
+{
+	return static_cast<float>(RandomFloat(fLimit));
 }
 
 int CUndoTest::RandomExcluding(int nVals, int nExcludeVal)

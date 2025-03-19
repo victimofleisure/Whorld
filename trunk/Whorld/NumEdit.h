@@ -66,7 +66,7 @@ public:
 	void	SetPrecision(int nPrecision);
 	void	SetAuxNotify(CWnd *pWnd);
 	void	SetRange(double fMinVal, double fMaxVal);
-	void	SetFormat(int nType);
+	void	SetFormat(int nFormat);
 	void	SetFractionScale(int nScale);
 
 // Operations
@@ -143,9 +143,9 @@ inline void CNumEdit::SetAuxNotify(CWnd *pWnd)
 	m_pAuxNotify = pWnd;
 }
 
-inline void CNumEdit::SetFormat(int Format)
+inline void CNumEdit::SetFormat(int nFormat)
 {
-	m_nFormat = static_cast<BYTE>(Format);
+	m_nFormat = static_cast<BYTE>(nFormat);
 }
 
 inline void CNumEdit::SetFractionScale(int nScale)

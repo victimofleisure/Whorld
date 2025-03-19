@@ -22,6 +22,7 @@
 		12		11mar25	add command to set legacy snapshot frame size
 		13		12mar25	add reserved member to ring struct
 		14		14mar25	add movie record and play commands
+		15		19mar25	allow line width less than one
 
         define parameter attributes
 
@@ -32,7 +33,7 @@
 //			name			minval	maxval	steps	scale	initval
 PARAMDEF(	RingGrowth,		0,		10,		1000,	1,		1		)	// pixels of ring growth per tick
 PARAMDEF(	RingSpacing,	1,		51,		1000,	1,		5		)	// gap between rings, in pixels
-PARAMDEF(	LineWidth,		1,		50,		1000,	1,		1		)	// line width, in pixels
+PARAMDEF(	LineWidth,		0,		50,		1000,	1,		1		)	// line width, in pixels
 PARAMDEF(	PolySides,		3,		51,		48,		1,		5		)	// ring's number of sides, rounded to int
 PARAMDEF(	RotateSpeed,	DTR(-5),DTR(5),	1000,	DTR(1),	0		)	// ring rotation per tick, in radians
 PARAMDEF(	AspectRatio,	-3,		3,		1000,	1,		0		)	// 1 = double width, -1 = double height

@@ -11,6 +11,7 @@
 		01		24feb20	implement read/write
 		02		19feb22	refactor to fully emulate profile methods
 		03		16feb23	add Unicode string methods
+		04		19mar25	in Get template, only check length if GetBinary succeeds
  
 		INI file wrapper
 
@@ -45,8 +46,9 @@ public:
 	inline void Get(LPCTSTR lpszKey, T& value)
 	{
 		DWORD	nSize = sizeof(T);
-		GetBinary(REG_SETTINGS, lpszKey, &value, &nSize);
-		ASSERT(nSize == sizeof(T));	// ensure all bytes were read
+		if (GetBinary(REG_SETTINGS, lpszKey, &value, &nSize)) {
+			ASSERT(nSize == sizeof(T));	// ensure all bytes were read
+		}
 	}
 	template<class T>	
 	inline void Put(LPCTSTR lpszKey, const T& value)
@@ -79,8 +81,9 @@ public:
 	inline void Get(LPCTSTR lpszSection, LPCTSTR lpszKey, T& value)
 	{
 		UINT	nSize = sizeof(T);
-		GetBinary(lpszSection, lpszKey, &value, nSize);
-		ASSERT(nSize == sizeof(T));	// ensure all bytes were read
+		if (GetBinary(lpszSection, lpszKey, &value, nSize)) {
+			ASSERT(nSize == sizeof(T));	// ensure all bytes were read
+		}
 	}
 	template<class T>	
 	inline void Put(LPCTSTR lpszSection, LPCTSTR lpszKey, const T& value)

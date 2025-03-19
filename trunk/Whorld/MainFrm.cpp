@@ -975,11 +975,10 @@ LRESULT	CMainFrame::OnMasterPropChange(WPARAM wParam, LPARAM lParam)
 LRESULT	CMainFrame::OnMainPropChange(WPARAM wParam, LPARAM lParam)
 {
 	int	iProp = static_cast<int>(wParam);
-	VARIANT_PROP var;
-	var.ullVal = lParam;
+	VARIANT_PROP prop = {lParam};
 	CWhorldDoc*	pDoc = theApp.GetDocument();
 	CWhorldDoc::CDisableUndo	noUndo(pDoc);
-	pDoc->SetMainProp(iProp, var, theApp.GetView());
+	pDoc->SetMainProp(iProp, prop, theApp.GetView());
 	return 0;
 }
 
@@ -991,11 +990,10 @@ LRESULT CMainFrame::OnSetDrawMode(WPARAM wParam, LPARAM lParam)
 	UINT	nValue = static_cast<UINT>(lParam);
 	CWhorldDoc	*pDoc = theApp.GetDocument();
 	UINT	nDrawMode = pDoc->m_main.nDrawMode;
-	VARIANT_PROP var;
 	// first clear any bits that are non-zero in the mask; then set
 	// any bits that are non-zero in both the mask and the value
-	var.uintVal = (nDrawMode & ~nMask) | (nValue & nMask);
-	pDoc->SetMainProp(MAIN_DrawMode, var, theApp.GetView());
+	VARIANT_PROP prop = {(nDrawMode & ~nMask) | (nValue & nMask)};
+	pDoc->SetMainProp(MAIN_DrawMode, prop, theApp.GetView());
 	return 0;
 }
 

@@ -11,31 +11,32 @@
 		01		26feb25	adapt for Whorld
 		02		27feb25	add undo codes
 		03		02mar25	add parameter property
- 
+		04		19mar25	make mapping range real instead of integer
+
 		mapping column and member definitions
 
 */
 
 #ifdef MAPPINGDEF
 
-//			name		align	width	prefix	member			initval	minval	maxval
+//			name		align	width	type	prefix	member			initval	minval	maxval
 #ifdef MAPPINGDEF_INCLUDE_NUMBER
-MAPPINGDEF(	NUMBER,		LEFT,	30,		n,		0,				0,		0,		0)
+MAPPINGDEF(	NUMBER,		LEFT,	30,		int,	n,		0,				0,		0,		0)
 #endif
 #if !defined(MAPPINGDEF_OPTIONAL) || !MAPPINGDEF_OPTIONAL	// mandatory members
 #ifndef MAPPINGDEF_EXCLUDE_TAGS
-MAPPINGDEF(	EVENT,		LEFT,	100,	i,		Event,			MIDI_CVM_CONTROL,	0,	EVENTS - 1)	// MIDI event
+MAPPINGDEF(	EVENT,		LEFT,	100,	int,	i,		Event,			MIDI_CVM_CONTROL,	0,	EVENTS - 1)	// MIDI event
 #endif
-MAPPINGDEF(	CHANNEL,	LEFT,	60,		i,		Channel,		0,		0,		MIDI_CHANNELS - 1)	// MIDI channel
-MAPPINGDEF(	CONTROL,	LEFT,	60,		i,		Control,		1,		0,		MIDI_NOTE_MAX)		// MIDI controller
+MAPPINGDEF(	CHANNEL,	LEFT,	60,		int,	i,		Channel,		0,		0,		MIDI_CHANNELS - 1)	// MIDI channel
+MAPPINGDEF(	CONTROL,	LEFT,	60,		int,	i,		Control,		1,		0,		MIDI_NOTE_MAX)		// MIDI controller
 #ifndef MAPPINGDEF_EXCLUDE_TAGS
-MAPPINGDEF(	TARGET,		LEFT,	120,	i,		Target,			0,		0,		TARGETS - 1)		// mapping target
-MAPPINGDEF(	PROPERTY,	LEFT,	85,		i,		Prop,			0,		0,		PARAM_PROP_COUNT)	// parameter property
+MAPPINGDEF(	TARGET,		LEFT,	120,	int,	i,		Target,			0,		0,		TARGETS - 1)		// mapping target
+MAPPINGDEF(	PROPERTY,	LEFT,	85,		int,	i,		Prop,			0,		0,		PARAM_PROP_COUNT)	// parameter property
 #endif
 #endif
 #if !defined(MAPPINGDEF_OPTIONAL) || MAPPINGDEF_OPTIONAL	// optional members
-MAPPINGDEF(	START,		LEFT,	60,		n,		Start,			0,		0,		0)					// range start
-MAPPINGDEF(	END,		LEFT,	60,		n,		End,			127,	0,		0)					// range end
+MAPPINGDEF(	START,		LEFT,	60,		double,	f,		Start,			0,		0,		0)	// range start, as a percentage
+MAPPINGDEF(	END,		LEFT,	60,		double,	f,		End,			100,	0,		0)	// range end, as a percentage
 #endif
 
 #undef MAPPINGDEF

@@ -14,6 +14,7 @@
 		04		27feb25	add undo
 		05		01mar25	add learn mode
 		06		05mar25	add custom draw
+		07		19mar25	make mapping range real instead of integer
 
 */
 
@@ -45,8 +46,8 @@ public:
 	void	OnUpdate(CView* pSender, LPARAM lHint = 0, CObject* pHint = NULL);
 	static void	AddMidiChannelComboItems(CComboBox& wndCombo);
 	void	SetModifiedFlag(bool bModified = true);
-	void	SetProperty(int iMapping, int iProp, int nVal);
-	void	SetProperty(const CIntArrayEx& arrSelection, int iProp, int nVal);
+	void	SetProperty(int iMapping, int iProp, VARIANT_PROP prop);
+	void	SetProperty(const CIntArrayEx& arrSelection, int iProp, VARIANT_PROP prop);
 	void	Copy(const CIntArrayEx& arrSelection);
 	void	Cut(const CIntArrayEx& arrSelection);
 	void	Paste(int iInsert);
@@ -78,6 +79,11 @@ protected:
 		CIntArrayEx	m_arrSelection;	// indices of selected items
 		CIntArrayEx	m_arrProp;	// array of integer property values
 	};
+	class CUndoMultiVariantProp : public CRefObj {
+	public:
+		CIntArrayEx	m_arrSelection;	// indices of selected items
+		CVariantPropArray	m_arrProp;	// array of variant property values
+	};
 	class CUndoSelectedMappings : public CRefObj {
 	public:
 		CIntArrayEx	m_arrSelection;	// indices of selected mappings
@@ -91,7 +97,7 @@ protected:
 	};
 	enum {	// grid columns
 		#define MAPPINGDEF_INCLUDE_NUMBER
-		#define MAPPINGDEF(name, align, width, prefix, member, initval, minval, maxval) COL_##name,
+		#define MAPPINGDEF(name, align, width, type, prefix, member, initval, minval, maxval) COL_##name,
 		#include "MappingDef.h"	// generate column enumeration
 		COLUMNS
 	};

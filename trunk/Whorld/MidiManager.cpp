@@ -15,6 +15,7 @@
 		05		10mar25	fix learn mode; post to mapping bar, not main frame
 		06		11mar25	remove output device from device change handler
 		07		12mar25	fix draw mode change not updating UI
+		08		19mar25	make mapping range real instead of integer
 
 */
 
@@ -169,8 +170,7 @@ void CMidiManager::PushParameter(int iParam, int iProp, double fNormVal)
 		{
 			int	iWaveform = Trunc(fNormVal * WAVEFORM_COUNT);
 			iWaveform = CLAMP(iWaveform, 0, WAVEFORM_COUNT - 1);
-			VARIANT_PROP	prop;
-			prop.intVal = iWaveform;
+			VARIANT_PROP	prop = {iWaveform};
 			theApp.m_thrRender.SetParam(iParam, PARAM_PROP_Wave, prop);
 			lParam = iWaveform;	// waveform is passed as integer
 		}
@@ -265,16 +265,14 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 
 void CMidiManager::PushMainBool(int iProp, bool bVal)
 {
-	VARIANT_PROP	prop;
-	prop.boolVal = bVal;
+	VARIANT_PROP	prop = {bVal};
 	theApp.m_thrRender.SetMainProp(iProp, prop);
 	PostMsgToMainWnd(UWM_MAIN_PROP_CHANGE, iProp, bVal);
 }
 
 void CMidiManager::PushOriginMotion(int nOrgMotion)
 {
-	VARIANT_PROP	prop;
-	prop.intVal = nOrgMotion;
+	VARIANT_PROP	prop = {nOrgMotion};
 	theApp.m_thrRender.SetMainProp(MAIN_OrgMotion, prop);
 	PostMsgToMainWnd(UWM_MAIN_PROP_CHANGE, MAIN_OrgMotion, prop.intVal);
 }
@@ -307,23 +305,27 @@ void CMidiManager::OnMidiEvent(DWORD dwEvent)
 		int	nMidiVal = map.IsInputMatch(dwEvent);	// try to map MIDI message
 		if (nMidiVal >= 0) {	// if message was mapped
 			// mapping result is a MIDI data value; account for range and then normalize it
-			int	nMapRange = map.m_nEnd - map.m_nStart;	// can be negative if start > end
-			int	nMidiMax;
-			double	fCenterEpsilon;
-			if (map.m_iEvent == MIDI_CVM_WHEEL) {	// if pitch bend
-				nMidiMax = MIDI_PITCH_BEND_MAX;
-				fCenterEpsilon = 0.00005;	// 100 times more resolution
-			} else {	// not pitch bend
-				nMidiMax = MIDI_NOTE_MAX;
-				fCenterEpsilon = 0.005;	// determined empirically
+			double	fNormVal;
+			if (map.m_iEvent != MIDI_CVM_WHEEL) {	// if input MIDI value is 7-bit
+				// Split normalization into two ranges, to compensate for the fact that an
+				// integer range with an even number of values has a fractional midpoint.
+				if (nMidiVal <= MIDI_NOTES / 2) {	// if at or below MIDI center
+					fNormVal = static_cast<double>(nMidiVal) / MIDI_NOTES;
+				} else {	// above MIDI center; scale differently to minimize error
+					fNormVal = static_cast<double>(nMidiVal - 1) / (MIDI_NOTE_MAX - 1);
+				}
+			} else {	// pitch bend event; input MIDI value is 14-bit
+				// same as 7-bit case except it substitutes 14-bit constants
+				if (nMidiVal <= MIDI_PITCH_BEND_STEPS / 2) {	// if at or below center
+					fNormVal = static_cast<double>(nMidiVal) / MIDI_PITCH_BEND_STEPS;
+				} else {	// above MIDI center; scale differently to minimize error
+					fNormVal = static_cast<double>(nMidiVal - 1) / (MIDI_PITCH_BEND_MAX - 1);
+				}
 			}
-			// convert from MIDI to range coordinates and offset by start of range
-			double	fMidiVal = double(nMidiVal) / nMidiMax * nMapRange + map.m_nStart;
-			double	fNormVal = fMidiVal / MIDI_NOTE_MAX;	// normalized target value
-			// many targets are zero-centered, so we must avoid infinitesimal at center
-			if (IsCloseEnough(fNormVal, 0.5, fCenterEpsilon)) {	// if within epsilon of center
-				fNormVal = 0.5;	// call it center
-			}
+			double	fStart = map.m_fStart / 100;	// range start and end are both percentages
+			double	fEnd = map.m_fEnd / 100;	// and must be converted to normalized coords
+			double	fRange = fEnd - fStart;	// range can be negative if start > end
+			fNormVal = fNormVal * fRange + fStart;	// apply range to normalized value
 			// order must match order of ranges in mapping target enumeration
 			int	iTarget = map.m_iTarget;
 			if (iTarget < PARAM_COUNT) {	// if target is parameter

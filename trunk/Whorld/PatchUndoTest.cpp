@@ -146,12 +146,12 @@ int CPatchUndoTest::ApplyEdit(int nUndoCode)
 		break;
 	case UCODE_MAIN:
 		{
-			VARIANT_PROP	prop;
+			VARIANT_PROP	prop = {0};	// clear entire property
 			int	iProp = Random(MAIN_COUNT);
 			switch (iProp) {
 			case MAIN_Origin:
-				prop.fltPt.x = static_cast<float>(RandomFloat(1));
-				prop.fltPt.y = static_cast<float>(RandomFloat(1));
+				prop.fltPt.x = RandomSingleFloat(1);
+				prop.fltPt.y = RandomSingleFloat(1);
 				break;
 			case MAIN_DrawMode:
 				prop.intVal = Random(3);

@@ -123,6 +123,7 @@ protected:
 	static	int		Random(int nVals);
 	static	W64INT	RandW64INT(W64INT nVals);
 	static	double	RandomFloat(double fLimit);
+	static	float	RandomSingleFloat(float fLimit);
 	static	int		RandomExcluding(int nVals, int nExcludeVal);
 	static	int		RandomRange(CIntRange range);
 	static	LONGLONG	Fletcher64(const void *pBuffer, DWORD nLength);

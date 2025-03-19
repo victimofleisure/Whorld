@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      14mar25	initial version
+		01		19mar25	add macro to disable asynchronous writing
 
 */
 
@@ -25,6 +26,8 @@ const USHORT CSnapMovie::m_nFileVersion = 1;
 // Use this version to handle application-specific failures;
 // it obliges you to specify a suitable Windows error code.
 #define ABORT2(errcode) { m_nLastErrorLine = __LINE__; SetLastError(errcode); return false; }
+
+#define ASYNCHRONOUS_WRITING 1
 
 CSnapMovie::CSnapMovie()
 {
@@ -63,7 +66,11 @@ bool CSnapMovie::Open(LPCTSTR pszPath, bool bWrite)
 		}
 		dwDesiredAccess = GENERIC_WRITE;
 		dwCreationDisposition = CREATE_ALWAYS;
+#if ASYNCHRONOUS_WRITING
 		dwAttributes = FILE_FLAG_OVERLAPPED;
+#else
+		dwAttributes = 0;
+#endif
 	} else {	// opening for read
 		dwDesiredAccess = GENERIC_READ | FILE_SHARE_READ;
 		dwCreationDisposition = OPEN_EXISTING;
@@ -179,6 +186,12 @@ bool CSnapMovie::WriteFrameIndex()
 		}
 		nFilePos += nBufSize;	// increment file position by amount we wrote
 	}
+#if !ASYNCHRONOUS_WRITING
+	LARGE_INTEGER	liZero = {0};
+	if (!SetFilePointerEx(m_hFile, liZero, NULL, FILE_BEGIN)) {	// if we can't seek
+		ABORT;	// failed to rewind to start of file
+	}
+#endif
 	return true;	// success
 }
 
@@ -254,6 +267,7 @@ bool CSnapMovie::FinalizeWrite()
 
 bool CSnapMovie::WriteWait(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nFilePos)
 {
+#if ASYNCHRONOUS_WRITING
 	OVERLAPPED	ovl;
 	ZeroMemory(&ovl, sizeof(ovl));
 	LARGE_INTEGER	li;	// split 64-bit file position in half, for legacy reasons
@@ -271,6 +285,12 @@ bool CSnapMovie::WriteWait(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nFil
 	if (!bResult || nBytesWritten != nBytesToWrite) {	// if any error other than pending
 		ABORT;	// failed to obtain overlapped result
 	}
+#else	// !ASYNCHRONOUS_WRITING
+	UNREFERENCED_PARAMETER(nFilePos);
+	if (!WriteBuf(lpBuffer, nBytesToWrite)) {	// synchronous write
+		ABORT;	// failed to write snapshot
+	}
+#endif	// ASYNCHRONOUS_WRITING
 	return true;	// success
 }
 
@@ -279,6 +299,7 @@ bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 	if (pSnapshot == NULL) {	// if null snapshot
 		ABORT2(ERROR_INVALID_PARAMETER);	// fail
 	}
+#if ASYNCHRONOUS_WRITING
 	// Look for a free buffer, but without waiting; in normal conditions
 	// this first method will succeed and likely return the first buffer.
 	int	iBuf = FindWriteBuffer(WS_COMPLETED);	// very efficient
@@ -305,6 +326,13 @@ bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 	if (!bResult && GetLastError() != ERROR_IO_PENDING) {	// if any error other than pending
 		ABORT;	// failed to write snapshot
 	}
+#else	// !ASYNCHRONOUS_WRITING
+	CAutoPtr<const CSnapshot> pSnapshotHolder(pSnapshot);	// ensure cleanup
+	DWORD	nSnapSize = pSnapshot->GetSize();	// get snapshot size
+	if (!WriteBuf(pSnapshot, nSnapSize)) {	// synchronous write
+		ABORT;	// failed to write snapshot
+	}
+#endif	// ASYNCHRONOUS_WRITING
 	m_aWriteFrameIndex.Add(m_nWriteBytes);	// add file position to frame index
 	m_nWriteBytes += nSnapSize;	// add snapshot size to total bytes written
 	m_nWriteFrames++;	// bump count of frames written
@@ -346,6 +374,7 @@ int CSnapMovie::WaitForFreeWriteBuffer()
 
 bool CSnapMovie::CompletePendingWrites()
 {
+#if ASYNCHRONOUS_WRITING
 	for (int iBuf = 0; iBuf < WRITE_BUFFERS; iBuf++) {	// for each write buffer
 		CWriteBuf&	buf = m_aWriteBuf[iBuf];	// for brevity
 		DWORD	nBytesWritten;
@@ -360,6 +389,32 @@ bool CSnapMovie::CompletePendingWrites()
 	for (int iBuf = 0; iBuf < WRITE_BUFFERS; iBuf++) {	// for each write buffer
 		CWriteBuf&	buf = m_aWriteBuf[iBuf];	// for brevity
 		buf.m_pSnapshot.Free();	// free snapshot
+	}
+#endif	// ASYNCHRONOUS_WRITING
+	return true;	// success
+}
+
+bool CSnapMovie::Validate(LPCTSTR pszPath)
+{
+	m_hFile = CreateFile(pszPath, GENERIC_READ | FILE_SHARE_READ, 
+		0, NULL, OPEN_EXISTING, 0, 0);
+	if (!IsOpen()) {	// if file not open
+		ABORT;	// failed to open file
+	}
+	if (!ReadHeader()) {	// if we can't read header
+		return false;	// fail; error already handled
+	}
+	printf("%lld frames\n", m_hdr.nFrameCount);
+	// read frames sequentially without trying to read index first
+	ULONGLONG	nOffset = sizeof(m_hdr);
+	for (LONGLONG iFrame = 0; iFrame < m_hdr.nFrameCount; iFrame++) {
+		CAutoPtr<CSnapshot>	pSnapshot(Read());
+		if (pSnapshot == NULL) {
+			printf("read snapshot failed, frame %lld\n", iFrame);
+			printf("bytes read = %lld \n", nOffset);
+			ABORT;
+		}
+		nOffset += CSnapshot::GetSize(pSnapshot->m_drawState.nRings);
 	}
 	return true;	// success
 }

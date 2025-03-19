@@ -62,6 +62,7 @@ public:
 	bool	Write(const CSnapshot *pSnapshot);
 	CSnapshot*	Read();
 	bool	SeekFrame(LONGLONG iFrame);
+	bool	Validate(LPCTSTR pszPath);
 
 protected:
 // Constants

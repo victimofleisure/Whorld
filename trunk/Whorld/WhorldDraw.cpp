@@ -697,7 +697,9 @@ bool CWhorldDraw::OnDraw()
 			ring.bDelete = true;	// cascade delete
 		}
 		if (m_movie.IsWriting()) {
-			m_movie.Write(GetSnapshot());
+			if (!m_movie.Write(GetSnapshot())) {
+				OnMovieError();
+			}
 		}
 	} else {	// paused
 		// if we're displaying a snapshot and it should be letterboxed

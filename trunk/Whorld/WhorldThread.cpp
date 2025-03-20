@@ -522,10 +522,11 @@ void CWhorldThread::OnMovieRecord(LPCTSTR pszMoviePath)
 		m_movie.SetTargetSize(m_szTarget);
 		if (!m_movie.Open(sPath, true)) {
 			OnMovieError();
-			return;
 		}
 	} else {	// no path; stop recording
-		m_movie.Close();
+		if (!m_movie.Close()) {
+			OnMovieError();
+		}
 	}
 }
 

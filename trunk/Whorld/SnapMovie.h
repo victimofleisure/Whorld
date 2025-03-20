@@ -8,6 +8,7 @@
 		revision history:
 		rev		date	comments
         00      14mar25	initial version
+		01		19mar25	remove asynchronous writing
 
 */
 
@@ -62,7 +63,6 @@ public:
 	bool	Write(const CSnapshot *pSnapshot);
 	CSnapshot*	Read();
 	bool	SeekFrame(LONGLONG iFrame);
-	bool	Validate(LPCTSTR pszPath);
 
 protected:
 // Constants
@@ -71,11 +71,6 @@ protected:
 		// block size is in elements, and must be a power of two for efficient
 		// division; this is enough for over a minute at 60 frames per second
 		FRAME_INDEX_BLOCK_SIZE = 1 << 12,	// 4096 elements
-		WRITE_BUFFERS = 4,		// maximum number of pending writes
-	};
-	enum {	// write states
-		WS_PENDING,
-		WS_COMPLETED,
 	};
 
 // Types
@@ -92,15 +87,9 @@ protected:
 	};
 	typedef CBlockArray<FRAME_INDEX_ENTRY, FRAME_INDEX_BLOCK_SIZE> CFrameIndexBlockArray;
 	typedef CArrayEx<FRAME_INDEX_ENTRY, FRAME_INDEX_ENTRY> CFrameIndexArray;
-	class CWriteBuf {	// class to encapsulate a pending write
-	public:
-		OVERLAPPED	m_ovl;		// asynchronous I/O state
-		CAutoPtr<const CSnapshot>	m_pSnapshot;	// pointer to snapshot being written
-	};
 
 // Data members
 	HANDLE	m_hFile;			// handle of the movie file
-	CWriteBuf	m_aWriteBuf[WRITE_BUFFERS];	// array of write buffers
 	LONGLONG	m_nWriteFrames;	// during writing, number of frames written so far
 	ULONGLONG	m_nWriteBytes;	// during writing, byte offset of current frame
 	CFrameIndexBlockArray	m_aWriteFrameIndex;	// during writing, each frame's byte offset
@@ -117,12 +106,8 @@ protected:
 	bool	ReadFrameIndex();
 	bool	WriteFrameIndex();
 	bool	FinalizeWrite();
-	int		WaitForFreeWriteBuffer();
-	int		FindWriteBuffer(bool bDesiredState);
-	bool	CompletePendingWrites();
 	bool	ReadBuf(LPVOID lpBuffer, DWORD nBytesToRead);
 	bool	WriteBuf(LPCVOID lpBuffer, DWORD nBytesToWrite);
-	bool	WriteWait(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nFilePos);
 };
 
 inline bool CSnapMovie::IsOpen() const

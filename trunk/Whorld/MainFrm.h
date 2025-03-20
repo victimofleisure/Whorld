@@ -22,6 +22,7 @@
 		12		14mar25	add movie recording and playback
 		13		16mar25	add movie export
 		14		17mar25	add movie bar
+		15		20mar25	add movie record time to status bar
 
 */
 
@@ -66,6 +67,7 @@ public:
 	};
 	enum {	// status bar panes
 		SBP_HINT,
+		SBP_RECORD_TIME,
 		SBP_RING_COUNT,
 		SBP_FRAME_RATE,
 		STATUS_BAR_PANES
@@ -133,6 +135,7 @@ public:
 // Data members
 	UINT_PTR	m_nPrevFrameCount;	// previous frame count, for measuring frame rate
 	CBenchmark	m_benchFrameRate;	// benchmark timer, for measuring frame rate
+	CString	m_sRecordTime;			// ring count status pane string
 	CString	m_sRingCount;			// ring count status pane string
 	CString	m_sFrameRate;			// frame rate status pane string
 	CStringArrayEx	m_aOutputPath;	// array of output paths

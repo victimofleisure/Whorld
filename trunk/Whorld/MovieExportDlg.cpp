@@ -59,30 +59,49 @@ void CMovieExportDlg::UpdateFrameSize(int iFrameSizePreset)
 	m_szFrame.cy = Round(szTarget.height);
 }
 
-void CMovieExportDlg::FrameToTime(int iFrame, COleDateTime& dt, float fFrameRate)
+void CMovieExportDlg::TimeToString(LONGLONG nTime, CString& sTime)
 {
-	dt.m_dt = iFrame / fFrameRate / SECONDS_PER_DAY;
+	int	nSecs = nTime % 60;
+	nTime /= 60;
+	int	nMins = nTime % 60;
+	nTime /= 60;
+	int	nHours = static_cast<int>(nTime);
+	sTime.Format(_T("%02d:%02d:%02d"), nHours, nMins, nSecs);
 }
 
-int CMovieExportDlg::TimeToFrame(const COleDateTime& dt, float fFrameRate)
+bool CMovieExportDlg::StringToTime(CString sTime, LONGLONG& nTime)
 {
-	return Round(dt.m_dt * fFrameRate * SECONDS_PER_DAY);
+	const int	MAX_PLACES = 3;	// hours, minutes, seconds
+	static const int	arrScale[MAX_PLACES] = {3600, 60, 1};
+	int	arrPlace[MAX_PLACES];
+	int	nScanPlaces = _stscanf_s(sTime, _T("%d:%d:%d"), 
+		&arrPlace[0], &arrPlace[1], &arrPlace[2]);
+	if (nScanPlaces <= 0)	// if no places scanned
+		return false;
+	nTime = 0;
+	int	iFirstScale = MAX_PLACES - nScanPlaces;
+	// for each scanned place, scale to seconds and accumulate
+	for (int iPlace = 0; iPlace < nScanPlaces; iPlace++) {
+		nTime += arrPlace[iPlace] * arrScale[iFirstScale + iPlace];
+	}
+	return true;
 }
 
 void CMovieExportDlg::FrameToTimeString(int iFrame, CString& sTime, float fFrameRate)
 {
-	COleDateTime	dt;
-	FrameToTime(iFrame, dt, fFrameRate);
-	sTime = dt.Format(_T("%H:%M:%S"));
+	ASSERT(fFrameRate);
+	LONGLONG	nTime = Round64(iFrame / fFrameRate);
+	TimeToString(nTime, sTime);
 }
 
 bool CMovieExportDlg::TimeStringToFrame(CString sTime, int& iFrame, float fFrameRate)
 {
-	COleDateTime	dt;
-	if (!dt.ParseDateTime(sTime)) {	// if can't parse time
-		return false;	// fail
+	ASSERT(fFrameRate);
+	LONGLONG	nTime;
+	if (!StringToTime(sTime, nTime)) {
+		return false;
 	}
-	iFrame = TimeToFrame(dt, fFrameRate);
+	iFrame = Round(nTime * fFrameRate);
 	return true;
 }
 

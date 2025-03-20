@@ -291,32 +291,33 @@
 #define ID_SNAPSHOT_NEXT                32817
 #define ID_SNAPSHOT_PREV                32818
 #define ID_STATUS_PANE_FRAME_RATE       32819
-#define ID_STATUS_PANE_RING_COUNT       32820
-#define ID_VIEW_APPLOOK_OFF_2003        32821
-#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32822
-#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32823
-#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32824
-#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32825
-#define ID_VIEW_APPLOOK_OFF_XP          32826
-#define ID_VIEW_APPLOOK_VS_2005         32827
-#define ID_VIEW_APPLOOK_VS_2008         32828
-#define ID_VIEW_APPLOOK_WINDOWS_7       32829
-#define ID_VIEW_APPLOOK_WIN_2000        32830
-#define ID_VIEW_APPLOOK_WIN_XP          32831
-#define ID_VIEW_BAR_Globals             32832
-#define ID_VIEW_BAR_Mapping             32833
-#define ID_VIEW_BAR_Master              32834
-#define ID_VIEW_BAR_Movie               32835
-#define ID_VIEW_BAR_Params              32836
-#define ID_VIEW_CUSTOMIZE               32837
-#define ID_VIEW_MIDI_LEARN              32838
-#define ID_VIEW_OPTIONS                 32839
-#define ID_WINDOW_CLEAR                 32840
-#define ID_WINDOW_DETACH                32841
-#define ID_WINDOW_FULLSCREEN            32842
-#define ID_WINDOW_PAUSE                 32843
-#define ID_WINDOW_RESET_LAYOUT          32844
-#define ID_WINDOW_STEP                  32845
+#define ID_STATUS_PANE_RECORD_TIME      32820
+#define ID_STATUS_PANE_RING_COUNT       32821
+#define ID_VIEW_APPLOOK_OFF_2003        32822
+#define ID_VIEW_APPLOOK_OFF_2007_AQUA   32823
+#define ID_VIEW_APPLOOK_OFF_2007_BLACK  32824
+#define ID_VIEW_APPLOOK_OFF_2007_BLUE   32825
+#define ID_VIEW_APPLOOK_OFF_2007_SILVER 32826
+#define ID_VIEW_APPLOOK_OFF_XP          32827
+#define ID_VIEW_APPLOOK_VS_2005         32828
+#define ID_VIEW_APPLOOK_VS_2008         32829
+#define ID_VIEW_APPLOOK_WINDOWS_7       32830
+#define ID_VIEW_APPLOOK_WIN_2000        32831
+#define ID_VIEW_APPLOOK_WIN_XP          32832
+#define ID_VIEW_BAR_Globals             32833
+#define ID_VIEW_BAR_Mapping             32834
+#define ID_VIEW_BAR_Master              32835
+#define ID_VIEW_BAR_Movie               32836
+#define ID_VIEW_BAR_Params              32837
+#define ID_VIEW_CUSTOMIZE               32838
+#define ID_VIEW_MIDI_LEARN              32839
+#define ID_VIEW_OPTIONS                 32840
+#define ID_WINDOW_CLEAR                 32841
+#define ID_WINDOW_DETACH                32842
+#define ID_WINDOW_FULLSCREEN            32843
+#define ID_WINDOW_PAUSE                 32844
+#define ID_WINDOW_RESET_LAYOUT          32845
+#define ID_WINDOW_STEP                  32846
 
 // Next default values for new objects
 //
@@ -324,7 +325,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                1
 #define _APS_NEXT_RESOURCE_VALUE        385
-#define _APS_NEXT_COMMAND_VALUE         32846
+#define _APS_NEXT_COMMAND_VALUE         32847
 #define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

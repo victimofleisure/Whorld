@@ -676,17 +676,18 @@ BEGIN
     IDS_BAR_Globals         "Globals"
     IDS_BAR_Mapping         "Mapping"
     IDS_BAR_Master          "Master"
+    IDS_BAR_Movie           "Movie"
     IDS_BAR_Params          "Parameters"
     IDS_CHAN_STAT_CHAN_AFT  "Channel Aftertouch"
     IDS_CHAN_STAT_CONTROL   "Control"
     IDS_CHAN_STAT_INTERNAL  "Internal"
     IDS_CHAN_STAT_KEY_AFT   "Key Aftertouch"
     IDS_CHAN_STAT_MODULATOR "Modulator"
-    IDS_CHAN_STAT_NOTE      "Note"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_CHAN_STAT_NOTE      "Note"
     IDS_CHAN_STAT_NOTE_OFF  "Note Off"
     IDS_CHAN_STAT_NOTE_ON   "Note On"
     IDS_CHAN_STAT_PATCH     "Patch"
@@ -702,11 +703,11 @@ BEGIN
     IDS_EDIT_MENU           "Edit"
     IDS_EDIT_MOVE           "Move"
     IDS_EDIT_PASTE          "Paste"
-    IDS_EDIT_REDO_PREFIX    "&Redo"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_EDIT_REDO_PREFIX    "&Redo"
     IDS_EDIT_SORT           "Sort"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
     IDS_EXPORT_ALL_SNAPSHOTS "Export All Snapshots"
@@ -722,11 +723,11 @@ BEGIN
     IDS_MAIN_Origin         "Origin"
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
-    IDS_MAPPING_COL_CHANNEL "Channel"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAPPING_COL_CHANNEL "Channel"
     IDS_MAPPING_COL_CONTROL "Control"
     IDS_MAPPING_COL_END     "End"
     IDS_MAPPING_COL_EVENT   "Event"
@@ -742,11 +743,11 @@ BEGIN
     IDS_MAP_TARGET_OriginDrag "Origin Drag"
     IDS_MAP_TARGET_OriginRandom "Origin Random"
     IDS_MAP_TARGET_OriginX  "Origin X"
-    IDS_MAP_TARGET_OriginY  "Origin Y"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_OriginY  "Origin Y"
     IDS_MAP_TARGET_Outline  "Outline"
     IDS_MAP_TARGET_Pause    "Pause"
     IDS_MAP_TARGET_RandomPhase "Random Phase"
@@ -762,11 +763,11 @@ BEGIN
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
-    IDS_MEX_BAD_RANGE       "Invalid range."
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MEX_BAD_RANGE       "Invalid range."
     IDS_MEX_BAD_TIME        "Invalid time."
     IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
     IDS_MIDI_INPUT          "Input"
@@ -782,11 +783,11 @@ BEGIN
     IDS_MIDI_SYS_STAT_STOP  "Stop"
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
-    IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
     IDS_MOVIE_EXPORT_OVERWRITE_WARN 
                             "Destination folder already contains an image sequence.\nDo you want to replace it?"
     IDS_NONE                "<None>"
@@ -809,11 +810,11 @@ BEGIN
                             "Show bars around snapshot, restricting it to its frame size"
     IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
     IDS_OPT_GROUP_Export    "Export"
-    IDS_OPT_GROUP_General   "General"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Input     "Input"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_GROUP_Snapshot  "Snapshot"
@@ -829,11 +830,11 @@ BEGIN
     IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
     IDS_OPT_NAME_Input_fWheelSense "Wheel Sensitivity"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
-    IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
     IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
     IDS_OPT_SCALE_TO_FIT_Both "Both"
     IDS_OPT_SCALE_TO_FIT_Height "Height"
@@ -849,11 +850,11 @@ BEGIN
     IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
-    IDS_PARAM_OddShear      "Odd Shear"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
@@ -869,11 +870,11 @@ BEGIN
     IDS_PROW_Global         "Global"
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
-    IDS_PROW_VAL_SLIDER     "Slider"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
@@ -890,6 +891,10 @@ BEGIN
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
+END
+
+STRINGTABLE
+BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
 END
 
@@ -899,6 +904,7 @@ BEGIN
     ID_SNAPSHOT_NEXT        "Go to next snapshot\nNext  Snapshot"
     ID_SNAPSHOT_PREV        "Go to previous snapshot\nPrevious Snapshot"
     ID_STATUS_PANE_FRAME_RATE "000.00"
+    ID_STATUS_PANE_RECORD_TIME "00:00:00"
     ID_STATUS_PANE_RING_COUNT "00000"
 END
 
@@ -907,6 +913,7 @@ BEGIN
     ID_VIEW_BAR_Globals     "Show or hide the global parameters pane\nShow Globals"
     ID_VIEW_BAR_Mapping     "Show or hide the MIDI mapping pane\nShow Mapping"
     ID_VIEW_BAR_Master      "Show or hide the master pane\nShow Master"
+    ID_VIEW_BAR_Movie       "Show or hide the movie bar\nShow Movie"
     ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
     ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
     ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
@@ -1074,12 +1081,6 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_BAR_Movie           "Movie"
-    ID_VIEW_BAR_Movie       "Show or hide the movie bar\nShow Movie"
 END
 
 #endif    // English (United States) resources

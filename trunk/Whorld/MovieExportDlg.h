@@ -33,8 +33,8 @@ public:
 	UINT	GetExportFlags() const;
 
 // Operations
-	static void	FrameToTime(int iFrame, COleDateTime& dt, float fFrameRate);
-	static int TimeToFrame(const COleDateTime& dt, float fFrameRate);
+	static void	TimeToString(LONGLONG nTime, CString& sTime);
+	static bool	StringToTime(CString sTime, LONGLONG& nTime);
 	static void	FrameToTimeString(int iFrame, CString& sTime, float fFrameRate);
 	static bool	TimeStringToFrame(CString sTime, int& iFrame, float fFrameRate);
 
@@ -54,9 +54,6 @@ public:
 		UNIT_TIME,		// time in hours, minutes and seconds
 		UNIT_FRAMES,	// time in frames at specifed frame rate
 		TIME_UNITS
-	};
-	enum {
-		SECONDS_PER_DAY = 24 * 3600		// for COleDateTime conversion
 	};
 
 // Public data

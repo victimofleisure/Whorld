@@ -187,8 +187,6 @@ void CMovieBar::UpdateTime(LONGLONG iFrame)
 	// This method is called by OnTimer, so its overhead must be considered.
 	// It takes 10 microseconds if it doesn't update the control, but as much
 	// as half a millisecond if it does, hence change detection is warranted.
-	// We'd like to avoid reallocating a string every time, but that's hopeless
-	// because COleDateTime::Format returns a string instead using a reference.
 	float	fFrameRate = theApp.m_thrRender.GetMovieFrameRate();
 	CString	sTime;
 	CMovieExportDlg::FrameToTimeString(static_cast<int>(iFrame), sTime, fFrameRate);

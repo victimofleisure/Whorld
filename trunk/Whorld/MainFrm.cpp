@@ -26,6 +26,7 @@
 		16		14mar25	add movie recording and playback
 		17		16mar25	add movie export
 		18		17mar25	add movie bar
+		19		20mar25	add movie record time to status bar
 
 */
 
@@ -64,6 +65,7 @@ const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
 static UINT indicators[] =
 {
 	ID_SEPARATOR,           // status line indicator
+	ID_STATUS_PANE_RECORD_TIME,
 	ID_STATUS_PANE_RING_COUNT,
 	ID_STATUS_PANE_FRAME_RATE,
 };
@@ -242,6 +244,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// blank status bar panes
 	int	nPrevTextLen = 0;
+	FastSetPaneText(m_wndStatusBar, SBP_RECORD_TIME, m_sRecordTime, nPrevTextLen);
 	FastSetPaneText(m_wndStatusBar, SBP_RING_COUNT, m_sRingCount, nPrevTextLen);
 	FastSetPaneText(m_wndStatusBar, SBP_FRAME_RATE, m_sFrameRate, nPrevTextLen);
 
@@ -851,7 +854,17 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	switch (nIDEvent) {
 	case FRAME_RATE_TIMER_ID:
 		{
-			int	nPrevLen = m_sRingCount.GetLength();
+			int	nPrevLen;
+			nPrevLen = m_sRecordTime.GetLength();
+			if (IsMovieRecording()) {
+				int	nFrames = static_cast<int>(theApp.m_thrRender.GetMovieRecordPos());
+				float	fFrameRate = static_cast<float>(theApp.m_thrRender.GetFrameRate());
+				CMovieExportDlg::FrameToTimeString(nFrames, m_sRecordTime, fFrameRate);
+			} else {
+				m_sRecordTime.Empty();
+			}
+			FastSetPaneText(m_wndStatusBar, SBP_RECORD_TIME, m_sRecordTime, nPrevLen);
+			nPrevLen = m_sRingCount.GetLength();
 			m_sRingCount.Format(_T("%lld"), theApp.m_thrRender.GetRingCount());
 			FastSetPaneText(m_wndStatusBar, SBP_RING_COUNT, m_sRingCount, nPrevLen);
 			double	fElapsedSecs = m_benchFrameRate.Reset();

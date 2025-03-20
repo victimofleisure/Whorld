@@ -9,6 +9,7 @@
 		rev		date	comments
         00      14mar25	initial version
 		01		19mar25	remove asynchronous writing
+		02		20mar25	open must reset frames written count
 
 */
 
@@ -80,11 +81,12 @@ bool CSnapMovie::Open(LPCTSTR pszPath, bool bWrite)
 	m_aWriteFrameIndex.RemoveAll();
 	m_aReadFrameIndex.RemoveAll();
 	if (bWrite) {	// if opening for write
+		m_nWriteFrames = 0;	// reset frames written count
+		m_nWriteBytes = sizeof(m_hdr);	// set output position past header
 		// write dummy header; real header will be written by Close
 		if (!WriteHeader()) {	// if we can't write header
 			return false;	// fail; error already handled
 		}
-		m_nWriteBytes = sizeof(m_hdr);	// set output position past header
 	} else {	// opening for read
 		if (!ReadHeader()) {	// if we can't read header
 			return false;	// fail; error already handled

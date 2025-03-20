@@ -8,8 +8,8 @@
 		revision history:
 		rev		date	comments
         00      14mar25	initial version
-		01		19mar25	remove asynchronous writing
-		02		20mar25	open must reset frames written count
+		01		20mar25	open must reset frames written count
+		02		20mar25	refactor asynchronous writing
 
 */
 
@@ -28,7 +28,7 @@ const USHORT CSnapMovie::m_nFileVersion = 1;
 // it obliges you to specify a suitable Windows error code.
 #define ABORT2(errcode) { m_nLastErrorLine = __LINE__; SetLastError(errcode); return false; }
 
-#define ASYNCHRONOUS_WRITING 1
+#define ASYNC_WRITE 1	// set non-zero to do overlapped writes
 
 CSnapMovie::CSnapMovie()
 {
@@ -39,6 +39,8 @@ CSnapMovie::CSnapMovie()
 	m_iReadFrame = 0;
 	m_nIOState = IO_CLOSED;
 	m_nLastErrorLine = 0;
+	ZeroMemory(&m_ovlWrite, sizeof(m_ovlWrite));
+	m_nAsyncWriteSize = 0;
 }
 
 CSnapMovie::~CSnapMovie()
@@ -61,6 +63,7 @@ bool CSnapMovie::Open(LPCTSTR pszPath, bool bWrite)
 	}
 	DWORD	dwDesiredAccess;
 	DWORD	dwCreationDisposition;
+	DWORD	dwAttributes;
 	if (bWrite) {	// if opening for write
 		// frame rate and target size must be specified before opening
 		if (!PreparedForWrite()) {	// if caller hasn't prepared
@@ -68,13 +71,18 @@ bool CSnapMovie::Open(LPCTSTR pszPath, bool bWrite)
 		}
 		dwDesiredAccess = GENERIC_WRITE;
 		dwCreationDisposition = CREATE_ALWAYS;
+		dwAttributes = FILE_ATTRIBUTE_NORMAL;
+#if ASYNC_WRITE	// if doing overlapped writes
+		dwAttributes |= FILE_FLAG_OVERLAPPED;	// set overlapped flag
+#endif
 	} else {	// opening for read
 		dwDesiredAccess = GENERIC_READ | FILE_SHARE_READ;
 		dwCreationDisposition = OPEN_EXISTING;
+		dwAttributes = FILE_ATTRIBUTE_NORMAL;
 	}
 	// open file for read or write as specified above
 	m_hFile = CreateFile(pszPath, dwDesiredAccess, 
-		0, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, 0);
+		0, NULL, dwCreationDisposition, dwAttributes, 0);
 	if (!IsOpen()) {	// if file not open
 		ABORT;	// failed to open file
 	}
@@ -141,7 +149,7 @@ bool CSnapMovie::WriteHeader()
 	m_hdr.nRingSize = sizeof(RING);
 	m_hdr.nFrameCount = m_nWriteFrames;
 	m_hdr.nIndexOffset = m_nWriteBytes;
-	if (!WriteBuf(&m_hdr, sizeof(m_hdr))) {	// if we can't write header
+	if (!WriteSync(&m_hdr, sizeof(m_hdr), 0)) {	// if can't write header
 		ABORT;	// failed to write header
 	}
 	return true;	// success
@@ -173,18 +181,24 @@ bool CSnapMovie::ReadFrameIndex()
 bool CSnapMovie::WriteFrameIndex()
 {
 	INT_PTR	nBlocks = m_aWriteFrameIndex.GetBlockCount();
+	ULONGLONG	nWritePos = m_nWriteBytes;	// start at end of last snapshot written
 	for (int iBlock = 0; iBlock < nBlocks; iBlock++) {	// for each block
 		const FRAME_INDEX_ENTRY* pEntry = m_aWriteFrameIndex.GetBlock(iBlock);
 		DWORD	nIdxEntries = static_cast<DWORD>(m_aWriteFrameIndex.GetBlockSize(iBlock));
 		DWORD	nBufSize = nIdxEntries * sizeof(FRAME_INDEX_ENTRY);
-		if (!WriteBuf(pEntry, nBufSize)) {	// if we can't write block
+		if (!WriteSync(pEntry, nBufSize, nWritePos)) {	// if we can't write block
 			ABORT;	// failed to write frame index block
 		}
+		nWritePos += nBufSize;	// increment write position by buffer size
 	}
+#if !ASYNC_WRITE	// if not doing overlapped writes
+	// overlapped write always specifies a file position, so seeking is neither
+	// necessary nor correct in that case, but for normal writes, we must seek
 	LARGE_INTEGER	liZero = {0};
 	if (!SetFilePointerEx(m_hFile, liZero, NULL, FILE_BEGIN)) {	// if we can't seek
 		ABORT;	// failed to rewind to start of file
 	}
+#endif // ASYNC_WRITE
 	return true;	// success
 }
 
@@ -260,13 +274,115 @@ bool CSnapMovie::Write(const CSnapshot *pSnapshot)
 	if (pSnapshot == NULL) {	// if null snapshot
 		ABORT2(ERROR_INVALID_PARAMETER);	// fail
 	}
-	CAutoPtr<const CSnapshot> pSnapshotHolder(pSnapshot);	// ensure cleanup
 	DWORD	nSnapSize = pSnapshot->GetSize();	// get snapshot size
-	if (!WriteBuf(pSnapshot, nSnapSize)) {	// synchronous write
+#if ASYNC_WRITE	// if doing overlapped writes
+	// overlapped write method handles snapshot cleanup
+	if (!WriteAsync(pSnapshot)) {	// if write failed
+		return false;	// failed to write snapshot; error already handled
+	}
+#else // not doing overlapped writes
+	CAutoPtr<const CSnapshot> pSnapshotHolder(pSnapshot);	// ensure cleanup
+	if (!WriteBuf(pSnapshot, nSnapSize)) {	// if write failed
 		ABORT;	// failed to write snapshot
 	}
+#endif // ASYNC_WRITE
 	m_aWriteFrameIndex.Add(m_nWriteBytes);	// add file position to frame index
 	m_nWriteBytes += nSnapSize;	// add snapshot size to total bytes written
 	m_nWriteFrames++;	// bump count of frames written
 	return true;	// success
 }
+
+#if ASYNC_WRITE	// if doing overlapped writes
+
+bool CSnapMovie::WriteSync(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nWritePos)
+{
+	// wait for pending overlapped snapshot write (if any) to complete
+	if (!FinishAsyncWrite()) {
+		return false;	// fail; error already handled
+	}
+	OVERLAPPED	ovl;
+	ZeroMemory(&ovl, sizeof(ovl));
+	LARGE_INTEGER	li;	// split 64-bit file position in half, for legacy reasons
+	li.QuadPart = nWritePos;
+	ovl.Offset = li.LowPart;
+	ovl.OffsetHigh = li.HighPart;
+	// start overlapped write; if it fails but last error is I/O pending, it's OK
+	DWORD	nBytesWritten;
+	BOOL	bResult = WriteFile(m_hFile, lpBuffer, nBytesToWrite, &nBytesWritten, &ovl);
+	if (bResult) {	// if write returned success
+		// synchronous completion; nothing is pending and bytes written is valid
+		if (nBytesWritten != nBytesToWrite) {	// if wrong number of bytes written
+			ABORT2(ERROR_WRITE_FAULT);	// failed to write data
+		}
+	} else {	// write returned an error
+		if (GetLastError() != ERROR_IO_PENDING) {	// if any error other than pending
+			ABORT;	// failed to write data
+		}
+		bResult = GetOverlappedResult(m_hFile, &ovl, &nBytesWritten, true);
+		if (!bResult) {
+			ABORT;	// failed to obtain overlapped result
+		}
+	}
+	return true;	// write successfully completed
+}
+
+bool CSnapMovie::WriteAsync(const CSnapshot *pSnapshot)
+{
+	// wait for pending overlapped snapshot write (if any) to complete
+	if (!FinishAsyncWrite()) {
+		return false;	// fail; error already handled
+	}
+	m_pSnapWrite.Attach(pSnapshot);	// attach snapshot to write buffer
+	ZeroMemory(&m_ovlWrite, sizeof(m_ovlWrite));	// zero entire struct
+	LARGE_INTEGER	li;	// split 64-bit file position in half, for legacy reasons
+	li.QuadPart = m_nWriteBytes;
+	m_ovlWrite.Offset = li.LowPart;
+	m_ovlWrite.OffsetHigh = li.HighPart;
+	// start overlapped write; if it fails but last error is I/O pending, it's OK
+	UINT	nBytesToWrite = pSnapshot->GetSize();
+	m_nAsyncWriteSize = nBytesToWrite;	// store write size for error checking
+	DWORD	nBytesWritten;
+	BOOL	bResult = WriteFile(m_hFile, pSnapshot, nBytesToWrite, &nBytesWritten, &m_ovlWrite);
+	if (bResult) {	// if write returned success
+		// synchronous completion; nothing is pending and bytes written is valid
+		if (nBytesWritten != nBytesToWrite) {	// if wrong number of bytes written
+			ABORT2(ERROR_WRITE_FAULT);	// failed to write data
+		}
+		m_pSnapWrite.Free();	// write completely successful; free buffer
+	} else {	// write returned an error
+		if (GetLastError() != ERROR_IO_PENDING) {	// if any error other than pending
+			ABORT;	// failed to write data
+		}
+	}
+	return true;	// write is pending
+}
+
+bool CSnapMovie::FinishAsyncWrite()
+{
+	if (m_pSnapWrite) {	// if overlapped snapshot write is pending
+		DWORD	nBytesWritten;
+		BOOL	bResult = GetOverlappedResult(m_hFile, &m_ovlWrite, &nBytesWritten, true);
+		m_pSnapWrite.Free();	// we're done with this snapshot regardless
+		if (!bResult) {	// if error getting overlapped result
+			ABORT;	// failed to obtain overlapped result
+		}
+		if (nBytesWritten != m_nAsyncWriteSize) {	// if wrong number of bytes written
+			ABORT;	// failed to write data
+		}
+	}
+	return true;	// write successfully completed
+}
+
+#else // not doing overlapped writes
+
+// WriteSync is just an alias for WriteBuf in the non-overlapped case
+inline bool CSnapMovie::WriteSync(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nWritePos)
+{
+	UNREFERENCED_PARAMETER(nWritePos);	// position is irrelevant
+	if (!WriteBuf(lpBuffer, nBytesToWrite)) {	// if write failed
+		ABORT;	// handle error and return false
+	}
+	return true;	// success
+}
+
+#endif // ASYNC_WRITE

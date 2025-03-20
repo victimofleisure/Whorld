@@ -391,6 +391,8 @@ bool CMainFrame::WriteSnapshot(const CSnapshot *pSnapshot)
 	CString	sSnapshotPath;
 	if (PromptingForExport()) {
 		CFileDialog	fd(false, m_pszSnapshotExt, NULL, OFN_OVERWRITEPROMPT, m_pszSnapshotFilter);
+		CString	sDlgTitle(LDS(IDS_SNAPSHOT_SAVE_AS));
+		fd.m_ofn.lpstrTitle = sDlgTitle;
 		if (fd.DoModal() != IDOK) {	// display file dialog
 			return false;	// user canceled
 		}
@@ -463,7 +465,19 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 		case ID_FILE_OPEN:
 		case ID_FILE_SAVE:
 		case ID_FILE_SAVE_AS:
+		case ID_FILE_LOAD_SNAPSHOT:
+		case ID_PLAYLIST_NEW:
+		case ID_PLAYLIST_OPEN:
+		case ID_PLAYLIST_SAVE:
+		case ID_PLAYLIST_SAVE_AS:
+		case ID_MOVIE_PLAY:
+		case ID_MOVIE_EXPORT:
+		case ID_SNAPSHOT_EXPORT_ALL:
+		case ID_SNAPSHOT_INFO:
 		case ID_VIEW_CUSTOMIZE:
+		case ID_VIEW_OPTIONS:
+		case ID_VIEW_MIDI_LEARN:
+		case ID_WINDOW_RESET_LAYOUT:
 		case ID_HELP_FINDER:
 		case ID_APP_HOME_PAGE:
 		case ID_APP_ABOUT:
@@ -1089,6 +1103,8 @@ void CMainFrame::OnFileExport()
 		sFileName.RemoveExtension();
 		// prompt user for export path
 		CFileDialog	fd(false, m_pszExportExt, sFileName, OFN_OVERWRITEPROMPT, m_pszExportFilter);
+		CString	sDlgTitle(LDS(IDS_FILE_EXPORT_SAVE_AS));
+		fd.m_ofn.lpstrTitle = sDlgTitle;
 		if (fd.DoModal() != IDOK) {	// display file dialog
 			return;	// user canceled
 		}
@@ -1408,6 +1424,8 @@ void CMainFrame::OnMovieRecord()
 		CString	sMoviePath;
 		if (PromptingForExport()) {
 			CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
+			CString	sDlgTitle(LDS(IDS_MOVIE_SAVE_AS));
+			fd.m_ofn.lpstrTitle = sDlgTitle;
 			if (fd.DoModal() != IDOK) {	// display file dialog
 				return;	// user canceled
 			}
@@ -1432,6 +1450,8 @@ void CMainFrame::OnMoviePlay()
 		PlayMovie(NULL);	// stop playback
 	} else {	// movie is closed
 		CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter);
+		CString	sDlgTitle(LDS(IDS_MOVIE_OPEN));
+		fd.m_ofn.lpstrTitle = sDlgTitle;
 		if (fd.DoModal() == IDOK) {
 			PlayMovie(fd.GetPathName());	// start playback
 		}

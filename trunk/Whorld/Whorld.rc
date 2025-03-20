@@ -374,7 +374,9 @@ BEGIN
     VK_F9,          ID_IMAGE_RANDOM_PHASE,  VIRTKEY, NOINVERT
     VK_BACK,        ID_IMAGE_REVERSE,       VIRTKEY, CONTROL, NOINVERT
     "W",            ID_IMAGE_ZOOM_CENTER,   VIRTKEY, SHIFT, NOINVERT
+    "M",            ID_MOVIE_PLAY,          VIRTKEY, SHIFT, CONTROL, NOINVERT
     "M",            ID_MOVIE_RECORD,        VIRTKEY, CONTROL, NOINVERT
+    VK_HOME,        ID_MOVIE_REWIND,        VIRTKEY, CONTROL, NOINVERT
     "N",            ID_PLAYLIST_NEW,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     "O",            ID_PLAYLIST_OPEN,       VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_PLAYLIST_SAVE,       VIRTKEY, SHIFT, CONTROL, NOINVERT
@@ -896,6 +898,9 @@ END
 STRINGTABLE
 BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_MOVIE_OPEN          "Movie Open"
+    IDS_SNAPSHOT_SAVE_AS    "Snapshot Save As"
+    IDS_FILE_EXPORT_SAVE_AS "Export Save As"
 END
 
 STRINGTABLE
@@ -904,7 +909,7 @@ BEGIN
     ID_SNAPSHOT_NEXT        "Go to next snapshot\nNext  Snapshot"
     ID_SNAPSHOT_PREV        "Go to previous snapshot\nPrevious Snapshot"
     ID_STATUS_PANE_FRAME_RATE "000.00"
-    ID_STATUS_PANE_RECORD_TIME "00:00:00"
+    ID_STATUS_PANE_RECORD_TIME "000:00:00"
     ID_STATUS_PANE_RING_COUNT "00000"
 END
 
@@ -1081,6 +1086,11 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MOVIE_SAVE_AS        "Movie Save As"
 END
 
 #endif    // English (United States) resources

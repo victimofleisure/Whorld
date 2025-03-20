@@ -8,7 +8,7 @@
 		revision history:
 		rev		date	comments
         00      14mar25	initial version
-		01		19mar25	remove asynchronous writing
+		01		20mar25	refactor asynchronous writing
 
 */
 
@@ -98,6 +98,9 @@ protected:
 	LONGLONG	m_iReadFrame;	// during reading, current position as a frame index
 	int		m_nIOState;			// movie input/output state; see enum above
 	int		m_nLastErrorLine;	// line number on which last error occurred
+	OVERLAPPED	m_ovlWrite;		// overlapped struct for asynchronous writing
+	CAutoPtr<const CSnapshot>	m_pSnapWrite;	// snapshot for overlapped write
+	DWORD	m_nAsyncWriteSize;	// size of overlapped write in bytes
 
 // Helpers
 	bool	PreparedForWrite() const;
@@ -108,6 +111,9 @@ protected:
 	bool	FinalizeWrite();
 	bool	ReadBuf(LPVOID lpBuffer, DWORD nBytesToRead);
 	bool	WriteBuf(LPCVOID lpBuffer, DWORD nBytesToWrite);
+	bool	WriteSync(LPCVOID lpBuffer, DWORD nBytesToWrite, ULONGLONG nWritePos);
+	bool	WriteAsync(const CSnapshot *pSnapshot);
+	bool	FinishAsyncWrite();
 };
 
 inline bool CSnapMovie::IsOpen() const

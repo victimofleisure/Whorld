@@ -244,8 +244,8 @@ void CMappingBar::Sort(int iProp, bool bDescending)
 CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID)
 {
 	UNREFERENCED_PARAMETER(pParentWnd);
-	int	iProp = m_iEditCol - 1;	// skip number column
-	VARIANT_PROP prop = midiMaps.GetProperty(m_iEditRow, iProp);
+	int	iEditProp = m_iEditCol - 1;	// skip number column
+	VARIANT_PROP prop = midiMaps.GetProperty(m_iEditRow, iEditProp);
 	switch (m_iEditCol) {
 	case COL_EVENT:
 	case COL_CHANNEL:
@@ -299,7 +299,7 @@ CWnd *CMappingBar::CModGridCtrl::CreateEditCtrl(LPCTSTR pszText, DWORD dwStyle, 
 	default:
 		CPopupNumEdit	*pEdit = new CPopupNumEdit;
 		int	nFormat = CNumEdit::DF_SPIN;
-		if (CMapping::IsIntegerProperty(iProp)) {	// if integer property
+		if (CMapping::IsIntegerProperty(iEditProp)) {	// if integer property
 			nFormat |= CNumEdit::DF_INT;	// restrict input to integers
 		}
 		pEdit->SetFormat(nFormat);
@@ -320,8 +320,8 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 	UNREFERENCED_PARAMETER(pszText);
 	VARIANT_PROP prop = {0};	// clear entire property
 	int	iMapping = m_iEditRow;
-	int	iProp = m_iEditCol - 1;	// skip number column
-	VARIANT_PROP propPrev = midiMaps.GetProperty(iMapping, iProp);
+	int	iEditProp = m_iEditCol - 1;	// skip number column
+	VARIANT_PROP propPrev = midiMaps.GetProperty(iMapping, iEditProp);
 	switch (m_iEditCol) {
 	case COL_EVENT:
 	case COL_CHANNEL:
@@ -348,22 +348,22 @@ void CMappingBar::CModGridCtrl::OnItemChange(LPCTSTR pszText)
 		break;
 	default:
 		CPopupNumEdit	*pEdit = STATIC_DOWNCAST(CPopupNumEdit, m_pEditCtrl);
-		if (CMapping::IsIntegerProperty(iProp)) {	// if integer property
+		if (CMapping::IsIntegerProperty(iEditProp)) {	// if integer property
 			prop.intVal = pEdit->GetIntVal();	// retrieve integer
 		} else {	// not integer property
 			prop.dblVal = pEdit->GetVal();	// retrieve double
 		}
 	}
 	// if property value actually changed
-	if (CMapping::Compare(iProp, prop, propPrev)) {
+	if (CMapping::Compare(iEditProp, prop, propPrev)) {
 		CMappingBar*	pParent = STATIC_DOWNCAST(CMappingBar, GetParent());
 		CIntArrayEx	arrSelection;
 		GetSelection(arrSelection);
 		// if multiple mappings selected and edit is within selection
 		if (arrSelection.GetSize() > 1 && arrSelection.Find(m_iEditRow) >= 0) {
-			pParent->SetProperty(arrSelection, iProp, prop);
+			pParent->SetProperty(arrSelection, iEditProp, prop);
 		} else {	// edit single mapping
-			pParent->SetProperty(iMapping, iProp, prop);
+			pParent->SetProperty(iMapping, iEditProp, prop);
 		}
 	}
 }

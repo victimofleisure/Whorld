@@ -4,13 +4,14 @@ Whorld is a free, open-source visualizer for sacred geometry. It uses math to cr
 
 Whorld's visualization is controlled via parameters which can be adjusted manually, or modulated by oscillators. A given setting of the parameters and their oscillators form a patch. You can use the demo patches, or create your own.
 
-Patches can be grouped together in a playlist. You can play patches manually, or Whorld can auto-play them for you. Whorld also includes a crossfader, which allows you to interpolate between two patches (AKA "tweening").
+~~Patches can be grouped together in a playlist. You can play patches manually, or Whorld can auto-play them for you. Whorld also includes a crossfader, which allows you to interpolate between two patches (AKA "tweening").~~ [not yet in V2]
 
-Whorld is optimized for VJing. All of its functions are available in full-screen mode, via shortcut keys, mouse or trackball, and MIDI controllers. Whorld can be synchronized to music, using tap tempo, or MIDI clocks. 
+Whorld is optimized for VJing. All of its functions are available in full-screen mode, via shortcut keys, mouse or trackball, and MIDI controllers. ~~Whorld can be synchronized to music, using tap tempo, or MIDI clocks.~~ [not yet in V2]
 
 **Whorld V2 is in alpha test**
 
-It has been nearly **twenty years** since the last release. The main design goals of Whorld V2 are listed below. The first six of them are fully accomplished in this release.
+It has been nearly **twenty years** since the last release. The main design goals of Whorld V2 are listed below.
+
 1. Improve *rendering throughput* by leveraging Direct2D’s hardware acceleration. [done]
 2. Implement *anti-aliasing* (line smoothing), which is a core feature of Direct2D.  [done]
 3. Improve *accuracy* by drawing in floating-point coordinates, another Direct2D feature.  [done]

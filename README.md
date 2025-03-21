@@ -19,7 +19,7 @@ It has been nearly **twenty years** since the last release. The main design goal
 5. Move rendering to a worker thread, to avoid glitches and tearing. [done]
 6. Redo the MIDI mapping, to improve usability and flexibility. [done] 
 7. Streamline the application, preserving what’s valuable and discarding what isn’t. [in progress]
-8. Eventually, implement transparency (alpha) and other visual effects.
+8. Eventually, implement quad mirroring, transparency (alpha) and other visual effects.
 
 If you wish to be an official _alpha tester_, please contact the author via their website, social media, or GitHub. Note the system requirements below. 
 

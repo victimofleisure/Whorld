@@ -17,6 +17,7 @@
 		07		26feb25	adapt for Whorld
 		08		01mar25	add misc targets
 		09		19mar25	make mapping range real instead of integer
+		10		25mar25	add target types
 
 */
 
@@ -46,12 +47,12 @@ public:
 		#include "WhorldDef.h"	// generate parameter range
 		#define MASTERDEF(name, type, prefix, initval) TARGET_##name,
 		#include "WhorldDef.h"	// generate master property range
-		#define MAPPINGDEF_MISC_TARGET(name) TARGET_##name,
+		#define MAPPINGDEF_MISC_TARGET(name, type) TARGET_##name,
 		#include "MappingDef.h"	// generate miscellaneous target range
 		TARGETS
 	};
 	enum {	// miscellaneous targets
-		#define MAPPINGDEF_MISC_TARGET(name) MT_##name,
+		#define MAPPINGDEF_MISC_TARGET(name, type) MT_##name,
 		#include "MappingDef.h"	// generate enumeration
 		MISC_TARGETS
 	};
@@ -59,6 +60,12 @@ public:
 		#define MAPPINGUNDODEF(name) UCODE_##name,
 		#include "MappingDef.h"	// generate enum
 		MAPPING_UNDO_CODES
+	};
+	enum {	// target types
+		TT_RANGE,	// continuous or multiple-choice property
+		TT_BOOL,	// on/off or true/false binary property
+		TT_ACTION,	// triggered or one-shot command (bang)
+		TARGET_TYPES
 	};
 
 // Attributes
@@ -73,6 +80,7 @@ public:
 	static CString	GetEventName(int iEvent);
 	static LPCTSTR	GetTargetTag(int iTarget);
 	static CString	GetTargetName(int iTarget);
+	static int		GetTargetType(int iTarget);
 	static int		FindEventTag(LPCTSTR pszName);
 	static int		FindTargetTag(LPCTSTR pszName);
 	static bool		IsIntegerProperty(int iProp);
@@ -92,6 +100,8 @@ protected:
 	static CString m_arrTargetName[TARGETS];
 	static const LPCTSTR m_arrMiscTargetTag[MISC_TARGETS];
 	static const int m_arrMiscTargetID[MISC_TARGETS];
+	static const BYTE m_arrMiscTargetType[MISC_TARGETS];
+	static BYTE m_arrTargetType[TARGETS];
 };
 
 inline bool CMappingBase::IsValidEvent(int iEvent)
@@ -159,6 +169,12 @@ inline CString CMappingBase::GetTargetName(int iTarget)
 {
 	ASSERT(IsValidTarget(iTarget));
 	return m_arrTargetName[iTarget];
+}
+
+inline int CMappingBase::GetTargetType(int iTarget)
+{
+	ASSERT(IsValidTarget(iTarget));
+	return m_arrTargetType[iTarget];
 }
 
 inline int CMappingBase::FindTargetTag(LPCTSTR pszName)

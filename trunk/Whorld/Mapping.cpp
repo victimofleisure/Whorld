@@ -25,6 +25,7 @@
 		15		01mar25	add misc targets
 		16		03mar25	support full resolution pitch bend
 		17		19mar25	make mapping range real instead of integer
+		18		25mar25	add target types
 
 */
 
@@ -65,12 +66,17 @@ const int CMappingBase::m_arrSysStatID[MIDI_SYSTEM_STATUS_MESSAGES] = {
 };
 
 const LPCTSTR CMappingBase::m_arrMiscTargetTag[MISC_TARGETS] = {
-	#define MAPPINGDEF_MISC_TARGET(name) _T(#name),
+	#define MAPPINGDEF_MISC_TARGET(name, type) _T(#name),
 	#include "MappingDef.h"	// generate enumeration
 };
 
 const int CMappingBase::m_arrMiscTargetID[MISC_TARGETS] = {
-	#define MAPPINGDEF_MISC_TARGET(name) IDS_MAP_TARGET_##name,
+	#define MAPPINGDEF_MISC_TARGET(name, type) IDS_MAP_TARGET_##name,
+	#include "MappingDef.h"	// generate enumeration
+};
+
+const BYTE CMappingBase::m_arrMiscTargetType[MISC_TARGETS] = {
+	#define MAPPINGDEF_MISC_TARGET(name, type) TT_##type,
 	#include "MappingDef.h"	// generate enumeration
 };
 
@@ -78,6 +84,7 @@ CString CMappingBase::m_arrChanStatName[MIDI_CHANNEL_VOICE_MESSAGES];
 CString CMappingBase::m_arrSysStatName[MIDI_SYSTEM_STATUS_MESSAGES];
 LPCTSTR CMappingBase::m_arrTargetTag[TARGETS];
 CString CMappingBase::m_arrTargetName[TARGETS];
+BYTE CMappingBase::m_arrTargetType[TARGETS];
 
 #define LOCK_MAPPINGS WCritSec::Lock lock(m_csMapping);
 
@@ -104,6 +111,7 @@ void CMappingBase::Initialize()
 	for (int iMisc = 0; iMisc < MISC_TARGETS; iMisc++, iTarget++) {
 		m_arrTargetTag[iTarget] = m_arrMiscTargetTag[iMisc];
 		m_arrTargetName[iTarget].LoadString(m_arrMiscTargetID[iMisc]);
+		m_arrTargetType[iTarget] = m_arrMiscTargetType[iMisc];
 	}
 }
 

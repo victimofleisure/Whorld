@@ -17,6 +17,7 @@
 		07		09mar25	add export scale to fit
 		08		14mar25	add movie recording and playback
 		09		15mar25	move queue-related methods here
+		10		25mar25	add random origin command
 
 */
 
@@ -103,6 +104,11 @@ bool CWhorldThread::SetEmpty()
 bool CWhorldThread::RandomPhase()
 {
 	return PushCommand(CRenderCmd(RC_RANDOM_PHASE));
+}
+
+bool CWhorldThread::RandomOrigin()
+{
+	return PushCommand(CRenderCmd(RC_RANDOM_ORIGIN));
 }
 
 bool CWhorldThread::SetZoom(double fZoom, bool bDamping)
@@ -434,6 +440,12 @@ void CWhorldThread::OnRandomPhase()
 	}
 }
 
+void CWhorldThread::OnRandomOrigin()
+{
+	DPoint	ptRand(RandDouble(), RandDouble());	// generate normalized random point
+	m_ptOriginTarget = (ptRand - 0.5) * m_szTarget;	// convert to DIPs
+}
+
 void CWhorldThread::OnSetZoom(double fZoom, bool bDamping)
 {
 	m_fZoomTarget = fZoom;
@@ -650,6 +662,9 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_RANDOM_PHASE:
 		OnRandomPhase();
+		break;
+	case RC_RANDOM_ORIGIN:
+		OnRandomOrigin();
 		break;
 	case RC_SET_ZOOM:
 		OnSetZoom(cmd.m_prop.dblVal, cmd.m_nParam != 0);

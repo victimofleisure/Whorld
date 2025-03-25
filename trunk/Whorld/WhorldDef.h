@@ -23,6 +23,7 @@
 		13		12mar25	add reserved member to ring struct
 		14		14mar25	add movie record and play commands
 		15		19mar25	allow line width less than one
+		16		25mar25	add random origin command
 
         define parameter attributes
 
@@ -183,6 +184,7 @@ RENDERCMDDEF(SET_FRAME_RATE,	intVal	)	// sets frame rate; m_nParam: integer fram
 RENDERCMDDEF(SET_PAUSE,			intVal	)	// pauses updates; m_nParam: non-zero to pause, zero to unpause
 RENDERCMDDEF(SINGLE_STEP,		intVal	)	// single steps while paused; no parameters
 RENDERCMDDEF(RANDOM_PHASE,		intVal	)	// randomizes phase of all oscillators; no parameters
+RENDERCMDDEF(RANDOM_ORIGIN,		intVal	)	// moves origin to a random location; no parameters
 RENDERCMDDEF(SET_ZOOM,			dblVal	)	// sets zoom; m_nParam: non-zero for damping, m_prop: double fZoom
 RENDERCMDDEF(SET_ORIGIN,		fltPt	)	// sets origin; m_nParam: non-zero for damping, m_prop: POINTFLOAT ptOrigin
 RENDERCMDDEF(SET_ORIGIN_X,		dblVal	)	// sets origin x-coord; m_nParam: non-zero for damping, m_prop: double

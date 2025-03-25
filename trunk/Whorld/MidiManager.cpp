@@ -16,6 +16,7 @@
 		06		11mar25	remove output device from device change handler
 		07		12mar25	fix draw mode change not updating UI
 		08		19mar25	make mapping range real instead of integer
+		09		25mar25	add random origin target
 
 */
 
@@ -250,6 +251,9 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 		break;
 	case MT_RandomPhase:
 		theApp.m_thrRender.RandomPhase();
+		break;
+	case MT_RandomOrigin:
+		theApp.m_thrRender.RandomOrigin();
 		break;
 	case MT_Clear:
 		theApp.m_thrRender.SetEmpty();

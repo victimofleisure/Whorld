@@ -12,6 +12,7 @@
 		02		27feb25	add undo codes
 		03		02mar25	add parameter property
 		04		19mar25	make mapping range real instead of integer
+		05		25mar25	add random origin target
 
 		mapping column and member definitions
 
@@ -76,6 +77,7 @@ MAPPINGDEF_MISC_TARGET(Convex)
 MAPPINGDEF_MISC_TARGET(LoopHue)
 MAPPINGDEF_MISC_TARGET(ZoomCenter)
 MAPPINGDEF_MISC_TARGET(RandomPhase)
+MAPPINGDEF_MISC_TARGET(RandomOrigin)
 MAPPINGDEF_MISC_TARGET(Clear)
 MAPPINGDEF_MISC_TARGET(Pause)
 

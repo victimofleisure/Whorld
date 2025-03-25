@@ -714,6 +714,7 @@ BEGIN
     IDS_EDIT_UNDO_PREFIX    "&Undo"
     IDS_EXPORT_ALL_SNAPSHOTS "Export All Snapshots"
     IDS_EXPORT_MOVIE        "Export Movie"
+    IDS_FILE_EXPORT_SAVE_AS "Export Save As"
     IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
@@ -724,11 +725,11 @@ BEGIN
     IDS_MAIN_OrgMotion      "Origin Motion"
     IDS_MAIN_Origin         "Origin"
     IDS_MAIN_Reverse        "Reverse"
-    IDS_MAIN_ZoomCenter     "Zoom Center"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_ZoomCenter     "Zoom Center"
     IDS_MAPPING_COL_CHANNEL "Channel"
     IDS_MAPPING_COL_CONTROL "Control"
     IDS_MAPPING_COL_END     "End"
@@ -744,11 +745,11 @@ BEGIN
     IDS_MAP_TARGET_Mirror   "Mirror"
     IDS_MAP_TARGET_OriginDrag "Origin Drag"
     IDS_MAP_TARGET_OriginRandom "Origin Random"
-    IDS_MAP_TARGET_OriginX  "Origin X"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_OriginX  "Origin X"
     IDS_MAP_TARGET_OriginY  "Origin Y"
     IDS_MAP_TARGET_Outline  "Outline"
     IDS_MAP_TARGET_Pause    "Pause"
@@ -764,11 +765,11 @@ BEGIN
     IDS_MASTER_Spread       "Spread"
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
-    IDS_MASTER_Zoom         "Zoom"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Zoom         "Zoom"
     IDS_MEX_BAD_RANGE       "Invalid range."
     IDS_MEX_BAD_TIME        "Invalid time."
     IDS_MIDI_DEVICES_MISSING "MIDI devices are missing."
@@ -784,14 +785,16 @@ BEGIN
     IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
-    IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
     IDS_MOVIE_EXPORT_OVERWRITE_WARN 
                             "Destination folder already contains an image sequence.\nDo you want to replace it?"
+    IDS_MOVIE_OPEN          "Movie Open"
+    IDS_MOVIE_SAVE_AS       "Movie Save As"
     IDS_NONE                "<None>"
     IDS_NOT_APPLICABLE      "N/A"
     IDS_OPT_DESC_Export_bPromptUser 
@@ -808,14 +811,14 @@ BEGIN
     IDS_OPT_DESC_Input_fWheelSense 
                             "Mouse wheel sensitivity, as a percentage of system default"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
-    IDS_OPT_DESC_Snapshot_bLetterbox 
-                            "Show bars around snapshot, restricting it to its frame size"
-    IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
-    IDS_OPT_GROUP_Export    "Export"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Snapshot_bLetterbox 
+                            "Show bars around snapshot, restricting it to its frame size"
+    IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
+    IDS_OPT_GROUP_Export    "Export"
     IDS_OPT_GROUP_General   "General"
     IDS_OPT_GROUP_Input     "Input"
     IDS_OPT_GROUP_Midi      "MIDI"
@@ -829,13 +832,13 @@ BEGIN
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
     IDS_OPT_NAME_Export_nScaleToFit "Scale to Fit"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
-    IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
-    IDS_OPT_NAME_Input_fWheelSense "Wheel Sensitivity"
-    IDS_OPT_NAME_Midi_iInputDevice "Input Device"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
+    IDS_OPT_NAME_Input_fWheelSense "Wheel Sensitivity"
+    IDS_OPT_NAME_Midi_iInputDevice "Input Device"
     IDS_OPT_NAME_Snapshot_bLetterbox "Letterbox"
     IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
     IDS_OPT_SCALE_TO_FIT_Both "Both"
@@ -849,13 +852,13 @@ BEGIN
     IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
-    IDS_PARAM_Lightness     "Lightness"
-    IDS_PARAM_LineWidth     "Line Width"
-    IDS_PARAM_OddCurve      "Odd Curve"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_Lightness     "Lightness"
+    IDS_PARAM_LineWidth     "Line Width"
+    IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
@@ -869,18 +872,19 @@ BEGIN
     IDS_PROPS_MORE_COLORS   "More Colors..."
     IDS_PROW_Amp            "Amplitude"
     IDS_PROW_Freq           "Frequency"
-    IDS_PROW_Global         "Global"
-    IDS_PROW_NAME_STATIC    "Name"
-    IDS_PROW_PW             "Pulse Width"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_Global         "Global"
+    IDS_PROW_NAME_STATIC    "Name"
+    IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
+    IDS_SNAPSHOT_SAVE_AS    "Snapshot Save As"
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
@@ -888,19 +892,17 @@ BEGIN
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
+END
+
+STRINGTABLE
+BEGIN
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
-END
-
-STRINGTABLE
-BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_MOVIE_OPEN          "Movie Open"
-    IDS_SNAPSHOT_SAVE_AS    "Snapshot Save As"
-    IDS_FILE_EXPORT_SAVE_AS "Export Save As"
+    IDS_MAP_TARGET_RandomOrigin "Random Origin"
 END
 
 STRINGTABLE
@@ -1086,11 +1088,6 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_MOVIE_SAVE_AS        "Movie Save As"
 END
 
 #endif    // English (United States) resources

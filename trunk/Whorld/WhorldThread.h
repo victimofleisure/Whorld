@@ -17,6 +17,7 @@
 		07		12mar25	add target size accessor
 		08		14mar25	add movie recording and playback
 		09		15mar25	move queue-related methods here
+		10		25mar25	add random origin command
 
 */
 
@@ -53,6 +54,7 @@ public:
 	bool	SingleStep();
 	bool	SetEmpty();
 	bool	RandomPhase();
+	bool	RandomOrigin();
 	bool	SetZoom(double fZoom, bool bDamping);
 	bool	SetOrigin(DPoint ptOrigin, bool bDamping);
 	bool	SetOriginX(double fOriginX, bool bDamping);
@@ -104,6 +106,7 @@ protected:
 	void	OnSingleStep();
 	void	OnSetEmpty();
 	void	OnRandomPhase();
+	void	OnRandomOrigin();
 	void	OnSetZoom(double fZoom, bool bDamping);
 	void	OnSetOrigin(DPoint ptOrigin, bool bDamping);
 	void	OnSetOriginX(double fOriginX, bool bDamping);

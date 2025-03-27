@@ -23,6 +23,7 @@
 		13		16mar25	add movie export
 		14		17mar25	add movie bar
 		15		20mar25	add movie record time to status bar
+		16		27mar25	add playlist bar
 
 */
 
@@ -37,6 +38,7 @@
 #include "MappingBar.h"
 #include "GlobalsBar.h"
 #include "MovieBar.h"
+#include "PlaylistBar.h"
 
 // docking bar IDs are relative to AFX_IDW_CONTROLBAR_FIRST
 enum {	// docking bar IDs; don't change, else bar placement won't be restored

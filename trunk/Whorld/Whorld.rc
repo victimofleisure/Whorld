@@ -337,6 +337,20 @@ BEGIN
     END
 END
 
+IDR_PLAYLIST_CTX MENU
+BEGIN
+    POPUP "Mapping"
+    BEGIN
+        MENUITEM "&Insert",                     ID_EDIT_INSERT
+        MENUITEM "&Delete",                     ID_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "&Undo",                       ID_EDIT_UNDO
+        MENUITEM "&Redo",                       ID_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -680,15 +694,16 @@ BEGIN
     IDS_BAR_Master          "Master"
     IDS_BAR_Movie           "Movie"
     IDS_BAR_Params          "Parameters"
+    IDS_BAR_Playlist        "Playlist"
     IDS_CHAN_STAT_CHAN_AFT  "Channel Aftertouch"
     IDS_CHAN_STAT_CONTROL   "Control"
     IDS_CHAN_STAT_INTERNAL  "Internal"
     IDS_CHAN_STAT_KEY_AFT   "Key Aftertouch"
-    IDS_CHAN_STAT_MODULATOR "Modulator"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_CHAN_STAT_MODULATOR "Modulator"
     IDS_CHAN_STAT_NOTE      "Note"
     IDS_CHAN_STAT_NOTE_OFF  "Note Off"
     IDS_CHAN_STAT_NOTE_ON   "Note On"
@@ -704,11 +719,11 @@ BEGIN
     IDS_EDIT_LEARN_MULTI    "Learn Mappings"
     IDS_EDIT_MENU           "Edit"
     IDS_EDIT_MOVE           "Move"
-    IDS_EDIT_PASTE          "Paste"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_EDIT_PASTE          "Paste"
     IDS_EDIT_REDO_PREFIX    "&Redo"
     IDS_EDIT_SORT           "Sort"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
@@ -724,11 +739,11 @@ BEGIN
     IDS_MAIN_Mirror         "Mirror"
     IDS_MAIN_OrgMotion      "Origin Motion"
     IDS_MAIN_Origin         "Origin"
-    IDS_MAIN_Reverse        "Reverse"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
     IDS_MAPPING_COL_CHANNEL "Channel"
     IDS_MAPPING_COL_CONTROL "Control"
@@ -744,15 +759,16 @@ BEGIN
     IDS_MAP_TARGET_LoopHue  "Loop Hue"
     IDS_MAP_TARGET_Mirror   "Mirror"
     IDS_MAP_TARGET_OriginDrag "Origin Drag"
-    IDS_MAP_TARGET_OriginRandom "Origin Random"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_OriginRandom "Origin Random"
     IDS_MAP_TARGET_OriginX  "Origin X"
     IDS_MAP_TARGET_OriginY  "Origin Y"
     IDS_MAP_TARGET_Outline  "Outline"
     IDS_MAP_TARGET_Pause    "Pause"
+    IDS_MAP_TARGET_RandomOrigin "Random Origin"
     IDS_MAP_TARGET_RandomPhase "Random Phase"
     IDS_MAP_TARGET_Reverse  "Reverse"
     IDS_MAP_TARGET_ZoomCenter "Zoom Center"
@@ -763,12 +779,12 @@ BEGIN
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
     IDS_MASTER_Spread       "Spread"
-    IDS_MASTER_Tempo        "Tempo"
-    IDS_MASTER_Trail        "Trail"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Tempo        "Tempo"
+    IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
     IDS_MEX_BAD_RANGE       "Invalid range."
     IDS_MEX_BAD_TIME        "Invalid time."
@@ -783,12 +799,12 @@ BEGIN
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
-    IDS_MIDI_SYS_STAT_STOP  "Stop"
-    IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_STOP  "Stop"
+    IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
     IDS_MIDI_SYS_STAT_TUNE_REQUEST "Tune Request"
     IDS_MOVIE_EXPORT_OVERWRITE_WARN 
@@ -808,13 +824,13 @@ BEGIN
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
     IDS_OPT_DESC_General_nMRUItems 
                             "Maximum number of items in recently used lists"
-    IDS_OPT_DESC_Input_fWheelSense 
-                            "Mouse wheel sensitivity, as a percentage of system default"
-    IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Input_fWheelSense 
+                            "Mouse wheel sensitivity, as a percentage of system default"
+    IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
     IDS_OPT_DESC_Snapshot_bLetterbox 
                             "Show bars around snapshot, restricting it to its frame size"
     IDS_OPT_DESC_Snapshot_iLegacySize "Size of legacy snapshot"
@@ -830,12 +846,12 @@ BEGIN
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
-    IDS_OPT_NAME_Export_nScaleToFit "Scale to Fit"
-    IDS_OPT_NAME_Export_sImageFolder "Image Folder"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Export_nScaleToFit "Scale to Fit"
+    IDS_OPT_NAME_Export_sImageFolder "Image Folder"
     IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
     IDS_OPT_NAME_Input_fWheelSense "Wheel Sensitivity"
     IDS_OPT_NAME_Midi_iInputDevice "Input Device"
@@ -850,12 +866,12 @@ BEGIN
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
-    IDS_PARAM_EvenCurve     "Even Curve"
-    IDS_PARAM_EvenShear     "Even Shear"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_EvenCurve     "Even Curve"
+    IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
     IDS_PARAM_LineWidth     "Line Width"
     IDS_PARAM_OddCurve      "Odd Curve"
@@ -869,13 +885,15 @@ BEGIN
     IDS_PARAM_SkewAngle     "Skew Angle"
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
-    IDS_PROPS_MORE_COLORS   "More Colors..."
-    IDS_PROW_Amp            "Amplitude"
-    IDS_PROW_Freq           "Frequency"
+    IDS_PLAYLIST_COL_PATCH_FOLDER "Folder"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PLAYLIST_COL_PATCH_NAME "Name"
+    IDS_PROPS_MORE_COLORS   "More Colors..."
+    IDS_PROW_Amp            "Amplitude"
+    IDS_PROW_Freq           "Frequency"
     IDS_PROW_Global         "Global"
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
@@ -888,21 +906,38 @@ BEGIN
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
-    IDS_WAVE_RAMP_DOWN      "Ramp Down"
-    IDS_WAVE_RAMP_UP        "Ramp Up"
-    IDS_WAVE_RANDOM         "Random"
-    IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_WAVE_RAMP_DOWN      "Ramp Down"
+    IDS_WAVE_RAMP_UP        "Ramp Up"
+    IDS_WAVE_RANDOM         "Random"
+    IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_MAP_TARGET_RandomOrigin "Random Origin"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_BAR_Globals     "Show or hide the global parameters pane\nShow Globals"
+    ID_VIEW_BAR_Mapping     "Show or hide the MIDI mapping pane\nShow Mapping"
+    ID_VIEW_BAR_Master      "Show or hide the master pane\nShow Master"
+    ID_VIEW_BAR_Movie       "Show or hide the movie bar\nShow Movie"
+    ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
+    ID_VIEW_BAR_Playlist    "Show or hide the playlist bar\nShow Playlist"
+    ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
+    ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
+    ID_VIEW_OPTIONS         "Edit the options\nOptions"
+    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
+    ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
+    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
+    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
+    ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
 STRINGTABLE
@@ -913,23 +948,6 @@ BEGIN
     ID_STATUS_PANE_FRAME_RATE "000.00"
     ID_STATUS_PANE_RECORD_TIME "000:00:00"
     ID_STATUS_PANE_RING_COUNT "00000"
-END
-
-STRINGTABLE
-BEGIN
-    ID_VIEW_BAR_Globals     "Show or hide the global parameters pane\nShow Globals"
-    ID_VIEW_BAR_Mapping     "Show or hide the MIDI mapping pane\nShow Mapping"
-    ID_VIEW_BAR_Master      "Show or hide the master pane\nShow Master"
-    ID_VIEW_BAR_Movie       "Show or hide the movie bar\nShow Movie"
-    ID_VIEW_BAR_Params      "Show or hide the parameters pane\nShow Parameters"
-    ID_VIEW_CUSTOMIZE       "Customize the application's interface\nCustomize"
-    ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
-    ID_VIEW_OPTIONS         "Edit the options\nOptions"
-    ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
-    ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
-    ID_WINDOW_PAUSE         "Freeze current frame\nPause"
-    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
-    ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
 STRINGTABLE

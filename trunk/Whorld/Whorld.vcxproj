@@ -236,6 +236,7 @@
     <ClInclude Include="OptionsDlg.h" />
     <ClInclude Include="Oscillator.h" />
     <ClInclude Include="Playlist.h" />
+    <ClInclude Include="PlaylistBar.h" />
     <ClInclude Include="PopupCombo.h" />
     <ClInclude Include="PopupEdit.h" />
     <ClInclude Include="PopupNumEdit.h" />
@@ -331,6 +332,7 @@
     <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="Oscillator.cpp" />
     <ClCompile Include="Playlist.cpp" />
+    <ClCompile Include="PlaylistBar.cpp" />
     <ClCompile Include="PopupCombo.cpp" />
     <ClCompile Include="PopupEdit.cpp" />
     <ClCompile Include="PopupNumEdit.cpp" />

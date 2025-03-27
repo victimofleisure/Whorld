@@ -15,6 +15,7 @@
 		05		01mar25	add learn mode
 		06		05mar25	add custom draw
 		07		19mar25	make mapping range real instead of integer
+		08		27mar25	move selection range maker to globals
 
 */
 
@@ -123,7 +124,6 @@ protected:
 	void	UpdateGrid(int iMapping);
 	void	UpdateGrid(int iMapping, int iProp);
 	void	UpdateGrid(const CIntArrayEx& arrSelection, int iProp);
-	static void	MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems);
 
 // Undo
 	void	SaveProperty(CUndoState& State) const;

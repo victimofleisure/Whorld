@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		07mar25	add prompt for multiple files
 		02		17mar25	add wildcard delete file
+		03		27mar25	add selection range maker
 
 */
 
@@ -295,3 +296,9 @@ int WildcardDeleteFile(CString sPath)
 	return SHFileOperation(&SHFileOp);
 }
 
+void MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems)
+{
+	arrSelection.SetSize(nItems);
+	for (int iSel = 0; iSel < nItems; iSel++)	// for each item
+		arrSelection[iSel] = iFirstItem + iSel;
+}

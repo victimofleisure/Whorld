@@ -26,6 +26,7 @@
 		16		03mar25	support full resolution pitch bend
 		17		19mar25	make mapping range real instead of integer
 		18		25mar25	add target types
+		19		27mar25	replace literals with count macro
 
 */
 
@@ -214,7 +215,7 @@ void CMapping::Write(CIniFile& fOut, LPCTSTR pszSection) const
 void CMappingArray::Read(CIniFile& fIn)
 {
 	CString	sSectionIdx;
-	int	nItems = fIn.GetInt(RK_MAPPING_SECTION, _T("Count"), 0);
+	int	nItems = fIn.GetInt(RK_MAPPING_SECTION, RK_MAPPING_COUNT, 0);
 	SetSize(nItems);
 	for (int iItem = 0; iItem < nItems; iItem++) {	// for each mapping
 		sSectionIdx.Format(_T("%d"), iItem);
@@ -267,7 +268,7 @@ void CMappingArray::Write(CIniFile& fOut) const
 {
 	CString	sSectionIdx;
 	int	nItems = GetSize();
-	fOut.WriteInt(RK_MAPPING_SECTION, _T("Count"), nItems);
+	fOut.WriteInt(RK_MAPPING_SECTION, RK_MAPPING_COUNT, nItems);
 	for (int iItem = 0; iItem < nItems; iItem++) {	// for each mapping
 		sSectionIdx.Format(_T("%d"), iItem);
 		GetAt(iItem).Write(fOut, RK_MAPPING_SECTION _T("\\") + sSectionIdx);

@@ -11,6 +11,7 @@
 		01		26feb25	add mapping
 		02		02mar25	add globals
 		03		17mar25	add movie
+		04		27mar25	add playlist
 		
 */
 
@@ -24,6 +25,7 @@ MAINDOCKBARDEF(Master,		200,	300,	dwBaseStyle | CBRS_RIGHT)
 MAINDOCKBARDEF(Mapping,		300,	200,	dwBaseStyle | CBRS_BOTTOM)
 MAINDOCKBARDEF(Globals,		200,	300,	dwBaseStyle | CBRS_RIGHT)
 MAINDOCKBARDEF(Movie,		300,	20,		dwBaseStyle | CBRS_BOTTOM)
+MAINDOCKBARDEF(Playlist,	200,	300,	dwBaseStyle | CBRS_LEFT)
 
 // After adding a new dockable bar here:
 // 1. Add a resource string IDS_BAR_Foo where Foo is the bar name.
@@ -40,6 +42,7 @@ MAINDOCKBARDEF(Movie,		300,	20,		dwBaseStyle | CBRS_BOTTOM)
 // list of dockable bars that handle standard editing commands
 #ifdef MAINDOCKBARDEF_WANTEDITCMDS
 MAINDOCKBARDEF_WANTEDITCMDS(Mapping)
+MAINDOCKBARDEF_WANTEDITCMDS(Playlist)
 #endif // MAINDOCKBARDEF_WANTEDITCMDS
 #undef MAINDOCKBARDEF_WANTEDITCMDS
 

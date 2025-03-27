@@ -21,6 +21,7 @@
 		11		01mar25	add learn mode
 		12		05mar25	indicate learn mode by changing list selection color
 		13		19mar25	make mapping range real instead of integer
+		14		27mar25	move selection range maker to globals
 		
 */
 
@@ -114,8 +115,7 @@ void CMappingBar::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 void CMappingBar::UpdateGrid()
 {
-	int	nMappings;
-	nMappings = midiMaps.GetCount();
+	int	nMappings = midiMaps.GetCount();
 	m_grid.SetItemCountEx(nMappings, 0);
 }
 
@@ -383,13 +383,6 @@ void CMappingBar::OnLearnMode()
 }
 
 // CMappingBar undo
-
-void CMappingBar::MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems)
-{
-	arrSelection.SetSize(nItems);
-	for (int iSel = 0; iSel < nItems; iSel++)	// for each item
-		arrSelection[iSel] = iFirstItem + iSel;
-}
 
 void CMappingBar::SaveProperty(CUndoState& State) const
 {

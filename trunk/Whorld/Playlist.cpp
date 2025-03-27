@@ -34,6 +34,7 @@
 		24		29jan08	in OnNotify, make for loop ANSI
 		25		31jan08	add freeframe conditionals
 		26		28feb25	refactor for V2
+		27		27mar25	add patch array
 
 		playlist container
  
@@ -55,6 +56,11 @@ const LPCTSTR CPlaylist::m_pszPlaylistFilter = _T("Playlist Files (*.whl)|*.whl|
 // file format keys
 #define RK_FILE_ID			_T("FileID")
 #define RK_FILE_VERSION		_T("FileVersion")
+
+// patch list keys
+#define RK_PATCH_COUNT		_T("Count")
+#define RK_PATCH_SECTION	_T("Patch")
+#define RK_PATCH_PATH		_T("Path")
 
 CPlaylist::CPlaylist() : CAuxiliaryDoc(IDR_PLAYLIST, 0, _T("Recent Playlist"), _T("Playlist%d"), theApp.m_options.m_General_nMRUItems)
 {
@@ -80,6 +86,8 @@ BOOL CPlaylist::OnOpenDocument(LPCTSTR lpszPathName)
 	fIn.Read();
 	if (!ValidateFileType(fIn, lpszPathName))
 		return false;
+	ReadPatches(fIn);
+	theApp.GetMainFrame()->m_wndPlaylistBar.OnUpdate(NULL);
 	theApp.m_midiMgr.ReadMappings(fIn);
 	CMappingBar&	wndMappingBar = theApp.GetMainFrame()->m_wndMappingBar;
 	wndMappingBar.OnUpdate(NULL);
@@ -93,6 +101,7 @@ BOOL CPlaylist::OnSaveDocument(LPCTSTR lpszPathName)
 	CIniFile	fOut(lpszPathName, true);
 	fOut.Put(RK_FILE_ID, CString(FILE_ID));
 	fOut.Put(RK_FILE_VERSION, FILE_VERSION);
+	WritePatches(fOut);
 	theApp.m_midiMgr.WriteMappings(fOut);
 	fOut.Write();
 	return true;
@@ -115,4 +124,26 @@ bool CPlaylist::ValidateFileType(CIniFile& fIn, LPCTSTR lpszPathName)
 		AfxMessageBox(msg, MB_OK, IDS_DOC_NEWER_VERSION);
 	}
 	return true;
+}
+
+void CPlaylist::ReadPatches(CIniFile& fIn)
+{
+	CString	sSectionIdx;
+	int	nPatches = fIn.GetInt(RK_PATCH_SECTION, RK_PATCH_COUNT, 0);
+	m_arrPatch.SetSize(nPatches);
+	for (int iPatch = 0; iPatch < nPatches; iPatch++) {	// for each patch
+		sSectionIdx.Format(_T("%d"), iPatch);
+		fIn.GetUnicodeString(RK_PATCH_SECTION _T("\\") + sSectionIdx, RK_PATCH_PATH, m_arrPatch[iPatch].m_sPath);
+	}
+}
+
+void CPlaylist::WritePatches(CIniFile& fOut)
+{
+	CString	sSectionIdx;
+	int	nPatches = m_arrPatch.GetSize();
+	fOut.WriteInt(RK_PATCH_SECTION, RK_PATCH_COUNT, nPatches);
+	for (int iPatch = 0; iPatch < nPatches; iPatch++) {	// for each patch
+		sSectionIdx.Format(_T("%d"), iPatch);
+		fOut.WriteUnicodeString(RK_PATCH_SECTION _T("\\") + sSectionIdx, RK_PATCH_PATH, m_arrPatch[iPatch].m_sPath);
+	}
 }

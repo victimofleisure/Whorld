@@ -16,6 +16,7 @@
 		06		23jan08	replace MIDI range scaler with start/end
 		07		28jan08	support Unicode
 		08		28feb25	refactor for V2
+		09		27mar25	add patch array
 
 		playlist container
  
@@ -36,6 +37,16 @@ public:
 	static const LPCTSTR m_pszPlaylistExt;
 	static const LPCTSTR m_pszPlaylistFilter;
 
+// Types
+	class CPatchLink {
+	public:
+		CString	m_sPath;
+	};
+	typedef CArrayEx<CPatchLink, CPatchLink&> CPatchLinkArray;
+
+// Public data
+	CPatchLinkArray	m_arrPatch;	// array of patch links
+
 // Attributes
 
 // Operations
@@ -48,5 +59,9 @@ public:
 protected:
 // Data members
 	int		m_nFileVersion;		// file version number obtained from document
+
+// Helpers
 	bool	ValidateFileType(CIniFile& fIn, LPCTSTR lpszPathName);
+	void	ReadPatches(CIniFile& fIn);
+	void	WritePatches(CIniFile& fOut);
 };

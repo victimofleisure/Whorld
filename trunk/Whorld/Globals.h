@@ -17,6 +17,7 @@
 		07		12mar25	add set draw mode message
 		08		14mar25	add safe string duplicator
 		09		17mar25	add wildcard delete file
+		10		27mar25	add selection range maker
 
 */
 
@@ -70,6 +71,7 @@ int StringReplaceNoCase(CString& str, LPCTSTR pszOld, LPCTSTR pszNew);
 bool ShowListColumnHeaderMenu(CWnd *pWnd, CListCtrl& list, CPoint point);
 HRESULT PromptForFiles(CStringArrayEx& saPath, int nFilters = 0, const COMDLG_FILTERSPEC* pFilter = NULL, int iSelFilter = 0);
 int WildcardDeleteFile(CString sPath);
+void MakeSelectionRange(CIntArrayEx& arrSelection, int iFirstItem, int nItems);
 
 // data validation method to flunk a control
 void DDV_Fail(CDataExchange* pDX, int nIDC);

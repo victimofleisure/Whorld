@@ -27,7 +27,7 @@
 
 #include "stdafx.h"
 #include "Whorld.h"
-#include "WhorldThread.h"
+#include "WhorldDraw.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "hls.h"

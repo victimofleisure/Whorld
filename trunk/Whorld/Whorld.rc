@@ -339,7 +339,7 @@ END
 
 IDR_PLAYLIST_CTX MENU
 BEGIN
-    POPUP "Mapping"
+    POPUP "Playlist"
     BEGIN
         MENUITEM "&Insert",                     ID_EDIT_INSERT
         MENUITEM "&Delete",                     ID_EDIT_DELETE
@@ -348,6 +348,7 @@ BEGIN
         MENUITEM "&Redo",                       ID_EDIT_REDO
         MENUITEM SEPARATOR
         MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
+        MENUITEM "&Play",                       ID_PLAYLIST_PLAY
     END
 END
 
@@ -724,6 +725,9 @@ END
 STRINGTABLE
 BEGIN
     IDS_EDIT_PASTE          "Paste"
+    IDS_EDIT_PLAYLIST_DELETE "Delete"
+    IDS_EDIT_PLAYLIST_INSERT "Insert"
+    IDS_EDIT_PLAYLIST_MOVE  "Move"
     IDS_EDIT_REDO_PREFIX    "&Redo"
     IDS_EDIT_SORT           "Sort"
     IDS_EDIT_UNDO_PREFIX    "&Undo"
@@ -736,13 +740,13 @@ BEGIN
     IDS_MAIN_Hue            "Hue"
     IDS_MAIN_InvertColor    "Invert Color"
     IDS_MAIN_LoopHue        "Loop Hue"
-    IDS_MAIN_Mirror         "Mirror"
-    IDS_MAIN_OrgMotion      "Origin Motion"
-    IDS_MAIN_Origin         "Origin"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_Mirror         "Mirror"
+    IDS_MAIN_OrgMotion      "Origin Motion"
+    IDS_MAIN_Origin         "Origin"
     IDS_MAIN_Reverse        "Reverse"
     IDS_MAIN_ZoomCenter     "Zoom Center"
     IDS_MAPPING_COL_CHANNEL "Channel"
@@ -756,13 +760,13 @@ BEGIN
     IDS_MAP_TARGET_Clear    "Clear"
     IDS_MAP_TARGET_Convex   "Convex"
     IDS_MAP_TARGET_Fill     "Fill"
-    IDS_MAP_TARGET_LoopHue  "Loop Hue"
-    IDS_MAP_TARGET_Mirror   "Mirror"
-    IDS_MAP_TARGET_OriginDrag "Origin Drag"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_LoopHue  "Loop Hue"
+    IDS_MAP_TARGET_Mirror   "Mirror"
+    IDS_MAP_TARGET_OriginDrag "Origin Drag"
     IDS_MAP_TARGET_OriginRandom "Origin Random"
     IDS_MAP_TARGET_OriginX  "Origin X"
     IDS_MAP_TARGET_OriginY  "Origin Y"
@@ -776,13 +780,13 @@ BEGIN
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueSpan      "Hue Span"
-    IDS_MASTER_Rings        "Rings"
-    IDS_MASTER_Speed        "Speed"
-    IDS_MASTER_Spread       "Spread"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Rings        "Rings"
+    IDS_MASTER_Speed        "Speed"
+    IDS_MASTER_Spread       "Spread"
     IDS_MASTER_Tempo        "Tempo"
     IDS_MASTER_Trail        "Trail"
     IDS_MASTER_Zoom         "Zoom"
@@ -796,13 +800,13 @@ BEGIN
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
     IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
-    IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
-    IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
-    IDS_MIDI_SYS_STAT_START "Start"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
+    IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
+    IDS_MIDI_SYS_STAT_START "Start"
     IDS_MIDI_SYS_STAT_STOP  "Stop"
     IDS_MIDI_SYS_STAT_SYSEX "System Exclusive"
     IDS_MIDI_SYS_STAT_SYSTEM_RESET "System Reset"
@@ -819,15 +823,15 @@ BEGIN
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
+END
+
+STRINGTABLE
+BEGIN
     IDS_OPT_DESC_Export_nScaleToFit 
                             "Type of scaling to apply to image size; ignored if using view size"
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
     IDS_OPT_DESC_General_nMRUItems 
                             "Maximum number of items in recently used lists"
-END
-
-STRINGTABLE
-BEGIN
     IDS_OPT_DESC_Input_fWheelSense 
                             "Mouse wheel sensitivity, as a percentage of system default"
     IDS_OPT_DESC_Midi_iInputDevice "Selected MIDI input device"
@@ -843,13 +847,13 @@ BEGIN
     IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
     IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
-    IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
-    IDS_OPT_NAME_Export_nImageHeight "Image Height"
-    IDS_OPT_NAME_Export_nImageWidth "Image Width"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
+    IDS_OPT_NAME_Export_nImageHeight "Image Height"
+    IDS_OPT_NAME_Export_nImageWidth "Image Width"
     IDS_OPT_NAME_Export_nScaleToFit "Scale to Fit"
     IDS_OPT_NAME_Export_sImageFolder "Image Folder"
     IDS_OPT_NAME_General_nMRUItems "Recently Used Items"
@@ -863,13 +867,13 @@ BEGIN
     IDS_OPT_SCALE_TO_FIT_Width "Width"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
     IDS_PARAM_BkHue         "Bk Hue"
-    IDS_PARAM_BkLightness   "Bk Lightness"
-    IDS_PARAM_BkSaturation  "Bk Saturation"
-    IDS_PARAM_ColorSpeed    "Color Speed"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_BkLightness   "Bk Lightness"
+    IDS_PARAM_BkSaturation  "Bk Saturation"
+    IDS_PARAM_ColorSpeed    "Color Speed"
     IDS_PARAM_EvenCurve     "Even Curve"
     IDS_PARAM_EvenShear     "Even Shear"
     IDS_PARAM_Lightness     "Lightness"
@@ -883,13 +887,13 @@ BEGIN
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
-    IDS_PARAM_SkewRadius    "Skew Radius"
-    IDS_PARAM_StarFactor    "Star Factor"
-    IDS_PLAYLIST_COL_PATCH_FOLDER "Folder"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_SkewRadius    "Skew Radius"
+    IDS_PARAM_StarFactor    "Star Factor"
+    IDS_PLAYLIST_COL_PATCH_FOLDER "Folder"
     IDS_PLAYLIST_COL_PATCH_NAME "Name"
     IDS_PROPS_MORE_COLORS   "More Colors..."
     IDS_PROW_Amp            "Amplitude"
@@ -903,13 +907,13 @@ BEGIN
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
     IDS_SNAPSHOT_SAVE_AS    "Snapshot Save As"
-    IDS_TOOLBAR_CUSTOMIZE   "Customize..."
-    IDS_TOOLBAR_STANDARD    "Standard"
-    IDS_WAVE_PULSE          "Pulse"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_TOOLBAR_CUSTOMIZE   "Customize..."
+    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_WAVE_PULSE          "Pulse"
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
@@ -920,9 +924,6 @@ BEGIN
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_EDIT_PLAYLIST_INSERT "Insert"
-    IDS_EDIT_PLAYLIST_DELETE "Delete"
-    IDS_EDIT_PLAYLIST_MOVE  "Move"
 END
 
 STRINGTABLE
@@ -1109,6 +1110,11 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE
+BEGIN
+    ID_PLAYLIST_PLAY        "Play the selected patch\nPlay"
 END
 
 #endif    // English (United States) resources

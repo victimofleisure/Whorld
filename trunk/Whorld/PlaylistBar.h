@@ -84,6 +84,7 @@ protected:
 
 // Helpers
 	static CPlaylist*	GetPlaylist();
+	void	Play(int iPatch);
 
 // Undo
 	void	SaveSelectedPatches(CUndoState& State) const;
@@ -107,10 +108,13 @@ protected:
 	afx_msg void OnEditInsert();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditSelectAll(CCmdUI *pCmdUI);
 	afx_msg void OnEditUndo();
 	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
 	afx_msg void OnEditRedo();
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
+	afx_msg void OnPlay();
+	afx_msg void OnUpdatePlay(CCmdUI *pCmdUI);
 };
 
 inline CDragVirtualListCtrl& CPlaylistBar::GetListCtrl()

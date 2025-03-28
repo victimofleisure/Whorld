@@ -168,6 +168,15 @@ void CPlaylistBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
 	m_list.SelectRange(iDropPos, arrSelection.GetSize());
 }
 
+void CPlaylistBar::Play(int iPatch)
+{
+	CPatch	patch;
+	const CPlaylist	*pPlaylist = GetPlaylist();
+	if (patch.Read(pPlaylist->m_arrPatch[iPatch].m_sPath)) {
+		theApp.m_thrRender.SetPatch(patch);
+	}
+}
+
 // CPlaylistBar undo
 
 void CPlaylistBar::SaveSelectedPatches(CUndoState& State) const
@@ -293,10 +302,13 @@ BEGIN_MESSAGE_MAP(CPlaylistBar, CMyDockablePane)
 	ON_COMMAND(ID_EDIT_INSERT, OnEditInsert)
 	ON_COMMAND(ID_EDIT_DELETE, OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, OnUpdateEditDelete)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ALL, OnUpdateEditSelectAll)
 	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
 	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
+	ON_COMMAND(ID_PLAYLIST_PLAY, OnPlay)
+	ON_UPDATE_COMMAND_UI(ID_PLAYLIST_PLAY, OnUpdatePlay)
 END_MESSAGE_MAP()
 
 // CPlaylistBar message handlers
@@ -393,11 +405,7 @@ void CPlaylistBar::OnListDblclk(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pitem = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int	iItem = pitem->iItem;
-	const CPlaylist	*pPlaylist = GetPlaylist();
-	CPatch	patch;
-	if (patch.Read(pPlaylist->m_arrPatch[iItem].m_sPath)) {
-		theApp.m_thrRender.SetPatch(patch);
-	}
+	Play(iItem);
 	*pResult = 0;
 }
 
@@ -437,4 +445,22 @@ void CPlaylistBar::OnEditRedo()
 void CPlaylistBar::OnUpdateEditRedo(CCmdUI *pCmdUI)
 {
 	mappingBar.OnCmdMsg(ID_EDIT_REDO, CN_UPDATE_COMMAND_UI, pCmdUI, NULL);
+}
+
+void CPlaylistBar::OnUpdateEditSelectAll(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_list.GetSelectedCount() > 0);
+}
+
+void CPlaylistBar::OnPlay()
+{
+	int iItem = m_list.GetSelection();
+	if (iItem >= 0) {
+		Play(iItem);
+	}
+}
+
+void CPlaylistBar::OnUpdatePlay(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_list.GetSelectedCount() > 0);
 }

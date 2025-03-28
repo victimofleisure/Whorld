@@ -24,6 +24,8 @@
 
 #include "MyDockablePane.h"
 #include "DragVirtualListCtrl.h"
+#include "Undoable.h"
+#include "Playlist.h"
 
 class CPlaylistBar : public CMyDockablePane
 {
@@ -41,10 +43,13 @@ public:
 	void	OnUpdate(CView* pSender, LPARAM lHint = 0, CObject* pHint = NULL);
 	void	UpdateList();
 	void	Insert(int iInsert);
+	void	Insert(int iInsert, CPlaylist::CPatchLinkArray& aPatchLink);
 	void	Delete(const CIntArrayEx& arrSelection);
 	void	Move(const CIntArrayEx& arrSelection, int iDropPos);
 
 // Overrides
+	void SaveUndoState(CUndoState& State);
+	void RestoreUndoState(const CUndoState& State);
 
 // Implementation
 public:
@@ -52,6 +57,15 @@ public:
 
 protected:
 // Types
+	class CUndoSelection : public CRefObj {
+	public:
+		CIntArrayEx	m_arrSelection;	// indices of selected items
+	};
+	class CUndoSelectedPatches : public CRefObj {
+	public:
+		CIntArrayEx	m_arrSelection;	// indices of selected items
+		CPlaylist::CPatchLinkArray	m_arrPatch;	// array of patches
+	};
 
 // Constants
 	enum {
@@ -65,11 +79,17 @@ protected:
 	static const CListCtrlExSel::COL_INFO m_arrColInfo[COLUMNS];
 
 // Member data
-	CDragVirtualListCtrl	m_list;
+	CDragVirtualListCtrl	m_list;	// virtual list control with drag support
+	static const CIntArrayEx	*m_parrSelection;	// pointer to selection array, used during undo
 
 // Helpers
+	static CPlaylist*	GetPlaylist();
 
 // Undo
+	void	SaveSelectedPatches(CUndoState& State) const;
+	void	RestoreSelectedPatches(const CUndoState& State);
+	void	SavePatchMove(CUndoState& State) const;
+	void	RestorePatchMove(const CUndoState& State);
 
 // Overrides
 
@@ -87,6 +107,10 @@ protected:
 	afx_msg void OnEditInsert();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
+	afx_msg void OnEditUndo();
+	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
+	afx_msg void OnEditRedo();
+	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 };
 
 inline CDragVirtualListCtrl& CPlaylistBar::GetListCtrl()

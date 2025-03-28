@@ -390,7 +390,7 @@ bool CMainFrame::WriteSnapshot(const CSnapshot *pSnapshot)
 	ASSERT(pSnapshot != NULL);
 	CString	sSnapshotPath;
 	if (PromptingForExport()) {
-		CFileDialog	fd(false, m_pszSnapshotExt, NULL, OFN_OVERWRITEPROMPT, m_pszSnapshotFilter);
+		CFileDialog	fd(false, m_pszSnapshotExt, NULL, OFN_OVERWRITEPROMPT, m_pszSnapshotFilter, this);
 		CString	sDlgTitle(LDS(IDS_SNAPSHOT_SAVE_AS));
 		fd.m_ofn.lpstrTitle = sDlgTitle;
 		if (fd.DoModal() != IDOK) {	// display file dialog
@@ -1102,7 +1102,7 @@ void CMainFrame::OnFileExport()
 		}
 		sFileName.RemoveExtension();
 		// prompt user for export path
-		CFileDialog	fd(false, m_pszExportExt, sFileName, OFN_OVERWRITEPROMPT, m_pszExportFilter);
+		CFileDialog	fd(false, m_pszExportExt, sFileName, OFN_OVERWRITEPROMPT, m_pszExportFilter, this);
 		CString	sDlgTitle(LDS(IDS_FILE_EXPORT_SAVE_AS));
 		fd.m_ofn.lpstrTitle = sDlgTitle;
 		if (fd.DoModal() != IDOK) {	// display file dialog
@@ -1423,7 +1423,7 @@ void CMainFrame::OnMovieRecord()
 	} else {	// movie is closed
 		CString	sMoviePath;
 		if (PromptingForExport()) {
-			CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter);
+			CFileDialog	fd(false, m_pszMovieExt, NULL, OFN_OVERWRITEPROMPT, m_pszMovieFilter, this);
 			CString	sDlgTitle(LDS(IDS_MOVIE_SAVE_AS));
 			fd.m_ofn.lpstrTitle = sDlgTitle;
 			if (fd.DoModal() != IDOK) {	// display file dialog
@@ -1449,7 +1449,7 @@ void CMainFrame::OnMoviePlay()
 	if (IsMovieOpen()) {	// if movie is open
 		PlayMovie(NULL);	// stop playback
 	} else {	// movie is closed
-		CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter);
+		CFileDialog	fd(true, m_pszMovieExt, NULL, OFN_HIDEREADONLY, m_pszMovieFilter, this);
 		CString	sDlgTitle(LDS(IDS_MOVIE_OPEN));
 		fd.m_ofn.lpstrTitle = sDlgTitle;
 		if (fd.DoModal() == IDOK) {

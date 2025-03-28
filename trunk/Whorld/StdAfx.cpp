@@ -11,6 +11,7 @@
 		01		07mar25	add prompt for multiple files
 		02		17mar25	add wildcard delete file
 		03		27mar25	add selection range maker
+		04		28mar25	in prompt for files, specify main window
 
 */
 
@@ -262,7 +263,9 @@ HRESULT PromptForFiles(CStringArrayEx& saPath, int nFilters, const COMDLG_FILTER
 		CHECK_COM(pFileOpen->SetFileTypes(nFilters, pFilter));	// set file type filter
 		CHECK_COM(pFileOpen->SetFileTypeIndex(iSelFilter));	// select specified file type filter
 	}
-	CHECK_COM(pFileOpen->Show(NULL));	// show file open dialog
+	CWnd	*pMainWnd = AfxGetMainWnd();
+	HWND	hWndOwner = pMainWnd != NULL ? pMainWnd->m_hWnd : NULL;
+	CHECK_COM(pFileOpen->Show(hWndOwner));	// show file open dialog
 	CComPtr<IShellItemArray> pItemArray;
 	CHECK_COM(pFileOpen->GetResults(&pItemArray));	// get results
 	DWORD	nItems;

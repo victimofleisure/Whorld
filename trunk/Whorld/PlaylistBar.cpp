@@ -65,6 +65,7 @@
 #include "PlaylistBar.h"
 #include "PathStr.h"
 #include "AppRegKey.h"
+#include "MainFrm.h"
 
 // CPlaylistBar
 
@@ -77,6 +78,10 @@ const CListCtrlExSel::COL_INFO CPlaylistBar::m_arrColInfo[COLUMNS] = {
 
 #define RK_COL_WIDTH _T("ColWidth")
 
+#define mappingBar theApp.GetMainFrame()->m_wndMappingBar
+
+const CIntArrayEx*	CPlaylistBar::m_parrSelection;
+
 CPlaylistBar::CPlaylistBar()
 {
 }
@@ -85,11 +90,15 @@ CPlaylistBar::~CPlaylistBar()
 {
 }
 
+inline CPlaylist* CPlaylistBar::GetPlaylist()
+{
+	ASSERT(theApp.m_pPlaylist != NULL);
+	return theApp.m_pPlaylist;
+}
+
 void CPlaylistBar::UpdateList()
 {
-	const CPlaylist	*pPlaylist = theApp.m_pPlaylist;
-	ASSERT(pPlaylist != NULL);
-	int	nPatches = pPlaylist->m_arrPatch.GetSize();
+	int	nPatches = GetPlaylist()->m_arrPatch.GetSize();
 	m_list.SetItemCountEx(nPatches, 0);
 }
 
@@ -117,24 +126,30 @@ void CPlaylistBar::Insert(int iInsert)
 		for (int iPatch = 0; iPatch < nPatches; iPatch++) {
 			aPatchLink[iPatch].m_sPath = aPatchPath[iPatch];
 		}
-		CPlaylist	*pPlaylist = theApp.m_pPlaylist;
-		pPlaylist->m_arrPatch.InsertAt(iInsert, &aPatchLink);
-		pPlaylist->SetModifiedFlag();
-		UpdateList();
-		CIntArrayEx	arrSelection;
-		MakeSelectionRange(arrSelection, iInsert, 1);
-//		m_parrSelection = &arrSelection;
-//@@@		NotifyUndoableEdit(0, UCODE_INSERT);
-//		m_parrSelection = NULL;
+		Insert(iInsert, aPatchLink);
 	}
+}
+
+void CPlaylistBar::Insert(int iInsert, CPlaylist::CPatchLinkArray& aPatchLink)
+{
+	CPlaylist	*pPlaylist = GetPlaylist();
+	pPlaylist->m_arrPatch.InsertAt(iInsert, &aPatchLink);
+	pPlaylist->SetModifiedFlag();
+	UpdateList();
+	CIntArrayEx	arrSelection;
+	MakeSelectionRange(arrSelection, iInsert, aPatchLink.GetSize());
+	m_list.SetSelection(arrSelection);
+	m_parrSelection = &arrSelection;
+	mappingBar.NotifyUndoableEdit(0, CMapping::UCODE_PLAYLIST_INSERT);
+	m_parrSelection = NULL;
 }
 
 void CPlaylistBar::Delete(const CIntArrayEx& arrSelection)
 {
-//	m_parrSelection = &arrSelection;
-//@@@	NotifyUndoableEdit(0, UCODE_DELETE);
-//	m_parrSelection = NULL;
-	CPlaylist	*pPlaylist = theApp.m_pPlaylist;
+	m_parrSelection = &arrSelection;
+	mappingBar.NotifyUndoableEdit(0, CMapping::UCODE_PLAYLIST_DELETE);
+	m_parrSelection = NULL;
+	CPlaylist	*pPlaylist = GetPlaylist();
 	pPlaylist->m_arrPatch.DeleteSelection(arrSelection);
 	pPlaylist->SetModifiedFlag();
 	UpdateList();
@@ -143,9 +158,10 @@ void CPlaylistBar::Delete(const CIntArrayEx& arrSelection)
 
 void CPlaylistBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
 {
-//@@@	NotifyUndoableEdit(iDropPos, UCODE_MOVE);
-	CPlaylist	*pPlaylist = theApp.m_pPlaylist;
-	ASSERT(pPlaylist != NULL);
+	m_parrSelection = &arrSelection;
+	mappingBar.NotifyUndoableEdit(iDropPos, CMapping::UCODE_PLAYLIST_MOVE);
+	m_parrSelection = NULL;
+	CPlaylist	*pPlaylist = GetPlaylist();
 	pPlaylist->m_arrPatch.MoveSelection(arrSelection, iDropPos);
 	pPlaylist->SetModifiedFlag();
 	m_list.Invalidate();
@@ -153,6 +169,114 @@ void CPlaylistBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
 }
 
 // CPlaylistBar undo
+
+void CPlaylistBar::SaveSelectedPatches(CUndoState& State) const
+{
+	if (mappingBar.UndoMgrIsIdle()) {	// if initial state
+		ASSERT(m_parrSelection != NULL);
+		CRefPtr<CUndoSelectedPatches>	pInfo;
+		pInfo.CreateObj();
+		pInfo->m_arrSelection = *m_parrSelection;
+		CPlaylist	*pPlaylist = GetPlaylist();
+		pPlaylist->m_arrPatch.GetSelection(*m_parrSelection, pInfo->m_arrPatch);
+		State.SetObj(pInfo);
+		switch (LOWORD(State.GetCode())) {
+		case CMapping::UCODE_PLAYLIST_DELETE:
+			State.m_Val.p.x.i = CUndoManager::UA_UNDO;	// undo inserts, redo deletes
+			break;
+		default:
+			State.m_Val.p.x.i = CUndoManager::UA_REDO;	// undo deletes, redo inserts
+		}
+	}
+}
+
+void CPlaylistBar::RestoreSelectedPatches(const CUndoState& State)
+{
+	CUndoSelectedPatches	*pInfo = static_cast<CUndoSelectedPatches*>(State.GetObj());
+	bool	bInserting = mappingBar.GetUndoAction() == State.m_Val.p.x.i; 
+	CPlaylist	*pPlaylist = GetPlaylist();
+	if (bInserting) {	// if inserting
+		pPlaylist->m_arrPatch.InsertSelection(pInfo->m_arrSelection, pInfo->m_arrPatch);
+	} else {	// deleting
+		pPlaylist->m_arrPatch.DeleteSelection(pInfo->m_arrSelection);
+	}
+	UpdateList();
+	if (bInserting) {
+		m_list.SetSelection(pInfo->m_arrSelection);
+	} else {
+		m_list.Deselect();
+	}
+}
+
+void CPlaylistBar::SavePatchMove(CUndoState& State) const
+{
+	const CIntArrayEx	*parrSelection;
+	if (State.IsEmpty()) {	// if initial state
+		ASSERT(m_parrSelection != NULL);
+		parrSelection = m_parrSelection;	// get fresh selection
+	} else {	// undoing or redoing; selection may have changed, so don't rely on it
+		const CUndoSelection	*pInfo = static_cast<CUndoSelection*>(State.GetObj());
+		parrSelection = &pInfo->m_arrSelection;	// use edit's original selection
+	}
+	CRefPtr<CUndoSelection>	pInfo;
+	pInfo.CreateObj();
+	pInfo->m_arrSelection = *parrSelection;
+	State.SetObj(pInfo);
+}
+
+void CPlaylistBar::RestorePatchMove(const CUndoState& State)
+{
+	int	iDropPos = State.GetCtrlID();
+	const CUndoSelection	*pInfo = static_cast<CUndoSelection*>(State.GetObj());
+	int	nSels = pInfo->m_arrSelection.GetSize();
+	CPlaylist::CPatchLinkArray	arrTempPatch;
+	CPlaylist	*pPlaylist = GetPlaylist();
+	CPlaylist::CPatchLinkArray&	arrPatch = pPlaylist->m_arrPatch;
+	CIntArrayEx	arrSelection;
+	if (mappingBar.IsUndoing()) {	// if undoing
+		arrPatch.GetRange(iDropPos, nSels, arrTempPatch);
+		arrPatch.RemoveAt(iDropPos, nSels);
+		arrPatch.InsertSelection(pInfo->m_arrSelection, arrTempPatch);
+		arrSelection = pInfo->m_arrSelection;
+	} else {	// redoing
+		arrPatch.GetSelection(pInfo->m_arrSelection, arrTempPatch);
+		arrPatch.DeleteSelection(pInfo->m_arrSelection);
+		arrPatch.InsertAt(iDropPos, &arrTempPatch);
+		MakeSelectionRange(arrSelection, iDropPos, nSels);
+	}
+	UpdateList();
+	m_list.SetSelection(arrSelection);
+}
+
+void CPlaylistBar::SaveUndoState(CUndoState& State)
+{
+	switch (LOWORD(State.GetCode())) {
+	case CMapping::UCODE_PLAYLIST_INSERT:
+	case CMapping::UCODE_PLAYLIST_DELETE:
+		SaveSelectedPatches(State);
+		break;
+	case CMapping::UCODE_PLAYLIST_MOVE:
+		SavePatchMove(State);
+		break;
+	default:
+		NODEFAULTCASE;
+	}
+}
+
+void CPlaylistBar::RestoreUndoState(const CUndoState& State)
+{
+	switch (LOWORD(State.GetCode())) {
+	case CMapping::UCODE_PLAYLIST_INSERT:
+	case CMapping::UCODE_PLAYLIST_DELETE:
+		RestoreSelectedPatches(State);
+		break;
+	case CMapping::UCODE_PLAYLIST_MOVE:
+		RestorePatchMove(State);
+		break;
+	default:
+		NODEFAULTCASE;
+	}
+}
 
 // CPlaylistBar message map
 
@@ -169,6 +293,10 @@ BEGIN_MESSAGE_MAP(CPlaylistBar, CMyDockablePane)
 	ON_COMMAND(ID_EDIT_INSERT, OnEditInsert)
 	ON_COMMAND(ID_EDIT_DELETE, OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, OnUpdateEditDelete)
+	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
+	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
 END_MESSAGE_MAP()
 
 // CPlaylistBar message handlers
@@ -215,20 +343,18 @@ void CPlaylistBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 	const NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	const LVITEM&	item = pDispInfo->item;
 	int	iItem = item.iItem;
-	const CPlaylist	*pPlaylist = theApp.m_pPlaylist;
-	ASSERT(pPlaylist != NULL);
 	if (item.mask & LVIF_TEXT) {
 		switch (item.iSubItem) {
 		case COL_PATCH_NAME:
 			{
-				CPathStr	sName(PathFindFileName(pPlaylist->m_arrPatch[iItem].m_sPath));
+				CPathStr	sName(PathFindFileName(GetPlaylist()->m_arrPatch[iItem].m_sPath));
 				sName.RemoveExtension();
 				_tcscpy_s(item.pszText, item.cchTextMax, sName);
 			}
 			break;
 		case COL_PATCH_FOLDER:
 			{
-				CPathStr	sFolder(pPlaylist->m_arrPatch[iItem].m_sPath);
+				CPathStr	sFolder(GetPlaylist()->m_arrPatch[iItem].m_sPath);
 				sFolder.RemoveFileSpec();
 				_tcscpy_s(item.pszText, item.cchTextMax, sFolder);
 			}
@@ -267,8 +393,7 @@ void CPlaylistBar::OnListDblclk(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pitem = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int	iItem = pitem->iItem;
-	const CPlaylist	*pPlaylist = theApp.m_pPlaylist;
-	ASSERT(pPlaylist != NULL);
+	const CPlaylist	*pPlaylist = GetPlaylist();
 	CPatch	patch;
 	if (patch.Read(pPlaylist->m_arrPatch[iItem].m_sPath)) {
 		theApp.m_thrRender.SetPatch(patch);
@@ -292,4 +417,24 @@ void CPlaylistBar::OnEditDelete()
 void CPlaylistBar::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(m_list.GetSelectedCount());
+}
+
+void CPlaylistBar::OnEditUndo()
+{
+	mappingBar.OnCmdMsg(ID_EDIT_UNDO, CN_COMMAND, NULL, NULL);
+}
+
+void CPlaylistBar::OnUpdateEditUndo(CCmdUI *pCmdUI)
+{
+	mappingBar.OnCmdMsg(ID_EDIT_UNDO, CN_UPDATE_COMMAND_UI, pCmdUI, NULL);
+}
+
+void CPlaylistBar::OnEditRedo()
+{
+	mappingBar.OnCmdMsg(ID_EDIT_REDO, CN_COMMAND, NULL, NULL);
+}
+
+void CPlaylistBar::OnUpdateEditRedo(CCmdUI *pCmdUI)
+{
+	mappingBar.OnCmdMsg(ID_EDIT_REDO, CN_UPDATE_COMMAND_UI, pCmdUI, NULL);
 }

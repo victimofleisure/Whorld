@@ -13,6 +13,7 @@
 		03		02mar25	add parameter property
 		04		19mar25	make mapping range real instead of integer
 		05		25mar25	add random origin target and target types
+		06		27mar25	add playlist undo codes
 
 		mapping column and member definitions
 
@@ -59,6 +60,9 @@ MAPPINGUNDODEF(MOVE)
 MAPPINGUNDODEF(SORT)
 MAPPINGUNDODEF(LEARN)
 MAPPINGUNDODEF(LEARN_MULTI)
+MAPPINGUNDODEF(PLAYLIST_INSERT)
+MAPPINGUNDODEF(PLAYLIST_DELETE)
+MAPPINGUNDODEF(PLAYLIST_MOVE)
 
 #undef MAPPINGUNDODEF
 #endif	// MAPPINGUNDODEF

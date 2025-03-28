@@ -22,6 +22,7 @@
 		12		05mar25	indicate learn mode by changing list selection color
 		13		19mar25	make mapping range real instead of integer
 		14		27mar25	move selection range maker to globals
+		15		28mar25	add hooks for playlist undo
 		
 */
 
@@ -550,7 +551,7 @@ void CMappingBar::SaveUndoState(CUndoState& State)
 		SaveLearnMulti(State);
 		break;
 	default:
-		NODEFAULTCASE;	// missing case
+		theApp.GetMainFrame()->m_wndPlaylistBar.SaveUndoState(State);
 	}
 }
 
@@ -580,7 +581,7 @@ void CMappingBar::RestoreUndoState(const CUndoState& State)
 		RestoreLearnMulti(State);
 		break;
 	default:
-		NODEFAULTCASE;	// missing case
+		theApp.GetMainFrame()->m_wndPlaylistBar.RestoreUndoState(State);
 	}
 }
 

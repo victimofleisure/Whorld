@@ -540,6 +540,41 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,195,115,50,14
 END
 
+IDD_MISSING_FILES DIALOG DISCARDABLE  0, 0, 316, 28
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Missing Files"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "Search && Proceed",IDOK,7,7,70,14
+    PUSHBUTTON      "Proceed",IDC_MISF_PROCEED,85,7,70,14
+    PUSHBUTTON      "Open Dialog...",IDC_MISF_OPENDLG,162,7,70,14
+    PUSHBUTTON      "Cancel",IDCANCEL,239,7,70,14
+END
+
+IDD_REPLACE_FILES DIALOG DISCARDABLE  0, 0, 273, 242
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Replace Files"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "List",IDC_RPLF_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | 
+                    WS_TABSTOP,7,7,259,176
+    PUSHBUTTON      "Browse...",IDC_RPLF_BROWSE,14,190,72,14
+    PUSHBUTTON      "Search Folder...",IDC_RPLF_SEARCH_FOLDER,100,190,72,14
+    PUSHBUTTON      "Search All",IDC_RPLF_SEARCH_ALL,186,190,72,14
+    DEFPUSHBUTTON   "OK",IDOK,134,221,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,195,221,50,14
+END
+
+IDD_FILE_SEARCH DIALOG DISCARDABLE  0, 0, 154, 47
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "File Search"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,52,26,50,14
+    CTEXT           "Searching...",IDC_STATUS,7,7,140,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -905,6 +940,10 @@ BEGIN
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
+    IDS_RPLF_FILENAME       "Filename"
+    IDS_RPLF_MISSING        "Missing"
+    IDS_RPLF_REPLACED       "Replaced"
+    IDS_RPLF_STATUS         "Status"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
     IDS_SNAPSHOT_SAVE_AS    "Snapshot Save As"
 END

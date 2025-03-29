@@ -129,6 +129,8 @@ public:
 	};
 	static const LPCTSTR m_pszExportExt;
 	static const LPCTSTR m_pszExportFilter;
+	static const LPCTSTR m_pszPatchExt;
+	static const LPCTSTR m_pszPatchFilter;
 	static const LPCTSTR m_pszSnapshotExt;
 	static const LPCTSTR m_pszSnapshotFilter;
 	static const LPCTSTR m_pszMovieExt;

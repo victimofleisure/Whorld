@@ -203,6 +203,7 @@
     <ClInclude Include="DragVirtualListCtrl.h" />
     <ClInclude Include="EditSliderCtrl.h" />
     <ClInclude Include="ExportDlg.h" />
+    <ClInclude Include="FileSearchDlg.h" />
     <ClInclude Include="FocusEdit.h" />
     <ClInclude Include="FolderDialog.h" />
     <ClInclude Include="FormatIO.h" />
@@ -227,6 +228,7 @@
     <ClInclude Include="MidiDevices.h" />
     <ClInclude Include="MidiManager.h" />
     <ClInclude Include="MidiWrap.h" />
+    <ClInclude Include="MissingFilesDlg.h" />
     <ClInclude Include="MovieBar.h" />
     <ClInclude Include="MovieExportDlg.h" />
     <ClInclude Include="MyDockablePane.h" />
@@ -244,11 +246,13 @@
     <ClInclude Include="PropertiesGrid.h" />
     <ClInclude Include="RegTempl.h" />
     <ClInclude Include="RegTemplTypes.h" />
+    <ClInclude Include="ReplaceFilesDlg.h" />
     <ClInclude Include="SnapMovie.h" />
     <ClInclude Include="Snapshot.h" />
     <ClInclude Include="SnapshotV1.h" />
     <ClInclude Include="StdioFileEx.h" />
     <ClInclude Include="StringTpl.h" />
+    <ClInclude Include="SubFileFind.h" />
     <ClInclude Include="VariantHelper.h" />
     <ClInclude Include="PatchUndoTest.h" />
     <ClInclude Include="NumEdit.h" />
@@ -306,6 +310,7 @@
     <ClCompile Include="DragVirtualListCtrl.cpp" />
     <ClCompile Include="EditSliderCtrl.cpp" />
     <ClCompile Include="ExportDlg.cpp" />
+    <ClCompile Include="FileSearchDlg.cpp" />
     <ClCompile Include="FocusEdit.cpp" />
     <ClCompile Include="FolderDialog.cpp" />
     <ClCompile Include="FormatIO.cpp" />
@@ -324,6 +329,7 @@
     <ClCompile Include="MidiDevices.cpp" />
     <ClCompile Include="MidiManager.cpp" />
     <ClCompile Include="MidiWrap.cpp" />
+    <ClCompile Include="MissingFilesDlg.cpp" />
     <ClCompile Include="MovieBar.cpp" />
     <ClCompile Include="MovieExportDlg.cpp" />
     <ClCompile Include="MyDockablePane.cpp" />
@@ -338,6 +344,7 @@
     <ClCompile Include="PopupNumEdit.cpp" />
     <ClCompile Include="Properties.cpp" />
     <ClCompile Include="PropertiesGrid.cpp" />
+    <ClCompile Include="ReplaceFilesDlg.cpp" />
     <ClCompile Include="SnapMovie.cpp" />
     <ClCompile Include="Snapshot.cpp" />
     <ClCompile Include="SnapshotV1.cpp" />
@@ -364,6 +371,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="StdioFileEx.cpp" />
+    <ClCompile Include="SubFileFind.cpp" />
     <ClCompile Include="Undoable.cpp" />
     <ClCompile Include="UndoManager.cpp" />
     <ClCompile Include="UndoState.cpp" />

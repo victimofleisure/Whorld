@@ -98,6 +98,8 @@ const UINT CMainFrame::m_arrDockingBarNameID[DOCKING_BARS] = {
 
 const LPCTSTR CMainFrame::m_pszExportExt = _T("png");
 const LPCTSTR CMainFrame::m_pszExportFilter = _T("PNG Files (*.png)|*.png|All Files (*.*)|*.*||");
+const LPCTSTR CMainFrame::m_pszPatchExt = _T("whp");
+const LPCTSTR CMainFrame::m_pszPatchFilter = _T("Patch Files (*.whp)|*.whp|All Files (*.*)|*.*||");
 const LPCTSTR CMainFrame::m_pszSnapshotExt = _T("whs");
 const LPCTSTR CMainFrame::m_pszSnapshotFilter = _T("Snapshot Files (*.whs)|*.whs|All Files (*.*)|*.*||");
 const LPCTSTR CMainFrame::m_pszMovieExt = _T("whm");

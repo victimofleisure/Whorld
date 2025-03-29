@@ -45,6 +45,7 @@
 #include "Playlist.h"
 #include "IniFile.h"
 #include "MainFrm.h"
+#include "MissingFilesDlg.h"
 
 const LPCTSTR CPlaylist::m_pszPlaylistExt = _T("whl");
 const LPCTSTR CPlaylist::m_pszPlaylistFilter = _T("Playlist Files (*.whl)|*.whl|All Files (*.*)|*.*||");
@@ -67,10 +68,30 @@ CPlaylist::CPlaylist() : CAuxiliaryDoc(IDR_PLAYLIST, 0, _T("Recent Playlist"), _
 	m_bModified = false;
 }
 
+void CPlaylist::CPatchLinkArray::GetPaths(CStringArrayEx& arrPath) const
+{
+	int	nPatches = GetSize();
+	arrPath.SetSize(nPatches);
+	for (int iPatch = 0; iPatch < nPatches; iPatch++) {	// for each patch
+		arrPath[iPatch] = GetAt(iPatch).m_sPath;	// get patch's path
+	}
+}
+
+void CPlaylist::CPatchLinkArray::SetPaths(const CStringArrayEx& arrPath)
+{
+	int	nPatches = arrPath.GetSize();
+	SetSize(nPatches);
+	for (int iPatch = 0; iPatch < nPatches; iPatch++) {	// for each patch
+		GetAt(iPatch).m_sPath = arrPath[iPatch];	// set patch's path
+	}
+}
+
 BOOL CPlaylist::OnNewDocument()
 {
 	if (!CAuxiliaryDoc::OnNewDocument())
 		return false;
+	theApp.m_pPlaylist->m_arrPatch.RemoveAll();
+	theApp.GetMainFrame()->m_wndPlaylistBar.OnUpdate(NULL);
 	theApp.m_midiMgr.RemoveAllMappings();
 	CMappingBar&	wndMappingBar = theApp.GetMainFrame()->m_wndMappingBar;
 	wndMappingBar.GetUndoManager()->DiscardAllEdits();
@@ -87,10 +108,10 @@ BOOL CPlaylist::OnOpenDocument(LPCTSTR lpszPathName)
 	if (!ValidateFileType(fIn, lpszPathName))
 		return false;
 	ReadPatches(fIn);
+	CheckPatchPaths();
 	theApp.GetMainFrame()->m_wndPlaylistBar.OnUpdate(NULL);
 	theApp.m_midiMgr.ReadMappings(fIn);
-	CMappingBar&	wndMappingBar = theApp.GetMainFrame()->m_wndMappingBar;
-	wndMappingBar.OnUpdate(NULL);
+	theApp.GetMainFrame()->m_wndMappingBar.OnUpdate(NULL);
 	return true;
 }
 
@@ -146,4 +167,20 @@ void CPlaylist::WritePatches(CIniFile& fOut)
 		sSectionIdx.Format(_T("%d"), iPatch);
 		fOut.WriteUnicodeString(RK_PATCH_SECTION _T("\\") + sSectionIdx, RK_PATCH_PATH, m_arrPatch[iPatch].m_sPath);
 	}
+}
+
+void CPlaylist::CheckPatchPaths()
+{
+	BENCH_START
+	CStringArrayEx	arrPath;
+	m_arrPatch.GetPaths(arrPath);
+	CStringArrayEx	arrOldPath(arrPath);	// for change detection
+	CMissingFilesDlg	dlgMissing(arrPath, CString('.') + CMainFrame::m_pszPatchExt, 
+		CMainFrame::m_pszPatchFilter, AfxGetMainWnd());
+	dlgMissing.Check();
+	if (arrPath != arrOldPath) {	// if any paths changed
+		SetModifiedFlag();	// replacing missing files counts as modification
+	}
+	m_arrPatch.SetPaths(arrPath);
+	BENCH_STOP
 }

@@ -121,11 +121,7 @@ void CPlaylistBar::Insert(int iInsert)
 	HRESULT hr = PromptForFiles(aPatchPath, _countof(aFilter), aFilter);
 	if (SUCCEEDED(hr) && !aPatchPath.IsEmpty()) {	// if prompt succeeded
 		CPlaylist::CPatchLinkArray	aPatchLink;
-		int	nPatches = aPatchPath.GetSize();
-		aPatchLink.SetSize(nPatches);
-		for (int iPatch = 0; iPatch < nPatches; iPatch++) {
-			aPatchLink[iPatch].m_sPath = aPatchPath[iPatch];
-		}
+		aPatchLink.SetPaths(aPatchPath);
 		Insert(iInsert, aPatchLink);
 	}
 }

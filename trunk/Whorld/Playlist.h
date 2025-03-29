@@ -42,7 +42,11 @@ public:
 	public:
 		CString	m_sPath;
 	};
-	typedef CArrayEx<CPatchLink, CPatchLink&> CPatchLinkArray;
+	class CPatchLinkArray : public CArrayEx<CPatchLink, CPatchLink&> {
+	public:
+		void	GetPaths(CStringArrayEx& arrPath) const;
+		void	SetPaths(const CStringArrayEx& arrPath);
+	};
 
 // Public data
 	CPatchLinkArray	m_arrPatch;	// array of patch links
@@ -64,4 +68,5 @@ protected:
 	bool	ValidateFileType(CIniFile& fIn, LPCTSTR lpszPathName);
 	void	ReadPatches(CIniFile& fIn);
 	void	WritePatches(CIniFile& fOut);
+	void	CheckPatchPaths();
 };

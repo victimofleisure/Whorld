@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Whorld.rc
 //
 #define IDR_MAINFRAME                   101
@@ -223,6 +223,7 @@
 #define IDS_WAVE_TRIANGLE               397
 #define IDS_WINDOW_RESET_LAYOUT_WARN    398
 #define IDP_OLE_INIT_FAILED             399
+#define IDS_MAP_TARGET_Patch            400
 #define IDC_ABOUT_LICENSE               1001
 #define IDC_ABOUT_VERSION               1002
 #define IDC_CURSOR_DRAG_MULTI           1003
@@ -348,10 +349,10 @@
 #define ID_WINDOW_STEP                  32848
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_3D_CONTROLS                1
+#define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        400
 #define _APS_NEXT_COMMAND_VALUE         32849
 #define _APS_NEXT_CONTROL_VALUE         1046

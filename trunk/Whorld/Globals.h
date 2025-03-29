@@ -18,6 +18,7 @@
 		08		14mar25	add safe string duplicator
 		09		17mar25	add wildcard delete file
 		10		27mar25	add selection range maker
+		11		29mar25	add play patch message
 
 */
 
@@ -153,6 +154,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_RENDER_QUEUE_FULL,		// wParam: none, lParam: none
 	UWM_RENDER_TASK_DONE,		// wParam: task ID, lParam: none
 	UWM_SET_DRAW_MODE,			// wParam: mask, lParam: value
+	UWM_PLAY_PATCH,				// wParam: iPatch, lParam: none
 };
 
 // undo natter should always be zero in a shipping version

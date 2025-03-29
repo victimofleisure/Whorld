@@ -46,6 +46,7 @@ public:
 	void	Insert(int iInsert, CPlaylist::CPatchLinkArray& aPatchLink);
 	void	Delete(const CIntArrayEx& arrSelection);
 	void	Move(const CIntArrayEx& arrSelection, int iDropPos);
+	bool	Play(int iPatch);
 
 // Overrides
 	void SaveUndoState(CUndoState& State);
@@ -84,7 +85,6 @@ protected:
 
 // Helpers
 	static CPlaylist*	GetPlaylist();
-	void	Play(int iPatch);
 
 // Undo
 	void	SaveSelectedPatches(CUndoState& State) const;

@@ -164,13 +164,20 @@ void CPlaylistBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
 	m_list.SelectRange(iDropPos, arrSelection.GetSize());
 }
 
-void CPlaylistBar::Play(int iPatch)
+bool CPlaylistBar::Play(int iPatch)
 {
 	CPatch	patch;
 	const CPlaylist	*pPlaylist = GetPlaylist();
-	if (patch.Read(pPlaylist->m_arrPatch[iPatch].m_sPath)) {
-		theApp.m_thrRender.SetPatch(patch);
+	if (pPlaylist != NULL) {
+		int	nPatches = theApp.m_pPlaylist->m_arrPatch.GetSize();
+		if (iPatch >= 0 && iPatch < nPatches) {	// if patch index in range
+			if (patch.Read(pPlaylist->m_arrPatch[iPatch].m_sPath)) {	// if patch read ok
+				theApp.m_thrRender.SetPatch(patch);	// send patch to render thread
+				return true;
+			}
+		}
 	}
+	return false;
 }
 
 // CPlaylistBar undo

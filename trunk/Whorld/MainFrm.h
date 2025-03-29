@@ -24,6 +24,7 @@
 		14		17mar25	add movie bar
 		15		20mar25	add movie record time to status bar
 		16		27mar25	add playlist bar
+		17		29mar25	add play patch message handler
 
 */
 
@@ -184,6 +185,7 @@ public:
 	afx_msg LRESULT OnSetDrawMode(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnRenderTaskDone(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnPlayPatch(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnFileExport();
 	afx_msg void OnUpdateFileExport(CCmdUI* pCmdUI);
 	afx_msg void OnFileTakeSnapshot();

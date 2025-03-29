@@ -27,6 +27,7 @@
 		17		16mar25	add movie export
 		18		17mar25	add movie bar
 		19		20mar25	add movie record time to status bar
+		20		29mar25	add play patch message handler
 
 */
 
@@ -637,6 +638,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_SET_DRAW_MODE, OnSetDrawMode)
 	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
 	ON_MESSAGE(UWM_RENDER_TASK_DONE, OnRenderTaskDone)
+	ON_MESSAGE(UWM_PLAY_PATCH, OnPlayPatch)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 	ON_UPDATE_COMMAND_UI(ID_FILE_EXPORT, OnUpdateFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
@@ -1085,6 +1087,14 @@ LRESULT CMainFrame::OnRenderTaskDone(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
 	m_nTaskDoneID = static_cast<int>(wParam);
+	return 0;
+}
+
+LRESULT CMainFrame::OnPlayPatch(WPARAM wParam, LPARAM lParam)
+{
+	int iPatch = static_cast<int>(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	m_wndPlaylistBar.Play(iPatch);
 	return 0;
 }
 

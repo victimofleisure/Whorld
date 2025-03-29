@@ -14,6 +14,7 @@
 		04		19mar25	make mapping range real instead of integer
 		05		25mar25	add random origin target and target types
 		06		27mar25	add playlist undo codes
+		07		29mar25	add patch target
 
 		mapping column and member definitions
 
@@ -85,6 +86,7 @@ MAPPINGDEF_MISC_TARGET(RandomPhase,		ACTION)
 MAPPINGDEF_MISC_TARGET(RandomOrigin,	ACTION)
 MAPPINGDEF_MISC_TARGET(Clear,			ACTION)
 MAPPINGDEF_MISC_TARGET(Pause,			BOOL)
+MAPPINGDEF_MISC_TARGET(Patch,			RANGE)
 
 #undef MAPPINGDEF_MISC_TARGET
 #endif // MAPPINGDEF_MISC_TARGET

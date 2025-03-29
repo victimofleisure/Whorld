@@ -540,8 +540,8 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,195,115,50,14
 END
 
-IDD_MISSING_FILES DIALOG DISCARDABLE  0, 0, 316, 28
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_MISSING_FILES DIALOG 0, 0, 316, 28
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Missing Files"
 FONT 8, "MS Shell Dlg"
 BEGIN
@@ -551,14 +551,12 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,239,7,70,14
 END
 
-IDD_REPLACE_FILES DIALOG DISCARDABLE  0, 0, 273, 242
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_REPLACE_FILES DIALOG 0, 0, 273, 242
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Replace Files"
 FONT 8, "MS Shell Dlg"
 BEGIN
-    CONTROL         "List",IDC_RPLF_LIST,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | 
-                    WS_TABSTOP,7,7,259,176
+    CONTROL         "List",IDC_RPLF_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,7,259,176
     PUSHBUTTON      "Browse...",IDC_RPLF_BROWSE,14,190,72,14
     PUSHBUTTON      "Search Folder...",IDC_RPLF_SEARCH_FOLDER,100,190,72,14
     PUSHBUTTON      "Search All",IDC_RPLF_SEARCH_ALL,186,190,72,14
@@ -566,8 +564,8 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,195,221,50,14
 END
 
-IDD_FILE_SEARCH DIALOG DISCARDABLE  0, 0, 154, 47
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_FILE_SEARCH DIALOG 0, 0, 154, 47
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "File Search"
 FONT 8, "MS Shell Dlg"
 BEGIN
@@ -942,14 +940,14 @@ BEGIN
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_RPLF_FILENAME       "Filename"
     IDS_RPLF_MISSING        "Missing"
-    IDS_RPLF_REPLACED       "Replaced"
-    IDS_RPLF_STATUS         "Status"
-    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
-    IDS_SNAPSHOT_SAVE_AS    "Snapshot Save As"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_RPLF_REPLACED       "Replaced"
+    IDS_RPLF_STATUS         "Status"
+    IDS_SEQ_MIDI_ERROR      "MIDI error %d."
+    IDS_SNAPSHOT_SAVE_AS    "Snapshot Save As"
     IDS_TOOLBAR_CUSTOMIZE   "Customize..."
     IDS_TOOLBAR_STANDARD    "Standard"
     IDS_WAVE_PULSE          "Pulse"
@@ -980,11 +978,16 @@ BEGIN
     ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
     ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
+END
+
+STRINGTABLE
+BEGIN
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
 STRINGTABLE
 BEGIN
+    ID_SNAPSHOT_INFO        "Display information about current snapshot\nSnapshot Info"
     ID_SNAPSHOT_LAST        "Go to last snapshot\nLast Snapshot"
     ID_SNAPSHOT_NEXT        "Go to next snapshot\nNext  Snapshot"
     ID_SNAPSHOT_PREV        "Go to previous snapshot\nPrevious Snapshot"
@@ -1023,9 +1026,9 @@ BEGIN
     ID_PLAYLIST_MRU_FILE7   "Open this playlist"
     ID_PLAYLIST_MRU_FILE8   "Open this playlist"
     ID_PLAYLIST_MRU_FILE9   "Open this playlist"
+    ID_PLAYLIST_PLAY        "Play the selected patch\nPlay"
     ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All Snapshots"
     ID_SNAPSHOT_FIRST       "Go to first snapshot\nFirst Snapshot"
-    ID_SNAPSHOT_INFO        "Display information about current snapshot\nSnapshot Info"
 END
 
 STRINGTABLE
@@ -1153,7 +1156,7 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_PLAYLIST_PLAY        "Play the selected patch\nPlay"
+    IDS_MAP_TARGET_Patch    "Patch"
 END
 
 #endif    // English (United States) resources

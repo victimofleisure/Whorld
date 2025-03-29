@@ -17,6 +17,7 @@
 		07		12mar25	fix draw mode change not updating UI
 		08		19mar25	make mapping range real instead of integer
 		09		25mar25	add random origin target
+		10		29mar25	add patch target
 
 */
 
@@ -261,6 +262,10 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 	case MT_Pause:
 		// let main thread handle pause as its pause state is canonical
 		PostMsgToMainWnd(WM_COMMAND, ID_WINDOW_PAUSE, 0);
+		break;
+	case MT_Patch:
+		// let main thread handle patch as read can throw file exceptions
+		PostMsgToMainWnd(UWM_PLAY_PATCH, Round(fNormVal * MIDI_NOTE_MAX));
 		break;
 	default:
 		NODEFAULTCASE;	// missing case

@@ -159,4 +159,4 @@ enum {	// application-wide user window messages, based on WP_APP
 #define UNDO_NATTER 0	// set non-zero to enable undo natter
 
 // undo test should always be zero in a shipping version
-#define UNDO_TEST 0		// 0 = none, 1 = patch, 2 = mapping
+#define UNDO_TEST 0		// 0 = none, 1 = patch, 2 = playlist

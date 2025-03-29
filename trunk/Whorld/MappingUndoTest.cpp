@@ -25,6 +25,7 @@
 		15		10sep24	add method to randomize channel property
 		16		02mar25	adapt for Whorld
 		17		19mar25	make mapping range real instead of integer
+		18		29mar25	add playlist edits
 
 		automated undo test for Whorld mapping
  
@@ -50,7 +51,9 @@
 #define PAUSE_VIEW_DURING_TEST false	// unpaused is a tougher test
 
 #define midiMaps theApp.m_midiMgr.m_midiMaps
-#define midiPane theApp.GetMainFrame()->m_wndMappingBar
+#define mappingPane theApp.GetMainFrame()->m_wndMappingBar
+#define patchArray theApp.m_pPlaylist->m_arrPatch
+#define playlistPane theApp.GetMainFrame()->m_wndPlaylistBar
 
 static CMappingUndoTest gUndoTest(true);	// one and only instance, initially running
 
@@ -64,7 +67,10 @@ const CMappingUndoTest::EDIT_INFO CMappingUndoTest::m_arrEditInfo[] = {
 	{UCODE_MOVE,				0.3f},
 	{UCODE_SORT,				0.2f},
 	{UCODE_LEARN,				1},
-	{UCODE_LEARN_MULTI,			0.5},
+	{UCODE_LEARN_MULTI,			0.5f},
+	{UCODE_PLAYLIST_INSERT,		0.1f},
+	{UCODE_PLAYLIST_DELETE,		0.1f},
+	{UCODE_PLAYLIST_MOVE,		0.1f},
 };
 
 CMappingUndoTest::CMappingUndoTest(bool bInitRunning) :
@@ -98,6 +104,12 @@ LONGLONG CMappingUndoTest::GetSnapshot() const
 	LONGLONG	nSum = 0;
 	const CMappingArray&	aMapping = midiMaps.GetArray();
 	nSum += Fletcher64(aMapping.GetData(), aMapping.GetSize() * sizeof(CMapping));
+	const CPlaylist::CPatchLinkArray&	aPatch = patchArray;
+	int	nPatches = patchArray.GetSize(); 
+	for (int iPatch = 0; iPatch < nPatches; iPatch++) {	// for each patch link
+		const CString&	sPath = aPatch[iPatch].m_sPath;
+		nSum += Fletcher64(sPath.GetString(), sPath.GetLength() * sizeof(TCHAR));
+	}
 //	_tprintf(_T("%I64x\n"), nSum);
 	return nSum;
 }
@@ -163,7 +175,7 @@ CString	CMappingUndoTest::PrintSelection(CIntArrayEx& arrSelection) const
 int CMappingUndoTest::ApplyEdit(int nUndoCode)
 {
 	CUndoState	state(0, nUndoCode);
-	CString	sUndoTitle(midiPane.GetUndoTitle(state));
+	CString	sUndoTitle(mappingPane.GetUndoTitle(state));
 	switch (nUndoCode) {
 	case UCODE_PROPERTY:
 		{
@@ -172,7 +184,7 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 				return DISABLED;
 			int	iProp = Random(PROPERTIES);
 			VARIANT_PROP	prop = MakeRandomMappingProperty(iProp);
-			midiPane.SetProperty(iMapping, iProp, prop);
+			mappingPane.SetProperty(iMapping, iProp, prop);
 		}
 		break;
 	case UCODE_MULTI_PROPERTY:
@@ -183,13 +195,13 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 				return DISABLED;
 			int	iProp = Random(PROPERTIES);
 			VARIANT_PROP	prop = MakeRandomMappingProperty(iProp);
-			midiPane.SetProperty(arrSelection, iProp, prop);
+			mappingPane.SetProperty(arrSelection, iProp, prop);
 		}
 		break;
 	case UCODE_INSERT:
 		{
 			int iInsPos = max(Random(midiMaps.GetCount()), 0);
-			midiPane.Insert(iInsPos);
+			mappingPane.Insert(iInsPos);
 			PRINTF(_T("%s %d\n"), sUndoTitle, iInsPos);
 		}
 		break;
@@ -200,21 +212,21 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 			CIntArrayEx	arrSelection;
 			if (!MakeRandomSelection(nMappings, arrSelection))
 				return DISABLED;
-			midiPane.GetListCtrl().SetSelection(arrSelection);
+			mappingPane.GetListCtrl().SetSelection(arrSelection);
 			if (nUndoCode == UCODE_CUT) {
-				midiPane.Cut(arrSelection);
+				mappingPane.Cut(arrSelection);
 			} else {
-				midiPane.Delete(arrSelection);
+				mappingPane.Delete(arrSelection);
 			}
 			PRINTF(_T("%s %s\n"), sUndoTitle, PrintSelection(arrSelection));
 		}
 		break;
 	case UCODE_PASTE:
 		{
-			if (!midiPane.CanPaste())
+			if (!mappingPane.CanPaste())
 				return DISABLED;
 			int iInsPos = max(Random(midiMaps.GetCount()), 0);
-			midiPane.Paste(iInsPos);
+			mappingPane.Paste(iInsPos);
 			PRINTF(_T("%s %d\n"), sUndoTitle, iInsPos);
 		}
 		break;
@@ -229,7 +241,7 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 			int	iDropPos = Random(nMappings + 1);
 			if (!CDragVirtualListCtrl::CompensateDropPos(arrSelection, iDropPos))
 				return DISABLED;
-			midiPane.Move(arrSelection, iDropPos);
+			mappingPane.Move(arrSelection, iDropPos);
 			PRINTF(_T("%s %s %d\n"), sUndoTitle, PrintSelection(arrSelection), iDropPos);
 		}
 		break;
@@ -240,7 +252,7 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 				return DISABLED;
 			int	iProp = Random(PROPERTIES);
 			bool	bDescending = Random(2) != 0;
-			midiPane.Sort(iProp, bDescending);
+			mappingPane.Sort(iProp, bDescending);
 			PRINTF(_T("%s %d\n"), sUndoTitle, iProp);
 		}
 		break;
@@ -251,7 +263,7 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 				return DISABLED;
 			int	nInMidiMsg = MakeMidiMsg(MIDI_IDX_CMD(Random(MIDI_CHANNEL_VOICE_MESSAGES)),
 				Random(MIDI_CHANNELS), Random(MIDI_NOTES), Random(MIDI_NOTES));
-			midiPane.LearnMapping(iMapping, nInMidiMsg);
+			mappingPane.LearnMapping(iMapping, nInMidiMsg);
 			PRINTF(_T("%s %d %x\n"), sUndoTitle, iMapping, nInMidiMsg);
 		}
 		break;
@@ -262,8 +274,57 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 				return DISABLED;
 			int	nInMidiMsg = MakeMidiMsg(MIDI_IDX_CMD(Random(MIDI_CHANNEL_VOICE_MESSAGES)),
 				Random(MIDI_CHANNELS), Random(MIDI_NOTES), Random(MIDI_NOTES));
-			midiPane.LearnMappings(arrSelection, nInMidiMsg);
+			mappingPane.LearnMappings(arrSelection, nInMidiMsg);
 			PRINTF(_T("%s %s %x\n"), sUndoTitle, PrintSelection(arrSelection), nInMidiMsg);
+		}
+		break;
+	case UCODE_PLAYLIST_INSERT:
+		{
+			const int	MAX_PATCHES = 10;
+			const int	TEST_CHARS = 26;
+			int	nInsPatches = Random(MAX_PATCHES - 1) + 1;
+			CPlaylist::CPatchLinkArray	arrPatch;
+			arrPatch.SetSize(nInsPatches);
+			for (int iPatch = 0; iPatch < nInsPatches; iPatch++) {	// for each patch link
+				int	nPathLen = Random(MAX_PATH - 1) + 1;
+				CString	sPath;
+				LPTSTR	pszPath = sPath.GetBuffer(nPathLen);
+				int	iStartChar = Random(TEST_CHARS);
+				for (int iChar = 0; iChar < nPathLen; iChar++) {
+					pszPath[iChar] = static_cast<TCHAR>(((iStartChar + iChar) % TEST_CHARS) + 'A');
+				}
+				sPath.ReleaseBuffer(nPathLen);
+				arrPatch[iPatch].m_sPath = sPath;
+			}
+			int iInsPos = max(Random(patchArray.GetSize()), 0);
+			playlistPane.Insert(iInsPos, arrPatch);
+			PRINTF(_T("%s %d\n"), sUndoTitle, iInsPos);
+		}
+		break;
+	case UCODE_PLAYLIST_DELETE:
+		{
+			int	nPatches = patchArray.GetSize(); 
+			CIntArrayEx	arrSelection;
+			if (!MakeRandomSelection(nPatches, arrSelection))
+				return DISABLED;
+			playlistPane.GetListCtrl().SetSelection(arrSelection);
+			playlistPane.Delete(arrSelection);
+			PRINTF(_T("%s %s\n"), sUndoTitle, PrintSelection(arrSelection));
+		}
+		break;
+	case UCODE_PLAYLIST_MOVE:
+		{
+			int	nPatches = patchArray.GetSize(); 
+			if (nPatches < 2)
+				return DISABLED;
+			CIntArrayEx	arrSelection;
+			if (!MakeRandomSelection(nPatches, arrSelection))
+				return DISABLED;
+			int	iDropPos = Random(nPatches + 1);
+			if (!CDragVirtualListCtrl::CompensateDropPos(arrSelection, iDropPos))
+				return DISABLED;
+			playlistPane.Move(arrSelection, iDropPos);
+			PRINTF(_T("%s %s %d\n"), sUndoTitle, PrintSelection(arrSelection), iDropPos);
 		}
 		break;
 	default:
@@ -276,9 +337,10 @@ int CMappingUndoTest::ApplyEdit(int nUndoCode)
 bool CMappingUndoTest::Create()
 {
 	theApp.SetPause(PAUSE_VIEW_DURING_TEST);
-	m_pUndoMgr = midiPane.GetUndoManager();
+	m_pUndoMgr = mappingPane.GetUndoManager();
 	m_pUndoMgr->SetLevels(-1);	// unlimited undo
-	theApp.GetMainFrame()->m_wndMappingBar.ShowPane(true, 0, true);
+	mappingPane.ShowPane(true, 0, true);
+	playlistPane.ShowPane(true, 0, true);
 	if (!CUndoTest::Create())
 		return false;
 	return true;
@@ -287,7 +349,7 @@ bool CMappingUndoTest::Create()
 void CMappingUndoTest::Destroy()
 {
 	CUndoTest::Destroy();
-	midiPane.SetModifiedFlag(false);
+	mappingPane.SetModifiedFlag(false);
 }
 
 #endif

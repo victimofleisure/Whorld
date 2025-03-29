@@ -115,7 +115,7 @@ static const LPCTSTR RK_MEX_TIME_UNIT = _T("TimeUnit");
 
 CMainFrame::CMainFrame()
 {
-	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
+	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), APPLOOK_VS_2008);
 	theApp.m_pMainWnd = this;
 	m_nPrevFrameCount = 0;
 	m_iCurSnapshot = 0;
@@ -200,7 +200,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	// set the visual manager and style based on persisted value
-	OnApplicationLook(theApp.m_nAppLook);
+	OnApplicationLook(theApp.m_nAppLook + ID_VIEW_APPLOOK_FIRST);
 
 	// Enable toolbar and docking window menu replacement
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
@@ -723,39 +723,39 @@ void CMainFrame::OnApplicationLook(UINT id)
 {
 	CWaitCursor wait;
 
-	theApp.m_nAppLook = id;
+	theApp.m_nAppLook = id - ID_VIEW_APPLOOK_FIRST;
 
 	switch (theApp.m_nAppLook)
 	{
-	case ID_VIEW_APPLOOK_WIN_2000:
+	case APPLOOK_WIN_2000:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
 		break;
 
-	case ID_VIEW_APPLOOK_OFF_XP:
+	case APPLOOK_OFF_XP:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOfficeXP));
 		break;
 
-	case ID_VIEW_APPLOOK_WIN_XP:
+	case APPLOOK_WIN_XP:
 		CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 		break;
 
-	case ID_VIEW_APPLOOK_OFF_2003:
+	case APPLOOK_OFF_2003:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2003));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
 
-	case ID_VIEW_APPLOOK_VS_2005:
+	case APPLOOK_VS_2005:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2005));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
 
-	case ID_VIEW_APPLOOK_VS_2008:
+	case APPLOOK_VS_2008:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
 
-	case ID_VIEW_APPLOOK_WINDOWS_7:
+	case APPLOOK_WINDOWS_7:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
@@ -763,19 +763,19 @@ void CMainFrame::OnApplicationLook(UINT id)
 	default:
 		switch (theApp.m_nAppLook)
 		{
-		case ID_VIEW_APPLOOK_OFF_2007_BLUE:
+		case APPLOOK_OFF_2007_BLUE:
 			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
 			break;
 
-		case ID_VIEW_APPLOOK_OFF_2007_BLACK:
+		case APPLOOK_OFF_2007_BLACK:
 			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
 			break;
 
-		case ID_VIEW_APPLOOK_OFF_2007_SILVER:
+		case APPLOOK_OFF_2007_SILVER:
 			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Silver);
 			break;
 
-		case ID_VIEW_APPLOOK_OFF_2007_AQUA:
+		case APPLOOK_OFF_2007_AQUA:
 			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Aqua);
 			break;
 		}
@@ -791,7 +791,8 @@ void CMainFrame::OnApplicationLook(UINT id)
 
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 {
-	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
+	UINT	nAppLook = pCmdUI->m_nID - ID_VIEW_APPLOOK_FIRST;
+	pCmdUI->SetRadio(theApp.m_nAppLook == nAppLook);
 }
 
 void CMainFrame::OnClose()
@@ -852,7 +853,9 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 		m_aSnapshotPath.Swap(aSnapshotPath);	// swap array pointers, avoiding array copy
 		m_iCurSnapshot = 0;	// reset current snapshot index
 	} else {	// snapshots weren't dropped
-		PlayMovie(sMoviePath);
+		if (!sMoviePath.IsEmpty()) {	// if movie was dropped
+			PlayMovie(sMoviePath);	// play movie
+		}
 	}
 }
 

@@ -261,6 +261,7 @@ BEGIN
         MENUITEM "&Master",                     ID_VIEW_BAR_Master
         MENUITEM "&Globals",                    ID_VIEW_BAR_Globals
         MENUITEM "M&IDI Mapping",               ID_VIEW_BAR_Mapping
+        MENUITEM "Pla&ylist",                   ID_VIEW_BAR_Playlist
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_VIEW_OPTIONS
         MENUITEM SEPARATOR
@@ -403,6 +404,7 @@ BEGIN
     "I",            ID_VIEW_BAR_Mapping,    VIRTKEY, SHIFT, NOINVERT
     "M",            ID_VIEW_BAR_Master,     VIRTKEY, SHIFT, NOINVERT
     "P",            ID_VIEW_BAR_Params,     VIRTKEY, SHIFT, NOINVERT
+    "A",            ID_VIEW_BAR_Playlist,   VIRTKEY, SHIFT, NOINVERT
     "L",            ID_VIEW_MIDI_LEARN,     VIRTKEY, SHIFT, NOINVERT
     "O",            ID_VIEW_OPTIONS,        VIRTKEY, SHIFT, NOINVERT
     VK_DELETE,      ID_WINDOW_CLEAR,        VIRTKEY, CONTROL, NOINVERT

@@ -10,57 +10,12 @@
 <TD>user</TD>
 </TR>
 <TR VALIGN=TOP>
-<TH>8</TH>
-<TD>02/10/25</TD>
-<TD>&nbsp;</TD>
-<TD>bug</TD>
-<TD>in row view, if no control has focus, tab key does nothing</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
-<TH>9</TH>
-<TD>02/10/25</TD>
-<TD>&nbsp;</TD>
-<TD>bug</TD>
-<TD>if floating row view is deactivated and then reactivated, previously focused child control doesn't regain focus</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
-<TH>15</TH>
-<TD>02/19/25</TD>
-<TD>&nbsp;</TD>
-<TD>bug</TD>
-<TD>line joins are angular instead of round as in V1; do round joins impact performance? Make it optional?</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
-<TH>58</TH>
-<TD>03/01/25</TD>
-<TD>&nbsp;</TD>
-<TD>bug</TD>
-<TD>boolean mapping targets send spurious render commands when value is unchanged; part of larger switch issue</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
-<TH>105</TH>
-<TD>03/20/25</TD>
-<TD>&nbsp;</TD>
-<TD>bug</TD>
-<TD>mapping pause to continuous controller toggles for every message received; switch issue again</TD>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR VALIGN=TOP>
 <TH>1</TH>
 <TD>02/08/25</TD>
 <TD>02/08/25</TD>
 <TD>done</TD>
 <TD>if fullscreen on single monitor, Alt key exits full screen</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -69,7 +24,7 @@
 <TD>02/08/25</TD>
 <TD>done</TD>
 <TD>if fullscreen on single monitor, file open dialog exits full screen causing render window to disappear</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -78,7 +33,7 @@
 <TD>02/09/25</TD>
 <TD>done</TD>
 <TD>in Parameters view, tab doesn't continue to next row</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -87,7 +42,7 @@
 <TD>02/10/25</TD>
 <TD>done</TD>
 <TD>in Parameters view, Ctrl + Num+ shortcut only works if a child control has focus</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -96,7 +51,7 @@
 <TD>02/10/25</TD>
 <TD>done</TD>
 <TD>rotate speed and skew angle aren't being scaled properly</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -105,7 +60,7 @@
 <TD>02/11/25</TD>
 <TD>done</TD>
 <TD>parameter rows are shown in a different order; line width and pinwheel moved, handle in row view?</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -114,7 +69,7 @@
 <TD>02/12/25</TD>
 <TD>done</TD>
 <TD>device lost handling is broken; mistakenly destroying thread due to missing scope, rename to clarify</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -123,7 +78,7 @@
 <TD>02/16/25</TD>
 <TD>done</TD>
 <TD>drop files not working</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.00.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -132,7 +87,7 @@
 <TD>02/17/25</TD>
 <TD>done</TD>
 <TD>hide mouse automatically in full screen mode</TD>
-<TD>&nbsp;</TD>
+<TD>2.0.01.001</TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
@@ -793,11 +748,38 @@
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
+<TH>113</TH>
+<TD>03/28/25</TD>
+<TD>03/28/25</TD>
+<TD>done</TD>
+<TD>load snapshot open file dialog is modeless but should be modal</TD>
+<TD>2.0.16.003 </TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>114</TH>
+<TD>02/25/25</TD>
+<TD>03/28/25</TD>
+<TD>done</TD>
+<TD>add playlist bar; patch insert/delete/move/play</TD>
+<TD>2.0.16.003 </TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
 <TH>14</TH>
 <TD>02/18/25</TD>
 <TD>&nbsp;</TD>
 <TD>hold</TD>
 <TD>master dialog should have spin controls</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>15</TH>
+<TD>02/19/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>line joins are angular instead of round as in V1; do round joins impact performance? Make it optional?</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>
@@ -928,6 +910,15 @@
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
+<TH>58</TH>
+<TD>03/01/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>boolean mapping targets send spurious render commands when value is unchanged; part of larger switch issue</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
 <TH>60</TH>
 <TD>03/01/25</TD>
 <TD>&nbsp;</TD>
@@ -964,6 +955,60 @@
 <TD>&nbsp;</TD>
 </TR>
 <TR VALIGN=TOP>
+<TH>105</TH>
+<TD>03/20/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>mapping pause to continuous controller toggles for every message received; switch issue again</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>109</TH>
+<TD>03/21/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>for stable tempo, use self-correcting real timer instead of retrace-driven oscillator</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>110</TH>
+<TD>03/21/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>support MIDI clock for tempo</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>111</TH>
+<TD>03/21/25</TD>
+<TD>&nbsp;</TD>
+<TD>hold</TD>
+<TD>add MIDI command to trigger origin random jump</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>8</TH>
+<TD>02/10/25</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>in row view, if no control has focus, tab key does nothing</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>9</TH>
+<TD>02/10/25</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>if floating row view is deactivated and then reactivated, previously focused child control doesn't regain focus</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
 <TH>23</TH>
 <TD>02/25/25</TD>
 <TD>&nbsp;</TD>
@@ -987,6 +1032,15 @@
 <TD>&nbsp;</TD>
 <TD>punt</TD>
 <TD>global line width can cause negative line width; Direct2D takes absolute value, it's fine</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR VALIGN=TOP>
+<TH>112</TH>
+<TD>03/22/25</TD>
+<TD>&nbsp;</TD>
+<TD>punt</TD>
+<TD>global ring sides scales odd and even radii differently unless global star ratio is tuned; V1 bug</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 </TR>

@@ -15,7 +15,7 @@ It has been nearly **twenty years** since the last release. The main design goal
 1. Improve *rendering throughput* by leveraging Direct2D’s hardware acceleration. [done]
 2. Implement *anti-aliasing* (line smoothing), which is a core feature of Direct2D.  [done]
 3. Improve *accuracy* by drawing in floating-point coordinates, another Direct2D feature.  [done]
-4. Modernize the user interface via dockable panes and similar enhancements. [done]
+4. Modernize the user interface via *dockable panes* and similar enhancements. [done]
 5. Move rendering to a worker thread, to avoid glitches and tearing. [done]
 6. Redo the MIDI mapping, to improve usability and flexibility. [done] 
 7. Streamline the application, preserving what’s valuable and discarding what isn’t. [in progress]

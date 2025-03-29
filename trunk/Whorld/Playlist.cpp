@@ -171,16 +171,14 @@ void CPlaylist::WritePatches(CIniFile& fOut)
 
 void CPlaylist::CheckPatchPaths()
 {
-	BENCH_START
 	CStringArrayEx	arrPath;
 	m_arrPatch.GetPaths(arrPath);
 	CStringArrayEx	arrOldPath(arrPath);	// for change detection
 	CMissingFilesDlg	dlgMissing(arrPath, CString('.') + CMainFrame::m_pszPatchExt, 
 		CMainFrame::m_pszPatchFilter, AfxGetMainWnd());
-	dlgMissing.Check();
+	dlgMissing.Check();	// check for missing files
 	if (arrPath != arrOldPath) {	// if any paths changed
 		SetModifiedFlag();	// replacing missing files counts as modification
 	}
 	m_arrPatch.SetPaths(arrPath);
-	BENCH_STOP
 }

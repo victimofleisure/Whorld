@@ -89,6 +89,7 @@ INT_PTR	CMissingFilesDlg::Check()
 				break;
 			}
 		}
+		// older versions blanked any remaining missing files, but it's unhelpful
 	}
 	return retc;
 }

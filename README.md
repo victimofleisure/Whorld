@@ -1,6 +1,6 @@
 ## Version 2 of Whorld is being alpha tested! See below.
 
-![image]([files/Users/jzhang/Desktop/Isolated.png](https://victimofleisure.github.io/Whorld/images/whorld-screen-shot-docked.png))
+![screen shot](https://victimofleisure.github.io/Whorld/images/whorld-screen-shot-docked.png)
 
 Whorld is a free, open-source visualizer for sacred geometry. It uses math to create a seamless animation of mesmerizing psychedelic images. You can VJ with it, make unique digital artwork with it, or sit back and watch it like a screensaver.
 

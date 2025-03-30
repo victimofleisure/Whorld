@@ -67,6 +67,7 @@
 #include "PathStr.h"
 #include "AppRegKey.h"
 #include "MainFrm.h"
+#include "SaveObj.h"
 
 // CPlaylistBar
 
@@ -90,6 +91,7 @@ const int CPlaylistBar::m_aStateIcon[STATE_ICONS] = {	// must match state enum
 CPlaylistBar::CPlaylistBar()
 {
 	m_iPlayingPatch = -1;
+	m_bInPlay = false;
 }
 
 CPlaylistBar::~CPlaylistBar()
@@ -195,25 +197,28 @@ void CPlaylistBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
 
 bool CPlaylistBar::Play(int iPatch)
 {
-	CPatch	patch;
+	// save changes prompt is modal, so reentrance is possible
+	if (m_bInPlay)	// if already in this method
+		return false;	// no reentrance
+	CSaveObj<bool>	saveInPlay(m_bInPlay, true);	// dtor restores state
 	const CPlaylist	*pPlaylist = GetPlaylist();
-	if (pPlaylist != NULL) {
-		int	nPatches = theApp.m_pPlaylist->m_arrPatch.GetSize();
-		if (iPatch >= 0 && iPatch < nPatches) {	// if patch index in range
-			if (patch.Read(pPlaylist->m_arrPatch[iPatch].m_sPath)) {	// if patch read ok
-				// if patch document was modified, prompt user to save it
-				if (theApp.GetDocument()->SaveModified()) {	// if it's safe to continue
-					theApp.GetDocument()->SetPatch(patch);	// load selected patch
-					if (m_iPlayingPatch >= 0)	// if currently playing a patch
-						m_list.RedrawItem(m_iPlayingPatch);	// remove playing icon
-					m_iPlayingPatch = iPatch;	// set playing patch index
-					m_list.RedrawItem(iPatch);	// show playing icon on new patch
-					return true;	// success
-				}
-			}
-		}
-	}
-	return false;
+	if (pPlaylist == NULL)
+		return false;
+	int	nPatches = theApp.m_pPlaylist->m_arrPatch.GetSize();
+	if (iPatch < 0 || iPatch >= nPatches) // if patch index out of range
+		return false;
+	CPatch	patch;
+	if (!patch.Read(pPlaylist->m_arrPatch[iPatch].m_sPath))	// if patch read failed
+		return false;
+	// if not full screen and user cancels from document's save changes prompt
+	if (!theApp.IsFullScreen() && !theApp.GetDocument()->SaveModified())
+		return false;
+	theApp.GetDocument()->SetPatch(patch);	// load selected patch
+	if (m_iPlayingPatch >= 0)	// if currently playing a patch
+		m_list.RedrawItem(m_iPlayingPatch);	// remove playing icon
+	m_iPlayingPatch = iPatch;	// set playing patch index
+	m_list.RedrawItem(iPatch);	// show playing icon on new patch
+	return true;
 }
 
 // CPlaylistBar undo

@@ -23,6 +23,7 @@
 #include "WhorldDoc.h"
 #include "UndoCodes.h"
 #include "MasterRowDlg.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -239,10 +240,15 @@ void CWhorldDoc::SetModifiedFlag(BOOL bModified)
 
 void CWhorldDoc::SetPatch(const CPatch& patch)
 {
+	SetModifiedFlag(false);
+	if (!m_strPathName.IsEmpty()) {	// if document has a path
+		OnNewDocument();	// reset document to new state
+		m_pDocTemplate->SetDefaultTitle(this);
+		theApp.GetMainFrame()->OnUpdateFrameTitle(true);
+	}
 	CPatch*	pPatch = this;	// upcast to base class
 	*pPatch = patch;
 	UpdateAllViews(NULL);
-	SetModifiedFlag(false);
 }
 
 // CWhorldDoc undo handling

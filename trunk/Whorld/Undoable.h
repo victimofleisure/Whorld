@@ -58,55 +58,55 @@ public:
 
 private:
 // Member data
-	CUndoManager	*m_UndoManager;
+	CUndoManager	*m_pUndoManager;
 };
 
 inline CUndoable::CUndoable()
 {
-	m_UndoManager = NULL;
+	m_pUndoManager = NULL;
 }
 
 inline CUndoManager *CUndoable::GetUndoManager() const
 {
-	return m_UndoManager;
+	return m_pUndoManager;
 }
 
 inline void CUndoable::SetUndoManager(CUndoManager *pMgr)
 {
-	m_UndoManager = pMgr;
+	m_pUndoManager = pMgr;
 }
 
 inline void CUndoable::NotifyUndoableEdit(int nCtrlID, int nCode, UINT nFlags)
 {
-	m_UndoManager->NotifyEdit(nCtrlID, nCode, nFlags);
+	m_pUndoManager->NotifyEdit(nCtrlID, nCode, nFlags);
 }
 
 inline void CUndoable::CancelUndoableEdit(int nCtrlID, int nCode)
 {
-	m_UndoManager->CancelEdit(nCtrlID, nCode);
+	m_pUndoManager->CancelEdit(nCtrlID, nCode);
 }
 
 inline int CUndoable::GetUndoAction() const
 {
-	return m_UndoManager->GetAction();
+	return m_pUndoManager->GetAction();
 }
 
 inline bool CUndoable::UndoMgrIsIdle() const
 {
-	return m_UndoManager->IsIdle();
+	return m_pUndoManager->IsIdle();
 }
 
 inline bool CUndoable::IsUndoing() const
 {
-	return m_UndoManager->IsUndoing();
+	return m_pUndoManager->IsUndoing();
 }
 
 inline bool CUndoable::IsRedoing() const
 {
-	return m_UndoManager->IsRedoing();
+	return m_pUndoManager->IsRedoing();
 }
 
 inline void CUndoable::ClearUndoHistory()
 {
-	m_UndoManager->DiscardAllEdits();
+	m_pUndoManager->DiscardAllEdits();
 }

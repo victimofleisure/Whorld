@@ -100,6 +100,7 @@ protected:
 	CImageList	m_ilState;		// image list for patch state icons
 	int		m_iPlayingPatch;	// index of currently playing patch, or -1 if none
 	CString	m_sPlayingPatchPath;	// path string of currently playing patch, if any
+	bool	m_bInPlay;			// reentrance guard for play method
 
 // Helpers
 	static CPlaylist*	GetPlaylist();

@@ -201,12 +201,14 @@ bool CPlaylistBar::Play(int iPatch)
 		int	nPatches = theApp.m_pPlaylist->m_arrPatch.GetSize();
 		if (iPatch >= 0 && iPatch < nPatches) {	// if patch index in range
 			if (patch.Read(pPlaylist->m_arrPatch[iPatch].m_sPath)) {	// if patch read ok
-				if (theApp.GetDocument()->SaveModified()) {
-					theApp.GetDocument()->SetPatch(patch);
-					theApp.m_thrRender.SetPatch(patch);	// send patch to render thread
-					m_iPlayingPatch = iPatch;
-					m_list.Invalidate();
-					return true;
+				// if patch document was modified, prompt user to save it
+				if (theApp.GetDocument()->SaveModified()) {	// if it's safe to continue
+					theApp.GetDocument()->SetPatch(patch);	// load selected patch
+					if (m_iPlayingPatch >= 0)	// if currently playing a patch
+						m_list.RedrawItem(m_iPlayingPatch);	// remove playing icon
+					m_iPlayingPatch = iPatch;	// set playing patch index
+					m_list.RedrawItem(iPatch);	// show playing icon on new patch
+					return true;	// success
 				}
 			}
 		}

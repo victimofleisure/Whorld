@@ -17,6 +17,7 @@
 		07		28jan08	support Unicode
 		08		28feb25	refactor for V2
 		09		27mar25	add patch array
+		10		30mar25	add patch find method
 
 		playlist container
  
@@ -46,6 +47,7 @@ public:
 	public:
 		void	GetPaths(CStringArrayEx& arrPath) const;
 		void	SetPaths(const CStringArrayEx& arrPath);
+		int		Find(LPCTSTR pszPath) const;
 	};
 
 // Public data

@@ -74,6 +74,7 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\Whorld.ico"
 IDR_WhorldTYPE          ICON                    "res\\WhorldDoc.ico"
+IDI_PLAYLIST_PLAYING    ICON                    "res\\pl_playing.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -806,6 +807,7 @@ BEGIN
     IDS_MAP_TARGET_OriginX  "Origin X"
     IDS_MAP_TARGET_OriginY  "Origin Y"
     IDS_MAP_TARGET_Outline  "Outline"
+    IDS_MAP_TARGET_Patch    "Patch"
     IDS_MAP_TARGET_Pause    "Pause"
     IDS_MAP_TARGET_RandomOrigin "Random Origin"
     IDS_MAP_TARGET_RandomPhase "Random Phase"
@@ -814,11 +816,11 @@ BEGIN
     IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
-    IDS_MASTER_HueSpan      "Hue Span"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_HueSpan      "Hue Span"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
     IDS_MASTER_Spread       "Spread"
@@ -834,11 +836,11 @@ BEGIN
     IDS_MIDI_SYS_STAT_CLOCK "Clock"
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
     IDS_MIDI_SYS_STAT_EOX   "EOX"
-    IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
     IDS_MIDI_SYS_STAT_START "Start"
@@ -857,11 +859,11 @@ BEGIN
     IDS_OPT_DESC_Export_bUseViewSize 
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
-    IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
     IDS_OPT_DESC_Export_nScaleToFit 
                             "Type of scaling to apply to image size; ignored if using view size"
     IDS_OPT_DESC_Export_sImageFolder "Destination folder for images"
@@ -881,11 +883,11 @@ BEGIN
     IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
     IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
     IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
-    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
     IDS_OPT_NAME_Export_nImageWidth "Image Width"
@@ -901,11 +903,11 @@ BEGIN
     IDS_OPT_SCALE_TO_FIT_None "None"
     IDS_OPT_SCALE_TO_FIT_Width "Width"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
-    IDS_PARAM_BkHue         "Bk Hue"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
     IDS_PARAM_ColorSpeed    "Color Speed"
@@ -921,11 +923,11 @@ BEGIN
     IDS_PARAM_RingSpacing   "Ring Spacing"
     IDS_PARAM_RotateSpeed   "Rotate Speed"
     IDS_PARAM_Saturation    "Saturation"
-    IDS_PARAM_SkewAngle     "Skew Angle"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_SkewAngle     "Skew Angle"
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
     IDS_PLAYLIST_COL_PATCH_FOLDER "Folder"
@@ -941,11 +943,11 @@ BEGIN
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
     IDS_RPLF_FILENAME       "Filename"
-    IDS_RPLF_MISSING        "Missing"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_RPLF_MISSING        "Missing"
     IDS_RPLF_REPLACED       "Replaced"
     IDS_RPLF_STATUS         "Status"
     IDS_SEQ_MIDI_ERROR      "MIDI error %d."
@@ -962,6 +964,10 @@ BEGIN
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
+END
+
+STRINGTABLE
+BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
 END
 
@@ -1154,11 +1160,6 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_MAP_TARGET_Patch    "Patch"
 END
 
 #endif    // English (United States) resources

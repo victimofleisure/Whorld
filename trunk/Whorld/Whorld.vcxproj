@@ -390,6 +390,7 @@
     <ResourceCompile Include="Whorld.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\pl_playing.ico" />
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\Whorld.ico" />

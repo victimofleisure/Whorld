@@ -35,6 +35,7 @@
 		25		31jan08	add freeframe conditionals
 		26		28feb25	refactor for V2
 		27		27mar25	add patch array
+		28		30mar25	add patch find method
 
 		playlist container
  
@@ -84,6 +85,16 @@ void CPlaylist::CPatchLinkArray::SetPaths(const CStringArrayEx& arrPath)
 	for (int iPatch = 0; iPatch < nPatches; iPatch++) {	// for each patch
 		GetAt(iPatch).m_sPath = arrPath[iPatch];	// set patch's path
 	}
+}
+
+int CPlaylist::CPatchLinkArray::Find(LPCTSTR pszPath) const
+{
+	int	nPatches = GetSize();
+	for (int iPatch = 0; iPatch < nPatches; iPatch++) {	// for each patch
+		if (GetAt(iPatch).m_sPath == pszPath)	// if paths match
+			return iPatch;
+	}
+	return -1;
 }
 
 BOOL CPlaylist::OnNewDocument()

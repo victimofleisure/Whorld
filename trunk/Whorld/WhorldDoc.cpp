@@ -237,6 +237,14 @@ void CWhorldDoc::SetModifiedFlag(BOOL bModified)
 	}
 }
 
+void CWhorldDoc::SetPatch(const CPatch& patch)
+{
+	CPatch*	pPatch = this;	// upcast to base class
+	*pPatch = patch;
+	UpdateAllViews(NULL);
+	SetModifiedFlag(false);
+}
+
 // CWhorldDoc undo handling
 
 CWhorldDoc::CMyUndoManager::CMyUndoManager()

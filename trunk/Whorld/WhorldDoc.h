@@ -46,6 +46,7 @@ public:
 	bool	OffsetMasterProp(int iProp, double fDelta, double& fVal);
 	BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	CPatch&	GetPatch();
+	void	SetPatch(const CPatch& patch);
 
 // Operations
 	void	NotifyUndoableEdit(int nCtrlID, int nCode, UINT nFlags = 0);

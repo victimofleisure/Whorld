@@ -17,6 +17,7 @@
         07      26jun06	add export thumbnails
 		08		28jan08	support Unicode        
 		09		27mar25	refactor for V2
+		10		30mar25	add playing state icon
 
 */
 
@@ -67,10 +68,17 @@ protected:
 		CIntArrayEx	m_arrSelection;	// indices of selected items
 		CPlaylist::CPatchLinkArray	m_arrPatch;	// array of patches
 	};
+	class CUpdatePlaying {
+	public:
+		CUpdatePlaying();
+		~CUpdatePlaying();
+	};
+	friend class CUpdatePlaying;
 
 // Constants
 	enum {
 		IDC_PATCH_LIST = 1932,
+		IDC_ICON_SIZE = 12,
 	};
 	enum {	// list columns
 		COL_PATCH_NAME,
@@ -78,10 +86,20 @@ protected:
 		COLUMNS,
 	};
 	static const CListCtrlExSel::COL_INFO m_arrColInfo[COLUMNS];
+	enum {	// patch states
+		PS_NORMAL,			// patch is normal
+		PS_PLAYING,			// patch is currently playing
+		PATCH_STATES,		// number of patch states
+		STATE_ICONS = PATCH_STATES - 1,
+	};
+	static const int m_aStateIcon[STATE_ICONS];
 
 // Member data
 	CDragVirtualListCtrl	m_list;	// virtual list control with drag support
 	static const CIntArrayEx	*m_parrSelection;	// pointer to selection array, used during undo
+	CImageList	m_ilState;		// image list for patch state icons
+	int		m_iPlayingPatch;	// index of currently playing patch, or -1 if none
+	CString	m_sPlayingPatchPath;	// path string of currently playing patch, if any
 
 // Helpers
 	static CPlaylist*	GetPlaylist();

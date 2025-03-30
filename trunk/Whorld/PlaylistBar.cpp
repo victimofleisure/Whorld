@@ -57,6 +57,7 @@
 		47		29jan08	comment out unused pNMListView defs to fix warnings
 		48		30jan08	while dragging, if Esc pressed, cancel drag
         49		27mar25	refactor for V2
+		50		30mar25	add playing state icon
 
 */
 
@@ -82,12 +83,35 @@ const CListCtrlExSel::COL_INFO CPlaylistBar::m_arrColInfo[COLUMNS] = {
 
 const CIntArrayEx*	CPlaylistBar::m_parrSelection;
 
+const int CPlaylistBar::m_aStateIcon[STATE_ICONS] = {	// must match state enum
+	IDI_PLAYLIST_PLAYING,
+};
+
 CPlaylistBar::CPlaylistBar()
 {
+	m_iPlayingPatch = -1;
 }
 
 CPlaylistBar::~CPlaylistBar()
 {
+}
+
+CPlaylistBar::CUpdatePlaying::CUpdatePlaying()
+{
+	CPlaylistBar&	bar = theApp.GetMainFrame()->m_wndPlaylistBar;
+	if (bar.m_iPlayingPatch >= 0) {	// if playing patch index is valid
+		// store path string of playing patch
+		bar.m_sPlayingPatchPath = theApp.m_pPlaylist->m_arrPatch[bar.m_iPlayingPatch].m_sPath;
+	} else {	// no patch is playing
+		bar.m_sPlayingPatchPath.Empty();	// reset path string
+	}
+}
+
+CPlaylistBar::CUpdatePlaying::~CUpdatePlaying()
+{
+	CPlaylistBar&	bar = theApp.GetMainFrame()->m_wndPlaylistBar;
+	// find playing patch path and set playing patch index accordingly
+	bar.m_iPlayingPatch = theApp.m_pPlaylist->m_arrPatch.Find(bar.m_sPlayingPatchPath);
 }
 
 inline CPlaylist* CPlaylistBar::GetPlaylist()
@@ -108,6 +132,7 @@ void CPlaylistBar::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	UNREFERENCED_PARAMETER(lHint);
 	UNREFERENCED_PARAMETER(pHint);
 	UpdateList();
+	m_iPlayingPatch = -1;
 }
 
 void CPlaylistBar::Insert(int iInsert)
@@ -128,6 +153,7 @@ void CPlaylistBar::Insert(int iInsert)
 
 void CPlaylistBar::Insert(int iInsert, CPlaylist::CPatchLinkArray& aPatchLink)
 {
+	CUpdatePlaying	updatePlaying;	// dtor updates playing patch index
 	CPlaylist	*pPlaylist = GetPlaylist();
 	pPlaylist->m_arrPatch.InsertAt(iInsert, &aPatchLink);
 	pPlaylist->SetModifiedFlag();
@@ -142,6 +168,7 @@ void CPlaylistBar::Insert(int iInsert, CPlaylist::CPatchLinkArray& aPatchLink)
 
 void CPlaylistBar::Delete(const CIntArrayEx& arrSelection)
 {
+	CUpdatePlaying	updatePlaying;	// dtor updates playing patch index
 	m_parrSelection = &arrSelection;
 	mappingBar.NotifyUndoableEdit(0, CMapping::UCODE_PLAYLIST_DELETE);
 	m_parrSelection = NULL;
@@ -154,6 +181,7 @@ void CPlaylistBar::Delete(const CIntArrayEx& arrSelection)
 
 void CPlaylistBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
 {
+	CUpdatePlaying	updatePlaying;	// dtor updates playing patch index
 	m_parrSelection = &arrSelection;
 	mappingBar.NotifyUndoableEdit(iDropPos, CMapping::UCODE_PLAYLIST_MOVE);
 	m_parrSelection = NULL;
@@ -162,6 +190,7 @@ void CPlaylistBar::Move(const CIntArrayEx& arrSelection, int iDropPos)
 	pPlaylist->SetModifiedFlag();
 	m_list.Invalidate();
 	m_list.SelectRange(iDropPos, arrSelection.GetSize());
+	m_iPlayingPatch = pPlaylist->m_arrPatch.Find(m_sPlayingPatchPath);
 }
 
 bool CPlaylistBar::Play(int iPatch)
@@ -172,8 +201,13 @@ bool CPlaylistBar::Play(int iPatch)
 		int	nPatches = theApp.m_pPlaylist->m_arrPatch.GetSize();
 		if (iPatch >= 0 && iPatch < nPatches) {	// if patch index in range
 			if (patch.Read(pPlaylist->m_arrPatch[iPatch].m_sPath)) {	// if patch read ok
-				theApp.m_thrRender.SetPatch(patch);	// send patch to render thread
-				return true;
+				if (theApp.GetDocument()->SaveModified()) {
+					theApp.GetDocument()->SetPatch(patch);
+					theApp.m_thrRender.SetPatch(patch);	// send patch to render thread
+					m_iPlayingPatch = iPatch;
+					m_list.Invalidate();
+					return true;
+				}
 			}
 		}
 	}
@@ -204,8 +238,9 @@ void CPlaylistBar::SaveSelectedPatches(CUndoState& State) const
 
 void CPlaylistBar::RestoreSelectedPatches(const CUndoState& State)
 {
+	CUpdatePlaying	updatePlaying;	// dtor updates playing patch index
 	CUndoSelectedPatches	*pInfo = static_cast<CUndoSelectedPatches*>(State.GetObj());
-	bool	bInserting = mappingBar.GetUndoAction() == State.m_Val.p.x.i; 
+	bool	bInserting = mappingBar.GetUndoAction() == State.m_Val.p.x.i;
 	CPlaylist	*pPlaylist = GetPlaylist();
 	if (bInserting) {	// if inserting
 		pPlaylist->m_arrPatch.InsertSelection(pInfo->m_arrSelection, pInfo->m_arrPatch);
@@ -238,6 +273,7 @@ void CPlaylistBar::SavePatchMove(CUndoState& State) const
 
 void CPlaylistBar::RestorePatchMove(const CUndoState& State)
 {
+	CUpdatePlaying	updatePlaying;	// dtor updates playing patch index
 	int	iDropPos = State.GetCtrlID();
 	const CUndoSelection	*pInfo = static_cast<CUndoSelection*>(State.GetObj());
 	int	nSels = pInfo->m_arrSelection.GetSize();
@@ -330,6 +366,13 @@ int CPlaylistBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_list.SetExtendedStyle(dwListExStyle);
 	m_list.CreateColumns(m_arrColInfo, COLUMNS);
 	m_list.LoadColumnWidths(RK_PlaylistBar, RK_COL_WIDTH);
+	VERIFY(m_ilState.Create(IDC_ICON_SIZE, IDC_ICON_SIZE, 
+		ILC_COLOR | ILC_MASK, STATE_ICONS, STATE_ICONS));	// build state icon list
+	m_ilState.SetBkColor(GetSysColor(COLOR_WINDOW));
+	for (int iIcon = 0; iIcon < STATE_ICONS; iIcon++) {
+		m_ilState.Add(theApp.LoadIcon(m_aStateIcon[iIcon]));
+	}
+	m_list.SetImageList(&m_ilState, LVSIL_STATE);
 
 	return 0;
 }
@@ -355,8 +398,8 @@ void CPlaylistBar::OnSetFocus(CWnd* pOldWnd)
 void CPlaylistBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	UNREFERENCED_PARAMETER(pResult);
-	const NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
-	const LVITEM&	item = pDispInfo->item;
+	NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
+	LVITEM&	item = pDispInfo->item;
 	int	iItem = item.iItem;
 	if (item.mask & LVIF_TEXT) {
 		switch (item.iSubItem) {
@@ -374,6 +417,13 @@ void CPlaylistBar::OnListGetdispinfo(NMHDR* pNMHDR, LRESULT* pResult)
 				_tcscpy_s(item.pszText, item.cchTextMax, sFolder);
 			}
 			break;
+		}
+	}
+	if (item.mask & LVIF_IMAGE) {
+		if (item.iSubItem == COL_PATCH_NAME) {
+			item.mask |= LVIF_STATE;
+			item.state = INDEXTOSTATEIMAGEMASK(iItem == m_iPlayingPatch ? PS_PLAYING : PS_NORMAL);
+			item.stateMask = LVIS_STATEIMAGEMASK;
 		}
 	}
 }

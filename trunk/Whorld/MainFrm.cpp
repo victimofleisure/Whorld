@@ -28,6 +28,7 @@
 		18		17mar25	add movie bar
 		19		20mar25	add movie record time to status bar
 		20		29mar25	add play patch message handler
+		21		04apr25	file export must make path before enqueuing command
 
 */
 
@@ -1130,15 +1131,17 @@ void CMainFrame::OnFileExport()
 			return;	// user canceled
 		}
 	}
-	// render thread captures bitmap and posts it to our main window for writing;
-	// enqueue command ASAP in case we're unpaused, in which case sooner is better
-	theApp.m_thrRender.CaptureBitmap(theApp.m_options.GetExportFlags(), 
-		theApp.m_options.GetExportImageSize());
 	if (sExportPath.IsEmpty()) {	// if export path is unspecified
-		if (!MakeUniqueExportPath(sExportPath, m_pszExportExt))	// generate path
-			return;	// unable to generate path
+		if (!MakeUniqueExportPath(sExportPath, m_pszExportExt)) {	// generate path
+			return;	// unable to generate path, likely due to invalid export folder
+		}
 	}
-	m_aOutputPath.Add(sExportPath);
+	// render thread captures bitmap and posts it to our main window for writing
+	if (!theApp.m_thrRender.CaptureBitmap(theApp.m_options.GetExportFlags(), 
+	theApp.m_options.GetExportImageSize())) {
+		return;	// can't enqueue command
+	}
+	m_aOutputPath.Add(sExportPath);	// add export path to array; we're committed
 	// bitmap capture message may already be waiting for us in message queue
 }
 

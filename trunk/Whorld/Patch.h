@@ -15,6 +15,7 @@
 		05		09feb25	refactor
 		06		02mar25	implement global parameters
 		07		10mar25	add more string conversion operators
+		08		09apr25	bump file version for alpha parameters
 
 		patch container
  
@@ -88,7 +89,7 @@ public:
 protected:
 // Constants
 	enum {
-		FILE_VERSION = 3	// file format version number
+		FILE_VERSION = 4	// file format version number
 	};
 	static const LPCTSTR FILE_ID;		// file format signature
 

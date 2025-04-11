@@ -24,6 +24,8 @@
 		14		14mar25	add movie record and play commands
 		15		19mar25	allow line width less than one
 		16		25mar25	add random origin command
+		17      09apr25	add alpha and background alpha parameters
+		18      11apr25	add antialiasing main property
 
         define parameter attributes
 
@@ -45,9 +47,11 @@ PARAMDEF(	Pinwheel,		-3,		3,		1000,	1,		0		)	// odd vertex rotation, in radians
 PARAMDEF(	ColorSpeed,		0,		10,		1000,	1,		0.5		)	// hue change per tick, in degrees
 PARAMDEF(	Lightness,		0,		1,		1000,	1,		0.5		)	// color lightness, from 0..1
 PARAMDEF(	Saturation,		0,		1,		1000,	1,		1		)	// color saturation, from 0..1
+PARAMDEF(	Alpha,			0,		1,		1000,	1,		1		)	// color transparency, from 0..1
 PARAMDEF(	BkHue,			0,		360,	1000,	1,		0		)	// background color hue, in degrees
 PARAMDEF(	BkLightness,	0,		1,		1000,	1,		0		)	// background color lightness, from 0..1
 PARAMDEF(	BkSaturation,	0,		1,		1000,	1,		1		)	// background color saturation, from 0..1
+PARAMDEF(	BkAlpha,		0,		1,		1000,	1,		1		)	// background color transparency, from 0..1
 PARAMDEF(	EvenCurve,		-3,		3,		1000,	1,		0		)	// even vertex curvature, as fraction of radius
 PARAMDEF(	OddCurve,		-3,		3,		1000,	1,		0		)	// odd vertex curvature, as fraction of radius
 PARAMDEF(	EvenShear,		-3,		3,		1000,	1,		0		)	// even vertex curvature asymmetry, as a ratio
@@ -122,6 +126,7 @@ MAINDEF(	Convex,			bool,	b,		false,		boolVal	)	// true if drawing in descending 
 MAINDEF(	InvertColor,	bool,	b,		false,		boolVal	)	// true if inverting color
 MAINDEF(	LoopHue,		bool,	b,		false,		boolVal	)	// true if looping hue
 MAINDEF(	ZoomCenter,		bool,	b,		false,		boolVal	)	// true if zoom is window-centered
+MAINDEF(	Antialiasing,	bool,	b,		true,		boolVal	)	// true if antialiasing is enabled
 
 #undef MAINDEF
 #endif // MAINDEF

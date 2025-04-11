@@ -15,6 +15,7 @@
 		05		25mar25	add random origin target and target types
 		06		27mar25	add playlist undo codes
 		07		29mar25	add patch target
+		08      11apr25	add antialiasing target
 
 		mapping column and member definitions
 
@@ -82,6 +83,7 @@ MAPPINGDEF_MISC_TARGET(Reverse,			BOOL)
 MAPPINGDEF_MISC_TARGET(Convex,			BOOL)
 MAPPINGDEF_MISC_TARGET(LoopHue,			BOOL)
 MAPPINGDEF_MISC_TARGET(ZoomCenter,		BOOL)
+MAPPINGDEF_MISC_TARGET(Antialiasing,	BOOL)
 MAPPINGDEF_MISC_TARGET(RandomPhase,		ACTION)
 MAPPINGDEF_MISC_TARGET(RandomOrigin,	ACTION)
 MAPPINGDEF_MISC_TARGET(Clear,			ACTION)

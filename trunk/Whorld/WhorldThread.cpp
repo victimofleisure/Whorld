@@ -18,6 +18,7 @@
 		08		14mar25	add movie recording and playback
 		09		15mar25	move queue-related methods here
 		10		25mar25	add random origin command
+		11      11apr25	add antialiasing main property
 
 */
 
@@ -282,6 +283,9 @@ void CWhorldThread::OnMainPropChange(int iProp)
 	case MAIN_LoopHue:
 		OnHueSpanChange();
 		break;
+	case MAIN_Antialiasing:
+		SetAntialiasing(m_main.bAntialiasing);
+		break;
 	}
 }
 
@@ -338,6 +342,17 @@ CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
 		}
 	}
 	return sRet;
+}
+
+inline CWhorldThread::CSetAntialiasing::CSetAntialiasing(bool bEnable)
+{
+	m_bPrevEnable = theApp.m_thrRender.m_main.bAntialiasing;	// save state
+	theApp.m_thrRender.SetAntialiasing(bEnable);
+}
+
+inline CWhorldThread::CSetAntialiasing::~CSetAntialiasing()
+{
+	theApp.m_thrRender.SetAntialiasing(m_bPrevEnable);	// restore state
 }
 
 // Command handlers: these run in the render thread's context
@@ -481,6 +496,7 @@ DPoint CWhorldThread::GetOrigin() const
 
 void CWhorldThread::OnCaptureBitmap(UINT nFlags, SIZE szImage)
 {
+	CSetAntialiasing	setAA(true);	// enable antialiasing; dtor restores state
 	ID2D1Bitmap1*	pBitmap;
 	CWhorldDraw::CaptureBitmap(nFlags, CD2DSizeU(szImage), &pBitmap);
 	LPARAM	lParam = reinterpret_cast<LPARAM>(pBitmap);	
@@ -589,6 +605,7 @@ void CWhorldThread::OnMovieExport(const CMovieExportParams* pParams, LONG nTaskI
 		OnMovieError();
 		return;	// fail
 	}
+	CSetAntialiasing	setAA(true);	// enable antialiasing; dtor restores state
 	m_nTaskItemsDone = 0;	// watch out for races when reading this
 	// for each frame in specified range of frames
 	for (LONGLONG iFrame = 0; iFrame < nFrames; iFrame++) {

@@ -216,6 +216,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Loop Hue",                   ID_IMAGE_LOOP_HUE
         MENUITEM "&Zoom Center",                ID_IMAGE_ZOOM_CENTER
+        MENUITEM "&Antialiasing",               ID_IMAGE_ANTIALIASING
         MENUITEM SEPARATOR
         POPUP "Origi&n"
         BEGIN
@@ -364,16 +365,16 @@ IDR_MAINFRAME ACCELERATORS
 BEGIN
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
     VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
     VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
     "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
     "E",            ID_FILE_EXPORT,         VIRTKEY, CONTROL, NOINVERT
     "L",            ID_FILE_LOAD_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
@@ -413,6 +414,7 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
+    "A",            ID_IMAGE_ANTIALIASING,  VIRTKEY, CONTROL, ALT, NOINVERT
 END
 
 
@@ -771,15 +773,16 @@ BEGIN
     IDS_EXPORT_MOVIE        "Export Movie"
     IDS_FILE_EXPORT_SAVE_AS "Export Save As"
     IDS_GRID_ERR_BAD_TIME_FORMAT "Enter time in hh:mm:ss format."
+    IDS_MAIN_Antialiasing   "Antialiasing"
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
     IDS_MAIN_Hue            "Hue"
     IDS_MAIN_InvertColor    "Invert Color"
-    IDS_MAIN_LoopHue        "Loop Hue"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
     IDS_MAIN_OrgMotion      "Origin Motion"
     IDS_MAIN_Origin         "Origin"
@@ -793,13 +796,14 @@ BEGIN
     IDS_MAPPING_COL_PROPERTY "Property"
     IDS_MAPPING_COL_START   "Start"
     IDS_MAPPING_COL_TARGET  "Target"
+    IDS_MAP_TARGET_Antialiasing "Antialiasing"
     IDS_MAP_TARGET_Clear    "Clear"
-    IDS_MAP_TARGET_Convex   "Convex"
-    IDS_MAP_TARGET_Fill     "Fill"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_Convex   "Convex"
+    IDS_MAP_TARGET_Fill     "Fill"
     IDS_MAP_TARGET_LoopHue  "Loop Hue"
     IDS_MAP_TARGET_Mirror   "Mirror"
     IDS_MAP_TARGET_OriginDrag "Origin Drag"
@@ -814,12 +818,12 @@ BEGIN
     IDS_MAP_TARGET_Reverse  "Reverse"
     IDS_MAP_TARGET_ZoomCenter "Zoom Center"
     IDS_MASTER_CanvasScale  "Canvas"
-    IDS_MASTER_Copies       "Copies"
-    IDS_MASTER_Damping      "Damping"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_Copies       "Copies"
+    IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueSpan      "Hue Span"
     IDS_MASTER_Rings        "Rings"
     IDS_MASTER_Speed        "Speed"
@@ -834,12 +838,12 @@ BEGIN
     IDS_MIDI_OUTPUT         "Output"
     IDS_MIDI_SYS_STAT_ACTIVE_SENSING "Active Sensing"
     IDS_MIDI_SYS_STAT_CLOCK "Clock"
-    IDS_MIDI_SYS_STAT_CONTINUE "Continue"
-    IDS_MIDI_SYS_STAT_EOX   "EOX"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_CONTINUE "Continue"
+    IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
     IDS_MIDI_SYS_STAT_SONG_POSITION "Song Position"
     IDS_MIDI_SYS_STAT_SONG_SELECT "Song Select"
@@ -856,13 +860,13 @@ BEGIN
     IDS_NOT_APPLICABLE      "N/A"
     IDS_OPT_DESC_Export_bPromptUser 
                             "Prompt user for destination folder, filename, and options"
-    IDS_OPT_DESC_Export_bUseViewSize 
-                            "If true, use view size as image size, otherwise get image size from options"
-    IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Export_bUseViewSize 
+                            "If true, use view size as image size, otherwise get image size from options"
+    IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
     IDS_OPT_DESC_Export_nImageWidth "Desired image width in pixels"
     IDS_OPT_DESC_Export_nScaleToFit 
                             "Type of scaling to apply to image size; ignored if using view size"
@@ -881,12 +885,12 @@ BEGIN
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_GROUP_Snapshot  "Snapshot"
     IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
-    IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
-    IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
+    IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
     IDS_OPT_NAME_Export_bUseViewSize "Use View Size"
     IDS_OPT_NAME_Export_nImageHeight "Image Height"
@@ -901,12 +905,14 @@ BEGIN
     IDS_OPT_SCALE_TO_FIT_Both "Both"
     IDS_OPT_SCALE_TO_FIT_Height "Height"
     IDS_OPT_SCALE_TO_FIT_None "None"
-    IDS_OPT_SCALE_TO_FIT_Width "Width"
-    IDS_PARAM_AspectRatio   "Aspect Ratio"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_SCALE_TO_FIT_Width "Width"
+    IDS_PARAM_Alpha         "Alpha"
+    IDS_PARAM_AspectRatio   "Aspect Ratio"
+    IDS_PARAM_BkAlpha       "Bk Alpha"
     IDS_PARAM_BkHue         "Bk Hue"
     IDS_PARAM_BkLightness   "Bk Lightness"
     IDS_PARAM_BkSaturation  "Bk Saturation"
@@ -919,14 +925,14 @@ BEGIN
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
     IDS_PARAM_PolySides     "Ring Sides"
-    IDS_PARAM_RingGrowth    "Ring Growth"
-    IDS_PARAM_RingSpacing   "Ring Spacing"
-    IDS_PARAM_RotateSpeed   "Rotate Speed"
-    IDS_PARAM_Saturation    "Saturation"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_RingGrowth    "Ring Growth"
+    IDS_PARAM_RingSpacing   "Ring Spacing"
+    IDS_PARAM_RotateSpeed   "Rotate Speed"
+    IDS_PARAM_Saturation    "Saturation"
     IDS_PARAM_SkewAngle     "Skew Angle"
     IDS_PARAM_SkewRadius    "Skew Radius"
     IDS_PARAM_StarFactor    "Star Factor"
@@ -939,14 +945,14 @@ BEGIN
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
     IDS_PROW_VAL_SLIDER     "Slider"
-    IDS_PROW_Val            "Value"
-    IDS_PROW_Wave           "Waveform"
-    IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
-    IDS_RPLF_FILENAME       "Filename"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_Val            "Value"
+    IDS_PROW_Wave           "Waveform"
+    IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
+    IDS_RPLF_FILENAME       "Filename"
     IDS_RPLF_MISSING        "Missing"
     IDS_RPLF_REPLACED       "Replaced"
     IDS_RPLF_STATUS         "Status"
@@ -959,15 +965,15 @@ BEGIN
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
     IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
+END
+
+STRINGTABLE
+BEGIN
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
-END
-
-STRINGTABLE
-BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
 END
 
@@ -983,18 +989,36 @@ BEGIN
     ID_VIEW_MIDI_LEARN      "Learn mappings from MIDI\nMIDI Learn"
     ID_VIEW_OPTIONS         "Edit the options\nOptions"
     ID_WINDOW_DETACH        "Detach view from main frame\nDetatch"
-    ID_WINDOW_FULLSCREEN    "Toggle full screen mode\nFull Screen"
+    ID_WINDOW_FULLSCREEN    "Toggle full screen exclusive mode\nFull Screen"
     ID_WINDOW_PAUSE         "Freeze current frame\nPause"
-    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
 END
 
 STRINGTABLE
 BEGIN
+    ID_WINDOW_RESET_LAYOUT  "Reset window layout to defaults\nReset Layout"
     ID_WINDOW_STEP          "Step forward one frame at a time\nStep"
 END
 
 STRINGTABLE
 BEGIN
+    ID_APP_HOME_PAGE        "Go to the Whorld home page\nHome page"
+    ID_EDIT_DELETE          "Delete the selection\nDelete"
+    ID_EDIT_INSERT          "Insert a new item\nInsert"
+    ID_FILE_EXPORT          "Export an image file\nExport"
+    ID_FILE_LOAD_SNAPSHOT   "Restore one or more captured images\nLoad Snapshot"
+    ID_FILE_TAKE_SNAPSHOT   "Capture the current image\nTake Snapshot"
+    ID_IMAGE_ANTIALIASING   "Enable antialiasing\nAntialiasing"
+    ID_IMAGE_CONVEX         "Draw rings in descending size order\nConvex"
+    ID_IMAGE_FILL           "Fill area between rings\nFill"
+    ID_IMAGE_LOOP_HUE       "Limit hue cycling\nLoop Hue"
+    ID_IMAGE_MIRROR         "Mirror image\nMirror"
+    ID_IMAGE_ORIGIN_CENTER  "Center origin within window\nCenter Origin"
+    ID_IMAGE_ORIGIN_DRAG    "Enable origin dragging\nDrag Origin"
+END
+
+STRINGTABLE
+BEGIN
+    ID_SNAPSHOT_FIRST       "Go to first snapshot\nFirst Snapshot"
     ID_SNAPSHOT_INFO        "Display information about current snapshot\nSnapshot Info"
     ID_SNAPSHOT_LAST        "Go to last snapshot\nLast Snapshot"
     ID_SNAPSHOT_NEXT        "Go to next snapshot\nNext  Snapshot"
@@ -1006,6 +1030,7 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_IMAGE_ORIGIN_RANDOM  "Enable random origin\nRandom Origin"
     ID_IMAGE_OUTLINE        "Outline filled rings\nOutline"
     ID_IMAGE_RANDOM_PHASE   "Randomize modulator phases\nRandom Phase"
     ID_IMAGE_REVERSE        "Grow rings inward\nReverse"
@@ -1020,11 +1045,11 @@ BEGIN
     ID_PLAYLIST_MRU_FILE12  "Open this playlist"
     ID_PLAYLIST_MRU_FILE13  "Open this playlist"
     ID_PLAYLIST_MRU_FILE14  "Open this playlist"
-    ID_PLAYLIST_MRU_FILE15  "Open this playlist"
 END
 
 STRINGTABLE
 BEGIN
+    ID_PLAYLIST_MRU_FILE15  "Open this playlist"
     ID_PLAYLIST_MRU_FILE16  "Open this playlist"
     ID_PLAYLIST_MRU_FILE2   "Open this playlist"
     ID_PLAYLIST_MRU_FILE3   "Open this playlist"
@@ -1036,7 +1061,6 @@ BEGIN
     ID_PLAYLIST_MRU_FILE9   "Open this playlist"
     ID_PLAYLIST_PLAY        "Play the selected patch\nPlay"
     ID_SNAPSHOT_EXPORT_ALL  "Export all snapshots\nExport All Snapshots"
-    ID_SNAPSHOT_FIRST       "Go to first snapshot\nFirst Snapshot"
 END
 
 STRINGTABLE
@@ -1044,23 +1068,6 @@ BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
     ID_HELP_FINDER          "List help topics\nHelp Topics"
-END
-
-STRINGTABLE
-BEGIN
-    ID_APP_HOME_PAGE        "Go to the Whorld home page\nHome page"
-    ID_EDIT_DELETE          "Delete the selection\nDelete"
-    ID_EDIT_INSERT          "Insert a new item\nInsert"
-    ID_FILE_EXPORT          "Export an image file\nExport"
-    ID_FILE_LOAD_SNAPSHOT   "Restore one or more captured images\nLoad Snapshot"
-    ID_FILE_TAKE_SNAPSHOT   "Capture the current image\nTake Snapshot"
-    ID_IMAGE_CONVEX         "Draw rings in descending size order\nConvex"
-    ID_IMAGE_FILL           "Fill area between rings\nFill"
-    ID_IMAGE_LOOP_HUE       "Limit hue cycling\nLoop Hue"
-    ID_IMAGE_MIRROR         "Mirror image\nMirror"
-    ID_IMAGE_ORIGIN_CENTER  "Center origin within window\nCenter Origin"
-    ID_IMAGE_ORIGIN_DRAG    "Enable origin dragging\nDrag Origin"
-    ID_IMAGE_ORIGIN_RANDOM  "Enable random origin\nRandom Origin"
 END
 
 STRINGTABLE

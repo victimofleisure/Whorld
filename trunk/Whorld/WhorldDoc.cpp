@@ -12,6 +12,7 @@
 		02		27feb25	disable undo/redo while in snapshot mode
 		03		03mar25	don't touch modified flag while in snapshot mode
 		04      12mar25	get wheel sensitivity from options
+		05      11apr25	add antialiasing main property
 
 */
 
@@ -164,6 +165,12 @@ void CWhorldDoc::SetZoomCenter(bool bEnable)
 {
 	MAKE_VARIANT_PROP(boolVal, bEnable);
 	SetMainProp(MAIN_ZoomCenter, prop);
+}
+
+void CWhorldDoc::SetAntialiasing(bool bEnable)
+{
+	MAKE_VARIANT_PROP(boolVal, bEnable);
+	SetMainProp(MAIN_Antialiasing, prop);
 }
 
 void CWhorldDoc::SetOriginMotion(int iMotionType)
@@ -414,6 +421,8 @@ BEGIN_MESSAGE_MAP(CWhorldDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_LOOP_HUE, OnUpdateImageLoopHue)
 	ON_COMMAND(ID_IMAGE_ZOOM_CENTER, OnImageZoomCenter)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_ZOOM_CENTER, OnUpdateImageZoomCenter)
+	ON_COMMAND(ID_IMAGE_ANTIALIASING, OnImageAntialiasing)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_ANTIALIASING, OnUpdateImageAntialiasing)
 	ON_COMMAND(ID_IMAGE_ORIGIN_CENTER, OnImageOriginCenter)
 	ON_COMMAND(ID_IMAGE_ORIGIN_DRAG, OnImageOriginDrag)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_ORIGIN_DRAG, OnUpdateImageOriginDrag)
@@ -515,6 +524,16 @@ void CWhorldDoc::OnImageZoomCenter()
 void CWhorldDoc::OnUpdateImageZoomCenter(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(m_main.bZoomCenter);
+}
+
+void CWhorldDoc::OnImageAntialiasing()
+{
+	SetAntialiasing(!m_main.bAntialiasing);
+}
+
+void CWhorldDoc::OnUpdateImageAntialiasing(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_main.bAntialiasing);
 }
 
 void CWhorldDoc::OnImageOriginCenter()

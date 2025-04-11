@@ -18,6 +18,7 @@
 		08		19mar25	make mapping range real instead of integer
 		09		25mar25	add random origin target
 		10		29mar25	add patch target
+		11      11apr25	add antialiasing target
 
 */
 
@@ -249,6 +250,9 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 		break;
 	case MT_ZoomCenter:
 		PushMainBool(MAIN_ZoomCenter, fNormVal != 0);
+		break;
+	case MT_Antialiasing:
+		PushMainBool(MAIN_Antialiasing, fNormVal != 0);
 		break;
 	case MT_RandomPhase:
 		theApp.m_thrRender.RandomPhase();

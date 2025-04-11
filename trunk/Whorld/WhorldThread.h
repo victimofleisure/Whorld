@@ -18,6 +18,7 @@
 		08		14mar25	add movie recording and playback
 		09		15mar25	move queue-related methods here
 		10		25mar25	add random origin command
+		11		11apr25	add class to set and restore antialiasing
 
 */
 
@@ -78,6 +79,14 @@ protected:
 	LONGLONG	m_nTaskItemsDone;	// number of task items completed so far
 	LONG	m_nNextTaskID;			// next available task ID
 	LONG	m_nCancelTaskID;		// ID of task to be canceled
+
+// Types
+	class CSetAntialiasing {
+	public:
+		CSetAntialiasing(bool bEnable);
+		~CSetAntialiasing();
+		bool	m_bPrevEnable;		// previous antialiasing state
+	};
 
 // Overrides
 	virtual void	OnRenderCommand(const CRenderCmd& cmd);

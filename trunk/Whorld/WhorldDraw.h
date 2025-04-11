@@ -17,6 +17,7 @@
 		07		12mar25	add target size accessor
 		08		14mar25	add movie recording and playback
 		09		15mar25	move queue-related methods to separate class
+		10      11apr25	add antialiasing accessor
 
 */
 
@@ -102,6 +103,7 @@ protected:
 	static double	Reflect(double fVal, double fLimit);
 	void	UpdateHue(double fDeltaTick);
 	void	OnHueSpanChange();
+	void	SetAntialiasing(bool bEnable);
 	void	ResizeCanvas();
 	void	OnCopiesChange();
 	void	RemoveAllRings();

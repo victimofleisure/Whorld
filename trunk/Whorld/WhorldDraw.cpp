@@ -22,6 +22,8 @@
 		12		12mar25	remove needless point ctors; implement view-centric zoom
 		13		14mar25	add movie recording and playback
 		14		15mar25	move queue-related methods to separate class
+		15      09apr25	add alpha and background alpha parameters
+		16      11apr25	add antialiasing main property
 
 */
 
@@ -88,7 +90,7 @@ bool CWhorldDraw::CreateUserResources()
 	// NOTE: objects created here must be released in DestroyUserResources
 	CHECK(m_pD2DDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0, 255, 0, 0.5f), &m_pBkgndBrush));
 	CHECK(m_pD2DDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0, 255, 0, 0.5f), &m_pDrawBrush));
-//	m_pD2DDeviceContext->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);//@@@ test only!! 40% faster but ugly
+	SetAntialiasing(m_main.bAntialiasing);
 	return true;
 }
 
@@ -169,6 +171,12 @@ void CWhorldDraw::OnHueSpanChange()
 		m_fHueLoopPos = 0;
 		m_fHueLoopBase = m_fHue;
 	}
+}
+
+void CWhorldDraw::SetAntialiasing(bool bEnable)
+{
+	D2D1_ANTIALIAS_MODE	nMode = bEnable ? D2D1_ANTIALIAS_MODE_PER_PRIMITIVE : D2D1_ANTIALIAS_MODE_ALIASED;
+	m_pD2DDeviceContext->SetAntialiasMode(nMode);
 }
 
 void CWhorldDraw::ResizeCanvas()
@@ -308,7 +316,7 @@ void CWhorldDraw::AddRing()
 	m_params.fSaturation = CLAMP(m_params.fSaturation, 0, 1);
 	double	fR, fG, fB;
 	CHLS::hls2rgb(m_fHue, m_params.fLightness, m_params.fSaturation, fR, fG, fB);
-	m_clrRing = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
+	m_clrRing = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB), DTOF(m_params.fAlpha));
 	RING	ring;
 	bool	bReverse = m_params.fRingGrowth < 0;
 	double	fRingOffset = bReverse ? -m_fRingOffset : m_fRingOffset;
@@ -435,7 +443,7 @@ void CWhorldDraw::TimerHook()
 	m_params.fBkLightness = CLAMP(m_params.fBkLightness, 0, 1);
 	m_params.fBkSaturation = CLAMP(m_params.fBkSaturation, 0, 1);
 	CHLS::hls2rgb(m_params.fBkHue, m_params.fBkLightness, m_params.fBkSaturation, fR, fG, fB);
-	m_clrBkgnd = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB));
+	m_clrBkgnd = D2D1::ColorF(DTOF(fR), DTOF(fG), DTOF(fB), DTOF(m_params.fBkAlpha));
 	// update rings
 	POSITION	posNext = m_aRing.GetHeadPosition();
 	DPoint	ptPrevOrg(m_ptOrigin);

@@ -11,6 +11,7 @@
 		01		27feb25	customize undo notify to support disabling
 		02		03mar25	override set modified flag accessor
 		03		12mar25	add zoom center command
+		04      11apr25	add antialiasing main property
 
 */
 
@@ -41,6 +42,7 @@ public:
 	void	SetConvex(bool bEnable);
 	void	SetLoopHue(bool bEnable);
 	void	SetZoomCenter(bool bEnable);
+	void	SetAntialiasing(bool bEnable);
 	void	SetZoom(double fZoom, bool bDamping = true);
 	void	SetOrigin(DPoint ptOrigin, bool bDamping = true);
 	bool	OffsetMasterProp(int iProp, double fDelta, double& fVal);
@@ -112,6 +114,8 @@ protected:
 	afx_msg void OnImageLoopHue();
 	afx_msg void OnUpdateImageLoopHue(CCmdUI *pCmdUI);
 	afx_msg void OnImageZoomCenter();
+	afx_msg void OnImageAntialiasing();
+	afx_msg void OnUpdateImageAntialiasing(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateImageZoomCenter(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateImageOrigin(CCmdUI *pCmdUI);
 	afx_msg void OnImageOriginCenter();

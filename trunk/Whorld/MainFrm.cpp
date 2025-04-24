@@ -29,6 +29,7 @@
 		19		20mar25	add movie record time to status bar
 		20		29mar25	add play patch message handler
 		21		04apr25	file export must make path before enqueuing command
+		22		24apr25	suppress undo in set draw mode handler
 
 */
 
@@ -1024,6 +1025,7 @@ LRESULT CMainFrame::OnSetDrawMode(WPARAM wParam, LPARAM lParam)
 	UINT	nMask = static_cast<UINT>(wParam);
 	UINT	nValue = static_cast<UINT>(lParam);
 	CWhorldDoc	*pDoc = theApp.GetDocument();
+	CWhorldDoc::CDisableUndo	noUndo(pDoc);
 	UINT	nDrawMode = pDoc->m_main.nDrawMode;
 	// first clear any bits that are non-zero in the mask; then set
 	// any bits that are non-zero in both the mask and the value

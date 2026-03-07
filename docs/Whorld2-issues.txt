@@ -1,0 +1,124 @@
+id	open	close	type	description	rev	user
+117	04/07/25		bug	movie export dialog doesn't restore custom frame size		
+1	02/08/25	02/08/25	done	if fullscreen on single monitor, Alt key exits full screen	2.0.00.001	
+2	02/08/25	02/08/25	done	if fullscreen on single monitor, file open dialog exits full screen causing render window to disappear	2.0.00.001	
+3	02/09/25	02/09/25	done	in Parameters view, tab doesn't continue to next row	2.0.00.001	
+4	02/09/25	02/10/25	done	in Parameters view, Ctrl + Num+ shortcut only works if a child control has focus	2.0.00.001	
+5	02/10/25	02/10/25	done	rotate speed and skew angle aren't being scaled properly	2.0.00.001	
+6	02/10/25	02/11/25	done	parameter rows are shown in a different order; line width and pinwheel moved, handle in row view?	2.0.00.001	
+11	02/10/25	02/12/25	done	device lost handling is broken; mistakenly destroying thread due to missing scope, rename to clarify	2.0.00.001	
+12	02/15/25	02/16/25	done	drop files not working	2.0.00.001	
+13	02/16/25	02/17/25	done	hide mouse automatically in full screen mode	2.0.01.001	
+17	02/23/25	02/24/25	done	curve parameters are broken; in DrawRing, AddBeziers must start from &m_aPt[iFirstPoint + 1]	2.0.01.008	
+20	02/24/25	02/24/25	done	outline command's menu item doesn't display check	2.0.02.000	JM
+19	02/23/25	02/25/25	done	can't match Flying Chicken snapshot; apply zoom to ring origins to match V1 trail behavior	2.0.02.000	
+22	02/25/25	02/25/25	done	switching from curved to straight or vice versa causes degenerate ring; add bPrevCurved	2.0.02.000	
+16	02/23/25	02/25/25	done	Ctrl+N exits fullscreen exclusive on single monitor even if document is unmodified; disable it	2.0.02.001	
+7	02/09/25	02/26/25	done	limit maximum size of floating row view pane to row view size plus space for NC brass and scroll bars	2.0.02.001	
+10	02/12/25	02/26/25	done	limit minimum size of floating row view pane to system minimum window size	2.0.02.001	
+40	02/25/25	02/26/25	done	MIDI input (fixed mapping)	2.0.02.002	
+24	02/25/25	02/26/25	done	MIDI mapping	2.0.03.002	
+18	02/23/25	02/27/25	done	loading a snapshot should update zoom in master pane	2.0.04.000	
+21	02/25/25	02/27/25	done	disable undo/redo while in snapshot mode	2.0.04.000	
+48	02/27/25	02/27/25	done	toolbar needs a pause button	2.0.04.000	
+50	02/27/25	02/27/25	done	implement hue loop	2.0.04.000	
+25	02/25/25	02/28/25	done	new playlist format; use INI file this time	2.0.04.001	
+42	02/27/25	02/28/25	done	mapping pane should support undo	2.0.04.001	
+43	02/27/25	02/28/25	done	mapping persistence, in playlist as before	2.0.04.001	
+52	02/28/25	02/28/25	done	some parameters can't be set back to exactly zero via MIDI; add a center epsilon	2.0.05.000	JM
+46	02/27/25	03/01/25	done	add miscellaneous mapping targets	2.0.06.000	
+56	02/28/25	03/01/25	done	add option to set maximum number of items in recently used file lists	2.0.06.000	
+44	02/27/25	03/01/25	done	add MIDI learn	2.0.06.001	
+45	02/27/25	03/02/25	done	mapping for other parameter properties: waveform, amplitude, frequency, pulse width	2.0.07.002	
+47	02/27/25	03/02/25	done	global parameters	2.0.07.002	
+41	02/27/25	03/02/25	done	document edits made via MIDI shouldn't be undoable, to avoid excessive undo history	2.0.07.005	
+62	02/08/25	03/02/25	done	automated undo testing; one test for document, another for mapping	2.0.07.006	
+63	03/02/25	03/02/25	done	fix crash during mapping test; when removing all rings, m_posDel must also be reset	2.0.08.000	
+64	03/02/25	03/03/25	done	if render command queue is full, worker thread should retry, and notify main thread only if retry fails	2.0.09.000	
+57	03/01/25	03/03/25	done	reset row view column widths; add context menu to column header	2.0.09.001	
+65	03/02/25	03/03/25	done	in snapshot mode, zooming (or any other edits) shouldn't set document modified flag	2.0.09.002	
+55	02/28/25	03/03/25	done	pitch bend mapping should use full resolution (14 bits)	2.0.09.003	
+67	03/04/25	03/04/25	done	points buffer overrun if Ring Sides = 50, curves = true, Fill = true, ring count >= 2, and Global Ring Sides >= 1	2.0.09.005	
+70	03/04/25	03/04/25	done	refactor render thread so that PushCommand is protected by wrapping it in accessors	2.0.09.006	
+68	03/04/25	03/04/25	done	in globals row dialog, edit box spin should allow negative values	2.0.09.007	
+72	03/04/25	03/05/25	done	in parameters, master and globals panes, can't drag slider back to exact center value; use epsilon	2.0.09.008	
+73	03/04/25	03/05/25	done	in parameters pane, spin or arrows don't return Skew Radius to exact center value; use epsilon	2.0.09.008	
+59	03/01/25	03/05/25	done	indicate MIDI learn by changing color of list selection in mapping pane	2.0.09.009	
+61	03/01/25	03/05/25	done	disable MIDI learn if mapping pane loses focus	2.0.09.009	
+69	03/04/25	03/05/25	done	add fill and outline icons to toolbar	2.0.09.009	
+71	03/04/25	03/05/25	done	if frame rate is extremely low, MIDI mapping can fill render command queue, causing perpetual error message	2.0.10.001	
+54	02/28/25	03/06/25	done	add thread-safe error logging; log file goes in folder %USERPROFILE%\AppData\Local\Whorld	2.0.10.002	
+75	03/06/25	03/06/25	done	implement drop files for all supported file types	2.0.10.003	
+76	02/25/25	03/07/25	done	load multiple snapshots at once; navigation commands in submenu	2.0.10.004	
+77	02/25/25	03/08/25	done	export all snapshots (on snapshot submenu)	2.0.10.005	
+74	03/05/25	03/08/25	done	add origin motion icons to toolbar; also reverse/convex icons	2.0.10.005	
+78	03/08/25	03/09/25	done	export with scale to fit is not properly centered; origin is shifted left by a lot	2.0.10.006	JM
+80	03/09/25	03/09/25	done	centering a slider via Shift+click updates the slider, but not the corresponding property	2.0.10.007	
+80	03/09/25	03/09/25	done	V1 shifted filled ring colors by one ring in convex mode, and V2's fix for that must be disabled to display a V1 snapshot correctly	2.0.10.007	
+79	03/09/25	03/09/25	done	export scaling not matching V1; refactor scaling to four options: none, fit width, fit height, fit both	2.0.10.007	
+86	03/09/25	03/10/25	done	add target size to snapshot format; required to handle scaling issues related to window size	2.0.11.000	
+85	03/10/25	03/10/25	done	MIDI learn not working; manager was posting messages to main frame rather than mapping bar	2.0.11.000	JM
+82	03/10/25	03/10/25	done	change slider's restore default position modifier key from Shift to Control	2.0.11.000	JM
+83	03/10/25	03/10/25	done	in parameters dialog, slider default positions should be parameter defaults, not center	2.0.11.000	JM
+87	03/10/25	03/10/25	done	taking a snapshot of a loaded snapshot distorts it; disallow this degenerate case	2.0.12.000	
+81	03/09/25	03/11/25	done	export scaling only matches V1 if zoom is scaled 125% (see ribbons1); add legacy snapshot sizes to options	2.0.12.001	
+88	03/09/25	03/11/25	done	when displaying snapshot, fit to view instead of cropping; requires storing target size in snapshot	2.0.12.001	
+90	03/09/25	03/11/25	done	add letterboxing option for snapshots	2.0.12.005	
+93	03/10/25	03/12/25	done	export dialog should display view's dimensions when use view size is checked	2.0.12.006	
+92	03/11/25	03/12/25	done	add mouse wheel sensitivity option; it's a percentage of system mouse wheel delta	2.0.12.006	
+94	03/11/25	03/12/25	done	add command to display information about current snapshot: size, zoom, ring count, version	2.0.12.007	
+95	03/11/25	03/12/25	done	implement view-centric zoom; make it a MIDI target too	2.0.12.009	
+96	03/12/25	03/12/25	done	setting fill or outline mode via MIDI fails to update UI	2.0.12.009	
+97	03/12/25	03/12/25	done	AddRing leaves two bytes of the ring struct uninitialized, making them useless; add reserved member and zero it	2.0.12.010	
+28	02/25/25	03/14/25	done	movie recording; use asynchronous writes	2.0.13.000	
+29	02/25/25	03/14/25	done	movie playback	2.0.13.000	
+99	02/25/25	03/16/25	done	movie export	2.0.13.009	
+98	02/25/25	03/17/25	done	add movie bar to with slider to allow seeking within movie; also show current position in time	2.0.13.013	
+100	03/17/25	03/17/25	done	slider doesn't respond to left-click in thumb track until mouse button is released	2.0.13.013	
+101	03/18/25	03/19/25	done	reinstate V1's MIDI mapping algorithm, featuring dual-range normalization to avoid centering problems	2.0.14.000	
+102	03/18/25	03/19/25	done	mapping range start and end should be percentages; also make them real numbers instead of integers	2.0.14.000	
+103	03/18/25	03/19/25	done	support line width less than zero, by changing line width parameter's minimum value from one to zero	2.0.14.000	
+104	03/19/25	03/19/25	done	error playing back recorded movie, due to truncated file; reverting to synchronous writing seems to fix it	2.0.14.002	ZV
+106	03/19/25	03/20/25	done	during recording, show recording's duration on status bar	2.0.14.003	
+107	03/20/25	03/20/25	done	movie write wasn't resetting the count of frames written; reliably fatal if a second recording is made	2.0.14.003	
+108	03/20/25	03/20/25	done	reinstate overlapped (asynchronous) writing for movie recording	2.0.15.000	
+111	03/21/25	03/25/25	done	add MIDI command to trigger origin random jump	2.0.16.002	
+114	02/25/25	03/28/25	done	add playlist bar; patch insert/delete/move/play	2.0.16.003 	
+113	03/28/25	03/28/25	done	load snapshot open file dialog is modeless but should be modal	2.0.16.003 	
+115	03/29/25	03/30/25	done	playlist should indicate currently playing patch, via arrow icon in list control	2.0.17.000	
+116	03/29/25	03/30/25	done	selecting a playlist patch should update Parameters, Master, and Globals panes	2.0.17.000	
+120	02/25/25	04/09/25	done	transparency: add alpha and background alpha parameters	2.0.18.000	
+30	02/25/25	04/11/25	done	make antialiasing optional; combining antialiasing with transparency overloads system	2.0.18.000	
+122	04/23/25	04/24/25	done	fill or outline via MIDI shouldn't set document modified flag	2.0.18.001	JM
+14	02/18/25		hold	master dialog should have spin controls		
+15	02/19/25		hold	line joins are angular instead of round as in V1; do round joins impact performance? Make it optional?		
+26	02/25/25		hold	snapshot slideshow (on snapshot submenu)		
+27	02/25/25		hold	mirroring; see GPT code, looks quite challenging		
+31	02/25/25		hold	regression testing based on image and snapshot export		
+32	02/25/25		hold	other transparency proposals: global alpha and fade alpha with radius		
+33	02/25/25		hold	transparent background is possible and could be useful for export, as it would allow layering of output		
+34	02/25/25		hold	add option to always zoom line width, not only in snapshot mode; changes the vibe considerably		
+35	02/25/25		hold	XOR blending; very challenging, probably involves writing a custom Direct2D effect in shader code		
+36	02/25/25		hold	update help file and reintegrate context-sensitive help		
+37	02/25/25		hold	installer		
+38	02/25/25		hold	check for updates		
+39	02/25/25		hold	floating dockable pane should be collapsible, via a roll up / down button on its caption bar for example		
+51	02/27/25		hold	undo and redo should be mappable; not sure about this		JM
+53	02/28/25		hold	add MIDI output; send CCs for each parameter oscillator, maybe MIDI clocks too		
+58	03/01/25		hold	boolean mapping targets send spurious render commands when value is unchanged; part of larger switch issue		
+60	03/01/25		hold	find a better icon for MIDI learn; tried DIN connector, it's too hard to read		
+84	03/10/25		hold	origin motion commands belong on image menu, instead of buried in submenu		JM
+89	03/10/25		hold	sliders, edit spins, and wheel should all support coarse/fine modes; coarse by default, Shift+wheel for fine		
+91	03/12/25		hold	snapshot mode should allow origin change, via drag or point zoom or both		
+105	03/20/25		hold	mapping pause to continuous controller toggles for every message received; switch issue again		
+109	03/21/25		hold	for stable tempo, use self-correcting real timer instead of retrace-driven oscillator		
+110	03/21/25		hold	support MIDI clock for tempo		
+118	04/09/25		hold	add option for new patch to reset all state, including oscillator phases and hue		
+119	04/09/25		hold	semi-transparent fill is always outlined: make overlap stroking in fill mode optional		
+121	04/11/25		hold	add non-exclusive borderless full screen mode; would allow access to dockable panes		
+8	02/10/25		punt	in row view, if no control has focus, tab key does nothing		
+9	02/10/25		punt	if floating row view is deactivated and then reactivated, previously focused child control doesn't regain focus		
+23	02/25/25		punt	sporadic error when trying to open legacy patch, invalid file handle; can't replicate		JM
+49	02/27/25		punt	message box appears in unexpected location if floating pane has focus; standard behavior, live with it		
+66	03/04/25		punt	global line width can cause negative line width; Direct2D takes absolute value, it's fine		
+112	03/22/25		punt	global ring sides scales odd and even radii differently unless global star ratio is tuned; V1 bug		

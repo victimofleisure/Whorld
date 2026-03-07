@@ -8,7 +8,7 @@ Patches can be grouped together in a playlist. You can play patches manually, or
 
 Whorld is optimized for VJing. All of its functions are available in full-screen mode, via shortcut keys, mouse or trackball, and MIDI controllers.
 
-**Whorld V2 is available**
+**Whorld V2 is a major update**
 
 It has been nearly **twenty years** since the last release. The main design goals of Whorld V2 are listed below.
 

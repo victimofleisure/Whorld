@@ -31,7 +31,22 @@
 
 <h2>Whorld application</h2>
 
-<h3>1.7.06</h3>
+<h3>2.0.18 &emsp;<small>04/24/2025</small></h3>
+
+Whorld 2.0.18 is a major update. The rendering was ported to Direct2D, and the user interface was modernized. Note that Direct2D 1.1 is required.
+
+<ol>
+<li>Improve rendering throughput by leveraging Direct2D's hardware acceleration.
+<li>Implement anti-aliasing (line smoothing), which is a core feature of Direct2D.
+<li>Improve accuracy by drawing in floating-point coordinates, another Direct2D feature.
+<li>Modernize the user interface via dockable panes and similar enhancements.
+<li>Move rendering to a worker thread, to avoid glitches and tearing.
+<li>Redo the MIDI mapping, to improve usability and flexibility.
+<li>Streamline the application, preserving what's valuable and discarding what isn't.
+<li>Support transparency (alpha).
+</ol>
+
+<h3>1.7.06 &emsp;<small>04/06/2008</small></h3>
 
 Whorld 1.7.06 adds global parameters which affect all rings at once. This version also adds two new Bézier curve parameters, and fixes some important bugs.
 
@@ -67,7 +82,7 @@ Whorld 1.7.06 adds global parameters which affect all rings at once. This versio
 <li>In previous versions, if a modeless dialog had focus, most of the keyboard shortcuts didn't work. This was particularly a problem in dual-monitor mode. Keyboard shortcuts that use alphanumeric or function keys now work regardless of whether a modeless dialog has focus. Shortcuts that use other keys, such as Tab, Arrows, Backspace, etc. still require the main window to have focus.
 </ol>
 
-<h3>1.6.06</h3>
+<h3>1.6.06 &emsp;<small>03/17/2007</small></h3>
 
 <p>Whorld 1.6.06 adds some interesting new features, including the ability to draw multiple Whorlds at once, and also fixes some fairly serious bugs, including an off-by-one frame error in recording, and a memory leak in the video overlay.
 

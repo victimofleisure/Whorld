@@ -48,12 +48,12 @@ Whorld 2.0.18 is a major update. The rendering was ported to Direct2D, and the u
 
 <h3>1.7.06 &emsp;<small>04/06/2008</small></h3>
 
-Whorld 1.7.06 adds global parameters which affect all rings at once. This version also adds two new Bézier curve parameters, and fixes some important bugs.
+Whorld 1.7.06 adds global parameters which affect all rings at once. This version also adds two new B&eacute;zier curve parameters, and fixes some important bugs.
 
 <ol>
 <li>In previous versions, changing a geometry parameter (e.g. Star Factor) only affected new rings. This behavior was essential for creating interesting patches, but it wasn't good for live control, because it introduced a long delay between changing a parameter and seeing any significant change in the output. Most of the geometry parameters now have a global version which affects all existing rings at once. The global parameters are accessed in the Parameters dialog (View/Parameters) by selecting Edit/Global Params.
 
-<li>In previous versions, Bézier curves were always symmetrical. This version adds two new geometry parameters, called Even Shear and Odd Shear, which allow you to create asymmetrical Bézier curves. The two curve points at each vertex are normally equidistant from the vertex; Shear varies the ratio of these two distances. Even Shear affects even vertices, while Odd Shear affects odd ones. Note that Even Shear does nothing if Even Curve is zero, and Odd Shear does nothing if Odd Curve is zero.
+<li>In previous versions, B&eacute;zier curves were always symmetrical. This version adds two new geometry parameters, called Even Shear and Odd Shear, which allow you to create asymmetrical B&eacute;zier curves. The two curve points at each vertex are normally equidistant from the vertex; Shear varies the ratio of these two distances. Even Shear affects even vertices, while Odd Shear affects odd ones. Note that Even Shear does nothing if Even Curve is zero, and Odd Shear does nothing if Odd Curve is zero.
 
 <li>In previous versions, the Movie Export's codec setting was not saved, which meant the codec had to be reselected (and possibly reconfigured) for every export. Fixed.
 
@@ -65,7 +65,7 @@ Whorld 1.7.06 adds global parameters which affect all rings at once. This versio
 
 <li>In previous versions, moving the origin via MIDI hid the cursor, which was a serious problem in dual-monitor mode. Fixed.
 
-<li>In previous versions, Bézier curves could be unstable due to round-off error, particularly when Star Factor was negative and Pinwheel was non-zero. Fixed.
+<li>In previous versions, B&eacute;zier curves could be unstable due to round-off error, particularly when Star Factor was negative and Pinwheel was non-zero. Fixed.
 
 <li>Panic (Window/Panic or Esc) now clears the screen.
 
@@ -259,7 +259,7 @@ Whorld 1.7.06 adds global parameters which affect all rings at once. This versio
 
 <h3>1.3.00</h3>
 
-<p>This release makes the plugin compatible with version 1.7 of the Whorld application. It adds two new Bézier curve parameters, and fixes a bug that made curves unstable in certain cases; see the application release notes for details.
+<p>This release makes the plugin compatible with version 1.7 of the Whorld application. It adds two new B&eacute;zier curve parameters, and fixes a bug that made curves unstable in certain cases; see the application release notes for details.
 
 <h3>1.2.00</h3>
 
@@ -286,7 +286,7 @@ Whorld 1.7.06 adds global parameters which affect all rings at once. This versio
 <p>This is a maintenance release; it fixes a bug that occurs when curved rings are skewed. This bug was also fixed in version 1.5.12 of the Whorld application.
 
 <ol>
-<li>In previous versions, if the Skew parameter was combined with Bézier curves, the rings would be unexpectedly distorted. The curve points were being calculated using the unskewed origin, which caused the curvature to differ at each vertex. Since the asymmetry was proportional to the amount of skew, large skew values would give the rings a squashed appearance. This is fixed; the Skew parameter now behaves as expected. Note that this fix potentially changes the behavior of existing patches that combine skew with curves.
+<li>In previous versions, if the Skew parameter was combined with B&eacute;zier curves, the rings would be unexpectedly distorted. The curve points were being calculated using the unskewed origin, which caused the curvature to differ at each vertex. Since the asymmetry was proportional to the amount of skew, large skew values would give the rings a squashed appearance. This is fixed; the Skew parameter now behaves as expected. Note that this fix potentially changes the behavior of existing patches that combine skew with curves.
 </ol>
 
 <h3>1.1.01</h3>

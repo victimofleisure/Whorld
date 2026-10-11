@@ -26,6 +26,8 @@
 		16		25mar25	add random origin command
 		17      09apr25	add alpha and background alpha parameters
 		18      11apr25	add antialiasing main property
+		19		08oct26	add mirror flag to STATEDEF
+		20		10oct26	add get origin message
 
         define parameter attributes
 
@@ -194,6 +196,7 @@ RENDERCMDDEF(SET_ZOOM,			dblVal	)	// sets zoom; m_nParam: non-zero for damping, 
 RENDERCMDDEF(SET_ORIGIN,		fltPt	)	// sets origin; m_nParam: non-zero for damping, m_prop: POINTFLOAT ptOrigin
 RENDERCMDDEF(SET_ORIGIN_X,		dblVal	)	// sets origin x-coord; m_nParam: non-zero for damping, m_prop: double
 RENDERCMDDEF(SET_ORIGIN_Y,		dblVal	)	// sets origin y-coord; m_nParam: non-zero for damping, m_prop: double
+RENDERCMDDEF(GET_ORIGIN,		intVal	)	// gets origin, posted to main thread in a Windows message; no parameters
 RENDERCMDDEF(CAPTURE_BITMAP,	szVal	)	// capture a bitmap; m_nParam: image export flags, m_prop: SIZE szImage
 RENDERCMDDEF(CAPTURE_SNAPSHOT,	intVal	)	// capture a snapshot; no parameters
 RENDERCMDDEF(DISPLAY_SNAPSHOT,	byref	)	// display a snapshot; m_nParam: none, m_prop: CSnapshot* pSnapshot
@@ -220,7 +223,8 @@ STATEDEF(	double,	fZoom)			// current zoom, as a scaling factor
 STATEDEF(	int,	nRings)			// number of elements in ring array
 STATEDEF(	bool,	bConvex)		// true if drawing in descending size order
 STATEDEF(	BYTE,	nFlags)			// snapshot flags bitmask; see enum
-STATEDEF(	USHORT,	nReserved)		// reserved, must be zero	
+STATEDEF(	bool,	bMirror)		// true if quad mirrored
+STATEDEF(	BYTE,	nReserved)		// reserved, must be zero	
 
 #undef STATEDEF
 #endif // STATEDEF

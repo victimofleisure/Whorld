@@ -18,6 +18,7 @@
 		08		14mar25	add movie recording and playback
 		09		15mar25	move queue-related methods to separate class
 		10      11apr25	add antialiasing accessor
+		11      08oct26	add quad mirroring
 
 */
 
@@ -52,6 +53,7 @@ protected:
 // Data members
 	CComPtr<ID2D1SolidColorBrush>	m_pBkgndBrush;	// background brush
 	CComPtr<ID2D1SolidColorBrush>	m_pDrawBrush;	// drawing brush
+	CComPtr<ID2D1Bitmap>	m_pMirrorBitmap;	// bitmap for quad mirroring
 	PARAM_VALS	m_params;	// parameters
 	PARAM_VALS	m_globs;	// global parameters
 	GLOB_RING	m_globRing;	// global ring offsets
@@ -88,6 +90,8 @@ protected:
 	CSnapMovie	m_movie;	// snapshot movie for recording and playback
 	bool	m_bIsMoviePaused;	// true if movie playback is paused
 	bool	m_bMovieSingleStep;	// true to single-step movie while it's paused
+	D2D_SIZE_U	m_szMirFrame;	// mirroring frame size in pixels
+	D2D_SIZE_U	m_szMirQuad;	// mirroring quad size in pixels; rounded up
 
 // Overrides
 	virtual	void	OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
@@ -101,6 +105,8 @@ protected:
 	static void		HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate);
 	static double	Wrap(double fVal, double fLimit);
 	static double	Reflect(double fVal, double fLimit);
+	bool	InitMirroring();
+	bool	FinishMirroring();
 	void	UpdateHue(double fDeltaTick);
 	void	OnHueSpanChange();
 	void	SetAntialiasing(bool bEnable);

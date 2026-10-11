@@ -641,6 +641,7 @@ bool CWhorldApp::LoadSnapshot(LPCTSTR pszSnapPath)
 		return false;	// error already handled
 	}
 	SetSnapshotMode(true);	// enter snapshot mode
+	GetDocument()->m_main.bMirror = pSnapshot->m_drawState.bMirror;
 	return m_thrRender.DisplaySnapshot(pSnapshot);	// request render thread to display snapshot
 }
 

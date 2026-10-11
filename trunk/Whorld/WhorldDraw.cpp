@@ -24,6 +24,7 @@
 		14		15mar25	move queue-related methods to separate class
 		15      09apr25	add alpha and background alpha parameters
 		16      11apr25	add antialiasing main property
+		17      08oct26	add quad mirroring
 
 */
 
@@ -98,11 +99,13 @@ void CWhorldDraw::DestroyUserResources()
 {
 	m_pBkgndBrush.Release();
 	m_pDrawBrush.Release();
+	m_pMirrorBitmap.Release();	// drawing method recreates it
 }
 
 void CWhorldDraw::OnResize()
 {
 	m_szTarget = m_pD2DDeviceContext->GetSize();
+	m_pMirrorBitmap.Release();	// drawing method recreates it
 #if _DEBUG
 //	printf("%f %f (%f)\n", m_szTarget.width, m_szTarget.height, m_szTarget.width / m_szTarget.height);//@@@
 #endif
@@ -132,6 +135,86 @@ void CWhorldDraw::HandleError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, L
 void CWhorldDraw::OnError(HRESULT hr, LPCSTR pszSrcFileName, int nLineNum, LPCSTR pszSrcFileDate)
 {
 	HandleError(hr, pszSrcFileName, nLineNum, pszSrcFileDate);	// static method
+}
+
+bool CWhorldDraw::InitMirroring()
+{
+	// Mirroring is a pixel-exact raster operation. The quadrant size is
+	// rounded up so that for odd frame sizes, the center row or column
+	// belongs to both halves. For example, an 801-pixel-wide frame uses
+	// a 401-pixel-wide quadrant, and the halves overlap by one pixel at
+	// the center, achieving near-perfect symmetry without scaling.
+	m_szMirFrame = m_pD2DDeviceContext->GetPixelSize();	// frame size in pixels
+	m_szMirQuad.width = (m_szMirFrame.width + 1) / 2;	// quadrant size; round up
+	m_szMirQuad.height = (m_szMirFrame.height + 1) / 2;
+	// Lazy bitmap creation; bitmap is only created if mirroring is used.
+	if (m_pMirrorBitmap == NULL) {	// if bitmap doesn't exist
+		if (!m_szMirQuad.width || !m_szMirQuad.height)	// if either size is zero
+			return false;	// bitmap size can't be zero; fail silently
+		FLOAT	dpiX, dpiY;
+		m_pD2DDeviceContext->GetDpi(&dpiX, &dpiY);
+		D2D1_PIXEL_FORMAT fmtPix = m_pD2DDeviceContext->GetPixelFormat();
+		CHECK(m_pD2DDeviceContext->CreateBitmap(m_szMirQuad,	// create can fail
+			D2D1::BitmapProperties(fmtPix, dpiX, dpiY), &m_pMirrorBitmap));
+	}
+	// Define the clip in physical pixels rather than DIPs. This avoids
+	// fractional clip boundaries at non-96 DPI and guarantees that the
+	// rendered quadrant exactly matches the intermediate bitmap.
+	D2D1_UNIT_MODE oldUnitMode = m_pD2DDeviceContext->GetUnitMode();
+	m_pD2DDeviceContext->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
+	m_pD2DDeviceContext->PushAxisAlignedClip(	// push clip
+		D2D1::RectF(0, 0, float(m_szMirQuad.width), float(m_szMirQuad.height)),
+		D2D1_ANTIALIAS_MODE_ALIASED);
+	m_pD2DDeviceContext->SetUnitMode(oldUnitMode);
+	return true;
+}
+
+bool CWhorldDraw::FinishMirroring()
+{
+	// Bitmap creation may have failed, in which case no clip was pushed.
+	if (m_pMirrorBitmap == NULL)	// if mirror bitmap doesn't exist
+		return false;	// can't mirror; clip wasn't pushed so don't pop it
+	// No early returns from here to the end of this method.
+	m_pD2DDeviceContext->PopAxisAlignedClip();	// pop clip
+	D2D1_UNIT_MODE oldUnitMode = m_pD2DDeviceContext->GetUnitMode();	// save unit
+	m_pD2DDeviceContext->SetUnitMode(D2D1_UNIT_MODE_PIXELS);	// set unit to pixels
+	D2D1_RECT_U rSrc(D2D1::RectU(0, 0,
+		m_szMirQuad.width, m_szMirQuad.height));
+	// Copy the rendered upper-left quadrant to the intermediate bitmap.
+	HRESULT	hrCopyToBmp = m_pMirrorBitmap->CopyFromRenderTarget(	// copy can fail
+		nullptr, m_pD2DDeviceContext, &rSrc);
+	D2D1_RECT_F rDst(D2D1::RectF(0, 0, 
+		float(m_szMirQuad.width), float(m_szMirQuad.height)));
+	// Use copy blending so mirrored pixels replace the destination exactly, 
+	// instead of compositing; otherwise transparent background color fails.
+	D2D1_PRIMITIVE_BLEND oldBlend = m_pD2DDeviceContext->GetPrimitiveBlend();
+	m_pD2DDeviceContext->SetPrimitiveBlend(D2D1_PRIMITIVE_BLEND_COPY);
+	D2D1::Matrix3x2F oldTransform;
+	m_pD2DDeviceContext->GetTransform(&oldTransform);	// save transform
+	// Reflect across the full frame dimensions, not twice the truncated
+	// half-size. For odd dimensions this causes the center row/column to
+	// overlap by one pixel, matching the V1 mirroring behavior.
+	m_pD2DDeviceContext->SetTransform(	// upper right: horizontal flip
+		D2D1::Matrix3x2F(-1, 0, 0, 1,
+			float(m_szMirFrame.width), 0));
+	m_pD2DDeviceContext->DrawBitmap(m_pMirrorBitmap, rDst, 1.0f,
+		D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+	m_pD2DDeviceContext->SetTransform(	// lower left: vertical flip
+		D2D1::Matrix3x2F(1, 0, 0, -1, 0,
+			float(m_szMirFrame.height)));
+	m_pD2DDeviceContext->DrawBitmap(m_pMirrorBitmap, rDst, 1.0f,
+		D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+	m_pD2DDeviceContext->SetTransform(	// lower right: flip both axes
+		D2D1::Matrix3x2F(-1, 0, 0, -1,
+			float(m_szMirFrame.width), float(m_szMirFrame.height)));
+	m_pD2DDeviceContext->DrawBitmap(m_pMirrorBitmap, rDst, 1.0f,
+		D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+	m_pD2DDeviceContext->SetTransform(oldTransform);	// restore previous transform
+	m_pD2DDeviceContext->SetPrimitiveBlend(oldBlend);	// restore previous blend
+	m_pD2DDeviceContext->SetUnitMode(oldUnitMode);		// restore previous unit
+	// now that state is restored, check for error copying to bitmap
+	CHECK(hrCopyToBmp);
+	return true;
 }
 
 // Drawing
@@ -551,6 +634,10 @@ bool CWhorldDraw::OnDraw()
 			ReadMovieFrame();	// read its next frame
 		}
 	}
+	// after reading movie frame but before any drawing
+	if (m_main.bMirror) {	// if mirroring
+		InitMirroring();	// clip drawing to top left quadrant
+	}
 	m_pD2DDeviceContext->Clear(m_clrBkgnd);	// clear to specified color
 	m_pBkgndBrush->SetColor(m_clrBkgnd);
 	bool	bConvex = m_main.bConvex;
@@ -698,6 +785,9 @@ bool CWhorldDraw::OnDraw()
 		clrPrev = ring.clrCur;
 		bPrevSkipFill = ring.bSkipFill;
 		bPrevCurved = bCurved;
+	}
+	if (m_main.bMirror) {	// if mirroring
+		FinishMirroring();	// copy top left quadrant to the other three
 	}
 	if (!m_bIsPaused) {	// if unpaused
 		if (m_posDel != NULL) {  // if delete requested
@@ -919,8 +1009,9 @@ inline void CWhorldDraw::GetSnapshotDrawState(int nRings, DRAW_STATE& drawState)
 	drawState.clrBkgnd = m_clrBkgnd;
 	drawState.nRings = nRings;
 	drawState.bConvex = m_main.bConvex;
-	drawState.nReserved = 0;
 	drawState.nFlags = 0;
+	drawState.bMirror = m_main.bMirror;
+	drawState.nReserved = 0;
 }
 
 inline int CWhorldDraw::SetSnapshotDrawState(const DRAW_STATE& drawState)
@@ -928,6 +1019,7 @@ inline int CWhorldDraw::SetSnapshotDrawState(const DRAW_STATE& drawState)
 	m_dsSnapshot = drawState;	// copy entire draw state
 	m_clrBkgnd = drawState.clrBkgnd;	// update background color
 	m_main.bConvex = drawState.bConvex;	// update convex flag
+	m_main.bMirror = drawState.bMirror;	// update mirror flag
 	return drawState.nRings;	// return ring count
 }
 

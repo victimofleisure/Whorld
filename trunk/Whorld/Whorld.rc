@@ -102,6 +102,7 @@ BEGIN
     BUTTON      ID_EDIT_UNDO
     BUTTON      ID_EDIT_REDO
     SEPARATOR
+    BUTTON      ID_IMAGE_MIRROR
     BUTTON      ID_IMAGE_FILL
     BUTTON      ID_IMAGE_OUTLINE
     SEPARATOR
@@ -133,6 +134,7 @@ BEGIN
     BUTTON      ID_EDIT_UNDO
     BUTTON      ID_EDIT_REDO
     SEPARATOR
+    BUTTON      ID_IMAGE_MIRROR
     BUTTON      ID_IMAGE_FILL
     BUTTON      ID_IMAGE_OUTLINE
     SEPARATOR
@@ -975,6 +977,7 @@ BEGIN
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_APP_ERR_WAIT_MSG_TIMEOUT "Timeout waiting for message."
 END
 
 STRINGTABLE

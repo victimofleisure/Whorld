@@ -13,6 +13,7 @@
 		03		03mar25	don't touch modified flag while in snapshot mode
 		04      12mar25	get wheel sensitivity from options
 		05      11apr25	add antialiasing main property
+		06		10oct26	in OnSaveDocument, get fresh origin from render thread
 
 */
 
@@ -89,6 +90,8 @@ BOOL CWhorldDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	if (!CDocument::OnSaveDocument(lpszPathName))
 		return false;
+	// GetOrigin can take up to one frame period
+	theApp.m_thrRender.GetOrigin(m_main.dptOrigin);	// get fresh origin from render thread
 	if (!Write(lpszPathName))
 		return false;
 	return true;

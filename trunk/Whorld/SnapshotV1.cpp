@@ -10,6 +10,9 @@
         00      23feb25	initial version
 		01		09mar25	add flags bitmask to drawing state
 		02      11mar25	get target size from options
+		03		08oct26	add mirror flag
+		04		08oct26	fix global ring size check
+		05		08oct26	add ring origin fix for snapshot version 1 or earlier
 
 */
 
@@ -68,16 +71,25 @@ CSnapshot* CSnapshotV1::Read(CFile& fIn)
 	ZeroMemory(&pSnapshot->m_drawState, sizeof(DRAW_STATE));
 	CvtState(drawState, pSnapshot->m_drawState);
 	pSnapshot->m_drawState.nRings = nRings;
-	GLOB_RING_V1	globring;
 	pSnapshot->m_globRing = m_globalRingDefault;
 	if (nVersion > 4) {	// if global parameters are supported
 		int	nGlobRingSize;
 		ar >> nGlobRingSize;
-		if (nRingSize > sizeof(GLOB_RING))
+		if (nGlobRingSize > sizeof(GLOB_RING_V1))
 			ThrowBadFormat(ar);
-		ZeroMemory(&globring, sizeof(GLOB_RING));
+		GLOB_RING_V1	globring;
+		ZeroMemory(&globring, sizeof(GLOB_RING_V1));
 		ar.Read(&globring, nGlobRingSize);
 		CvtGlobRing(globring, pSnapshot->m_globRing);
+	}
+	if (nVersion <= 1) {	// if snapshot version 1 or earlier
+		// mirror origin coordinates are unzoomed and reversed
+		drawState.MirrorOrg.x *= -drawState.Zoom;	// convert to zoomed and non-reversed
+		drawState.MirrorOrg.y *= -drawState.Zoom;
+		// per-ring origins didn't exist, so make them all the same
+		for (int iRing = 0; iRing < nRings; iRing++) {	// for each ring
+			pSnapshot->m_aRing[iRing].ptOrigin = drawState.MirrorOrg;	// set ring origin
+		}
 	}
 	return pSnapshot.Detach();
 }
@@ -124,6 +136,7 @@ void CSnapshotV1::CvtState(const DRAW_STATE_V1& stateOld, DRAW_STATE& stateNew)
 	stateNew.fZoom			= stateOld.Zoom;
 	stateNew.bConvex		= stateOld.Convex;
 	stateNew.nFlags			= CSnapshot::SF_V1;
+	stateNew.bMirror		= stateOld.Mirror;
 }
 
 void CSnapshotV1::CvtGlobRing(const GLOB_RING_V1& grOld, GLOB_RING& grNew)

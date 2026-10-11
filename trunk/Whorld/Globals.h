@@ -19,6 +19,7 @@
 		09		17mar25	add wildcard delete file
 		10		27mar25	add selection range maker
 		11		29mar25	add play patch message
+		12		10oct26	add get origin reply message
 
 */
 
@@ -155,6 +156,7 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_RENDER_TASK_DONE,		// wParam: task ID, lParam: none
 	UWM_SET_DRAW_MODE,			// wParam: mask, lParam: value
 	UWM_PLAY_PATCH,				// wParam: iPatch, lParam: none
+	UWM_GET_ORIGIN_REPLY,		// wParam: double, lParam: double
 };
 
 // undo natter should always be zero in a shipping version

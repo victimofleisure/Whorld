@@ -19,6 +19,7 @@
 		09		15mar25	move queue-related methods here
 		10		25mar25	add random origin command
 		11		11apr25	add class to set and restore antialiasing
+		12		10oct26	add get origin message
 
 */
 
@@ -60,6 +61,7 @@ public:
 	bool	SetOrigin(DPoint ptOrigin, bool bDamping);
 	bool	SetOriginX(double fOriginX, bool bDamping);
 	bool	SetOriginY(double fOriginY, bool bDamping);
+	bool	GetOrigin(DPoint& ptOrigin);
 	bool	CaptureBitmap(UINT nFlags, SIZE szImage);
 	bool	CaptureSnapshot();
 	bool	DisplaySnapshot(const CSnapshot* pSnapshot);
@@ -99,6 +101,10 @@ protected:
 	void	OnMainPropChange();
 	LONG	GetNextTaskID();
 	static CString	RenderCommandToString(const CRenderCmd& cmd);
+	static WPARAM	PackDouble(double d);
+	static double	UnpackDouble(WPARAM w);
+	static bool	WaitForMsg(HWND hWnd, MSG& msg, UINT nMsgID, UINT nTimeout);
+	bool	PushCommand(const CRenderCmd& cmd, MSG& msgReply, UINT nReplyMsgID, UINT nReplyTimeout);
 
 // Command handlers
 	void	OnSetParam(int iParam, double fVal);
@@ -120,6 +126,7 @@ protected:
 	void	OnSetOrigin(DPoint ptOrigin, bool bDamping);
 	void	OnSetOriginX(double fOriginX, bool bDamping);
 	void	OnSetOriginY(double rOriginY, bool bDamping);
+	void	OnGetOrigin();
 	void	OnCaptureBitmap(UINT nFlags, SIZE szImage);
 	void	OnCaptureSnapshot() const;
 	bool	OnDisplaySnapshot(const CSnapshot* pSnapshot);

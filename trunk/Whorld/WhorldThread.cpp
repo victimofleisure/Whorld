@@ -19,6 +19,8 @@
 		09		15mar25	move queue-related methods here
 		10		25mar25	add random origin command
 		11      11apr25	add antialiasing main property
+		12		10oct26	add thread-safe get origin method
+		13		10oct26	add set origin case to OnMainPropChange
 
 */
 
@@ -132,6 +134,18 @@ bool CWhorldThread::SetOriginX(double fOriginX, bool bDamping)
 bool CWhorldThread::SetOriginY(double fOriginY, bool bDamping)
 {
 	return PushCommand(CRenderCmd(RC_SET_ORIGIN_Y, bDamping, fOriginY));
+}
+
+bool CWhorldThread::GetOrigin(DPoint& ptOrigin)
+{
+	const UINT	nReplyTimeout = 1000;	// milliseconds
+	CRenderCmd	cmd(RC_GET_ORIGIN);
+	MSG	msgReply;
+	if (!PushCommand(cmd, msgReply, UWM_GET_ORIGIN_REPLY, nReplyTimeout))
+		return false;
+	// copy origin from received reply to caller's variable
+	ptOrigin = DPoint(UnpackDouble(msgReply.wParam), UnpackDouble(msgReply.lParam));
+	return true;
 }
 
 bool CWhorldThread::CaptureBitmap(UINT nFlags, SIZE szImage)
@@ -277,6 +291,9 @@ void CWhorldThread::OnMasterPropChange(int iProp)
 void CWhorldThread::OnMainPropChange(int iProp)
 {
 	switch (iProp) {
+	case MAIN_Origin:
+		OnSetOrigin(m_main.dptOrigin, false);
+		break;
 	case MAIN_OrgMotion:
 		OnOriginMotionChange();
 		break;
@@ -342,6 +359,48 @@ CString	CWhorldThread::RenderCommandToString(const CRenderCmd& cmd)
 		}
 	}
 	return sRet;
+}
+
+inline WPARAM CWhorldThread::PackDouble(double d)
+{
+	WPARAM	w;
+	memcpy(&w, &d, sizeof(d));
+	return w;
+}
+
+inline double CWhorldThread::UnpackDouble(WPARAM w)
+{
+	double	d;
+	memcpy(&d, &w, sizeof(d));
+	return d;
+}
+
+bool CWhorldThread::WaitForMsg(HWND hWnd, MSG& msg, UINT nMsgID, UINT nTimeout)
+{
+	ULONGLONG	nStartTime = GetTickCount64();	// milliseconds
+	while (!PeekMessage(&msg, hWnd, nMsgID, nMsgID, PM_REMOVE)) {
+		if (GetTickCount64() > nStartTime + nTimeout)	// if timeout exceeded
+			return false;	// fail
+		Sleep(1);	// pause without burning cycles
+	}
+	return true;	// message received
+}
+
+bool CWhorldThread::PushCommand(const CRenderCmd& cmd, MSG& msgReply, UINT nReplyMsgID, UINT nReplyTimeout)
+{
+	HWND	hWnd = m_pNotifyWnd->m_hWnd;
+	while (1) {
+		if (!PushCommand(cmd))
+			return false;
+		if (WaitForMsg(hWnd, msgReply, nReplyMsgID, nReplyTimeout))
+			break;	// success
+		int	nRet = AfxMessageBox(IDS_APP_ERR_WAIT_MSG_TIMEOUT, MB_RETRYCANCEL);
+		if (nRet == IDCANCEL)	// if user canceled
+			return false;
+		// The message could have arrived while we were in AfxMessageBox, 
+		// in which case someone else got it, so push the command again.
+	}
+	return true;	// reply received
 }
 
 inline CWhorldThread::CSetAntialiasing::CSetAntialiasing(bool bEnable)
@@ -491,7 +550,14 @@ DPoint CWhorldThread::GetOrigin() const
 	if (!m_szTarget.width || !m_szTarget.height) {
 		return DPoint(0, 0);	// avoid divide by zero
 	}
-	return DPoint(m_ptOrigin) / m_szTarget + 0.5;
+	return DPoint(m_ptOrigin) / m_szTarget + 0.5;	// normalize
+}
+
+void CWhorldThread::OnGetOrigin()
+{
+	DPoint	ptOrigin(GetOrigin());	// get normalized current origin
+	PostMsgToMainWnd(UWM_GET_ORIGIN_REPLY,	// post origin to main window
+		PackDouble(ptOrigin.x), PackDouble(ptOrigin.y));
 }
 
 void CWhorldThread::OnCaptureBitmap(UINT nFlags, SIZE szImage)
@@ -694,6 +760,9 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_SET_ORIGIN_Y:
 		OnSetOriginY(cmd.m_prop.dblVal, cmd.m_nParam != 0);
+		break;
+	case RC_GET_ORIGIN:
+		OnGetOrigin();
 		break;
 	case RC_CAPTURE_BITMAP:
 		OnCaptureBitmap(cmd.m_nParam, cmd.m_prop.szVal);

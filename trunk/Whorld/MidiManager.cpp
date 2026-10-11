@@ -19,6 +19,7 @@
 		09		25mar25	add random origin target
 		10		29mar25	add patch target
 		11      11apr25	add antialiasing target
+		12      08oct26	implement mirror case
 
 */
 
@@ -231,7 +232,7 @@ void CMidiManager::PushMiscTarget(int iMiscTarget, double fNormVal)
 		PushDrawMode(DM_OUTLINE, fNormVal != 0);
 		break;
 	case MT_Mirror:
-		// not implemented yet
+		PushMainBool(MAIN_Mirror, fNormVal != 0);
 		break;
 	case MT_OriginDrag:
 		PushOriginMotion(fNormVal != 0 ? OM_DRAG : OM_PARK);

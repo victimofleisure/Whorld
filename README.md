@@ -20,7 +20,7 @@ It has been nearly **twenty years** since the last release. The main design goal
 6. Redo the MIDI mapping, to improve usability and flexibility. [done] 
 7. Streamline the application, preserving what’s valuable and discarding what isn’t. [done]
 8. Add transparency (alpha). [done]
-9. Eventually, implement quad mirroring and other visual effects.
+9. Implement quad mirroring [done] and other visual effects.
 
 **Requirements:**
 

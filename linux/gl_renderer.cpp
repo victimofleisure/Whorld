@@ -504,7 +504,11 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
             glViewport(0, 0, fboW_, fboH_);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            glOrtho(0, 1, 1, 0, -1, 1);
+            // y runs bottom-up here, matching the offscreen texture rows, so the
+            // post pass preserves orientation (an invert-only output must not be
+            // vertically mirrored on screen). Mirror modes are centre-symmetric
+            // and stay unchanged.
+            glOrtho(0, 1, 0, 1, -1, 1);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
 
@@ -547,7 +551,8 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
             glViewport(0, 0, fboW_, fboH_);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            glOrtho(0, 1, 1, 0, -1, 1);
+            // See the feedback branch above: bottom-up y keeps orientation.
+            glOrtho(0, 1, 0, 1, -1, 1);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
 

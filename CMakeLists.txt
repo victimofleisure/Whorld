@@ -56,6 +56,16 @@ if(BUILD_TESTING)
     add_test(NAME whorld_playlist_image COMMAND whorld --playlist ${CMAKE_SOURCE_DIR}/linux/demo.whl
         --render ${CMAKE_CURRENT_BINARY_DIR}/test-playlist.png --frames 60 --size 480x360)
 
+    # --render must honour post-processing instead of silently ignoring it.
+    add_test(NAME whorld_post_image COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
+        --mirror quad --render ${CMAKE_CURRENT_BINARY_DIR}/test-mirror.png --frames 30 --size 320x240)
+
+    # CPU-only cairo post-processing unit test (no SDL/OpenGL, so never skipped).
+    add_executable(whorld_post_test linux/test_post.cpp linux/cairo_canvas.cpp)
+    target_link_libraries(whorld_post_test PRIVATE whorld_core PkgConfig::CAIRO)
+    target_compile_options(whorld_post_test PRIVATE -Wall -Wextra)
+    add_test(NAME whorld_post COMMAND whorld_post_test)
+
     add_test(NAME whorld_snapshot_fixture COMMAND whorld_media_test --write-snapshot
         ${CMAKE_CURRENT_BINARY_DIR}/fixture.whs)
     set_tests_properties(whorld_snapshot_fixture PROPERTIES FIXTURES_SETUP whorld_snapshot)

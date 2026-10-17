@@ -4,6 +4,7 @@
 // for kaleidoscope, quad mirroring, color inversion, and feedback trails.
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
+#include "post_process.h"
 #include "whorld_core.h"
 #include <SDL.h>
 #include <cairo/cairo.h>
@@ -11,15 +12,6 @@
 #include <vector>
 
 namespace whorld {
-
-struct PostProcess {
-    int mirrorMode = 0;        // 0: none, 1: 4-way quad mirror, 2: 8-way kaleidoscope, 3: 12-way radial
-    bool invertColor = false;  // invert RGB
-    double feedback = 0.0;     // 0.0 (off) to 0.99
-    double feedbackZoom = 1.0; // zoom for feedback trails (1.0 = none)
-    double feedbackRot = 0.0;  // rotation for feedback trails (0.0 = none)
-    Point center = {0.5, 0.5}; // normalized center
-};
 
 class GlRenderer {
 public:

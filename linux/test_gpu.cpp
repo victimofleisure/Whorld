@@ -46,7 +46,8 @@ Result compare(cairo_surface_t* cairoSurface, const std::vector<unsigned char>& 
 
 // Renders one case with cairo and with OpenGL, then checks the difference.
 bool checkCase(const std::string& name, const Patch& patch, int width, int height, int frames,
-               bool antialias, GlRenderer& gpu, std::string& detail) {
+               bool antialias, GlRenderer& gpu, std::string& detail,
+               const PostProcess& pp = {}) {
     Engine engine;
     engine.setPatch(patch);
     for (int i = 0; i < frames; ++i) {
@@ -59,9 +60,12 @@ bool checkCase(const std::string& name, const Patch& patch, int width, int heigh
     cairo_t* cr = cairo_create(surface);
     drawFrameCairo(cr, frame, width, height, antialias);
     cairo_destroy(cr);
+    // The cairo fallback applies the same mirror/invert post-processing; the
+    // GPU shader is the reference.
+    postProcessCairo(surface, pp);
 
     std::vector<unsigned char> pixels;
-    if (!gpu.renderOffscreen(frame, antialias, width, height, pixels)) {
+    if (!gpu.renderOffscreen(frame, antialias, width, height, pixels, 1.0, pp)) {
         cairo_surface_destroy(surface);
         detail = name + ": GPU render failed";
         return false;
@@ -73,9 +77,15 @@ bool checkCase(const std::string& name, const Patch& patch, int width, int heigh
     std::snprintf(buf, sizeof(buf), "%s: mean=%.3f big=%.3f%% (frames=%d)", name.c_str(), r.mean,
                   r.bigPct, frames);
     detail = buf;
-    // Generous enough for driver differences in MSAA resolve, strict enough to
-    // catch geometry/even-odd regressions (which push the mean well past 5).
-    return r.mean < 4.0 && r.bigPct < 3.0;
+    // Plain cases keep the original strict bound (generous enough for driver
+    // differences in MSAA resolve, strict enough to catch geometry/even-odd
+    // regressions). Mirror/kaleidoscope resampling runs through different
+    // samplers on the two backends (GL_LINEAR vs our CPU bilinear) and folds
+    // many output pixels onto the same source texels, so seams and edges differ
+    // slightly more; the looser post bound still catches a wrong fold or centre
+    // (which pushes the mean well past 6).
+    const bool hasPost = pp.mirrorMode != 0 || pp.invertColor;
+    return hasPost ? (r.mean < 4.5 && r.bigPct < 4.5) : (r.mean < 4.0 && r.bigPct < 3.0);
 }
 
 } // namespace
@@ -125,6 +135,32 @@ int main(int argc, char** argv) {
     flat.antialiasing = false;
     ok = checkCase("hard edges", flat, width, height, 30, false, gpu, detail) && ok;
     std::printf("%s\n", detail.c_str());
+
+    // Post-processing must match the GLSL shader. Mirror modes are tested with
+    // and without colour inversion; the mirrored output is vertically
+    // symmetric, so it is insensitive to the GL framebuffer row order, while an
+    // invert-only case would expose that pre-existing GPU orientation quirk.
+    for (int mode : {1, 2, 3}) {
+        for (bool invert : {false, true}) {
+            PostProcess pp;
+            pp.mirrorMode = mode;
+            pp.invertColor = invert;
+            char name[64];
+            std::snprintf(name, sizeof(name), "mirror mode %d%s", mode,
+                          invert ? " + invert" : "");
+            ok = checkCase(name, patch, width, height, 30, true, gpu, detail, pp) && ok;
+            std::printf("%s\n", detail.c_str());
+        }
+    }
+
+    // Invert-only (no mirror fold) must not be vertically mirrored by the post
+    // pass: a row-order flip shows up on screen and would double-flip feedback.
+    {
+        PostProcess pp;
+        pp.invertColor = true;
+        ok = checkCase("invert only", patch, width, height, 30, true, gpu, detail, pp) && ok;
+        std::printf("%s\n", detail.c_str());
+    }
 
     gpu.shutdown();
     SDL_DestroyWindow(window);

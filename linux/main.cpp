@@ -279,10 +279,16 @@ Surface makeSurface(int w, int h) {
     }
     return Surface(raw, cairo_surface_destroy);
 }
-void image(Engine& engine, const std::string& output, int width, int height) {
+void image(Engine& engine, const std::string& output, int width, int height,
+           const PostProcess& pp = {}) {
     auto surface = makeSurface(width, height);
-    Context cr(cairo_create(surface.get()), cairo_destroy);
-    drawFrameCairo(cr.get(), engine.frame(width, height), width, height, engine.patch.antialiasing);
+    {
+        Context cr(cairo_create(surface.get()), cairo_destroy);
+        drawFrameCairo(cr.get(), engine.frame(width, height), width, height,
+                       engine.patch.antialiasing);
+    }
+    // The shader is the reference; mirror/invert also run on the cairo path.
+    postProcessCairo(surface.get(), pp);
     cairo_surface_flush(surface.get());
     if (cairo_surface_write_to_png(surface.get(), output.c_str()) != CAIRO_STATUS_SUCCESS)
         throw std::runtime_error("Cannot write PNG: " + output);
@@ -619,11 +625,18 @@ int main(int argc, char** argv) {
                     engine.frame(width, height); // mark offscreen rings for deletion
                 }
             }
-            if (rendererMode == "gpu") {
+            const bool wantPost = postProcess.mirrorMode != 0 || postProcess.invertColor ||
+                                  postProcess.feedback > 0.01;
+            // OpenGL offscreen rendering is required for feedback trails and is
+            // preferred in auto mode whenever post-processing is requested, so
+            // --mirror/--invert/--feedback are not silently dropped. --renderer
+            // cairo always uses the cairo path (mirror/invert run on the CPU);
+            // --renderer gpu must use OpenGL or fail.
+            const bool tryGpu = rendererMode == "gpu" || (rendererMode == "auto" && wantPost);
+            bool rendered = false;
+            if (tryGpu && SDL_Init(SDL_INIT_VIDEO) == 0) {
                 // Headless GPU render: render the frame with OpenGL and read it
                 // back, so the GPU path can be compared with the cairo one.
-                if (SDL_Init(SDL_INIT_VIDEO) != 0)
-                    throw std::runtime_error(std::string("SDL initialization failed: ") + SDL_GetError());
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
                 SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -632,21 +645,34 @@ int main(int argc, char** argv) {
                 SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
                 SDL_Window* offscreen = SDL_CreateWindow("whorld-gpu", 0, 0, width, height,
                                                          SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-                if (!offscreen)
-                    throw std::runtime_error(std::string("Cannot create GPU window: ") + SDL_GetError());
                 GlRenderer gpu;
                 std::string glError;
-                if (!gpu.init(offscreen, glError))
-                    throw std::runtime_error("Cannot initialize GPU renderer: " + glError);
-                std::vector<unsigned char> pixels;
-                if (!gpu.renderOffscreen(engine.frame(width, height), engine.patch.antialiasing,
-                                         width, height, pixels, forcedScale > 0 ? forcedScale : 1.0, postProcess))
-                    throw std::runtime_error("GPU render failed");
-                imageBgra(renderFile, pixels, width, height);
-                SDL_DestroyWindow(offscreen);
+                if (offscreen && gpu.init(offscreen, glError)) {
+                    std::vector<unsigned char> pixels;
+                    if (!gpu.renderOffscreen(engine.frame(width, height), engine.patch.antialiasing,
+                                             width, height, pixels, forcedScale > 0 ? forcedScale : 1.0, postProcess))
+                        throw std::runtime_error("GPU render failed");
+                    imageBgra(renderFile, pixels, width, height);
+                    rendered = true;
+                } else if (rendererMode == "gpu") {
+                    // --renderer gpu fails fast when OpenGL is missing.
+                    if (offscreen) SDL_DestroyWindow(offscreen);
+                    SDL_Quit();
+                    throw std::runtime_error(offscreen
+                        ? "Cannot initialize GPU renderer: " + glError
+                        : std::string("Cannot create GPU window: ") + SDL_GetError());
+                }
+                if (offscreen) SDL_DestroyWindow(offscreen);
                 SDL_Quit();
-            } else {
-                image(engine, renderFile, width, height);
+            } else if (tryGpu && rendererMode == "gpu") {
+                throw std::runtime_error(std::string("SDL initialization failed: ") + SDL_GetError());
+            }
+            if (!rendered) {
+                // Feedback trails keep per-frame history, which only the GPU
+                // backend stores; the cairo path cannot reproduce them.
+                if (postProcess.feedback > 0.01)
+                    std::cerr << "whorld: feedback trails require the GPU backend; rendering without them\n";
+                image(engine, renderFile, width, height, postProcess);
             }
             const std::size_t rings = engine.snapshotActive() && !snapshots.empty()
                                     ? snapshots.front().rings.size() : engine.ringCount();
@@ -724,6 +750,7 @@ int main(int argc, char** argv) {
                          rendererMode.c_str());
         bool running = true, paused = false, hidden = false, dragging = false, entering = false;
         bool showPlaylist = false;
+        bool warnedCairoFeedback = false;
         int selected = 0, property = 0, scroll = 0;
         std::string input, status = "Ready", command;
         // Render scale: 1.0 is native resolution. cairo rasterizes at that scale
@@ -1213,9 +1240,18 @@ int main(int argc, char** argv) {
                 const int texW = std::max(1, int(std::lround(cw * renderScale)));
                 const int texH = std::max(1, int(std::lround(height * renderScale)));
                 if (canvas.texW != texW || canvas.texH != texH) resetCanvas(canvas, renderer, texW, texH);
-                Context cr(cairo_create(canvas.surface.get()), cairo_destroy);
-                cairo_scale(cr.get(), double(texW) / cw, double(texH) / height);
-                drawFrameCairo(cr.get(), frame, cw, height, engine.patch.antialiasing);
+                {
+                    Context cr(cairo_create(canvas.surface.get()), cairo_destroy);
+                    cairo_scale(cr.get(), double(texW) / cw, double(texH) / height);
+                    drawFrameCairo(cr.get(), frame, cw, height, engine.patch.antialiasing);
+                }
+                // Mirror/invert on the CPU; feedback trails remain GPU-only.
+                if (postProcess.feedback > 0.01 && !warnedCairoFeedback) {
+                    warnedCairoFeedback = true;
+                    std::cerr << "whorld: feedback trails require the GPU backend; "
+                                 "the cairo canvas ignores them\n";
+                }
+                postProcessCairo(canvas.surface.get(), postProcess);
                 cairo_surface_flush(canvas.surface.get());
                 uploadTexture(canvas.texture, canvas.surface.get());
                 SDL_RenderClear(renderer);

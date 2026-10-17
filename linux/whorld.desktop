@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Whorld
+GenericName=Visualizer
+Comment=Visualizer for sacred geometry
+Exec=whorld
+Icon=whorld
+Terminal=false
+Categories=AudioVideo;Audio;
+Keywords=visualizer;music;generative;psychedelic;
+StartupNotify=true

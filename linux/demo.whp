@@ -1,0 +1,24 @@
+WHORLD4
+RingGrowth	2.8	0	0	0	0.5	0
+RingSpacing	10	0	0	0	0.5	0
+LineWidth	1.6	0	0	0	0.5	0
+PolySides	8	0	0	0	0.5	0
+RotateSpeed	0.0174533	1	0.013	0.12	0.5	0
+AspectRatio	0	0	0	0	0.5	0
+SkewRadius	0	0	0	0	0.5	0
+SkewAngle	0	0	0	0	0.5	0
+StarFactor	1.1	1	0.65	0.08	0.5	0
+Pinwheel	0.25	1	0.6	0.05	0.5	0
+ColorSpeed	0.8	0	0	0	0.5	0
+Lightness	0.56	0	0	0	0.5	0
+Saturation	0.95	0	0	0	0.5	0
+Alpha	0.9	0	0	0	0.5	0
+BkHue	232	0	0	0	0.5	0
+BkLightness	0.07	0	0	0	0.5	0
+BkSaturation	0.6	0	0	0	0.5	0
+BkAlpha	1	0	0	0	0.5	0
+EvenCurve	0.3	0	0	0	0.5	0
+OddCurve	0.15	0	0	0	0.5	0
+DrawMode	1
+Hue	10
+Rings	200

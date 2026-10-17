@@ -1,2 +1,4 @@
 *.user
 *.filters
+/build/
+/_build/

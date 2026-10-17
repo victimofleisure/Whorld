@@ -62,6 +62,15 @@ struct Playlist {
     bool save(const std::string& filename, std::string& error);
     std::string resolvePath(std::size_t index) const;
 };
+// Scales a 0..1 normalized control value onto the mapping's Start..End range
+// (percentages). No universal clamp: inverted/out-of-range ranges are valid, as
+// in mapMidi. Relative-encoder modes reuse this for their running value.
+double applyRange(const Mapping& mapping, double normalized);
+// Maps a pre-normalized 0..1 control value onto every matching mapping. Shares
+// mapMidi's matching and validation semantics but skips value decoding, so the
+// relative-encoder modes can supply their own running value.
+std::vector<MappedAction> mapMidiNormalized(const Playlist& playlist, MidiEvent event,
+                                            int channel, int control, double normalized);
 std::vector<MappedAction> mapMidi(const Playlist& playlist, const MidiMessage& message);
 // Binds (or rebinds) a gamepad control to a target/property, replacing any
 // existing mapping for the same control (mirrors the MIDI learn behaviour).

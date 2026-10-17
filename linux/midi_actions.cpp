@@ -104,4 +104,27 @@ bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playl
     }
     return true;
 }
+double targetAmount(const std::string& target, const std::string& property, const Engine& engine) {
+    for (int i = 0; i < PARAM_COUNT; ++i) {
+        if (target != paramInfo[i].name) continue;
+        if (property != "Val" || paramInfo[i].max == paramInfo[i].min) return NAN;
+        return (engine.patch.params[i].value - paramInfo[i].min) / (paramInfo[i].max - paramInfo[i].min);
+    }
+    for (int i = 0; i < MASTER_COUNT; ++i) {
+        if (target != masterNames[i]) continue;
+        // masterDenorm is monotonic in amount, so bisect its inverse over the
+        // same clamped range applyMidiAction accepts.
+        const double current = engine.patch.master[i];
+        bool increasing = masterDenorm(i, 5.0) >= masterDenorm(i, -5.0);
+        double lo = -5.0, hi = 5.0;
+        for (int n = 0; n < 40; ++n) {
+            const double mid = (lo + hi) / 2;
+            const bool below = masterDenorm(i, mid) < current;
+            if (below == increasing) lo = mid;
+            else hi = mid;
+        }
+        return (lo + hi) / 2;
+    }
+    return NAN;
+}
 } // namespace whorld

@@ -2,6 +2,7 @@
 #include "whorld_core.h"
 #include "playlist.h"
 #include "midi_actions.h"
+#include "midi_decode.h"
 #include "alsa_midi.h"
 #include "snapshot.h"
 #include "gl_renderer.h"
@@ -20,6 +21,7 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -409,6 +411,8 @@ void help() {
     std::cout << "Whorld native Linux port\n"
               << "Usage: whorld [--patch FILE.whp] [--playlist FILE.whl] [--snapshot FILE.whs]\n"
               << "               [--movie FILE.whm] [--midi-source CLIENT:PORT] [--render IMAGE.png]\n"
+              << "               [--midi-mode absolute|14bit|rel-twos|rel-sign|rel-binary]\n"
+              << "               [--midi-takeover] [--list-midi]\n"
               << "               [--movie-out FILE.whm] [--movie-rate FPS] [--movie-frame N]\n"
               << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F]\n"
               << "               [--renderer auto|gpu|cairo]\n"
@@ -421,6 +425,11 @@ void help() {
               << "--invert inverts color channels.\n"
               << "--feedback enables video feedback trails with controllable decay (0.0-0.99).\n"
               << "--v4l2 streams live video to a V4L2 virtual camera device (e.g. /dev/video0).\n"
+              << "--list-midi prints the available ALSA sequencer input sources and exits.\n"
+              << "--midi-mode selects how controller bytes are read (default absolute): 14bit\n"
+              << "        combines MSB/LSB CC pairs; rel-twos/rel-sign/rel-binary decode\n"
+              << "        relative encoders. --midi-takeover ignores an absolute/14-bit control\n"
+              << "        until it is moved to (or past) the target's current value.\n"
               << "--pipe-out streams raw RGB video frames to stdout (-) or a FIFO pipe.\n"
               << "--headless runs offscreen GPU rendering/streaming without an X11 window.\n"
               << "--audio enables microphone/line input; --audio-device picks the ALSA device\n"
@@ -450,18 +459,32 @@ int main(int argc, char** argv) {
         std::string audioDevice;
         double audioGain = 1.0;
         bool audioEnabled = false;
+        bool listMidi = false;
+        MidiInputMode midiMode = MidiInputMode::Absolute;
+        bool midiTakeover = false;
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (arg == "--help" || arg == "-h") { help(); return 0; }
             if (arg == "--invert") { postProcess.invertColor = true; continue; }
             if (arg == "--headless") { headless = true; continue; }
             if (arg == "--audio") { audioEnabled = true; continue; }
+            if (arg == "--list-midi") { listMidi = true; continue; }
+            if (arg == "--midi-takeover") { midiTakeover = true; continue; }
             if (i + 1 >= argc) throw std::runtime_error("Missing value for " + arg);
             std::string value = argv[++i];
             if (arg == "--patch") patchFile = value;
             else if (arg == "--playlist") playlistFile = value;
             else if (arg == "--snapshot") snapshotFile = value;
             else if (arg == "--midi-source") midiSource = value;
+            else if (arg == "--midi-mode") {
+                if (value == "absolute") midiMode = MidiInputMode::Absolute;
+                else if (value == "14bit") midiMode = MidiInputMode::FourteenBit;
+                else if (value == "rel-twos") midiMode = MidiInputMode::RelativeTwosComplement;
+                else if (value == "rel-sign") midiMode = MidiInputMode::RelativeSignMagnitude;
+                else if (value == "rel-binary") midiMode = MidiInputMode::RelativeBinaryOffset;
+                else throw std::runtime_error(
+                    "--midi-mode must be absolute, 14bit, rel-twos, rel-sign or rel-binary");
+            }
             else if (arg == "--render") renderFile = value;
             else if (arg == "--scale") {
                 forcedScale = std::stod(value);
@@ -517,6 +540,20 @@ int main(int argc, char** argv) {
                 width = std::stoi(value.substr(0, x));
                 height = std::stoi(value.substr(x + 1));
             } else throw std::runtime_error("Unknown option " + arg);
+        }
+        if (listMidi) {
+            // Discovery must work without a display and even when the sequencer
+            // is absent, so print a clear message and exit successfully either way.
+            std::vector<std::string> sources;
+            std::string listError;
+            if (!listMidiSources(sources, listError)) {
+                std::cout << "no MIDI sequencer: " << listError << '\n';
+            } else if (sources.empty()) {
+                std::cout << "no ALSA MIDI input sources\n";
+            } else {
+                for (const std::string& source : sources) std::cout << source << '\n';
+            }
+            return 0;
         }
         if (width < 64 || height < 64 || width > 8192 || height > 8192 || frames < 0 || frames > 100000)
             throw std::runtime_error("Invalid image dimensions or frame count");
@@ -768,8 +805,7 @@ int main(int argc, char** argv) {
         double mx = .5, my = .5;
         MidiInput midi;
         std::string midiError;
-        const bool midiReady = midi.open(midiSource, midiError);
-        if (midiReady) status = "MIDI " + midi.portName();
+        if (midi.open(midiSource, midiError)) status = "MIDI " + midi.portName();
         else std::cerr << "whorld: MIDI disabled: " << midiError << '\n';
         // Microphone/line input drives parameters through the [Audio] mappings.
         AudioInput audio;
@@ -810,6 +846,82 @@ int main(int argc, char** argv) {
         auto syncTarget = [&](const std::string& target) {
             if (target == "Mirror") postProcess.mirrorMode = engine.patch.mirror ? 1 : 0;
             else if (target == "InvertColor") postProcess.invertColor = engine.patch.invertColor;
+        };
+        // Per-control MIDI decoding state, kept on the UI thread next to the poll
+        // loop. Absolute mode (the default) uses none of it.
+        std::map<int, int> midiMsb;              // 14-bit: (channel<<7|control) -> MSB
+        std::map<int, double> midiRelative;      // relative: running 0..1 value
+        std::map<int, TakeoverState> midiPickup; // soft takeover per control
+        std::map<int, double> midiLastAmount;    // fallback takeover reference
+        // The first [Mapping] that listens on a CONTROL message, or null.
+        auto midiControlMapping = [&](int channel, int control) -> const Mapping* {
+            for (const Mapping& m : playlist.mappings)
+                if (m.event == "CONTROL" && m.channel == channel && m.control == control) return &m;
+            return nullptr;
+        };
+        auto applyAction = [&](const MappedAction& action) {
+            applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+            syncTarget(action.target);
+            panelDirty = true;
+        };
+        // Decodes one message for the selected input mode and dispatches the
+        // resulting actions. Absolute and 14-bit reuse mapMidi; relative modes
+        // track a running value per mapped control so a delta moves the target
+        // from wherever it already is instead of being read as a position.
+        auto dispatchMidi = [&](MidiMessage message) {
+            if (midiMode == MidiInputMode::FourteenBit && message.event == MidiEvent::Control) {
+                const int key = message.channel * 128 + message.control;
+                if (message.control < 32) { // MSB: remember until the LSB arrives
+                    midiMsb[key] = message.value;
+                    return;
+                }
+                if (message.control < 64) { // LSB: combine into a 14-bit value
+                    const auto it = midiMsb.find(message.channel * 128 + message.control - 32);
+                    message.value = midi14bit(it == midiMsb.end() ? 0 : it->second, message.value);
+                    message.control -= 32;
+                }
+                // 64..127 are normal switches, not value LSBs; fall through and
+                // let mapMidi read them as 7-bit so mapped buttons keep working.
+            }
+            const bool relative = midiMode == MidiInputMode::RelativeTwosComplement ||
+                                  midiMode == MidiInputMode::RelativeSignMagnitude ||
+                                  midiMode == MidiInputMode::RelativeBinaryOffset;
+            if (relative) {
+                if (message.event != MidiEvent::Control) return;
+                const Mapping* mapping = midiControlMapping(message.channel, message.control);
+                if (!mapping) return; // only mapped controls are tracked
+                const int key = message.channel * 128 + message.control;
+                auto running = midiRelative.find(key);
+                if (running == midiRelative.end()) {
+                    // Seed from the target's current position so the first click
+                    // is relative to where the parameter already is.
+                    double seed = 0.5;
+                    const double amount = targetAmount(mapping->target, mapping->property, engine);
+                    const double span = (mapping->end - mapping->start) / 100.0;
+                    if (std::isfinite(amount) && span != 0)
+                        seed = std::clamp((amount - mapping->start / 100.0) / span, 0.0, 1.0);
+                    running = midiRelative.emplace(key, seed).first;
+                }
+                running->second = std::clamp(running->second +
+                                                 relativeDelta(message.value, midiMode) / 127.0, 0.0, 1.0);
+                for (const MappedAction& action : mapMidiNormalized(playlist, message.event,
+                                                                    message.channel, message.control,
+                                                                    running->second))
+                    applyAction(action);
+                return;
+            }
+            for (const MappedAction& action : mapMidi(playlist, message)) {
+                if (midiTakeover) {
+                    // Gate absolute/14-bit controls until the knob reaches (or
+                    // crosses) where the target already is, so it never jumps.
+                    const int key = message.channel * 128 + message.control;
+                    const double current = targetAmount(action.target, action.property, engine);
+                    const double reference = std::isfinite(current) ? current : midiLastAmount[key];
+                    if (!midiPickup[key].accept(action.amount, reference)) continue;
+                    midiLastAmount[key] = action.amount;
+                }
+                applyAction(action);
+            }
         };
         auto canvasWidth = [&] { return width - (hidden ? 0 : sidebar); };
         auto playPatch = [&](int index) {
@@ -1099,8 +1211,15 @@ int main(int argc, char** argv) {
                     engine.patch.orgMotion = OM_DRAG;
                 }
             }
+            // Reconnect a configured source that was missing at launch or whose
+            // subscription dropped. ensureOpen() rate-limits itself, so this is
+            // cheap every frame and never busy-loops.
+            if (!midi.isOpen() && midi.ensureOpen(midiError)) {
+                status = "MIDI reconnected " + midi.portName();
+                panelDirty = true;
+            }
             // Poll MIDI once per frame (previously only ran while dragging).
-            if (midiReady) {
+            if (midi.isOpen()) {
                 for (const MidiMessage& message : midi.poll()) {
                     if (midiLearn) {
                         const std::string target = learnTargetName();
@@ -1118,11 +1237,7 @@ int main(int argc, char** argv) {
                         panelDirty = true;
                         continue;
                     }
-                    for (const MappedAction& action : mapMidi(playlist, message)) {
-                        applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
-                        syncTarget(action.target);
-                        panelDirty = true;
-                    }
+                    dispatchMidi(message);
                 }
             }
             // Gamepad: read the live state each frame (only changed buttons emit).

@@ -4,6 +4,7 @@
 #include <alsa/asoundlib.h>
 #include <algorithm>
 #include <cerrno>
+#include <chrono>
 #include <cstring>
 #include <string>
 #include <unistd.h>
@@ -11,14 +12,67 @@
 namespace whorld {
 namespace {
 constexpr int maxEventsPerPoll = 256;
+// How long to wait between attempts to (re)subscribe a configured source.
+constexpr auto reconnectInterval = std::chrono::seconds(2);
 
 int midi7(int value) { return std::clamp(value, 0, 127); }
 
+std::string sequencerUnavailable() {
+    if (errno == ENOENT) {
+        return "ALSA MIDI sequencer unavailable: /dev/snd/seq is missing "
+               "(enable the ALSA sequencer or load the snd_seq module)";
+    }
+    return std::string("Unable to access /dev/snd/seq: ") + std::strerror(errno);
+}
+
 } // namespace
+
+bool listMidiSources(std::vector<std::string>& sources, std::string& error) {
+    sources.clear();
+    error.clear();
+    if (access("/dev/snd/seq", F_OK) != 0) {
+        error = sequencerUnavailable();
+        return false;
+    }
+    snd_seq_t* seq = nullptr;
+    int rc = snd_seq_open(&seq, "default", SND_SEQ_OPEN_INPUT, 0);
+    if (rc < 0) {
+        error = std::string("Unable to open ALSA MIDI sequencer: ") + snd_strerror(rc);
+        return false;
+    }
+    snd_seq_client_info_t* client = nullptr;
+    snd_seq_port_info_t* port = nullptr;
+    snd_seq_client_info_alloca(&client);
+    snd_seq_port_info_alloca(&port);
+    const int self = snd_seq_client_id(seq);
+    snd_seq_client_info_set_client(client, -1);
+    while (snd_seq_query_next_client(seq, client) >= 0) {
+        const int clientId = snd_seq_client_info_get_client(client);
+        if (clientId == self) continue; // a source cannot read from itself
+        snd_seq_port_info_set_client(port, clientId);
+        snd_seq_port_info_set_port(port, -1);
+        while (snd_seq_query_next_port(seq, port) >= 0) {
+            const unsigned int caps = snd_seq_port_info_get_capability(port);
+            const unsigned int type = snd_seq_port_info_get_type(port);
+            // SND_SEQ_PORT_CAP_READ marks a port others can read from, i.e. a
+            // source we can subscribe to as an input client; the type bit keeps
+            // the sequencer's own System timer/announce ports out of the list.
+            if (!(caps & SND_SEQ_PORT_CAP_READ) || !(type & SND_SEQ_PORT_TYPE_MIDI_GENERIC)) continue;
+            sources.push_back(std::to_string(clientId) + ":" +
+                              std::to_string(snd_seq_port_info_get_port(port)) + "  " +
+                              snd_seq_client_info_get_name(client) + " / " +
+                              snd_seq_port_info_get_name(port));
+        }
+    }
+    snd_seq_close(seq);
+    return true;
+}
 
 struct MidiInput::Impl {
     snd_seq_t* seq = nullptr;
     int port = -1;
+    std::string source; // remembered so a dropped subscription can be retried
+    std::chrono::steady_clock::time_point nextRetry{};
 };
 
 MidiInput::MidiInput() : impl(new Impl) {}
@@ -30,14 +84,16 @@ MidiInput::~MidiInput() {
 
 bool MidiInput::open(const std::string& source, std::string& error) {
     close();
+    impl->source = source;
+    // The first automatic retry waits one interval; open() itself tries now.
+    impl->nextRetry = std::chrono::steady_clock::now() + reconnectInterval;
+    return openSequencer(error);
+}
+
+bool MidiInput::openSequencer(std::string& error) {
     error.clear();
     if (access("/dev/snd/seq", F_OK) != 0) {
-        if (errno == ENOENT) {
-            error = "ALSA MIDI sequencer unavailable: /dev/snd/seq is missing "
-                    "(enable the ALSA sequencer or load the snd_seq module)";
-        } else {
-            error = std::string("Unable to access /dev/snd/seq: ") + std::strerror(errno);
-        }
+        error = sequencerUnavailable();
         return false;
     }
 
@@ -62,22 +118,34 @@ bool MidiInput::open(const std::string& source, std::string& error) {
         return false;
     }
 
-    if (!source.empty()) {
+    if (!impl->source.empty()) {
         snd_seq_addr_t addr{};
-        rc = snd_seq_parse_address(impl->seq, &addr, source.c_str());
+        rc = snd_seq_parse_address(impl->seq, &addr, impl->source.c_str());
         if (rc < 0) {
-            error = std::string("Invalid ALSA MIDI source '") + source + "': " + snd_strerror(rc);
+            error = std::string("Invalid ALSA MIDI source '") + impl->source + "': " + snd_strerror(rc);
             close();
             return false;
         }
         rc = snd_seq_connect_from(impl->seq, impl->port, addr.client, addr.port);
         if (rc < 0) {
-            error = std::string("Unable to subscribe to ALSA MIDI source '") + source + "': " + snd_strerror(rc);
+            error = std::string("Unable to subscribe to ALSA MIDI source '") + impl->source + "': " + snd_strerror(rc);
             close();
             return false;
         }
     }
     return true;
+}
+
+bool MidiInput::ensureOpen(std::string& error) {
+    error.clear();
+    if (impl->seq) return true;
+    // Only a configured source is retried; recreating the virtual port would
+    // change its address and break external subscriptions.
+    if (impl->source.empty()) return false;
+    const auto now = std::chrono::steady_clock::now();
+    if (now < impl->nextRetry) return false;
+    impl->nextRetry = now + reconnectInterval;
+    return openSequencer(error);
 }
 
 void MidiInput::close() {
@@ -86,6 +154,10 @@ void MidiInput::close() {
         impl->seq = nullptr;
     }
     impl->port = -1;
+}
+
+bool MidiInput::isOpen() const {
+    return impl->seq != nullptr;
 }
 
 std::vector<MidiMessage> MidiInput::poll() {

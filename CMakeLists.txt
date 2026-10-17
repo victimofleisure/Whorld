@@ -17,6 +17,7 @@ pkg_check_modules(GL REQUIRED IMPORTED_TARGET gl)
 add_library(whorld_core
     linux/whorld_core.cpp
     linux/playlist.cpp
+    linux/midi_decode.cpp
     linux/snapshot.cpp
     linux/movie.cpp
     linux/midi_actions.cpp
@@ -45,6 +46,10 @@ if(BUILD_TESTING)
     add_executable(whorld_media_test linux/test_media.cpp)
     target_link_libraries(whorld_media_test PRIVATE whorld_core)
     add_test(NAME whorld_media COMMAND whorld_media_test)
+
+    # Discovery degrades gracefully when /dev/snd/seq is missing (prints a clear
+    # message and still exits 0), so this smoke test is reliable without hardware.
+    add_test(NAME whorld_list_midi COMMAND whorld --list-midi)
 
     add_executable(whorld_audio_test linux/test_audio.cpp linux/audio_analysis.cpp)
     target_link_libraries(whorld_audio_test PRIVATE whorld_core)

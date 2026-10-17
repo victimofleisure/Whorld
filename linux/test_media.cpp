@@ -1,6 +1,7 @@
 // Playlist interchange, MIDI mapping and snapshot round trips.
 #include "alsa_midi.h"
 #include "midi_actions.h"
+#include "midi_decode.h"
 #include "movie.h"
 #include "playlist.h"
 #include "snapshot.h"
@@ -98,6 +99,114 @@ int main(int argc, char** argv) {
     require((engine.patch.drawMode & DM_FILL) != 0);
     message.control = 42; // no mapping listens on this control
     require(mapMidi(loaded, message).empty());
+
+    // 14-bit CC decoding, relative-encoder tables and soft takeover are pure
+    // logic in midi_decode, so they run without any hardware.
+    require(midi14bit(0, 0) == 0);
+    require(midi14bit(1, 0) == 128);
+    require(midi14bit(64, 0) == 8192);
+    require(midi14bit(127, 127) == 16383);
+
+    // Relative encoder conventions (documented in midi_decode.h).
+    require(relativeDelta(1, MidiInputMode::RelativeTwosComplement) == 1);
+    require(relativeDelta(63, MidiInputMode::RelativeTwosComplement) == 63);
+    require(relativeDelta(64, MidiInputMode::RelativeTwosComplement) == 0);
+    require(relativeDelta(65, MidiInputMode::RelativeTwosComplement) == -63);
+    require(relativeDelta(127, MidiInputMode::RelativeTwosComplement) == -1);
+    require(relativeDelta(0, MidiInputMode::RelativeTwosComplement) == 0);
+    require(relativeDelta(63, MidiInputMode::RelativeSignMagnitude) == 63);
+    require(relativeDelta(64, MidiInputMode::RelativeSignMagnitude) == 0);
+    require(relativeDelta(65, MidiInputMode::RelativeSignMagnitude) == -1);
+    require(relativeDelta(127, MidiInputMode::RelativeSignMagnitude) == -63);
+    require(relativeDelta(0, MidiInputMode::RelativeBinaryOffset) == -64);
+    require(relativeDelta(63, MidiInputMode::RelativeBinaryOffset) == -1);
+    require(relativeDelta(64, MidiInputMode::RelativeBinaryOffset) == 0);
+    require(relativeDelta(65, MidiInputMode::RelativeBinaryOffset) == 1);
+    require(relativeDelta(127, MidiInputMode::RelativeBinaryOffset) == 63);
+    require(relativeDelta(127, MidiInputMode::Absolute) == 0); // not a relative mode
+
+    // Soft takeover: ignore until the control reaches or crosses the target,
+    // then track it freely.
+    {
+        TakeoverState pickup;
+        require(!pickup.accept(0.10, 0.50));
+        require(!pickup.accept(0.20, 0.50));
+        require(!pickup.accept(0.40, 0.50)); // approaching, not yet crossed
+        require(pickup.accept(0.80, 0.50));  // crossed between samples
+        require(pickup.accept(0.30, 0.50));  // engaged: tracks anywhere
+        require(pickup.accept(0.00, 0.50));
+
+        TakeoverState near;
+        require(near.accept(0.51, 0.50)); // reaches the target within epsilon
+        TakeoverState edge;
+        require(!edge.accept(0.00, 0.50, 0.02));
+        require(edge.accept(0.49, 0.50, 0.02));
+        TakeoverState down;
+        require(!down.accept(0.90, 0.50));
+        require(down.accept(0.20, 0.50)); // crossed downward
+        TakeoverState away;
+        require(!away.accept(0.10, 0.50));
+        require(!away.accept(0.05, 0.50)); // moving away must not engage
+    }
+
+    // applyRange honours Start/End, including reversed ranges, without clamping.
+    {
+        Mapping full;
+        full.start = 0;
+        full.end = 100;
+        require(std::abs(applyRange(full, 0.5) - 0.5) < 1e-9);
+        Mapping reversed;
+        reversed.start = 80;
+        reversed.end = 20;
+        require(std::abs(applyRange(reversed, 0.0) - 0.8) < 1e-9);
+        require(std::abs(applyRange(reversed, 1.0) - 0.2) < 1e-9);
+        require(std::abs(applyRange(reversed, 0.5) - 0.5) < 1e-9);
+        Mapping wide;
+        wide.start = -50;
+        wide.end = 150;
+        require(std::abs(applyRange(wide, 1.0) - 1.5) < 1e-9); // out of range is allowed
+    }
+
+    // A Control message with a 14-bit value normalizes like the pitch wheel;
+    // plain 7-bit values keep the existing dual-range formula.
+    {
+        MidiMessage wide;
+        wide.event = MidiEvent::Control;
+        wide.channel = 0;
+        wide.control = 1;
+        wide.value = 16383;
+        require(std::abs(mapMidi(loaded, wide)[0].amount - 1.0) < 1e-9);
+        wide.value = 8192;
+        require(std::abs(mapMidi(loaded, wide)[0].amount - 0.5) < 1e-9);
+        wide.value = 0;
+        require(std::abs(mapMidi(loaded, wide)[0].amount) < 1e-9);
+        wide.value = 128; // just above zero on the 14-bit scale
+        require(mapMidi(loaded, wide)[0].amount > 0 && mapMidi(loaded, wide)[0].amount < 0.01);
+
+        MidiMessage narrow;
+        narrow.event = MidiEvent::Control;
+        narrow.channel = 0;
+        narrow.control = 1;
+        narrow.value = 127; // the 7-bit path is unchanged
+        require(std::abs(mapMidi(loaded, narrow)[0].amount - 1.0) < 1e-9);
+        narrow.value = 64;
+        require(std::abs(mapMidi(loaded, narrow)[0].amount - 0.5) < 1e-9);
+        narrow.event = MidiEvent::NoteOn; // a 7-bit event still rejects 200
+        narrow.value = 200;
+        require(mapMidi(loaded, narrow).empty());
+    }
+
+    // mapMidiNormalized is the shared core the relative modes use: it takes the
+    // normalized value directly and applies the mapping's range.
+    {
+        Playlist ranged;
+        ranged.mappings.push_back({"CONTROL", 1, 3, "RingGrowth", "Val", 25, 75});
+        const auto half = mapMidiNormalized(ranged, MidiEvent::Control, 1, 3, 0.5);
+        require(half.size() == 1 && std::abs(half[0].amount - 0.5) < 1e-9);
+        const auto top = mapMidiNormalized(ranged, MidiEvent::Control, 1, 3, 1.0);
+        require(std::abs(top[0].amount - 0.75) < 1e-9);
+        require(mapMidiNormalized(ranged, MidiEvent::Control, 1, 4, 0.5).empty());
+    }
 
     // Gamepad and audio mappings round-trip and dispatch to the same targets.
     {

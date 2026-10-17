@@ -494,28 +494,48 @@ std::string Playlist::resolvePath(std::size_t index) const {
     }
 }
 
-std::vector<MappedAction> mapMidi(const Playlist& playlist, const MidiMessage& message) {
+double applyRange(const Mapping& mapping, double normalized) {
+    const double start = mapping.start / 100.0, end = mapping.end / 100.0;
+    // No universal clamp: inverted/out-of-range percentages are legitimate.
+    return normalized * (end - start) + start;
+}
+
+std::vector<MappedAction> mapMidiNormalized(const Playlist& playlist, MidiEvent event,
+                                            int channel, int control, double normalized) {
     std::vector<MappedAction> actions;
-    const auto event = static_cast<std::size_t>(message.event);
-    if (event >= std::size(kEvents) || message.channel < 0 || message.channel > 15 ||
-        message.value < 0 || message.value > (message.event == MidiEvent::Wheel ? 16383 : 127) ||
-        message.control < 0 || message.control > 127)
-        return actions;
+    const auto index = static_cast<std::size_t>(event);
+    if (index >= std::size(kEvents) || channel < 0 || channel > 15) return actions;
     // Whorld's IsInputMatch tests P1 for NOTE_OFF through CONTROL only;
     // PATCH, CHAN_AFT and WHEEL take their value from P1 (or both bytes).
-    const bool hasControl = event <= static_cast<std::size_t>(MidiEvent::Control);
-    const double normalized = message.event == MidiEvent::Wheel
-        ? (message.value <= 8192 ? message.value / 16384.0 : (message.value - 1) / 16382.0)
-        : (message.value <= 64 ? message.value / 128.0 : (message.value - 1) / 126.0);
+    const bool hasControl = index <= static_cast<std::size_t>(MidiEvent::Control);
     for (const auto& m : playlist.mappings) {
-        if (m.event != kEvents[event] || m.channel != message.channel ||
-            (hasControl && m.control != message.control) ||
+        if (m.event != kEvents[index] || m.channel != channel ||
+            (hasControl && m.control != control) ||
             !validTarget(m.target) || !std::isfinite(m.start) || !std::isfinite(m.end)) continue;
-        const double start = m.start / 100.0, end = m.end / 100.0;
-        // No universal clamp: inverted/out-of-range percentages are legitimate.
-        actions.push_back({m.target, m.property, normalized * (end - start) + start});
+        actions.push_back({m.target, m.property, applyRange(m, normalized)});
     }
     return actions;
+}
+
+std::vector<MappedAction> mapMidi(const Playlist& playlist, const MidiMessage& message) {
+    const auto event = static_cast<std::size_t>(message.event);
+    // A Control message carries a 14-bit value when it came from an MSB/LSB pair
+    // (the 14-bit input mode); WHEEL is always 14-bit. Everything else is 7-bit.
+    const bool fourteenBit = message.event == MidiEvent::Wheel || message.event == MidiEvent::Control;
+    if (event >= std::size(kEvents) || message.channel < 0 || message.channel > 15 ||
+        message.value < 0 || message.value > (fourteenBit ? 16383 : 127) ||
+        message.control < 0 || message.control > 127)
+        return {};
+    double normalized;
+    if (fourteenBit && message.value > 127)
+        // Same dual-range shape as the 7-bit formula so both endpoints map to
+        // exactly 0 and 1 despite the asymmetric 0..16383 range.
+        normalized = message.value <= 8192 ? message.value / 16384.0 : (message.value - 1) / 16382.0;
+    else if (message.event == MidiEvent::Wheel)
+        normalized = message.value <= 8192 ? message.value / 16384.0 : (message.value - 1) / 16382.0;
+    else
+        normalized = message.value <= 64 ? message.value / 128.0 : (message.value - 1) / 126.0;
+    return mapMidiNormalized(playlist, message.event, message.channel, message.control, normalized);
 }
 
 std::string midiEventName(MidiEvent event) {

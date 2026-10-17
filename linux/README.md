@@ -20,7 +20,7 @@ Launch from an X11 or Wayland desktop session. For a server or SSH session witho
 ./build/whorld --patch linux/demo.whp --render /tmp/whorld.png --frames 240 --size 1280x720
 ```
 
-Launch any V2 patch with `--patch /path/to/file.whp`. `--playlist linux/demo.whl` opens a demo playlist (it references `demo.whp` plus two CC mappings), `--snapshot file.whs` starts in snapshot view, and `--midi-source CLIENT:PORT` connects an ALSA MIDI source (otherwise only a subscribable input port is created). `--help` lists CLI options. The demo patch and playlist here were created for the port (the upstream checkout does not contain them).
+Launch any V2 patch with `--patch /path/to/file.whp`. `--playlist linux/demo.whl` opens a demo playlist (it references `demo.whp` plus two CC mappings), `--snapshot file.whs` starts in snapshot view, and `--midi-source CLIENT:PORT` connects an ALSA MIDI source (otherwise only a subscribable input port is created); `--midi-mode`/`--midi-takeover` handle 14-bit and relative controllers, and `--list-midi` lists the available sources. `--help` lists CLI options. The demo patch and playlist here were created for the port (the upstream checkout does not contain them).
 
 ### Movies
 
@@ -56,7 +56,7 @@ Whorld has always accepted ALSA MIDI; this port adds gamepads and audio-reactive
 
 ### MIDI controllers
 
-`--midi-source CLIENT:PORT` connects an ALSA MIDI source (find it with `aconnect -l`); run without it and patch into the created `Whorld:MIDI Input` port instead (`aconnect CLIENT:PORT Whorld:0`). Mappings live in the open playlist's `[Mapping\N]` sections:
+`--midi-source CLIENT:PORT` connects an ALSA MIDI source; run without it and patch into the created `Whorld:MIDI Input` port instead (`aconnect CLIENT:PORT Whorld:0`). Use `--list-midi` to print the available ALSA sequencer input sources (`client:port` plus names) and exit. When `--midi-source` is given, Whorld retries the subscription every couple of seconds, so a device that is unplugged and replugged (or that was missing at launch) reattaches automatically; the status bar reports the reconnection. Mappings live in the open playlist's `[Mapping\N]` sections:
 
 ```ini
 [Mapping\0]
@@ -83,7 +83,17 @@ The mappable surface is **65 targets**: 35 parameters (each with the six propert
 | Sweet spot | 16 | 16 | 0-8 | all the expressive parameters and most BOOL/action targets |
 | Complete | 24 | 24+ | 8-9 | the 35 parameters, 10 masters and 20 misc targets, all live |
 
-Whorld reads the raw CC value (0-127) as **absolute**, so faders, pots and absolute-mode encoders work; a controller that emits *relative* encoder deltas would be misread. Pads/buttons may send Note On/Off or CC (every `Event` type above is accepted).
+By default Whorld reads the raw CC value (0-127) as **absolute**, so faders, pots and absolute-mode encoders work unchanged. `--midi-mode` selects other decoders:
+
+| `--midi-mode` | Reads | Use for |
+| --- | --- | --- |
+| `absolute` (default) | CC 0-127 as a position | faders, pots, absolute-mode encoders |
+| `14bit` | MSB (CC 0-31) + LSB (CC 32-63) as 0-16383 | high-resolution faders/knobs |
+| `rel-twos` | two's-complement encoder deltas | relative encoders reporting `1..63` / `65..127` |
+| `rel-sign` | sign-magnitude encoder deltas (bit 6 is the sign) | encoders using a sign bit |
+| `rel-binary` | binary-offset encoder deltas (`64` = 0) | encoders offset around 64 |
+
+`--midi-takeover` adds **soft takeover** (pickup) for absolute and 14-bit controls: a control that has not reached the target's current value yet is ignored, so switching a fader onto a parameter never makes it jump; it engages as soon as the control is moved to (or past) that value and then tracks normally. Relative modes are inherently relative and ignore takeover. Pads/buttons may send Note On/Off or CC (every `Event` type above is accepted).
 
 Control input goes through the ALSA sequencer, so **any USB-MIDI class-compliant device works with no per-device driver** — the kernel's `snd-usb-audio` module binds it and it appears in `aconnect -l`. Only the *optional* configuration editors differ by platform:
 
@@ -99,7 +109,7 @@ Control input goes through the ALSA sequencer, so **any USB-MIDI class-compliant
 
 **MIDI learn makes the editors optional.** Because **Ctrl+M** binds whatever a control sends, you can wire up a fixed-map box (MIDImix, nanoKONTROL2) or an unknown default map entirely from the Whorld side. An editor is only needed to change the *controller's own* CC numbers, LED behaviour or encoder mode — most relevant for the Twister (confirm it is in absolute CC mode).
 
-No device auto-connects: after plugging in, run `aconnect 'Device':0 Whorld:0`, or launch with `--midi-source 'Device':0` (both numeric `24:0` and named addresses work). Re-run `aconnect` after a hotplug.
+No device auto-connects: after plugging in, run `aconnect 'Device':0 Whorld:0`, or launch with `--midi-source 'Device':0` (both numeric `24:0` and named addresses work). With `--midi-source` Whorld re-subscribes automatically after a hotplug, so `aconnect` does not need re-running.
 
 Verified on the port's reference machine (Ubuntu, kernel 6.8): `snd-usb-audio` and `snd-seq-midi` are available (`CONFIG_SND_USB_AUDIO_MIDI_V2=y`), `/dev/snd/seq` is present, and `--midi-source` accepts numeric and named ALSA addresses.
 
@@ -163,6 +173,6 @@ That puts the binary in `~/.local/bin` (add it to `PATH` if the launcher does no
 
 Live geometry, straight and curved rings, shape primitives (`linux/shape_def.h`: polygon, circle, square, triangle, star, cross, line), color and alpha, `.whp` load/save, basic parameter editing, fullscreen and PNG output are supported. Playlists (`.whl`), snapshots (`.whs`), snapshot viewing, WHM2 movies (`.whm`, record/playback/single-frame render) and ALSA MIDI input are supported; see `linux/playlist.cpp`, `linux/snapshot.cpp`, `linux/movie.cpp`, `linux/midi_actions.cpp` and `linux/alsa_midi.cpp`. Canvas rendering runs on the GPU through OpenGL when available (`linux/gl_renderer.cpp`) with a Cairo fallback (`linux/cairo_canvas.cpp`). The full Windows docking UI is **not** ported yet. The Cairo fallback runs on the CPU and can be slower than Direct2D at high ring counts; select the OpenGL backend for those. `Mirror` (off, 4-way quad mirror, 8-way kaleidoscope, and 12-way radial modes) and `InvertColor` are now rendered via GLSL post-processing shaders (`linux/gl_renderer.cpp`), alongside configurable video feedback trails (`--feedback 0.0-0.99`, `--feedback-zoom`, `--feedback-rot`). Real-time inter-service video streaming is supported via V4L2 virtual cameras (`--v4l2 /dev/video0`) and raw RGB pipes (`--pipe-out`). Headless offscreen GPU rendering/streaming is supported via `--headless`. Patches, playlists, snapshots and movies from an untrusted source are validated and size-bounded to keep malformed values from hanging the application.
 
-Tests: `whorld_core` (patch/mapping math), `whorld_media` (playlist, MIDI/gamepad/audio mappings, snapshot and movie round trips), `whorld_audio` (FFT band analysis), the headless PNG renders `whorld_image`, `whorld_playlist_image`, `whorld_snapshot_image` and `whorld_movie_frame`, the movie recording test `whorld_movie`, and `whorld_gpu` (which renders the demo patch with both backends and fails if the OpenGL output diverges from Cairo; it skips when no OpenGL context is available). All are driven by CTest.
+Tests: `whorld_core` (patch/mapping math), `whorld_media` (playlist, MIDI/14-bit/relative-encoder/soft-takeover logic, gamepad/audio mappings, snapshot and movie round trips), `whorld_audio` (FFT band analysis), the headless PNG renders `whorld_image`, `whorld_playlist_image`, `whorld_snapshot_image` and `whorld_movie_frame`, the movie recording test `whorld_movie`, the `whorld_list_midi` discovery smoke test, and `whorld_gpu` (which renders the demo patch with both backends and fails if the OpenGL output diverges from Cairo; it skips when no OpenGL context is available). All are driven by CTest.
 
 The upstream license is GPL; see `../LICENSE`.

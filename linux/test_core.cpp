@@ -210,5 +210,39 @@ int main() {
             require(r.shape.primitive == PRIM_Polygon);
         }
     }
+    // Reproducible randomized oscillator phases: two engines built from the same
+    // patch emit the same geometry until one is randomized, after which they
+    // diverge because every LFO starts from a fresh phase.
+    {
+        Patch phase;
+        phase.params[PARAM_RingGrowth].value = 4;
+        phase.params[PARAM_RingGrowth].amp = 2;
+        phase.params[PARAM_RingGrowth].freq = 3;
+        phase.params[PARAM_BkLightness].value = .5;
+        phase.params[PARAM_BkLightness].amp = .3;
+        phase.params[PARAM_BkLightness].freq = 3;
+        phase.master[MASTER_Rings] = 10;
+        Engine control, randomized;
+        control.setPatch(phase);
+        randomized.setPatch(phase);
+        for (int i = 0; i < 10; ++i) { control.tick(400, 300); randomized.tick(400, 300); }
+        // Square distance from the frame center, so a symmetry-preserving radius
+        // change (which cancels in a naive coordinate sum) still registers.
+        const auto sum = [](const Frame& f) {
+            double v = f.background.r + f.background.g + f.background.b;
+            for (const Shape& s : f.shapes)
+                for (const Segment& seg : s.outer.segments) {
+                    const double dx = seg.end.x - 200, dy = seg.end.y - 150;
+                    v += dx * dx + dy * dy;
+                }
+            return v;
+        };
+        require(control.ringCount() > 0 && randomized.ringCount() > 0);
+        require(sum(control.frame(400, 300)) == sum(randomized.frame(400, 300)));
+        randomized.randomizePhase();
+        control.tick(400, 300);
+        randomized.tick(400, 300);
+        require(sum(control.frame(400, 300)) != sum(randomized.frame(400, 300)));
+    }
     std::cout << "Whorld patch roundtrip and animated geometry OK\n";
 }

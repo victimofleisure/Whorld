@@ -63,6 +63,13 @@ struct Playlist {
     std::string resolvePath(std::size_t index) const;
 };
 std::vector<MappedAction> mapMidi(const Playlist& playlist, const MidiMessage& message);
+// Binds (or rebinds) a gamepad control to a target/property, replacing any
+// existing mapping for the same control (mirrors the MIDI learn behaviour).
+void learnGamepad(Playlist& playlist, const std::string& control, const std::string& target,
+                  const std::string& property);
+// The name of a gamepad control by combined index: axes [0, GP_AXIS_COUNT) then
+// buttons. Returns "" for an out-of-range index. Used to name a learned control.
+const char* gamepadControlName(int index);
 // `previous` is only consulted for momentary targets, which fire once per press.
 std::vector<MappedAction> mapGamepad(const Playlist& playlist, const GamepadState& current,
                                      const GamepadState& previous);

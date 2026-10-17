@@ -64,7 +64,8 @@ bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playl
     else if (target == "OriginY") p.origin.y = amount;
     else if (target == "Fill") engine.setDrawMode(enabled ? p.drawMode | DM_FILL : p.drawMode & ~DM_FILL);
     else if (target == "Outline") engine.setDrawMode(enabled ? p.drawMode | DM_OUTLINE : p.drawMode & ~DM_OUTLINE);
-    else if (target == "Mirror") p.mirror = enabled; // upstream also leaves rendering unimplemented
+    else if (target == "Mirror") p.mirror = enabled; // main syncs postProcess.mirrorMode
+    else if (target == "InvertColor") p.invertColor = enabled; // main syncs postProcess.invertColor
     else if (target == "OriginDrag") p.orgMotion = enabled ? OM_DRAG : OM_PARK;
     else if (target == "OriginRandom") p.orgMotion = enabled ? OM_RANDOM : OM_PARK;
     else if (target == "Reverse") p.reverse = enabled;
@@ -87,7 +88,8 @@ bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playl
             status = std::string("Shape: ") + primitiveNames[prim];
         }
     } else if (target == "RandomPhase") {
-        status = "Random oscillator phase not yet supported";
+        engine.randomizePhase();
+        status = "Random oscillator phase";
     } else if (target == "Patch") {
         int index = static_cast<int>(std::lround(amount * 127));
         if (index < 0 || index >= static_cast<int>(playlist.patches.size())) {

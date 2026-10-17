@@ -174,6 +174,96 @@ int main(int argc, char** argv) {
         require(defaults.save((dir / "default-audio.whl").string(), error));
     }
 
+    // Port-local targets: Mirror and InvertColor dispatch to the patch (the
+    // frontend then syncs them into the renderer's post-processing state).
+    {
+        Engine fx;
+        fx.setPatch(patch);
+        Playlist none;
+        bool fp = false;
+        int fc = 0;
+        std::string fs;
+        require(applyMidiAction({"Mirror", "Val", 100}, fx, none, fp, fc, fs));
+        require(fx.patch.mirror);
+        require(applyMidiAction({"Mirror", "Val", 0}, fx, none, fp, fc, fs));
+        require(!fx.patch.mirror);
+        require(applyMidiAction({"InvertColor", "Val", 100}, fx, none, fp, fc, fs));
+        require(fx.patch.invertColor);
+        require(applyMidiAction({"InvertColor", "Val", 0}, fx, none, fp, fc, fs));
+        require(!fx.patch.invertColor);
+    }
+
+    // Gamepad learn binds a control and replaces any prior mapping for it.
+    {
+        Playlist learned;
+        learnGamepad(learned, "A", "Clear", "Val");
+        require(learned.gamepadMappings.size() == 1);
+        require(learned.gamepadMappings[0].control == "A" && learned.gamepadMappings[0].target == "Clear");
+        learnGamepad(learned, "A", "Pause", "Val");
+        require(learned.gamepadMappings.size() == 1 && learned.gamepadMappings[0].target == "Pause");
+        learnGamepad(learned, "LX", "Zoom", "Val");
+        require(learned.gamepadMappings.size() == 2);
+        const std::string learnedPath = (dir / "learned.whl").string();
+        require(learned.save(learnedPath, error));
+        Playlist reloadedLearn;
+        require(reloadedLearn.load(learnedPath, error));
+        require(reloadedLearn.gamepadMappings.size() == 2);
+        require(reloadedLearn.gamepadMappings[0].control == "A" &&
+                reloadedLearn.gamepadMappings[0].target == "Pause");
+        require(reloadedLearn.gamepadMappings[1].control == "LX");
+        // Combined control index: axes first, then buttons.
+        require(std::string(gamepadControlName(0)) == "LX");
+        require(std::string(gamepadControlName(GP_AXIS_COUNT + GP_A)) == "A");
+        require(std::string(gamepadControlName(-1)).empty());
+    }
+
+    // InvertColor is a valid target in both MIDI and gamepad sections.
+    {
+        Playlist invert;
+        invert.mappings.push_back({"CONTROL", 0, 5, "InvertColor", "Val", 0, 100});
+        invert.gamepadMappings.push_back({"X", "InvertColor", "Val", 0, 100});
+        const std::string invertPath = (dir / "invert.whl").string();
+        require(invert.save(invertPath, error));
+        Playlist reloadedInvert;
+        require(reloadedInvert.load(invertPath, error));
+        require(reloadedInvert.mappings.size() == 1 && reloadedInvert.mappings[0].target == "InvertColor");
+        require(reloadedInvert.gamepadMappings.size() == 1 &&
+                reloadedInvert.gamepadMappings[0].target == "InvertColor");
+    }
+
+    // RandomPhase is accepted and changes the emitted frame, matching upstream's
+    // randomize-modulator-phases action.
+    {
+        Patch phasePatch;
+        phasePatch.params[PARAM_RingGrowth].value = 4;
+        phasePatch.params[PARAM_RingGrowth].amp = 2;
+        phasePatch.params[PARAM_RingGrowth].freq = 3;
+        phasePatch.params[PARAM_BkLightness].value = .5;
+        phasePatch.params[PARAM_BkLightness].amp = .3;
+        phasePatch.params[PARAM_BkLightness].freq = 3;
+        phasePatch.master[MASTER_Rings] = 10;
+        Engine randomized, untouched;
+        randomized.setPatch(phasePatch);
+        untouched.setPatch(phasePatch);
+        Playlist none;
+        bool rp = false;
+        int rc = 0;
+        std::string rs;
+        require(applyMidiAction({"RandomPhase", "Val", 100}, randomized, none, rp, rc, rs));
+        const auto sum = [](const Frame& f) {
+            double v = f.background.r + f.background.g + f.background.b;
+            for (const Shape& shape : f.shapes)
+                for (const Segment& seg : shape.outer.segments) {
+                    const double dx = seg.end.x - 200, dy = seg.end.y - 150;
+                    v += dx * dx + dy * dy;
+                }
+            return v;
+        };
+        for (int i = 0; i < 10; ++i) { randomized.tick(400, 300); untouched.tick(400, 300); }
+        require(randomized.ringCount() > 0 && untouched.ringCount() > 0);
+        require(sum(randomized.frame(400, 300)) != sum(untouched.frame(400, 300)));
+    }
+
     // Ranges may be hand-written as plain decimals (as the README shows), not
     // only as the packed binary doubles that save() emits.
     {

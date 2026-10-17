@@ -367,6 +367,18 @@ GamepadState readGamepad(SDL_GameController* c) {
         s.button[i] = SDL_GameControllerGetButton(c, kButtons[i]) != 0;
     return s;
 }
+// Returns the combined index of the first control actuated since `previous`:
+// an axis crossed the learn deadzone, or a button changed state. Axes occupy
+// [0, GP_AXIS_COUNT), buttons follow; returns -1 when nothing moved.
+int gamepadLearnControl(const GamepadState& current, const GamepadState& previous) {
+    constexpr double deadzone = 0.5;
+    for (int i = 0; i < GP_AXIS_COUNT; ++i)
+        if (std::abs(current.axis[i]) > deadzone && std::abs(previous.axis[i]) <= deadzone)
+            return i;
+    for (int i = 0; i < GP_BUTTON_COUNT; ++i)
+        if (current.button[i] != previous.button[i]) return GP_AXIS_COUNT + i;
+    return -1;
+}
 // Bind (or rebind) the input that produced `message` to a target/property. One
 // control drives one target, so any previous mapping for the same input is
 // replaced (matching how MIDI learn behaves in the Windows app).
@@ -766,6 +778,12 @@ int main(int argc, char** argv) {
             const PanelRow& row = rows[selected];
             return row.master ? masterNames[row.index] : paramInfo[row.index].name;
         };
+        // Mirror/InvertColor are rendered by the post-process shader, whose state
+        // is a copy of the patch, so a mapped change must be pushed across.
+        auto syncTarget = [&](const std::string& target) {
+            if (target == "Mirror") postProcess.mirrorMode = engine.patch.mirror ? 1 : 0;
+            else if (target == "InvertColor") postProcess.invertColor = engine.patch.invertColor;
+        };
         auto canvasWidth = [&] { return width - (hidden ? 0 : sidebar); };
         auto playPatch = [&](int index) {
             if (index < 0 || index >= static_cast<int>(playlist.patches.size())) {
@@ -1075,25 +1093,47 @@ int main(int argc, char** argv) {
                     }
                     for (const MappedAction& action : mapMidi(playlist, message)) {
                         applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                        syncTarget(action.target);
                         panelDirty = true;
                     }
                 }
             }
             // Gamepad: read the live state each frame (only changed buttons emit).
-            if (controller && !playlist.gamepadMappings.empty()) {
+            // Poll while learning too, even with no mappings, or learn never fires.
+            if (controller && (midiLearn || !playlist.gamepadMappings.empty())) {
                 SDL_GameControllerUpdate();
                 const GamepadState current = readGamepad(controller);
-                for (const MappedAction& action : mapGamepad(playlist, current, gamepadPrev)) {
-                    applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
-                    panelDirty = true;
+                if (midiLearn) {
+                    const int control = gamepadLearnControl(current, gamepadPrev);
+                    if (control >= 0) {
+                        const std::string target = learnTargetName();
+                        if (!target.empty()) {
+                            const auto rows = panelRows(engine.patch);
+                            const bool master = selected >= 0 && selected < static_cast<int>(rows.size()) &&
+                                                rows[selected].master;
+                            const std::string name = gamepadControlName(control);
+                            learnGamepad(playlist, name, target, master ? "Val" : kProps[property]);
+                            status = "Learned " + name + " -> " + target;
+                            panelDirty = true;
+                        }
+                        midiLearn = false; // a learned control must not also fire its action
+                    }
+                } else {
+                    for (const MappedAction& action : mapGamepad(playlist, current, gamepadPrev)) {
+                        applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                        syncTarget(action.target);
+                        panelDirty = true;
+                    }
                 }
                 gamepadPrev = current;
             }
             // Audio: continuously map level/bands onto the configured targets.
             if (audioReady) {
                 audio.poll();
-                for (const MappedAction& action : mapAudio(playlist, audio.features()))
+                for (const MappedAction& action : mapAudio(playlist, audio.features())) {
                     applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                    syncTarget(action.target);
+                }
             }
             int left = hidden ? 0 : sidebar;
             int cw = width - left;

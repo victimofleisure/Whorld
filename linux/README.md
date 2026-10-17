@@ -75,13 +75,13 @@ End=100
 
 ### Choosing MIDI hardware
 
-The mappable surface is **64 targets**: 35 parameters (each with the six properties `Val`/`Wave`/`Amp`/`Freq`/`PW`/`Global`), 10 masters (`Speed`, `Zoom`, `Damping`, `Trail`, `Rings`, `Tempo`, `HueSpan`, `CanvasScale`, `Copies`, `Spread`) and 19 misc targets (`OriginX/Y`, `Fill`, `Outline`, `Mirror`, `OriginDrag`, `OriginRandom`, `Reverse`, `Convex`, `LoopHue`, `ZoomCenter`, `Antialiasing`, `RandomPhase`, `RandomOrigin`, `Clear`, `Pause`, `Patch`, `NextShape`, `PrevShape`). One physical control drives one `(target, property)` pair, so a "complete" surface is ~64 controls -- but mappings are saved per playlist and re-learned at runtime, so a small surface is re-used across playlists and layers/banks multiply it.
+The mappable surface is **65 targets**: 35 parameters (each with the six properties `Val`/`Wave`/`Amp`/`Freq`/`PW`/`Global`), 10 masters (`Speed`, `Zoom`, `Damping`, `Trail`, `Rings`, `Tempo`, `HueSpan`, `CanvasScale`, `Copies`, `Spread`) and 20 misc targets (`OriginX/Y`, `Fill`, `Outline`, `Mirror`, `OriginDrag`, `OriginRandom`, `Reverse`, `Convex`, `LoopHue`, `ZoomCenter`, `Antialiasing`, `RandomPhase`, `RandomOrigin`, `Clear`, `Pause`, `Patch`, `NextShape`, `PrevShape`, `InvertColor`). One physical control drives one `(target, property)` pair, so a "complete" surface is ~65 controls -- but mappings are saved per playlist and re-learned at runtime, so a small surface is re-used across playlists and layers/banks multiply it.
 
 | Tier | Knobs | Buttons/pads | Faders | Covers |
 | --- | --- | --- | --- | --- |
 | Minimum | 8 | 8 | 0-8 | a core live set (~8 parameters plus Pause/Clear/Fill/Mirror) |
 | Sweet spot | 16 | 16 | 0-8 | all the expressive parameters and most BOOL/action targets |
-| Complete | 24 | 24+ | 8-9 | the 35 parameters, 10 masters and 17 misc targets, all live |
+| Complete | 24 | 24+ | 8-9 | the 35 parameters, 10 masters and 20 misc targets, all live |
 
 Whorld reads the raw CC value (0-127) as **absolute**, so faders, pots and absolute-mode encoders work; a controller that emits *relative* encoder deltas would be misread. Pads/buttons may send Note On/Off or CC (every `Event` type above is accepted).
 
@@ -117,6 +117,8 @@ End=80
 ```
 
 `Control` is an axis (`LX`, `LY`, `RX`, `RY`, `LTrigger`, `RTrigger`) or a button (`A`, `B`, `X`, `Y`, `LB`, `RB`, `Back`, `Start`, `Guide`, `LStick`, `RStick`, `DPadUp`, `DPadDown`, `DPadLeft`, `DPadRight`). Axes are continuous (sticks run -1..1 and span `Start`..`End`); buttons act on their edges, so one bound to `Clear`/`Pause`/`Patch` fires once per press and one bound to `Fill`/`Outline` stays on while held.
+
+**Gamepad learn:** the same **Ctrl+M** used for MIDI also learns gamepads. Select a parameter or master row, press **Ctrl+M**, then move a stick past its deadzone or press a button; the control is bound to that row's current Tab property, replacing any previous mapping for the same control, and the mapped action does not also fire on the learn frame. **Ctrl+Shift+M** still forgets the mappings for the selected row, and **Ctrl+Shift+S** saves the playlist to keep them.
 
 ### Microphone / line input (audio-reactive)
 

@@ -83,6 +83,9 @@ public:
     void setPatch(const Patch& next); // retains existing rings, like upstream
     void setDrawMode(int mode); // changes existing rings too
     void clear();
+    // Gives every oscillator a fresh random phase, like upstream's
+    // Random Phase action. Deterministic for a given engine (uses its RNG).
+    void randomizePhase();
     void tick(int width, int height, double mouseX = 0.5, double mouseY = 0.5);
     Frame frame(int width, int height); // calculates visibility and returns ordered geometry
     std::size_t ringCount() const;

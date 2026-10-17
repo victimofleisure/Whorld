@@ -46,8 +46,9 @@ const char* const kMasters[] = {
 const char* const kMisc[] = {
 #define MAPPINGDEF_MISC_TARGET(name, type) #name,
 #include "../trunk/Whorld/MappingDef.h"
-    // Port-local actions: step the active shape primitive from a button.
-    "NextShape", "PrevShape",
+    // Port-local actions: step the active shape primitive from a button, and a
+    // mappable color-inversion toggle (upstream only exposes it as a main bool).
+    "NextShape", "PrevShape", "InvertColor",
 };
 const char* const kProperties[] = {
 #define PARAMPROPDEF(name, type, prefix, variant) #name,
@@ -526,6 +527,28 @@ bool momentaryTarget(const std::string& target) {
     return target == "Clear" || target == "RandomOrigin" || target == "RandomPhase" ||
            target == "Pause" || target == "Patch" || target == "NextShape" ||
            target == "PrevShape";
+}
+
+const char* gamepadControlName(int index) {
+    return index >= 0 && index < GP_AXIS_COUNT + GP_BUTTON_COUNT ? kGamepadControls[index] : "";
+}
+
+// Binds (or rebinds) the gamepad control that produced a learn event to a
+// target/property. One control drives one target, so any previous mapping for
+// the same control is replaced (matching learnMidi and the Windows app).
+void learnGamepad(Playlist& playlist, const std::string& control, const std::string& target,
+                  const std::string& property) {
+    playlist.gamepadMappings.erase(std::remove_if(playlist.gamepadMappings.begin(),
+        playlist.gamepadMappings.end(),
+        [&](const GamepadMapping& m) { return m.control == control; }),
+        playlist.gamepadMappings.end());
+    GamepadMapping m;
+    m.control = control;
+    m.target = target;
+    m.property = property;
+    m.start = 0;
+    m.end = 100;
+    playlist.gamepadMappings.push_back(std::move(m));
 }
 
 std::vector<MappedAction> mapGamepad(const Playlist& playlist, const GamepadState& current,

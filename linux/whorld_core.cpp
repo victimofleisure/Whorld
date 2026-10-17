@@ -92,17 +92,18 @@ double random01(uint32_t& state) {
     return double(state) / double(std::numeric_limits<uint32_t>::max());
 }
 struct Oscillator {
-    double clock = 0, frequency = 0, previousPhase = 0, randomValue = 0, previousValue = 0;
+    double clock = 0, frequency = 0, previousPhase = 0, phaseOffset = 0, randomValue = 0, previousValue = 0;
     int wave = 0;
     double pw = 0.5;
     void frequencyTo(double f) {
         f = finite(f);
-        const double phase = wrap(clock * frequency / 60, 1);
+        // Preserve the effective phase, offset included, across a frequency change.
+        const double phase = wrap(clock * frequency / 60 + phaseOffset, 1);
         frequency = f;
-        clock = f ? phase * 60 / f : 0;
+        clock = f ? (phase - phaseOffset) * 60 / f : 0;
     }
     double value(double t, uint32_t& rng) {
-        double pos = finite(t * frequency / 60);
+        double pos = finite(t * frequency / 60) + phaseOffset;
         double phase = wrap(pos, 1);
         double v = 0;
         switch (wave) {
@@ -725,6 +726,11 @@ void Engine::setDrawMode(int mode) {
     for (auto& ring : impl->rings) ring.mode = mode;
 }
 void Engine::clear() { impl->rings.clear(); impl->offset = 0; }
+void Engine::randomizePhase() {
+    // A phase offset (rather than rewriting the clock) keeps the tick math and
+    // frequency-resync continuity intact while giving every LFO a new start.
+    for (auto& o : impl->osc) o.phaseOffset = random01(impl->rng);
+}
 std::size_t Engine::ringCount() const { return impl->rings.size(); }
 
 void Engine::tick(int width, int height, double mouseX, double mouseY) {

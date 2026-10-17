@@ -17,6 +17,7 @@ pkg_check_modules(GL REQUIRED IMPORTED_TARGET gl)
 add_library(whorld_core
     linux/whorld_core.cpp
     linux/playlist.cpp
+    linux/gamepad.cpp
     linux/midi_decode.cpp
     linux/snapshot.cpp
     linux/movie.cpp

@@ -1,6 +1,7 @@
 // Native Linux Whorld frontend; the original MFC/Direct2D program remains in trunk/.
 #include "whorld_core.h"
 #include "playlist.h"
+#include "gamepad.h"
 #include "midi_actions.h"
 #include "midi_decode.h"
 #include "alsa_midi.h"
@@ -354,15 +355,17 @@ void uploadTexture(SDL_Texture* texture, cairo_surface_t* surface) {
 }
 // Property tag names, in the order the sidebar cycles them with Tab.
 const char* const kProps[] = {"Val", "Wave", "Amp", "Freq", "PW", "Global"};
-// Snapshot a controller's axes/buttons in the layout the mapper expects.
+// Snapshot a controller's axes/buttons in the layout the mapper expects. Stick
+// axes go through shapeAxis (dead-zone + response curve) so a resting stick
+// reads exactly 0; triggers keep their 0..1 range with only a tiny dead-zone.
 GamepadState readGamepad(SDL_GameController* c) {
     GamepadState s;
-    s.axis[GP_LX] = SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_LEFTX) / 32767.0;
-    s.axis[GP_LY] = SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_LEFTY) / 32767.0;
-    s.axis[GP_RX] = SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_RIGHTX) / 32767.0;
-    s.axis[GP_RY] = SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_RIGHTY) / 32767.0;
-    s.axis[GP_LTRIGGER] = SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 32767.0;
-    s.axis[GP_RTRIGGER] = SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / 32767.0;
+    s.axis[GP_LX] = shapeAxis(SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_LEFTX) / 32767.0);
+    s.axis[GP_LY] = shapeAxis(SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_LEFTY) / 32767.0);
+    s.axis[GP_RX] = shapeAxis(SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_RIGHTX) / 32767.0);
+    s.axis[GP_RY] = shapeAxis(SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_RIGHTY) / 32767.0);
+    s.axis[GP_LTRIGGER] = shapeAxis(SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 32767.0, 0.05, 1.0);
+    s.axis[GP_RTRIGGER] = shapeAxis(SDL_GameControllerGetAxis(c, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / 32767.0, 0.05, 1.0);
     static const SDL_GameControllerButton kButtons[GP_BUTTON_COUNT] = {
         SDL_CONTROLLER_BUTTON_A, SDL_CONTROLLER_BUTTON_B, SDL_CONTROLLER_BUTTON_X, SDL_CONTROLLER_BUTTON_Y,
         SDL_CONTROLLER_BUTTON_LEFTSHOULDER, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
@@ -374,6 +377,65 @@ GamepadState readGamepad(SDL_GameController* c) {
     for (int i = 0; i < GP_BUTTON_COUNT; ++i)
         s.button[i] = SDL_GameControllerGetButton(c, kButtons[i]) != 0;
     return s;
+}
+// One open SDL game controller plus its own previous state, so learn and button
+// edge detection stay per-device while every pad shares the playlist mappings.
+struct GamepadDevice {
+    SDL_GameController* handle = nullptr;
+    SDL_JoystickID instance = -1;
+    GamepadState previous;
+};
+// Opens every SDL-recognised controller that is not already open. Safe to call
+// repeatedly, e.g. in response to SDL_CONTROLLERDEVICEADDED.
+void openGameControllers(std::vector<GamepadDevice>& devices, bool ready) {
+    if (!ready) return;
+    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+        if (!SDL_IsGameController(i)) continue;
+        SDL_GameController* handle = SDL_GameControllerOpen(i);
+        if (!handle) continue;
+        const SDL_JoystickID instance = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(handle));
+        bool alreadyOpen = false;
+        for (const GamepadDevice& device : devices)
+            if (device.instance == instance) { alreadyOpen = true; break; }
+        if (alreadyOpen) { SDL_GameControllerClose(handle); continue; }
+        GamepadDevice device;
+        device.handle = handle;
+        device.instance = instance;
+        devices.push_back(device);
+    }
+}
+// Closes the controller with the given instance id; returns true if it was open.
+bool closeGameController(std::vector<GamepadDevice>& devices, SDL_JoystickID instance) {
+    for (auto it = devices.begin(); it != devices.end(); ++it) {
+        if (it->instance != instance) continue;
+        if (it->handle) SDL_GameControllerClose(it->handle);
+        devices.erase(it);
+        return true;
+    }
+    return false;
+}
+void closeAllGameControllers(std::vector<GamepadDevice>& devices) {
+    for (GamepadDevice& device : devices)
+        if (device.handle) SDL_GameControllerClose(device.handle);
+    devices.clear();
+}
+std::vector<std::string> gamepadNames(const std::vector<GamepadDevice>& devices) {
+    std::vector<std::string> names;
+    names.reserve(devices.size());
+    for (const GamepadDevice& device : devices) {
+        const char* name = device.handle ? SDL_GameControllerName(device.handle) : nullptr;
+        names.push_back(name ? name : "connected");
+    }
+    return names;
+}
+// Best-effort short low-frequency pulse for a momentary action. Controllers
+// without rumble ignore it, and a failure is never fatal.
+void nudgeRumble(SDL_GameController* controller) {
+#if SDL_VERSION_ATLEAST(2, 0, 9)
+    if (controller) SDL_GameControllerRumble(controller, 0x4000, 0, 120);
+#else
+    (void)controller;
+#endif
 }
 // Returns the combined index of the first control actuated since `previous`:
 // an axis crossed the learn deadzone, or a button changed state. Axes occupy
@@ -820,18 +882,23 @@ int main(int argc, char** argv) {
         bool gamepadReady = SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) == 0;
         if (!gamepadReady)
             std::cerr << "whorld: game controllers unavailable: " << SDL_GetError() << '\n';
-        SDL_GameController* controller = nullptr;
-        auto openFirstController = [&] {
-            if (controller || !gamepadReady) return;
-            for (int i = 0; i < SDL_NumJoysticks(); ++i)
-                if (SDL_IsGameController(i) && (controller = SDL_GameControllerOpen(i))) break;
-            if (controller) {
-                const char* name = SDL_GameControllerName(controller);
-                status = std::string("Controller: ") + (name ? name : "connected");
-            }
+        // Open every recognised pad and give each its own previous-state slot;
+        // all of them share the playlist's [Gamepad] mappings.
+        std::vector<GamepadDevice> controllers;
+        bool gamepadDefaultsLoaded = false;
+        auto offerGamepadDefaults = [&]() -> bool {
+            if (gamepadDefaultsLoaded || controllers.empty() || hasGamepadMappings(playlist.gamepadMappings))
+                return false;
+            playlist.gamepadMappings = defaultGamepadMappings();
+            gamepadDefaultsLoaded = true;
+            return true;
         };
-        openFirstController();
-        GamepadState gamepadPrev;
+        openGameControllers(controllers, gamepadReady);
+        if (offerGamepadDefaults())
+            status = "Gamepad defaults loaded (save playlist to keep)";
+        else if (!controllers.empty())
+            status = controllerSummary(gamepadNames(controllers));
+        if (hasGamepadMappings(playlist.gamepadMappings)) gamepadDefaultsLoaded = true;
         // MIDI learn: Ctrl+M arms the next incoming message for the selected row.
         bool midiLearn = false;
         auto learnTargetName = [&]() -> std::string {
@@ -1155,14 +1222,17 @@ int main(int argc, char** argv) {
                         }
                     }
                 } else if (ev.type == SDL_CONTROLLERDEVICEADDED) {
-                    openFirstController();
-                } else if (ev.type == SDL_CONTROLLERDEVICEREMOVED) {
-                    if (controller && ev.cdevice.which ==
-                                      SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
-                        SDL_GameControllerClose(controller);
-                        controller = nullptr;
-                        status = "Controller disconnected";
+                    openGameControllers(controllers, gamepadReady);
+                    if (offerGamepadDefaults())
+                        status = "Gamepad defaults loaded (save playlist to keep)";
+                    else {
+                        const std::string summary = controllerSummary(gamepadNames(controllers));
+                        if (!summary.empty()) status = summary;
                     }
+                } else if (ev.type == SDL_CONTROLLERDEVICEREMOVED) {
+                    closeGameController(controllers, ev.cdevice.which);
+                    const std::string summary = controllerSummary(gamepadNames(controllers));
+                    status = summary.empty() ? "Controller disconnected" : summary;
                 } else if (ev.type == SDL_MOUSEWHEEL && !hidden) {
                     int x, y; SDL_GetMouseState(&x, &y);
                     if (x < sidebar && y >= kListTop) {
@@ -1240,34 +1310,41 @@ int main(int argc, char** argv) {
                     dispatchMidi(message);
                 }
             }
-            // Gamepad: read the live state each frame (only changed buttons emit).
-            // Poll while learning too, even with no mappings, or learn never fires.
-            if (controller && (midiLearn || !playlist.gamepadMappings.empty())) {
-                SDL_GameControllerUpdate();
-                const GamepadState current = readGamepad(controller);
-                if (midiLearn) {
-                    const int control = gamepadLearnControl(current, gamepadPrev);
-                    if (control >= 0) {
-                        const std::string target = learnTargetName();
-                        if (!target.empty()) {
-                            const auto rows = panelRows(engine.patch);
-                            const bool master = selected >= 0 && selected < static_cast<int>(rows.size()) &&
-                                                rows[selected].master;
-                            const std::string name = gamepadControlName(control);
-                            learnGamepad(playlist, name, target, master ? "Val" : kProps[property]);
-                            status = "Learned " + name + " -> " + target;
-                            panelDirty = true;
+            // Gamepad: refresh state once per frame, then read every open pad
+            // (only changed buttons emit). Poll while learning too, even with no
+            // mappings, or learn never fires.
+            if (gamepadReady) SDL_GameControllerUpdate();
+            if (!controllers.empty() && (midiLearn || !playlist.gamepadMappings.empty())) {
+                for (GamepadDevice& device : controllers) {
+                    const GamepadState current = readGamepad(device.handle);
+                    if (midiLearn) {
+                        // Learn works from any connected pad; one press ends it.
+                        const int control = gamepadLearnControl(current, device.previous);
+                        if (control >= 0) {
+                            const std::string target = learnTargetName();
+                            if (!target.empty()) {
+                                const auto rows = panelRows(engine.patch);
+                                const bool master = selected >= 0 && selected < static_cast<int>(rows.size()) &&
+                                                    rows[selected].master;
+                                const std::string name = gamepadControlName(control);
+                                learnGamepad(playlist, name, target, master ? "Val" : kProps[property]);
+                                status = "Learned " + name + " -> " + target;
+                                panelDirty = true;
+                            }
+                            midiLearn = false; // a learned control must not also fire its action
                         }
-                        midiLearn = false; // a learned control must not also fire its action
+                    } else {
+                        for (const MappedAction& action : mapGamepad(playlist, current, device.previous)) {
+                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                            syncTarget(action.target);
+                            panelDirty = true;
+                            // Rumble once per press of a momentary/action target.
+                            if (momentaryTarget(action.target) && action.amount != 0)
+                                nudgeRumble(device.handle);
+                        }
                     }
-                } else {
-                    for (const MappedAction& action : mapGamepad(playlist, current, gamepadPrev)) {
-                        applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
-                        syncTarget(action.target);
-                        panelDirty = true;
-                    }
+                    device.previous = current;
                 }
-                gamepadPrev = current;
             }
             // Audio: continuously map level/bands onto the configured targets.
             if (audioReady) {
@@ -1425,7 +1502,7 @@ int main(int argc, char** argv) {
         }
         if (canvas.texture) SDL_DestroyTexture(canvas.texture);
         if (panel.texture) SDL_DestroyTexture(panel.texture);
-        if (controller) SDL_GameControllerClose(controller);
+        closeAllGameControllers(controllers);
         audio.close();
         gl.shutdown();
         if (renderer) SDL_DestroyRenderer(renderer);

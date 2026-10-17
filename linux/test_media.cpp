@@ -1,5 +1,6 @@
 // Playlist interchange, MIDI mapping and snapshot round trips.
 #include "alsa_midi.h"
+#include "gamepad.h"
 #include "midi_actions.h"
 #include "midi_decode.h"
 #include "movie.h"
@@ -324,6 +325,101 @@ int main(int argc, char** argv) {
         require(std::string(gamepadControlName(0)) == "LX");
         require(std::string(gamepadControlName(GP_AXIS_COUNT + GP_A)) == "A");
         require(std::string(gamepadControlName(-1)).empty());
+    }
+
+    // shapeAxis: dead-zone, sign preservation, response curve, clamping.
+    {
+        // With no dead-zone and a linear curve it is the identity (up to clamp).
+        require(std::abs(shapeAxis(0.0, 0.0, 1.0)) < 1e-12);
+        require(std::abs(shapeAxis(0.5, 0.0, 1.0) - 0.5) < 1e-12);
+        require(std::abs(shapeAxis(-0.5, 0.0, 1.0) + 0.5) < 1e-12);
+        require(std::abs(shapeAxis(1.0, 0.0, 1.0) - 1.0) < 1e-12);
+        // The dead-zone zeroes the noise band exactly.
+        require(shapeAxis(0.0, 0.15, 1.6) == 0.0);
+        require(shapeAxis(0.10, 0.15, 1.6) == 0.0);
+        require(shapeAxis(-0.10, 0.15, 1.6) == 0.0);
+        require(shapeAxis(0.15, 0.15, 1.6) == 0.0);
+        // Sign is preserved and the two halves mirror each other.
+        require(shapeAxis(0.5, 0.15, 1.6) > 0);
+        require(shapeAxis(-0.5, 0.15, 1.6) < 0);
+        require(std::abs(shapeAxis(-0.5, 0.15, 1.6) + shapeAxis(0.5, 0.15, 1.6)) < 1e-12);
+        // Full deflection still reaches 1 (the live band is rescaled).
+        require(std::abs(shapeAxis(1.0, 0.15, 1.6) - 1.0) < 1e-12);
+        const double just = shapeAxis(0.15 + 1e-6, 0.15, 1.6);
+        require(just > 0 && just < 0.05);
+        // A curve exponent > 1 is softer near centre than the linear response.
+        const double middle = (0.15 + 1.0) / 2;
+        require(shapeAxis(middle, 0.15, 1.6) < shapeAxis(middle, 0.15, 1.0));
+        // Monotonic across the whole range.
+        double previous = -1.0;
+        for (int i = 0; i <= 100; ++i) {
+            const double shaped = shapeAxis(-1.0 + i * 0.02, 0.15, 1.6);
+            require(shaped >= previous - 1e-12);
+            previous = shaped;
+        }
+        // Out-of-range and non-finite input is handled safely.
+        require(std::abs(shapeAxis(2.0, 0.15, 1.6) - 1.0) < 1e-12);
+        require(std::abs(shapeAxis(-2.0, 0.15, 1.6) + 1.0) < 1e-12);
+        require(shapeAxis(std::nan(""), 0.15, 1.6) == 0.0);
+        require(shapeAxis(0.5, 1.0, 1.6) == 0.0); // dead-zone covers the range
+    }
+
+    // The built-in default gamepad profile must be valid, complete and
+    // round-trip through save/load unchanged.
+    {
+        const auto& defaults = defaultGamepadMappings();
+        require(!defaults.empty());
+        require(hasGamepadMappings(defaults));
+        require(!hasGamepadMappings({}));
+        // Saving proves every control and target name is accepted.
+        Playlist profile;
+        profile.gamepadMappings = defaults;
+        const std::string profilePath = (dir / "default-gamepad.whl").string();
+        require(profile.save(profilePath, error));
+        Playlist reloadedProfile;
+        require(reloadedProfile.load(profilePath, error));
+        require(reloadedProfile.gamepadMappings.size() == defaults.size());
+        for (std::size_t i = 0; i < defaults.size(); ++i) {
+            const GamepadMapping& before = defaults[i];
+            const GamepadMapping& after = reloadedProfile.gamepadMappings[i];
+            require(before.control == after.control && before.target == after.target);
+            require(before.property == after.property);
+            require(std::abs(before.start - after.start) < 1e-9);
+            require(std::abs(before.end - after.end) < 1e-9);
+        }
+        // An Xbox-style pad is fully covered out of the box.
+        const auto covers = [&](const char* control) {
+            for (const GamepadMapping& m : defaults) if (m.control == control) return true;
+            return false;
+        };
+        for (const char* control : {"LX", "LY", "RX", "RY", "LTrigger", "RTrigger",
+                                    "A", "B", "X", "Y", "LB", "RB",
+                                    "DPadUp", "DPadDown", "DPadLeft", "DPadRight"})
+            require(covers(control));
+        // The profile actually dispatches: A maps to the momentary Pause action,
+        // and a full stick sweep reaches a defined target.
+        Playlist engineList;
+        engineList.gamepadMappings = defaults;
+        GamepadState idle, pressed;
+        pressed.button[GP_A] = true;
+        bool sawPause = false;
+        for (const MappedAction& action : mapGamepad(engineList, pressed, idle))
+            if (action.target == "Pause" && std::abs(action.amount - 1.0) < 1e-9) sawPause = true;
+        require(sawPause);
+        GamepadState full, none;
+        full.axis[GP_LX] = 1.0;
+        bool sawZoom = false;
+        for (const MappedAction& action : mapGamepad(engineList, full, none))
+            if (action.target == "Zoom" && std::abs(action.amount - 1.0) < 1e-9) sawZoom = true;
+        require(sawZoom);
+    }
+
+    // Pure multi-controller status formatting.
+    {
+        require(controllerSummary({}).empty());
+        require(controllerSummary({"Xbox Wireless Controller"}) == "Controller: Xbox Wireless Controller");
+        require(controllerSummary({"A", "B"}) == "Controllers: 2 (A, B)");
+        require(controllerSummary({"A", "B", "C"}) == "Controllers: 3 (A, B, C)");
     }
 
     // InvertColor is a valid target in both MIDI and gamepad sections.

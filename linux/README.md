@@ -115,7 +115,7 @@ Verified on the port's reference machine (Ubuntu, kernel 6.8): `snd-usb-audio` a
 
 ### Gamepads
 
-Any controller SDL recognises works out of the box, with hotplug. Mappings live in the playlist's `[Gamepad\N]` sections:
+Any number of controllers SDL recognises work out of the box, with hotplug; every connected pad shares the same mapping set, and a removed pad is closed cleanly. Mappings live in the playlist's `[Gamepad\N]` sections:
 
 ```ini
 [Gamepad\0]
@@ -127,6 +127,8 @@ End=80
 ```
 
 `Control` is an axis (`LX`, `LY`, `RX`, `RY`, `LTrigger`, `RTrigger`) or a button (`A`, `B`, `X`, `Y`, `LB`, `RB`, `Back`, `Start`, `Guide`, `LStick`, `RStick`, `DPadUp`, `DPadDown`, `DPadLeft`, `DPadRight`). Axes are continuous (sticks run -1..1 and span `Start`..`End`); buttons act on their edges, so one bound to `Clear`/`Pause`/`Patch` fires once per press and one bound to `Fill`/`Outline` stays on while held.
+
+With no `[Gamepad]` section in the playlist and at least one pad connected at launch, a standard Xbox-style default profile is loaded automatically: left stick zooms and spins, the right stick reshapes the polygon, the triggers add ring growth / line width, **A/B/X/Y** pause, clear, fill and outline, **LB/RB** toggle mirror and colour inversion, and the D-pad steps the primitive, selects a patch and re-randomizes the origin. The defaults are session-only until you save the playlist. Stick axes get a dead-zone and response curve so a resting stick reads exactly zero (and holds its mapping's `Start` value), and momentary actions pulse the controller's rumble where the pad supports it.
 
 **Gamepad learn:** the same **Ctrl+M** used for MIDI also learns gamepads. Select a parameter or master row, press **Ctrl+M**, then move a stick past its deadzone or press a button; the control is bound to that row's current Tab property, replacing any previous mapping for the same control, and the mapped action does not also fire on the learn frame. **Ctrl+Shift+M** still forgets the mappings for the selected row, and **Ctrl+Shift+S** saves the playlist to keep them.
 

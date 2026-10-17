@@ -632,6 +632,12 @@ struct Engine::Impl {
     bool flush = true, randomHigh = false;
     int previousWidth = 0, previousHeight = 0;
     std::unique_ptr<Snapshot> displayed;
+    // Patch morph/crossfade state. `morphFrom` is the patch when the morph
+    // started, `morphTarget` the destination; only the continuous fields listed
+    // in whorld_core.h are interpolated. `morphElapsed` is in seconds.
+    Patch morphFrom{}, morphTarget{};
+    double morphElapsed = 0, morphSeconds = 0;
+    bool morphActive = false;
 
     void updateHue(const Patch& p, double delta, double colorSpeed) {
         if (p.loopHue) {
@@ -706,6 +712,7 @@ struct Engine::Impl {
 Engine::Engine() : impl(new Impl) { setPatch(patch); }
 Engine::~Engine() { delete impl; }
 void Engine::setPatch(const Patch& next) {
+    impl->morphActive = false; // an explicit patch always snaps and cancels a morph
     patch = next;
     impl->zoomTarget = std::max(1e-6, finite(patch.master[MASTER_Zoom], 1));
     impl->zoom = impl->zoomTarget; // upstream applies patch zoom without damping
@@ -721,6 +728,22 @@ void Engine::setPatch(const Patch& next) {
         impl->osc[i].frequencyTo(patch.params[i].freq);
     }
 }
+void Engine::morphTo(const Patch& target, double seconds) {
+    if (!(seconds > 0) || !std::isfinite(seconds)) {
+        setPatch(target);
+        return;
+    }
+    // Only the continuous fields are crossfaded. Capture the current patch as
+    // the source; the live patch is then a pure function of morph progress, so
+    // the transition is monotonic and lands exactly on the target.
+    impl->morphFrom = patch;
+    impl->morphTarget = target;
+    impl->morphElapsed = 0;
+    impl->morphSeconds = seconds;
+    impl->morphActive = true;
+}
+bool Engine::morphing() const { return impl->morphActive; }
+
 void Engine::setDrawMode(int mode) {
     patch.drawMode = mode;
     for (auto& ring : impl->rings) ring.mode = mode;
@@ -736,6 +759,33 @@ std::size_t Engine::ringCount() const { return impl->rings.size(); }
 void Engine::tick(int width, int height, double mouseX, double mouseY) {
     if (impl->displayed || width <= 0 || height <= 0) return;
     auto& s = *impl;
+    // Advance a patch crossfade before anything reads the patch, so the
+    // interpolated values drive the live oscillators/globals this same tick.
+    if (s.morphActive) {
+        s.morphElapsed += 1.0 / 60.0; // simulation ticks run at 60 Hz
+        if (s.morphElapsed + 1e-9 >= s.morphSeconds) {
+            setPatch(s.morphTarget); // land exactly on the target and stop
+        } else {
+            const double t = s.morphElapsed / s.morphSeconds;
+            const Patch& from = s.morphFrom;
+            const Patch& to = s.morphTarget;
+            for (int i = 0; i < PARAM_COUNT; ++i) {
+                ParamRow& row = patch.params[i];
+                const ParamRow& a = from.params[i];
+                const ParamRow& b = to.params[i];
+                row.value = a.value + (b.value - a.value) * t;
+                row.amp = a.amp + (b.amp - a.amp) * t;
+                row.freq = a.freq + (b.freq - a.freq) * t;
+                row.pw = a.pw + (b.pw - a.pw) * t;
+                row.global = a.global + (b.global - a.global) * t;
+                // The waveform is discrete, so it switches at the halfway point.
+                row.wave = t < 0.5 ? a.wave : b.wave;
+            }
+            for (int i = 0; i < MASTER_COUNT; ++i)
+                patch.master[i] = from.master[i] + (to.master[i] - from.master[i]) * t;
+            patch.hue = from.hue + (to.hue - from.hue) * t;
+        }
+    }
     const auto& p = patch;
     const double damping = std::clamp(finite(p.master[MASTER_Damping]), 0.0, 1.0);
     const double trail = std::clamp(finite(p.master[MASTER_Trail]), 0.0, 1.0);

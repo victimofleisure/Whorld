@@ -68,6 +68,76 @@ int main() {
         for (int i = 0; i < 30; ++i) analyzeBlock(faint.data(), kN, kRate, 8.0, boosted);
         require(boosted.level > quiet.level);
 
+        // Onset/beat: a train of periodic bursts yields roughly one pulse per
+        // burst (the pulse is the refractory period), and silence is quiet.
+        {
+            const std::vector<float> tone = sine(1000, 1.0);
+            const std::vector<float> silence(kN, 0.0f);
+            AudioFeatures f;
+            int onsets = 0;
+            const int period = 8; // blocks between bursts
+            const int bursts = 10;
+            for (int c = 0; c < bursts; ++c) {
+                analyzeBlock(tone.data(), kN, kRate, 1.0, f);
+                if (f.onset) ++onsets;
+                for (int s = 1; s < period; ++s) analyzeBlock(silence.data(), kN, kRate, 1.0, f);
+            }
+            require(onsets >= bursts - 1 && onsets <= bursts);
+        }
+        // A single onset raises the pulse, which then decays to zero while the
+        // onset flag stays false.
+        {
+            AudioFeatures f;
+            analyzeBlock(sine(1000, 1.0).data(), kN, kRate, 1.0, f);
+            require(f.onset && f.beat > 0.9);
+            double previous = f.beat;
+            const std::vector<float> silence(kN, 0.0f);
+            for (int i = 0; i < 5 && previous > 0; ++i) {
+                analyzeBlock(silence.data(), kN, kRate, 1.0, f);
+                require(!f.onset);
+                require(f.beat < previous);
+                previous = f.beat;
+            }
+            require(f.beat == 0.0);
+        }
+        // Silence never produces an onset or a pulse.
+        {
+            AudioFeatures f;
+            const std::vector<float> silence(kN, 0.0f);
+            for (int i = 0; i < 30; ++i) analyzeBlock(silence.data(), kN, kRate, 1.0, f);
+            require(!f.onset && f.beat == 0.0);
+        }
+
+        // mapAudio: "Beat" drives a range target with the pulse value, but a
+        // momentary target (Clear) fires only on the onset frame.
+        {
+            Playlist pl;
+            AudioMapping range;
+            range.feature = "Beat";
+            range.target = "Zoom";
+            range.property = "Val";
+            range.start = 0;
+            range.end = 100;
+            AudioMapping momentary;
+            momentary.feature = "Beat";
+            momentary.target = "Clear";
+            momentary.property = "Val";
+            momentary.start = 0;
+            momentary.end = 100;
+            pl.audioMappings = {range, momentary};
+            AudioFeatures f;
+            f.beat = 0.5;
+            f.onset = false;
+            auto actions = mapAudio(pl, f);
+            require(actions.size() == 1);
+            require(actions[0].target == "Zoom");
+            require(std::abs(actions[0].amount - 0.5) < 1e-9);
+            f.beat = 1.0;
+            f.onset = true;
+            actions = mapAudio(pl, f);
+            require(actions.size() == 2);
+        }
+
         std::cout << "audio analysis OK\n";
         return 0;
     } catch (const std::exception& e) {

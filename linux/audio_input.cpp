@@ -100,6 +100,9 @@ void AudioInput::poll() {
         }
     }
     if (got) analyze();
+    // No new window was analysed, so the onset flag from the previous frame is
+    // stale; clearing it keeps a beat-driven momentary action from re-firing.
+    else feat.onset = false;
 }
 
 void AudioInput::analyze() {

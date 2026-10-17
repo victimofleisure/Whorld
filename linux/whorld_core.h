@@ -81,6 +81,15 @@ public:
     Patch patch;
     Engine();
     void setPatch(const Patch& next); // retains existing rings, like upstream
+    // Crossfades the live patch toward `target` over `seconds` of simulation
+    // time (ticks run at 60 Hz). `value`, `amp`, `freq`, `pw`, `global`,
+    // `master[]` and `hue` are interpolated linearly; the waveform switches at
+    // the halfway point. Other fields change only when the morph completes,
+    // where the engine lands exactly on `target` (as setPatch) and stops. A
+    // non-positive `seconds` falls back to an instant setPatch. Any explicit
+    // setPatch cancels an active morph.
+    void morphTo(const Patch& target, double seconds);
+    bool morphing() const;
     void setDrawMode(int mode); // changes existing rings too
     void clear();
     // Gives every oscillator a fresh random phase, like upstream's

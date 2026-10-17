@@ -244,5 +244,67 @@ int main() {
         randomized.tick(400, 300);
         require(sum(control.frame(400, 300)) != sum(randomized.frame(400, 300)));
     }
+    // Patch morph/crossfade: continuous fields interpolate monotonically to the
+    // target over the requested time, then land exactly on it and stop. The
+    // waveform (discrete) switches at the halfway point.
+    {
+        Patch a, b;
+        a.params[PARAM_RingSpacing].value = 5;
+        b.params[PARAM_RingSpacing].value = 45;
+        a.params[PARAM_RingGrowth].amp = 0;
+        b.params[PARAM_RingGrowth].amp = 2;
+        a.params[PARAM_RingGrowth].freq = 0;
+        b.params[PARAM_RingGrowth].freq = 3;
+        a.params[PARAM_RingGrowth].wave = 0;
+        b.params[PARAM_RingGrowth].wave = 4;
+        a.params[PARAM_RingGrowth].pw = 0.25;
+        b.params[PARAM_RingGrowth].pw = 0.75;
+        a.master[MASTER_Zoom] = 1;
+        b.master[MASTER_Zoom] = 3;
+        a.hue = 0;
+        b.hue = 180;
+        Engine morph;
+        morph.setPatch(a);
+        require(!morph.morphing());
+        // 60 ticks at 60 Hz == one second.
+        morph.morphTo(b, 1.0);
+        require(morph.morphing());
+        double previous = morph.patch.params[PARAM_RingSpacing].value;
+        bool sawEarlyWave = false, sawLateWave = false;
+        for (int i = 0; i < 60; ++i) {
+            require(morph.morphing()); // still morphing before the final tick
+            morph.tick(400, 300);
+            const double now = morph.patch.params[PARAM_RingSpacing].value;
+            require(now >= previous - 1e-9); // monotonic toward the target
+            previous = now;
+            if (morph.patch.params[PARAM_RingGrowth].wave == 0) sawEarlyWave = true;
+            if (morph.patch.params[PARAM_RingGrowth].wave == 4) sawLateWave = true;
+        }
+        require(!morph.morphing());
+        require(sawEarlyWave && sawLateWave); // waveform switched at halfway
+        // Landed exactly on the target.
+        require(morph.patch.params[PARAM_RingSpacing].value == b.params[PARAM_RingSpacing].value);
+        require(morph.patch.params[PARAM_RingGrowth].amp == b.params[PARAM_RingGrowth].amp);
+        require(morph.patch.params[PARAM_RingGrowth].freq == b.params[PARAM_RingGrowth].freq);
+        require(morph.patch.params[PARAM_RingGrowth].pw == b.params[PARAM_RingGrowth].pw);
+        require(morph.patch.params[PARAM_RingGrowth].wave == b.params[PARAM_RingGrowth].wave);
+        require(morph.patch.master[MASTER_Zoom] == b.master[MASTER_Zoom]);
+        require(morph.patch.hue == b.hue);
+        // A non-positive duration is an instant setPatch, matching --morph 0.
+        Engine instant;
+        instant.setPatch(a);
+        require(instant.patch.params[PARAM_RingSpacing].value == 5);
+        instant.morphTo(b, 0);
+        require(!instant.morphing());
+        require(instant.patch.params[PARAM_RingSpacing].value == 45);
+        // An explicit setPatch cancels an in-flight morph and snaps.
+        Engine cancel;
+        cancel.setPatch(a);
+        cancel.morphTo(b, 10.0);
+        require(cancel.morphing());
+        cancel.setPatch(a);
+        require(!cancel.morphing());
+        require(cancel.patch.params[PARAM_RingSpacing].value == 5);
+    }
     std::cout << "Whorld patch roundtrip and animated geometry OK\n";
 }

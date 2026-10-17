@@ -176,9 +176,19 @@ std::vector<Point> flatten(const Path& path, int curveSteps = 48) {
     return pts;
 }
 
-void setColor(Color c, double alphaScale = 1.0) {
-    glColor4f(float(std::clamp(c.r, 0.0, 1.0)), float(std::clamp(c.g, 0.0, 1.0)),
-              float(std::clamp(c.b, 0.0, 1.0)), float(std::clamp(c.a * alphaScale, 0.0, 1.0)));
+void setColor(Color c, double alphaScale = 1.0, int blendMode = 0) {
+    double r = std::clamp(c.r, 0.0, 1.0), g = std::clamp(c.g, 0.0, 1.0);
+    double b = std::clamp(c.b, 0.0, 1.0);
+    const double a = std::clamp(c.a * alphaScale, 0.0, 1.0);
+    // Cairo's SCREEN operator premultiplies the source by its alpha, so
+    // premultiply here too: GL's (GL_ONE, GL_ONE_MINUS_SRC_COLOR) then expands
+    // to dst + a*src*(1 - dst), matching cairo for translucent shapes.
+    if (blendMode == 2) {
+        r *= a;
+        g *= a;
+        b *= a;
+    }
+    glColor4f(float(r), float(g), float(b), float(a));
 }
 
 void buildFan(const std::vector<Point>& p, Point apex, std::vector<GLfloat>& buf) {
@@ -337,12 +347,19 @@ bool GlRenderer::init(SDL_Window* window, std::string& error) {
 }
 
 void GlRenderer::drawCanvas(const Frame& frame, bool antialias, int canvasX, int canvasW,
-                            int canvasH) {
+                            int canvasH, int blendMode) {
     (void)canvasW;
     (void)canvasH;
     glPushMatrix();
     glTranslatef(float(canvasX), 0, 0);
     glEnable(GL_BLEND);
+    // Geometry compositing mode. Normal is the historical alpha-over blend; the
+    // other modes are featherweight VJ effects (additive glow / screen wash).
+    switch (blendMode) {
+    case 1: glBlendFunc(GL_SRC_ALPHA, GL_ONE); break;
+    case 2: glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR); break;
+    default: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); break;
+    }
     if (msaa && antialias) glEnable(GL_MULTISAMPLE);
     else glDisable(GL_MULTISAMPLE);
     glStencilMask(0x01);
@@ -367,14 +384,14 @@ void GlRenderer::drawCanvas(const Frame& frame, bool antialias, int canvasX, int
             glEnable(GL_BLEND);
             glStencilFunc(GL_NOTEQUAL, 0, 0x01);
             glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
-            setColor(s.color);
+            setColor(s.color, 1.0, blendMode);
             drawFan(outerFan);
             if (hasInner) drawFan(innerFan);
             glDisable(GL_STENCIL_TEST);
         }
         if (s.outline && outer.size() >= 2) {
             const double half = std::max(0.1, s.lineWidth) / 2;
-            setColor(s.fill ? s.outlineColor : s.color);
+            setColor(s.fill ? s.outlineColor : s.color, 1.0, blendMode);
             glEnable(GL_BLEND);
             strokePolyline(outer, half);
             if (s.fill && hasInner && inner.size() >= 2) strokePolyline(inner, half);
@@ -382,6 +399,8 @@ void GlRenderer::drawCanvas(const Frame& frame, bool antialias, int canvasX, int
     }
     glDisableClientState(GL_VERTEX_ARRAY);
     glStencilMask(0xFF);
+    // Restore the default blend function for the compositing/post passes.
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPopMatrix();
 }
 
@@ -513,7 +532,7 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
         const Color bg = frame.background;
         glClearColor(float(bg.r), float(bg.g), float(bg.b), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        drawCanvas(frame, antialias, 0, canvasW, canvasH);
+        drawCanvas(frame, antialias, 0, canvasW, canvasH, pp.blendMode);
         if (multisample) {
             glBindFramebuffer(GL_READ_FRAMEBUFFER, fboMs);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
@@ -654,7 +673,7 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
         glDisable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {
-        drawCanvas(frame, antialias, canvasX, canvasW, canvasH);
+        drawCanvas(frame, antialias, canvasX, canvasW, canvasH, pp.blendMode);
     }
     if (ui) uploadUi(ui, uiW_, uiH_);
     if (uiTexture && uiW_ > 0 && uiH_ > 0) {

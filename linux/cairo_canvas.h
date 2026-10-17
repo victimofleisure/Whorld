@@ -11,7 +11,10 @@ namespace whorld {
 // Rasterizes a frame into the current cairo context at w x h logical pixels,
 // filling each ring with the even-odd (alternate) rule and stroking its
 // outline, exactly as the Direct2D original does.
-void drawFrameCairo(cairo_t* cr, const Frame& frame, int w, int h, bool antialias);
+// `blendMode` selects the compositing operator for the shapes after the
+// background is painted: 0 = Normal (OVER), 1 = Additive (ADD), 2 = Screen.
+void drawFrameCairo(cairo_t* cr, const Frame& frame, int w, int h, bool antialias,
+                    int blendMode = 0);
 
 // Applies projection warp, mirror and/or color inversion to an ARGB32 image
 // surface in place, matching the GLSL post-process shader used by GlRenderer

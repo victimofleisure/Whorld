@@ -45,6 +45,14 @@ struct GamepadMapping {
 // Sound analysis features produced by AudioInput, each normalized to 0..1.
 struct AudioFeatures {
     double level = 0, low = 0, mid = 0, high = 0;
+    // Onset/beat: `onset` is true only on the analysis frame where a transient
+    // was detected; `beat` is a 0..1 pulse that jumps to 1 on that frame and
+    // decays over the following frames (see analyzeBlock for the algorithm).
+    double beat = 0;
+    bool onset = false;
+    // Analyzer state (not a feature): slow energy envelope used for onset
+    // detection. Carried here because analyzeBlock is otherwise stateless.
+    double onsetEnergy = 0;
 };
 struct AudioMapping {
     std::string feature; // "Level", "Low", "Mid" or "High"

@@ -50,7 +50,8 @@ public:
     void shutdown();
 
 private:
-    void drawCanvas(const Frame& frame, bool antialias, int canvasX, int canvasW, int canvasH);
+    void drawCanvas(const Frame& frame, bool antialias, int canvasX, int canvasW, int canvasH,
+                    int blendMode);
     bool ensureFbo(int w, int h);
     void uploadUi(cairo_surface_t* surface, int w, int h);
     SDL_GLContext context = nullptr;

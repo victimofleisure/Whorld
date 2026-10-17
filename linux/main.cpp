@@ -291,7 +291,7 @@ void image(Engine& engine, const std::string& output, int width, int height,
     const Frame frame = engine.frame(width, height);
     {
         Context cr(cairo_create(surface.get()), cairo_destroy);
-        drawFrameCairo(cr.get(), frame, width, height, engine.patch.antialiasing);
+        drawFrameCairo(cr.get(), frame, width, height, engine.patch.antialiasing, pp.blendMode);
     }
     // The shader is the reference; warp/mirror/invert also run on the cairo path.
     postProcessCairo(surface.get(), pp, frame.background);
@@ -482,6 +482,7 @@ void help() {
               << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F]\n"
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
+              << "               [--blend normal|add|screen] [--morph SECONDS]\n"
               << "               [--feedback 0.0-0.99] [--feedback-zoom F] [--feedback-rot F]\n"
               << "               [--warp \"TLx,TLy,TRx,TRy,BRx,BRy,BLx,BLy\"] [--warp-file FILE]\n"
               << "               [--warp-save FILE]\n"
@@ -490,6 +491,8 @@ void help() {
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
+              << "--blend geometry compositing: normal (alpha over), add (additive glow) or screen.\n"
+              << "--morph crossfades playlist patches over SECONDS (default 0 = instant).\n"
               << "--feedback enables video feedback trails with controllable decay (0.0-0.99).\n"
               << "--warp maps the rendered image onto a convex quadrilateral (normalized 0..1, in\n"
               << "        TL,TR,BR,BL order) for projection mapping; --warp-file reads four x y\n"
@@ -505,7 +508,7 @@ void help() {
               << "--audio enables microphone/line input; --audio-device picks the ALSA device\n"
               << "        (default \"default\") and --audio-gain scales the analysis (default 1.0).\n"
               << "Keys: Space pause, F/O fill and outline, L playlist, P PNG, H hide controls,\n"
-              << "      M cycle mirror/kaleidoscope, I toggle invert, W toggle warp,\n"
+              << "      M cycle mirror/kaleidoscope, B cycle blend, I toggle invert, W toggle warp,\n"
               << "      T cycle feedback trails,\n"
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
               << "      PgUp/PgDn step snapshots, s/-/= render scale, F11 fullscreen, R clear, Esc quit.\n"
@@ -531,6 +534,7 @@ int main(int argc, char** argv) {
         std::string audioDevice;
         double audioGain = 1.0;
         bool audioEnabled = false;
+        double morphSeconds = 0; // 0 = instant playlist patch changes
         bool listMidi = false;
         MidiInputMode midiMode = MidiInputMode::Absolute;
         bool midiTakeover = false;
@@ -567,6 +571,17 @@ int main(int argc, char** argv) {
                 rendererMode = value;
                 if (rendererMode != "auto" && rendererMode != "gpu" && rendererMode != "cairo")
                     throw std::runtime_error("--renderer must be auto, gpu or cairo");
+            }
+            else if (arg == "--blend") {
+                if (value == "normal" || value == "0") postProcess.blendMode = 0;
+                else if (value == "add" || value == "additive" || value == "1") postProcess.blendMode = 1;
+                else if (value == "screen" || value == "2") postProcess.blendMode = 2;
+                else throw std::runtime_error("Invalid --blend option (expected normal, add, screen)");
+            }
+            else if (arg == "--morph") {
+                morphSeconds = std::stod(value);
+                if (!(morphSeconds >= 0) || morphSeconds > 3600)
+                    throw std::runtime_error("--morph must be between 0 and 3600 seconds");
             }
             else if (arg == "--mirror") {
                 if (value == "quad" || value == "1") postProcess.mirrorMode = 1;
@@ -764,6 +779,7 @@ int main(int argc, char** argv) {
                 }
             }
             const bool wantPost = postProcess.mirrorMode != 0 || postProcess.invertColor ||
+                                  postProcess.blendMode != 0 ||
                                   postProcess.feedback > 0.01 ||
                                   (postProcess.warpEnabled && validWarp(postProcess.warp));
             // OpenGL offscreen rendering is required for feedback trails and is
@@ -1031,6 +1047,8 @@ int main(int argc, char** argv) {
             }
         };
         auto canvasWidth = [&] { return width - (hidden ? 0 : sidebar); };
+        std::string playingPatch;   // basename of the current playlist entry
+        bool morphingShown = false; // whether the status bar currently says "Morphing"
         auto playPatch = [&](int index) {
             if (index < 0 || index >= static_cast<int>(playlist.patches.size())) {
                 status = playlist.patches.empty() ? "Playlist is empty" : "No such playlist entry";
@@ -1041,10 +1059,17 @@ int main(int argc, char** argv) {
             std::string failure;
             if (!next.load(path, failure)) { status = failure; return; }
             engine.stopSnapshot();
-            engine.setPatch(next);
+            if (morphSeconds > 0) {
+                engine.morphTo(next, morphSeconds);
+                playingPatch = std::filesystem::path(playlist.patches[index]).filename().string();
+                status = "Morphing to " + playingPatch;
+            } else {
+                engine.setPatch(next); // instant, unchanged
+                status = "Playing " + playlist.patches[index];
+            }
+            morphingShown = engine.morphing();
             playlistIndex = index;
             patchFile = path;
-            status = "Playing " + playlist.patches[index];
         };
         auto showSnapshot = [&](int index) {
             if (index < 0 || index >= static_cast<int>(snapshots.size())) {
@@ -1178,6 +1203,10 @@ int main(int argc, char** argv) {
                         postProcess.mirrorMode = (postProcess.mirrorMode + 1) % 4;
                         const char* mNames[] = {"Mirror: Off", "Mirror: 4-Way Quad", "Mirror: 8-Way Kaleidoscope", "Mirror: 12-Way Radial"};
                         status = mNames[postProcess.mirrorMode];
+                    } else if (key == SDLK_b) {
+                        postProcess.blendMode = (postProcess.blendMode + 1) % 3;
+                        const char* bNames[] = {"Blend: Normal", "Blend: Additive", "Blend: Screen"};
+                        status = bNames[postProcess.blendMode];
                     } else if (key == SDLK_i) {
                         postProcess.invertColor = !postProcess.invertColor;
                         engine.patch.invertColor = postProcess.invertColor;
@@ -1435,6 +1464,16 @@ int main(int argc, char** argv) {
                 engine.tick(cw, height, mx, my);
                 engine.tick(cw, height, mx, my);
             }
+            // Keep a status note visible for the duration of a patch crossfade.
+            if (engine.morphing()) {
+                if (!morphingShown) panelDirty = true;
+                status = "Morphing to " + playingPatch;
+                morphingShown = true;
+            } else if (morphingShown) {
+                status = "Playing " + playingPatch;
+                morphingShown = false;
+                panelDirty = true;
+            }
             auto tTick = std::chrono::steady_clock::now();
             const Frame frame = engine.frame(cw, height);
             auto tFrame = std::chrono::steady_clock::now();
@@ -1489,7 +1528,8 @@ int main(int argc, char** argv) {
                 {
                     Context cr(cairo_create(canvas.surface.get()), cairo_destroy);
                     cairo_scale(cr.get(), double(texW) / cw, double(texH) / height);
-                    drawFrameCairo(cr.get(), frame, cw, height, engine.patch.antialiasing);
+                    drawFrameCairo(cr.get(), frame, cw, height, engine.patch.antialiasing,
+                                   postProcess.blendMode);
                 }
                 // Mirror/invert on the CPU; feedback trails remain GPU-only.
                 if (postProcess.feedback > 0.01 && !warnedCairoFeedback) {

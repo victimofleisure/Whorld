@@ -80,6 +80,19 @@ void analyzeBlock(const float* samples, int count, unsigned rate, double gain, A
     features.low = smooth(band(bandMax[0]), features.low);
     features.mid = smooth(band(bandMax[1]), features.mid);
     features.high = smooth(band(bandMax[2]), features.high);
+
+    // Onset/beat detection: compare the instantaneous energy against a slow
+    // envelope of it. A transient makes the ratio spike well above 1; require a
+    // minimum level so silence/noise cannot fire, and use the decaying pulse
+    // itself as the refractory period (no new onset until it drops below
+    // kBeatRearm). The algorithm is deterministic and needs no lookahead.
+    const double instant = std::clamp(rms * kLevelGain * gain, 0.0, 1.0);
+    features.onsetEnergy += (instant - features.onsetEnergy) * kOnsetSlow;
+    const double ratio = instant / std::max(1e-6, features.onsetEnergy);
+    features.onset = instant > kOnsetFloor && ratio > kOnsetThreshold &&
+                     features.beat < kBeatRearm;
+    if (features.onset) features.beat = 1.0;
+    else features.beat = std::max(0.0, features.beat - kBeatDecay);
 }
 
 } // namespace whorld

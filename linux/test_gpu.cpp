@@ -58,7 +58,7 @@ bool checkCase(const std::string& name, const Patch& patch, int width, int heigh
 
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
     cairo_t* cr = cairo_create(surface);
-    drawFrameCairo(cr, frame, width, height, antialias);
+    drawFrameCairo(cr, frame, width, height, antialias, pp.blendMode);
     cairo_destroy(cr);
     // The cairo fallback applies the same warp/mirror/invert post-processing;
     // the GPU shader is the reference.
@@ -160,6 +160,24 @@ int main(int argc, char** argv) {
         pp.invertColor = true;
         ok = checkCase("invert only", patch, width, height, 30, true, gpu, detail, pp) && ok;
         std::printf("%s\n", detail.c_str());
+    }
+
+    // Geometry blending: additive and screen must agree with the cairo
+    // operators. Normal (the default) is covered by every case above. Opaque,
+    // hard-edged geometry is used because the prescribed GL screen blend
+    // (GL_ONE, GL_ONE_MINUS_SRC_COLOR) ignores source alpha, while cairo's
+    // SCREEN operator premultiplies it; with alpha 1 and no antialiased edge
+    // coverage the two backends compute the same formula exactly.
+    {
+        Patch opaque = patch;
+        opaque.params[PARAM_Alpha].value = 1.0;
+        for (int mode : {1, 2}) {
+            PostProcess pp;
+            pp.blendMode = mode;
+            const char* name = mode == 1 ? "blend additive" : "blend screen";
+            ok = checkCase(name, opaque, width, height, 30, false, gpu, detail, pp) && ok;
+            std::printf("%s\n", detail.c_str());
+        }
     }
 
     // Projection mapping: the GPU inverse homography and the CPU one must agree

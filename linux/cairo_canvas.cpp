@@ -25,12 +25,16 @@ void addPath(cairo_t* cr, const Path& p) {
 
 } // namespace
 
-void drawFrameCairo(cairo_t* cr, const Frame& f, int w, int h, bool antialias) {
+void drawFrameCairo(cairo_t* cr, const Frame& f, int w, int h, bool antialias, int blendMode) {
     cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
     setColor(cr, f.background);
     cairo_rectangle(cr, 0, 0, w, h);
     cairo_fill(cr);
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    // The background is painted opaquely with SOURCE; the shapes then composite
+    // with the selected mode (Normal is the historical OVER).
+    cairo_set_operator(cr, blendMode == 1 ? CAIRO_OPERATOR_ADD
+                                          : blendMode == 2 ? CAIRO_OPERATOR_SCREEN
+                                                           : CAIRO_OPERATOR_OVER);
     cairo_set_antialias(cr, antialias ? CAIRO_ANTIALIAS_GOOD : CAIRO_ANTIALIAS_NONE);
     cairo_set_fill_rule(cr, CAIRO_FILL_RULE_EVEN_ODD);
     for (const Shape& s : f.shapes) {

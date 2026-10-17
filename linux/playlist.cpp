@@ -61,7 +61,7 @@ const char* const kGamepadControls[] = {
     "A", "B", "X", "Y", "LB", "RB", "Back", "Start", "Guide",
     "LStick", "RStick", "DPadUp", "DPadDown", "DPadLeft", "DPadRight",
 };
-const char* const kAudioFeatures[] = {"Level", "Low", "Mid", "High"};
+const char* const kAudioFeatures[] = {"Level", "Low", "Mid", "High", "Beat"};
 
 // INI sections/keys are deliberately case-sensitive, as are V2 tag lookups.
 using Section = std::map<std::string, std::string>;
@@ -600,11 +600,17 @@ std::vector<MappedAction> mapAudio(const Playlist& playlist, const AudioFeatures
     for (const auto& m : playlist.audioMappings) {
         if (!validTarget(m.target) || !std::isfinite(m.start) || !std::isfinite(m.end)) continue;
         double feature = 0;
+        bool beat = false;
         if (m.feature == "Level") feature = features.level;
         else if (m.feature == "Low") feature = features.low;
         else if (m.feature == "Mid") feature = features.mid;
         else if (m.feature == "High") feature = features.high;
+        else if (m.feature == "Beat") { feature = features.beat; beat = true; }
         else continue;
+        // A beat pulse lasts several frames, so a momentary target (Clear,
+        // Patch, NextShape, ...) must fire once per onset rather than on every
+        // frame of the decay.
+        if (beat && momentaryTarget(m.target) && !features.onset) continue;
         const double start = m.start / 100.0, end = m.end / 100.0;
         actions.push_back({m.target, m.property, std::clamp(feature, 0.0, 1.0) * (end - start) + start});
     }
@@ -614,6 +620,8 @@ std::vector<MappedAction> mapAudio(const Playlist& playlist, const AudioFeatures
 const std::vector<AudioMapping>& defaultAudioMappings() {
     // At silence every feature is 0, which lands on Start, so the mappings keep
     // a quiet signal near rest: no extra ring growth, mid zoom and no spin.
+    // "Beat" is deliberately not part of the defaults: adding an onset mapping
+    // would change the out-of-the-box output, so it stays opt-in via [Audio].
     static const std::vector<AudioMapping> defaults = {
         {"Level", "RingGrowth", "Val", 0, 100},
         {"Low", "Zoom", "Val", 25, 80},

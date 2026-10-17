@@ -13,11 +13,13 @@ namespace whorld {
 // outline, exactly as the Direct2D original does.
 void drawFrameCairo(cairo_t* cr, const Frame& frame, int w, int h, bool antialias);
 
-// Applies mirror and/or color inversion to an ARGB32 image surface in place,
-// matching the GLSL post-process shader used by GlRenderer (the shader is the
-// reference). `feedback` is intentionally not handled here: feedback trails
-// are GPU-only and are left untouched. A no-op for non-ARGB32 or non-image
-// surfaces.
-void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp);
+// Applies projection warp, mirror and/or color inversion to an ARGB32 image
+// surface in place, matching the GLSL post-process shader used by GlRenderer
+// (the shader is the reference). When the warp maps an output pixel outside the
+// source, `background` is written so the projector corners stay clean.
+// `feedback` is intentionally not handled here: feedback trails are GPU-only and
+// are left untouched. A no-op for non-ARGB32 or non-image surfaces.
+void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp,
+                      const Color& background = Color{});
 
 } // namespace whorld

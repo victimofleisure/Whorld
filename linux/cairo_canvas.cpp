@@ -53,10 +53,11 @@ void drawFrameCairo(cairo_t* cr, const Frame& f, int w, int h, bool antialias) {
     }
 }
 
-void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp) {
+void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp, const Color& background) {
     // Feedback trails need per-frame history that the single-frame cairo path
     // does not keep; they remain a GPU-only effect (see main.cpp).
-    if (pp.mirrorMode == 0 && !pp.invertColor) return;
+    const bool warp = pp.warpEnabled && validWarp(pp.warp);
+    if (pp.mirrorMode == 0 && !pp.invertColor && !warp) return;
     if (!surface || cairo_surface_get_type(surface) != CAIRO_SURFACE_TYPE_IMAGE) return;
     if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_ARGB32) return;
     const int w = cairo_image_surface_get_width(surface);
@@ -66,7 +67,7 @@ void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp) {
     cairo_surface_flush(surface);
     unsigned char* data = cairo_image_surface_get_data(surface);
 
-    if (pp.mirrorMode != 0) {
+    if (pp.mirrorMode != 0 || warp) {
         // Copy the source: resampling reads arbitrary pixels while we overwrite
         // the surface in place.
         std::vector<unsigned char> src(data, data + std::size_t(stride) * h);
@@ -94,33 +95,71 @@ void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp) {
             }
         };
 
-        // applyMirror(), transcribed from the GLSL shader. The result is the
-        // texture coordinate to read; because the GL framebuffer texture is
-        // stored bottom-up, the vertical component is flipped when sampling the
-        // top-down cairo surface (this is what makes the shader the reference).
+        // The inverse homography maps an output pixel to its source coordinate
+        // (destination -> source), in the same top-down normalized space as
+        // WarpQuad. The shader applies it in the GL bottom-up texture space, so
+        // the warp/mirror arithmetic below also runs bottom-up and only the
+        // final sample flips v back to the top-down cairo surface.
+        double inv[9];
+        const bool haveWarp = warp && quadToInverseHomography(pp.warp, inv);
+
+        // applyMirror() transcribed from the GLSL shader, in bottom-up space.
+        auto mirror = [&](double x, double y, double& mu, double& mv) {
+            mu = x;
+            mv = y;
+            if (pp.mirrorMode == 1) {
+                mu = pp.center.x + std::abs(x - pp.center.x);
+                mv = pp.center.y + std::abs(y - pp.center.y);
+            } else if (pp.mirrorMode >= 2) {
+                const double slices = (pp.mirrorMode == 2) ? 8.0 : 12.0;
+                const double px = x - pp.center.x;
+                const double py = y - pp.center.y;
+                const double r = std::hypot(px, py);
+                const double slice = M_PI / slices;
+                double a = std::atan2(py, px);
+                a = std::fmod(a, 2.0 * slice);
+                if (a < 0) a += 2.0 * slice;
+                if (a > slice) a = 2.0 * slice - a;
+                mu = pp.center.x + std::cos(a) * r;
+                mv = pp.center.y + std::sin(a) * r;
+            }
+        };
+
+        auto putBackground = [&](int x, int y) {
+            unsigned char* dst = data + std::size_t(y) * stride + std::size_t(x) * 4;
+            dst[0] = static_cast<unsigned char>(
+                std::clamp(std::lround(background.b * 255.0), 0L, 255L));
+            dst[1] = static_cast<unsigned char>(
+                std::clamp(std::lround(background.g * 255.0), 0L, 255L));
+            dst[2] = static_cast<unsigned char>(
+                std::clamp(std::lround(background.r * 255.0), 0L, 255L));
+            dst[3] = 255;
+        };
+
+        // The result is the texture coordinate to read. For the plain mirror
+        // path the coordinate is built directly from the top-down output pixel
+        // (and the vertical component is flipped when sampling the top-down
+        // cairo surface, matching the bottom-up GL framebuffer texture).
         for (int y = 0; y < h; ++y) {
             const double cy = (y + 0.5) / h;
             for (int x = 0; x < w; ++x) {
                 const double cx = (x + 0.5) / w;
-                double u = cx, v = cy;
-                if (pp.mirrorMode == 1) {
-                    u = pp.center.x + std::abs(cx - pp.center.x);
-                    v = pp.center.y + std::abs(cy - pp.center.y);
-                } else {
-                    const double slices = (pp.mirrorMode == 2) ? 8.0 : 12.0;
-                    const double px = cx - pp.center.x;
-                    const double py = cy - pp.center.y;
-                    const double r = std::hypot(px, py);
-                    const double slice = M_PI / slices;
-                    double a = std::atan2(py, px);
-                    a = std::fmod(a, 2.0 * slice);
-                    if (a < 0) a += 2.0 * slice;
-                    if (a > slice) a = 2.0 * slice - a;
-                    u = pp.center.x + std::cos(a) * r;
-                    v = pp.center.y + std::sin(a) * r;
-                }
                 unsigned char pixel[4];
-                sample(u, 1.0 - v, pixel);
+                if (haveWarp) {
+                    Point srcPt;
+                    if (!projectPoint(inv, {cx, cy}, srcPt) ||
+                        srcPt.x < 0.0 || srcPt.x > 1.0 || srcPt.y < 0.0 || srcPt.y > 1.0) {
+                        putBackground(x, y); // outside the mapped rectangle
+                        continue;
+                    }
+                    double mu, mv;
+                    mirror(srcPt.x, 1.0 - srcPt.y, mu, mv);
+                    sample(mu, 1.0 - mv, pixel);
+                } else {
+                    double u = cx, v = cy;
+                    mirror(cx, cy, u, v);
+                    sample(u, 1.0 - v, pixel);
+                }
                 std::memcpy(data + std::size_t(y) * stride + std::size_t(x) * 4, pixel, 4);
             }
         }

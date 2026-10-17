@@ -60,9 +60,9 @@ bool checkCase(const std::string& name, const Patch& patch, int width, int heigh
     cairo_t* cr = cairo_create(surface);
     drawFrameCairo(cr, frame, width, height, antialias);
     cairo_destroy(cr);
-    // The cairo fallback applies the same mirror/invert post-processing; the
-    // GPU shader is the reference.
-    postProcessCairo(surface, pp);
+    // The cairo fallback applies the same warp/mirror/invert post-processing;
+    // the GPU shader is the reference.
+    postProcessCairo(surface, pp, frame.background);
 
     std::vector<unsigned char> pixels;
     if (!gpu.renderOffscreen(frame, antialias, width, height, pixels, 1.0, pp)) {
@@ -84,7 +84,7 @@ bool checkCase(const std::string& name, const Patch& patch, int width, int heigh
     // many output pixels onto the same source texels, so seams and edges differ
     // slightly more; the looser post bound still catches a wrong fold or centre
     // (which pushes the mean well past 6).
-    const bool hasPost = pp.mirrorMode != 0 || pp.invertColor;
+    const bool hasPost = pp.mirrorMode != 0 || pp.invertColor || pp.warpEnabled;
     return hasPost ? (r.mean < 4.5 && r.bigPct < 4.5) : (r.mean < 4.0 && r.bigPct < 3.0);
 }
 
@@ -159,6 +159,25 @@ int main(int argc, char** argv) {
         PostProcess pp;
         pp.invertColor = true;
         ok = checkCase("invert only", patch, width, height, 30, true, gpu, detail, pp) && ok;
+        std::printf("%s\n", detail.c_str());
+    }
+
+    // Projection mapping: the GPU inverse homography and the CPU one must agree
+    // for a mild keystone and a strongly skewed convex quad. The warp maps
+    // output pixels to source coordinates and paints the frame background
+    // outside the quad, so the two backends must also agree on those corners.
+    {
+        PostProcess pp;
+        pp.warpEnabled = true;
+        pp.warp = {{0.08, 0.02}, {0.94, 0.10}, {0.88, 0.97}, {0.12, 0.90}};
+        ok = checkCase("warp keystone", patch, width, height, 30, true, gpu, detail, pp) && ok;
+        std::printf("%s\n", detail.c_str());
+    }
+    {
+        PostProcess pp;
+        pp.warpEnabled = true;
+        pp.warp = {{0.22, 0.15}, {0.85, 0.03}, {0.98, 0.88}, {0.02, 0.82}};
+        ok = checkCase("warp skew", patch, width, height, 30, true, gpu, detail, pp) && ok;
         std::printf("%s\n", detail.c_str());
     }
 

@@ -42,6 +42,8 @@ static const char* kPostFs =
     "uniform float uFeedbackRot;\n"
     "uniform vec2 uCenter;\n"
     "uniform vec3 uBackgroundColor;\n"
+    "uniform mat3 uWarp;\n"
+    "uniform int uWarpEnabled;\n"
     "varying vec2 vTexCoord;\n"
     "vec2 applyMirror(vec2 uv) {\n"
     "    if (uMirrorMode == 0) return uv;\n"
@@ -60,7 +62,16 @@ static const char* kPostFs =
     "    return uCenter + vec2(cos(a), sin(a)) * r;\n"
     "}\n"
     "void main() {\n"
-    "    vec2 uv = applyMirror(vTexCoord);\n"
+    "    vec2 uv = vTexCoord;\n"
+    "    if (uWarpEnabled != 0) {\n"
+    "        vec3 s = uWarp * vec3(uv, 1.0);\n"
+    "        uv = s.xy / s.z;\n"
+    "        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {\n"
+    "            gl_FragColor = vec4(uBackgroundColor, 1.0);\n"
+    "            return;\n"
+    "        }\n"
+    "    }\n"
+    "    uv = applyMirror(uv);\n"
     "    vec4 cur = texture2D(uTexture, uv);\n"
     "    vec4 result = cur;\n"
     "    if (uFeedback > 0.01) {\n"
@@ -120,6 +131,24 @@ GLuint createProgram(const char* vsSrc, const char* fsSrc, std::string& err) {
         return 0;
     }
     return prog;
+}
+
+// Converts the top-down inverse homography (destination -> source) into the
+// bottom-up texture space the post shader samples in. The fragment shader's
+// vTexCoord has y = 0 at the bottom of the canvas, while WarpQuad uses the
+// display/cairo convention (y = 0 at the top), so the mapping is conjugated by
+// Flip(x, y) = (x, 1 - y): H_gl = Flip * G * Flip. `out` is column-major, as
+// GLSL mat3 and glUniformMatrix3fv expect.
+bool warpGlMatrix(const WarpQuad& quad, float out[9]) {
+    double g[9];
+    if (!quadToInverseHomography(quad, g)) return false;
+    const double m00 = g[0], m01 = -g[1], m02 = g[1] + g[2];
+    const double m10 = -g[3] + g[6], m11 = g[4] - g[7], m12 = -g[4] - g[5] + g[7] + g[8];
+    const double m20 = g[6], m21 = -g[7], m22 = g[7] + g[8];
+    out[0] = float(m00); out[1] = float(m10); out[2] = float(m20);
+    out[3] = float(m01); out[4] = float(m11); out[5] = float(m21);
+    out[6] = float(m02); out[7] = float(m12); out[8] = float(m22);
+    return true;
 }
 
 std::vector<Point> flatten(const Path& path, int curveSteps = 48) {
@@ -297,6 +326,8 @@ bool GlRenderer::init(SDL_Window* window, std::string& error) {
         uLocFeedbackRot = glGetUniformLocation(postProgram, "uFeedbackRot");
         uLocCenter = glGetUniformLocation(postProgram, "uCenter");
         uLocBackgroundColor = glGetUniformLocation(postProgram, "uBackgroundColor");
+        uLocWarp = glGetUniformLocation(postProgram, "uWarp");
+        uLocWarpEnabled = glGetUniformLocation(postProgram, "uWarpEnabled");
     } else {
         std::fprintf(stderr, "whorld: GLSL post-process shader unavailable: %s\n", progErr.c_str());
     }
@@ -493,8 +524,10 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
     }
 
     GLuint finalTexture = fboColor;
-    const bool hasPost = (postProgram != 0) &&
-                         (pp.mirrorMode != 0 || pp.invertColor || pp.feedback > 0.01);
+    float warpMat[9] = {};
+    const bool warpOn = postProgram != 0 && pp.warpEnabled && warpGlMatrix(pp.warp, warpMat);
+    const bool hasPost = warpOn || ((postProgram != 0) &&
+                         (pp.mirrorMode != 0 || pp.invertColor || pp.feedback > 0.01));
 
     if (offscreen && hasPost) {
         if (pp.feedback > 0.01) {
@@ -529,6 +562,12 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
             glUniform2f(uLocCenter, float(pp.center.x), float(pp.center.y));
             glUniform3f(uLocBackgroundColor, float(frame.background.r),
                         float(frame.background.g), float(frame.background.b));
+            if (warpOn) {
+                glUniform1i(uLocWarpEnabled, 1);
+                glUniformMatrix3fv(uLocWarp, 1, GL_FALSE, warpMat);
+            } else {
+                glUniform1i(uLocWarpEnabled, 0);
+            }
 
             glDisable(GL_BLEND);
             glBegin(GL_QUADS);
@@ -569,6 +608,12 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
             glUniform2f(uLocCenter, float(pp.center.x), float(pp.center.y));
             glUniform3f(uLocBackgroundColor, float(frame.background.r),
                         float(frame.background.g), float(frame.background.b));
+            if (warpOn) {
+                glUniform1i(uLocWarpEnabled, 1);
+                glUniformMatrix3fv(uLocWarp, 1, GL_FALSE, warpMat);
+            } else {
+                glUniform1i(uLocWarpEnabled, 0);
+            }
 
             glDisable(GL_BLEND);
             glBegin(GL_QUADS);

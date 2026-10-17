@@ -22,6 +22,7 @@ add_library(whorld_core
     linux/snapshot.cpp
     linux/movie.cpp
     linux/midi_actions.cpp
+    linux/projection.cpp
 )
 
 target_include_directories(whorld_core PUBLIC linux)
@@ -66,11 +67,22 @@ if(BUILD_TESTING)
     add_test(NAME whorld_post_image COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
         --mirror quad --render ${CMAKE_CURRENT_BINARY_DIR}/test-mirror.png --frames 30 --size 320x240)
 
+    # Projection mapping (--warp) must work in the offscreen --render path too.
+    add_test(NAME whorld_warp_image COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
+        --warp "0.06,0.04,0.95,0.10,0.90,0.96,0.10,0.88"
+        --render ${CMAKE_CURRENT_BINARY_DIR}/test-warp.png --frames 30 --size 320x240)
+
     # CPU-only cairo post-processing unit test (no SDL/OpenGL, so never skipped).
     add_executable(whorld_post_test linux/test_post.cpp linux/cairo_canvas.cpp)
     target_link_libraries(whorld_post_test PRIVATE whorld_core PkgConfig::CAIRO)
     target_compile_options(whorld_post_test PRIVATE -Wall -Wextra)
     add_test(NAME whorld_post COMMAND whorld_post_test)
+
+    # Pure-math projection mapping (quad -> homography) unit test; no GL needed.
+    add_executable(whorld_projection_test linux/test_projection.cpp)
+    target_link_libraries(whorld_projection_test PRIVATE whorld_core)
+    target_compile_options(whorld_projection_test PRIVATE -Wall -Wextra)
+    add_test(NAME whorld_projection COMMAND whorld_projection_test)
 
     add_test(NAME whorld_snapshot_fixture COMMAND whorld_media_test --write-snapshot
         ${CMAKE_CURRENT_BINARY_DIR}/fixture.whs)

@@ -9,6 +9,7 @@
 #include "gl_renderer.h"
 #include "movie.h"
 #include "cairo_canvas.h"
+#include "projection.h"
 #include "video_streamer.h"
 #include "audio_input.h"
 #include <GL/gl.h>
@@ -21,9 +22,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -285,13 +288,13 @@ Surface makeSurface(int w, int h) {
 void image(Engine& engine, const std::string& output, int width, int height,
            const PostProcess& pp = {}) {
     auto surface = makeSurface(width, height);
+    const Frame frame = engine.frame(width, height);
     {
         Context cr(cairo_create(surface.get()), cairo_destroy);
-        drawFrameCairo(cr.get(), engine.frame(width, height), width, height,
-                       engine.patch.antialiasing);
+        drawFrameCairo(cr.get(), frame, width, height, engine.patch.antialiasing);
     }
-    // The shader is the reference; mirror/invert also run on the cairo path.
-    postProcessCairo(surface.get(), pp);
+    // The shader is the reference; warp/mirror/invert also run on the cairo path.
+    postProcessCairo(surface.get(), pp, frame.background);
     cairo_surface_flush(surface.get());
     if (cairo_surface_write_to_png(surface.get(), output.c_str()) != CAIRO_STATUS_SUCCESS)
         throw std::runtime_error("Cannot write PNG: " + output);
@@ -480,12 +483,17 @@ void help() {
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
               << "               [--feedback 0.0-0.99] [--feedback-zoom F] [--feedback-rot F]\n"
+              << "               [--warp \"TLx,TLy,TRx,TRy,BRx,BRy,BLx,BLy\"] [--warp-file FILE]\n"
+              << "               [--warp-save FILE]\n"
               << "               [--v4l2 /dev/videoX] [--pipe-out PATH|-] [--headless]\n"
               << "               [--audio] [--audio-device NAME] [--audio-gain F]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
               << "--feedback enables video feedback trails with controllable decay (0.0-0.99).\n"
+              << "--warp maps the rendered image onto a convex quadrilateral (normalized 0..1, in\n"
+              << "        TL,TR,BR,BL order) for projection mapping; --warp-file reads four x y\n"
+              << "        pairs from a file and --warp-save writes a template and exits.\n"
               << "--v4l2 streams live video to a V4L2 virtual camera device (e.g. /dev/video0).\n"
               << "--list-midi prints the available ALSA sequencer input sources and exits.\n"
               << "--midi-mode selects how controller bytes are read (default absolute): 14bit\n"
@@ -497,7 +505,8 @@ void help() {
               << "--audio enables microphone/line input; --audio-device picks the ALSA device\n"
               << "        (default \"default\") and --audio-gain scales the analysis (default 1.0).\n"
               << "Keys: Space pause, F/O fill and outline, L playlist, P PNG, H hide controls,\n"
-              << "      M cycle mirror/kaleidoscope, I toggle invert, T cycle feedback trails,\n"
+              << "      M cycle mirror/kaleidoscope, I toggle invert, W toggle warp,\n"
+              << "      T cycle feedback trails,\n"
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
               << "      PgUp/PgDn step snapshots, s/-/= render scale, F11 fullscreen, R clear, Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
@@ -517,6 +526,7 @@ int main(int argc, char** argv) {
         PostProcess postProcess;
         std::string v4l2Device;
         std::string pipeOutPath;
+        std::string warpSaveFile;
         bool headless = false;
         std::string audioDevice;
         double audioGain = 1.0;
@@ -576,6 +586,28 @@ int main(int argc, char** argv) {
             else if (arg == "--feedback-rot") {
                 postProcess.feedbackRot = std::stod(value);
             }
+            else if (arg == "--warp") {
+                if (!warpFromString(value, postProcess.warp))
+                    throw std::runtime_error(
+                        "--warp expects \"TLx,TLy,TRx,TRy,BRx,BRy,BLx,BLy\"");
+                if (!validWarp(postProcess.warp))
+                    throw std::runtime_error("--warp quad is degenerate");
+                postProcess.warpEnabled = true;
+            }
+            else if (arg == "--warp-file") {
+                std::ifstream in(value);
+                if (!in) throw std::runtime_error("Cannot open warp file: " + value);
+                std::stringstream text;
+                text << in.rdbuf();
+                if (!warpFromString(text.str(), postProcess.warp))
+                    throw std::runtime_error("Malformed warp file: " + value);
+                if (!validWarp(postProcess.warp))
+                    throw std::runtime_error("Degenerate warp quad in " + value);
+                postProcess.warpEnabled = true;
+            }
+            else if (arg == "--warp-save") {
+                warpSaveFile = value;
+            }
             else if (arg == "--v4l2") {
                 v4l2Device = value;
             }
@@ -615,6 +647,13 @@ int main(int argc, char** argv) {
             } else {
                 for (const std::string& source : sources) std::cout << source << '\n';
             }
+            return 0;
+        }
+        if (!warpSaveFile.empty()) {
+            std::ofstream out(warpSaveFile);
+            out << warpToString(postProcess.warp);
+            if (!out) throw std::runtime_error("Cannot write warp file: " + warpSaveFile);
+            std::cout << "Saved " << warpSaveFile << '\n';
             return 0;
         }
         if (width < 64 || height < 64 || width > 8192 || height > 8192 || frames < 0 || frames > 100000)
@@ -725,7 +764,8 @@ int main(int argc, char** argv) {
                 }
             }
             const bool wantPost = postProcess.mirrorMode != 0 || postProcess.invertColor ||
-                                  postProcess.feedback > 0.01;
+                                  postProcess.feedback > 0.01 ||
+                                  (postProcess.warpEnabled && validWarp(postProcess.warp));
             // OpenGL offscreen rendering is required for feedback trails and is
             // preferred in auto mode whenever post-processing is requested, so
             // --mirror/--invert/--feedback are not silently dropped. --renderer
@@ -1142,6 +1182,20 @@ int main(int argc, char** argv) {
                         postProcess.invertColor = !postProcess.invertColor;
                         engine.patch.invertColor = postProcess.invertColor;
                         status = postProcess.invertColor ? "Invert: ON" : "Invert: OFF";
+                    } else if (key == SDLK_w) {
+                        postProcess.warpEnabled = !postProcess.warpEnabled;
+                        if (!postProcess.warpEnabled) {
+                            status = "Warp: off";
+                        } else {
+                            char wbuf[160];
+                            std::snprintf(wbuf, sizeof(wbuf),
+                                "Warp: on TL(%.3f,%.3f) TR(%.3f,%.3f) BR(%.3f,%.3f) BL(%.3f,%.3f)",
+                                postProcess.warp.tl.x, postProcess.warp.tl.y,
+                                postProcess.warp.tr.x, postProcess.warp.tr.y,
+                                postProcess.warp.br.x, postProcess.warp.br.y,
+                                postProcess.warp.bl.x, postProcess.warp.bl.y);
+                            status = wbuf;
+                        }
                     } else if (!ctrl && key == SDLK_t) {
                         if (postProcess.feedback <= 0.01) postProcess.feedback = 0.70;
                         else if (postProcess.feedback < 0.80) postProcess.feedback = 0.85;
@@ -1443,7 +1497,7 @@ int main(int argc, char** argv) {
                     std::cerr << "whorld: feedback trails require the GPU backend; "
                                  "the cairo canvas ignores them\n";
                 }
-                postProcessCairo(canvas.surface.get(), postProcess);
+                postProcessCairo(canvas.surface.get(), postProcess, frame.background);
                 cairo_surface_flush(canvas.surface.get());
                 uploadTexture(canvas.texture, canvas.surface.get());
                 SDL_RenderClear(renderer);

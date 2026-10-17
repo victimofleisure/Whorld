@@ -72,6 +72,8 @@ private:
     int uLocFeedbackRot = -1;
     int uLocCenter = -1;
     int uLocBackgroundColor = -1;
+    int uLocWarp = -1;
+    int uLocWarpEnabled = -1;
 
     unsigned feedbackFbo[2] = {0, 0};
     unsigned feedbackColor[2] = {0, 0};

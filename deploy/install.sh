@@ -2,8 +2,9 @@
 #
 # Whorld kiosk installer for a display-less NUC (KMS/DRM console, no X server).
 #
-# It builds Whorld with CMake, installs the binary, demo assets, desktop entry,
-# icon and the systemd kiosk unit, then reloads systemd and enables the unit.
+# It builds Whorld with CMake, installs the binary, demo assets, the example
+# show config, desktop entry, icon and the systemd kiosk unit, then reloads
+# systemd and enables the unit.
 # It is idempotent and non-destructive: it never deletes anything, and it
 # leaves an existing /etc/default/whorld untouched. It does NOT start the kiosk
 # (the console may still be in use); the final banner prints how to start it.
@@ -86,6 +87,14 @@ install -d "${PREFIX}/bin" \
 install -m 0755 "${BUILD_DIR}/whorld" "${PREFIX}/bin/whorld"
 install -m 0644 "${REPO_DIR}/linux/demo.whp" "${REPO_DIR}/linux/demo.whl" \
     "${PREFIX}/share/whorld/"
+# Install the show config as an example, never over an existing file, so an
+# operator's edits to /usr/local/share/whorld/whorld.conf survive a re-run.
+# Point the kiosk at it with WHORLD_ARGS=--config ... in /etc/default/whorld.
+if [ -f "${PREFIX}/share/whorld/whorld.conf" ]; then
+    log "${PREFIX}/share/whorld/whorld.conf already exists; leaving it untouched"
+else
+    install -m 0644 "${SCRIPT_DIR}/whorld.conf" "${PREFIX}/share/whorld/whorld.conf"
+fi
 install -m 0644 "${REPO_DIR}/linux/whorld.desktop" \
     "${PREFIX}/share/applications/whorld.desktop"
 install -m 0644 "${REPO_DIR}/linux/whorld.svg" \
@@ -120,12 +129,16 @@ cat <<EOF
 
 Installed:
   ${PREFIX}/bin/whorld
-  ${PREFIX}/share/whorld/{demo.whp,demo.whl}
+  ${PREFIX}/share/whorld/{demo.whp,demo.whl,whorld.conf}
   ${PREFIX}/share/applications/whorld.desktop
   ${PREFIX}/share/icons/hicolor/scalable/apps/whorld.svg
   ${PREFIX}/share/doc/whorld/DEPLOY.md
   ${ENV_DEST}          (operator arguments; set WHORLD_ARGS)
   ${UNIT_DEST}
+
+To configure the kiosk, edit ${PREFIX}/share/whorld/whorld.conf and put
+  WHORLD_ARGS=--config ${PREFIX}/share/whorld/whorld.conf
+in ${ENV_DEST} (flags there still override the file). Then:
 
 The kiosk was NOT started. To try it now:
   sudo systemctl start ${UNIT_NAME}

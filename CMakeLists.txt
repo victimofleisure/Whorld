@@ -24,6 +24,7 @@ add_library(whorld_core
     linux/movie.cpp
     linux/midi_actions.cpp
     linux/projection.cpp
+    linux/config.cpp
 )
 
 target_include_directories(whorld_core PUBLIC linux)
@@ -94,6 +95,24 @@ if(BUILD_TESTING)
     target_link_libraries(whorld_projection_test PRIVATE whorld_core)
     target_compile_options(whorld_projection_test PRIVATE -Wall -Wextra)
     add_test(NAME whorld_projection COMMAND whorld_projection_test)
+
+    # Show-config INI parser and ShowConfig (de)serialization; pure, no GL/SDL.
+    add_executable(whorld_config_test linux/test_config.cpp)
+    target_link_libraries(whorld_config_test PRIVATE whorld_core)
+    target_compile_options(whorld_config_test PRIVATE -Wall -Wextra)
+    add_test(NAME whorld_config COMMAND whorld_config_test)
+
+    # --config-save captures the effective settings, and --config reads them back
+    # as defaults. The capture needs no display; the reload renders one PNG on
+    # the CPU path, so both are deterministic on any machine.
+    add_test(NAME whorld_config_save COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
+        --mirror quad --blend screen --morph 1.5
+        --config-save ${CMAKE_CURRENT_BINARY_DIR}/test-show.conf)
+    set_tests_properties(whorld_config_save PROPERTIES FIXTURES_SETUP whorld_config)
+    add_test(NAME whorld_config_image COMMAND whorld --config ${CMAKE_CURRENT_BINARY_DIR}/test-show.conf
+        --renderer cairo --render ${CMAKE_CURRENT_BINARY_DIR}/test-config.png
+        --frames 30 --size 320x240)
+    set_tests_properties(whorld_config_image PROPERTIES FIXTURES_REQUIRED whorld_config)
 
     # OSC parsing, convention addressing and a localhost UDP loopback.
     add_executable(whorld_osc_test linux/test_osc.cpp)

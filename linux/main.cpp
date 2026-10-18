@@ -13,6 +13,7 @@
 #include "video_streamer.h"
 #include "audio_input.h"
 #include "osc.h"
+#include "config.h"
 #include <GL/gl.h>
 #include <SDL.h>
 #include <cairo/cairo.h>
@@ -491,6 +492,18 @@ std::string sdlError(const std::string& what) {
     }
     return message + ")";
 }
+// Reads the four "x y" corner pairs used by --warp-file and a config's warpFile.
+// Throws with the same messages the command line reports so both paths agree.
+void loadWarpFile(const std::string& path, WarpQuad& warp) {
+    std::ifstream in(path);
+    if (!in) throw std::runtime_error("Cannot open warp file: " + path);
+    std::stringstream text;
+    text << in.rdbuf();
+    if (!warpFromString(text.str(), warp))
+        throw std::runtime_error("Malformed warp file: " + path);
+    if (!validWarp(warp))
+        throw std::runtime_error("Degenerate warp quad in " + path);
+}
 void help() {
     std::cout << "Whorld native Linux port\n"
               << "Usage: whorld [--patch FILE.whp] [--playlist FILE.whl] [--snapshot FILE.whs]\n"
@@ -510,6 +523,7 @@ void help() {
               << "               [--video-driver NAME] [--fullscreen] [--hide-cursor]\n"
               << "               [--audio] [--audio-device NAME] [--audio-gain F] [--osc [PORT]]\n"
               << "               [--osc-port N]\n"
+              << "               [--config FILE] [--config-save FILE]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
@@ -547,6 +561,12 @@ void help() {
               << "        the address (no playlist mapping needed): /whorld/<Target>,\n"
               << "        /whorld/<Target>/<Property> and /whorld/action/<Target>. The first\n"
               << "        argument is the value in 0..1; see README.\n"
+              << "--config FILE reads show defaults (patch, playlist, renderer, mirror/blend,\n"
+              << "        warp, MIDI/OSC/audio options, ...) from a human-editable key = value\n"
+              << "        file, so a kiosk needs one readable file instead of a long\n"
+              << "        WHORLD_ARGS line. Explicit flags still override the file.\n"
+              << "--config-save FILE writes the effective settings to FILE and exits, so an\n"
+              << "        operator can capture a working setup. See deploy/whorld.conf.\n"
               << "Keys: Space pause, F/O fill and outline, L playlist, P PNG, H hide controls,\n"
               << "      M cycle mirror/kaleidoscope, B cycle blend, I toggle invert, W toggle warp,\n"
               << "      T cycle feedback trails,\n"
@@ -590,9 +610,73 @@ int main(int argc, char** argv) {
         bool midiOutEnabled = false;    // --midi-out
         bool midiFeedback = false;      // --midi-feedback
         std::string midiOutDestination; // empty = virtual output port
+        // A show config file supplies *defaults* for the options above. It is
+        // found before the main loop so flag order never matters, and the loop
+        // below then applies explicit flags, so any flag the operator also
+        // passes overrides the file (see --config in help()).
+        std::string configFile, configSaveFile;
+        ShowConfig configDefaults; // loaded file, kept so --config-save keeps unknown keys
+        for (int i = 1; i < argc; ++i) {
+            const std::string arg = argv[i];
+            if (arg == "--config") {
+                if (i + 1 >= argc || argv[i + 1][0] == '\0')
+                    throw std::runtime_error("--config expects a file path");
+                configFile = argv[++i];
+            } else if (arg == "--config-save") {
+                if (i + 1 >= argc || argv[i + 1][0] == '\0')
+                    throw std::runtime_error("--config-save expects a file path");
+                configSaveFile = argv[++i];
+            }
+        }
+        if (!configFile.empty()) {
+            ShowConfig show;
+            std::string configError;
+            if (!loadShowConfig(configFile, show, configError)) throw std::runtime_error(configError);
+            patchFile = show.patch;
+            playlistFile = show.playlist;
+            rendererMode = show.renderer;
+            forcedScale = show.scale;
+            postProcess.mirrorMode = show.mirror;
+            postProcess.invertColor = show.invert;
+            postProcess.feedback = show.feedback;
+            postProcess.blendMode = show.blend;
+            morphSeconds = show.morph;
+            if (!show.warp.empty()) {
+                if (!warpFromString(show.warp, postProcess.warp))
+                    throw std::runtime_error("Malformed warp in " + configFile);
+                postProcess.warpEnabled = true;
+            } else if (!show.warpFile.empty()) {
+                loadWarpFile(show.warpFile, postProcess.warp);
+                postProcess.warpEnabled = true;
+            }
+            videoDriver = show.videoDriver;
+            fullscreen = show.fullscreen;
+            hideCursor = show.hideCursor;
+            midiSource = show.midiSource;
+            midiMode = show.midiMode;
+            midiTakeover = show.midiTakeover;
+            midiOutEnabled = show.midiOutEnabled;
+            midiOutDestination = show.midiOut;
+            midiFeedback = show.midiFeedback;
+            midiClockEnabled = show.midiClock;
+            oscEnabled = show.osc;
+            oscPort = show.oscPort;
+            oscDirectEnabled = show.oscDirect;
+            oscDirectPort = show.oscDirectPort;
+            audioEnabled = show.audio;
+            audioDevice = show.audioDevice;
+            audioGain = show.audioGain;
+            configDefaults = show; // keep the loaded struct (and its unknown keys)
+        }
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (arg == "--help" || arg == "-h") { help(); return 0; }
+            if (arg == "--config" || arg == "--config-save") {
+                // The path was read by the pre-scan above; skip it here.
+                if (i + 1 >= argc) throw std::runtime_error("Missing value for " + arg);
+                ++i;
+                continue;
+            }
             if (arg == "--invert") { postProcess.invertColor = true; continue; }
             if (arg == "--headless") { headless = true; continue; }
             if (arg == "--fullscreen") { fullscreen = true; continue; }
@@ -605,6 +689,8 @@ int main(int argc, char** argv) {
                 midiOutEnabled = true;
                 // An optional CLIENT:PORT may follow; anything that starts like
                 // another option leaves the default (virtual) port untouched.
+                // Clearing first lets a bare flag override a config destination.
+                midiOutDestination.clear();
                 if (i + 1 < argc) {
                     const std::string next = argv[i + 1];
                     if (next.rfind("--", 0) != 0) {
@@ -618,7 +704,9 @@ int main(int argc, char** argv) {
                 oscEnabled = true;
                 // An optional port may follow; anything that is not a bare
                 // decimal number leaves the default untouched, because option
-                // values and the next flag share the same slot.
+                // values and the next flag share the same slot. Reset first so a
+                // bare flag overrides a config port.
+                oscPort = 8000;
                 if (i + 1 < argc) {
                     const std::string next = argv[i + 1];
                     if (!next.empty() && next.size() <= 5 &&
@@ -638,13 +726,9 @@ int main(int argc, char** argv) {
             else if (arg == "--snapshot") snapshotFile = value;
             else if (arg == "--midi-source") midiSource = value;
             else if (arg == "--midi-mode") {
-                if (value == "absolute") midiMode = MidiInputMode::Absolute;
-                else if (value == "14bit") midiMode = MidiInputMode::FourteenBit;
-                else if (value == "rel-twos") midiMode = MidiInputMode::RelativeTwosComplement;
-                else if (value == "rel-sign") midiMode = MidiInputMode::RelativeSignMagnitude;
-                else if (value == "rel-binary") midiMode = MidiInputMode::RelativeBinaryOffset;
-                else throw std::runtime_error(
-                    "--midi-mode must be absolute, 14bit, rel-twos, rel-sign or rel-binary");
+                if (!parseMidiModeInput(value, midiMode))
+                    throw std::runtime_error(
+                        "--midi-mode must be absolute, 14bit, rel-twos, rel-sign or rel-binary");
             }
             else if (arg == "--render") renderFile = value;
             else if (arg == "--osc-port") {
@@ -668,10 +752,8 @@ int main(int argc, char** argv) {
                     throw std::runtime_error("--renderer must be auto, gpu or cairo");
             }
             else if (arg == "--blend") {
-                if (value == "normal" || value == "0") postProcess.blendMode = 0;
-                else if (value == "add" || value == "additive" || value == "1") postProcess.blendMode = 1;
-                else if (value == "screen" || value == "2") postProcess.blendMode = 2;
-                else throw std::runtime_error("Invalid --blend option (expected normal, add, screen)");
+                if (!parseBlendMode(value, postProcess.blendMode))
+                    throw std::runtime_error("Invalid --blend option (expected normal, add, screen)");
             }
             else if (arg == "--morph") {
                 morphSeconds = std::stod(value);
@@ -679,11 +761,8 @@ int main(int argc, char** argv) {
                     throw std::runtime_error("--morph must be between 0 and 3600 seconds");
             }
             else if (arg == "--mirror") {
-                if (value == "quad" || value == "1") postProcess.mirrorMode = 1;
-                else if (value == "kaleidoscope" || value == "2") postProcess.mirrorMode = 2;
-                else if (value == "radial" || value == "3") postProcess.mirrorMode = 3;
-                else if (value == "off" || value == "0") postProcess.mirrorMode = 0;
-                else throw std::runtime_error("Invalid --mirror option (expected off, quad, kaleidoscope, radial)");
+                if (!parseMirrorMode(value, postProcess.mirrorMode))
+                    throw std::runtime_error("Invalid --mirror option (expected off, quad, kaleidoscope, radial)");
             }
             else if (arg == "--feedback") {
                 postProcess.feedback = std::stod(value);
@@ -705,14 +784,7 @@ int main(int argc, char** argv) {
                 postProcess.warpEnabled = true;
             }
             else if (arg == "--warp-file") {
-                std::ifstream in(value);
-                if (!in) throw std::runtime_error("Cannot open warp file: " + value);
-                std::stringstream text;
-                text << in.rdbuf();
-                if (!warpFromString(text.str(), postProcess.warp))
-                    throw std::runtime_error("Malformed warp file: " + value);
-                if (!validWarp(postProcess.warp))
-                    throw std::runtime_error("Degenerate warp quad in " + value);
+                loadWarpFile(value, postProcess.warp);
                 postProcess.warpEnabled = true;
             }
             else if (arg == "--warp-save") {
@@ -745,6 +817,45 @@ int main(int argc, char** argv) {
                 width = std::stoi(value.substr(0, x));
                 height = std::stoi(value.substr(x + 1));
             } else throw std::runtime_error("Unknown option " + arg);
+        }
+        // --config-save captures the effective settings (config defaults plus
+        // every explicit flag) into a readable file and exits, so an operator
+        // can snapshot a working setup for the kiosk. It is handled here so the
+        // whole command line has already been applied.
+        if (!configSaveFile.empty()) {
+            ShowConfig show = configDefaults; // re-emit unknown keys from --config
+            show.patch = patchFile;
+            show.playlist = playlistFile;
+            show.renderer = rendererMode;
+            show.scale = forcedScale;
+            show.mirror = postProcess.mirrorMode;
+            show.invert = postProcess.invertColor;
+            show.feedback = postProcess.feedback;
+            show.blend = postProcess.blendMode;
+            show.morph = morphSeconds;
+            if (postProcess.warpEnabled) show.warp = warpToString(postProcess.warp);
+            show.videoDriver = videoDriver;
+            show.fullscreen = fullscreen;
+            show.hideCursor = hideCursor;
+            show.midiSource = midiSource;
+            show.midiMode = midiMode;
+            show.midiTakeover = midiTakeover;
+            show.midiOut = midiOutDestination;
+            show.midiOutEnabled = midiOutEnabled;
+            show.midiFeedback = midiFeedback;
+            show.midiClock = midiClockEnabled;
+            show.osc = oscEnabled;
+            show.oscPort = oscPort;
+            show.oscDirect = oscDirectEnabled;
+            show.oscDirectPort = oscDirectPort;
+            show.audio = audioEnabled;
+            show.audioDevice = audioDevice;
+            show.audioGain = audioGain;
+            std::string saveError;
+            if (!saveShowConfig(configSaveFile, show, saveError))
+                throw std::runtime_error(saveError);
+            std::cout << "Saved " << configSaveFile << '\n';
+            return 0;
         }
         // Select the SDL video driver before any SDL_Init call. An explicit
         // --video-driver always wins; a headless kiosk prefers the offscreen

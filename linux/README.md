@@ -34,6 +34,47 @@ Launch any V2 patch with `--patch /path/to/file.whp`. `--playlist linux/demo.whl
 
 `--scale F` (or the **s**/**-**, **=** keys while running) sets the canvas render scale from 0.25 to 2.0. The Cairo backend rasterizes the canvas at that fraction of its on-screen size; the OpenGL backend supersamples at that multiple and downsamples on compositing, so values above 1.0 trade GPU time for smoother edges. With no `--scale`, the Cairo backend adapts the scale automatically to stay within the frame budget while the OpenGL backend stays at 1.0.
 
+### Show config file
+
+`--config FILE` reads startup options from a human-editable `key = value` file so a kiosk can start from one readable file instead of a long `WHORLD_ARGS` line. The format is the same INI-ish style as `.whl`: one entry per line, `#` or `;` starts a full-line comment, blank lines are ignored, surrounding whitespace is trimmed and keys are case-sensitive. Values are *defaults* — any flag you also pass on the command line overrides the file — and unknown keys are preserved when a config is rewritten. `deploy/whorld.conf` is an annotated example.
+
+```ini
+# /usr/local/share/whorld/whorld.conf
+patch = /usr/local/share/whorld/demo.whp
+renderer = gpu
+mirror = quad
+warp = 0.06,0.04,0.95,0.10,0.90,0.96,0.10,0.88
+fullscreen = true
+hideCursor = true
+midiSource = 24:0
+midiMode = 14bit
+oscDirectPort = 9000
+```
+
+| Key | Value |
+| --- | --- |
+| `patch`, `playlist` | paths, as `--patch` / `--playlist` |
+| `renderer` | `auto` \| `gpu` \| `cairo` |
+| `scale` | `0` (adaptive) or `0.25`..`2.0` |
+| `mirror` | `off` \| `quad` \| `kaleidoscope` \| `radial` |
+| `invert` | `true` \| `false` |
+| `feedback` | `0.0`..`0.99` |
+| `blend` | `normal` \| `add` \| `screen` |
+| `morph` | seconds, `0`..`3600` |
+| `warp`, `warpFile` | the `--warp` 8-number string, or a four-`x y`-pair file |
+| `videoDriver` | `SDL_VIDEODRIVER` name (`kmsdrm`, `x11`, ...) |
+| `fullscreen`, `hideCursor` | `true` \| `false` |
+| `midiSource` | `CLIENT:PORT` |
+| `midiMode` | `absolute` \| `14bit` \| `rel-twos` \| `rel-sign` \| `rel-binary` |
+| `midiTakeover`, `midiFeedback`, `midiClock` | `true` \| `false` |
+| `midiOut` | `CLIENT:PORT` (empty = virtual output port) |
+| `midiOutEnabled` | `true` \| `false` |
+| `osc`, `oscPort` | `--osc` mapping mode and its UDP port |
+| `oscDirect`, `oscDirectPort` | `--osc-port` convention addressing and its port |
+| `audio`, `audioDevice`, `audioGain` | microphone/line input options |
+
+Booleans accept `true`/`false`, `yes`/`no`, `on`/`off` and `1`/`0`. `--config-save FILE` writes the effective settings of the current command line to `FILE` (every key, so the file is self-documenting) and exits, which is the easy way to capture a working setup: run the show you want with `--config-save /tmp/show.conf`, then review and use it with `--config`. With no `--config`, startup is unchanged.
+
 ## Shape primitives
 
 A ring can be drawn as one of seven shape primitives instead of the default polygon. The `Primitive` parameter selects the shape, and each primitive has its own adjustment parameters. Like every other geometry parameter, the shape is captured when a ring is born, so changing the selector or a control affects newly created rings while existing rings keep their shape.
@@ -225,6 +266,6 @@ The `deploy/` directory holds a systemd unit (`whorld-kiosk.service`), an idempo
 
 Live geometry, straight and curved rings, shape primitives (`linux/shape_def.h`: polygon, circle, square, triangle, star, cross, line), color and alpha, `.whp` load/save, basic parameter editing, fullscreen and PNG output are supported. Playlists (`.whl`), snapshots (`.whs`), snapshot viewing, WHM2 movies (`.whm`, record/playback/single-frame render) and ALSA MIDI input are supported; see `linux/playlist.cpp`, `linux/snapshot.cpp`, `linux/movie.cpp`, `linux/midi_actions.cpp` and `linux/alsa_midi.cpp`. Canvas rendering runs on the GPU through OpenGL when available (`linux/gl_renderer.cpp`) with a Cairo fallback (`linux/cairo_canvas.cpp`). The full Windows docking UI is **not** ported yet. The Cairo fallback runs on the CPU and can be slower than Direct2D at high ring counts; select the OpenGL backend for those. `Mirror` (off, 4-way quad mirror, 8-way kaleidoscope, and 12-way radial modes) and `InvertColor` are now rendered via GLSL post-processing shaders (`linux/gl_renderer.cpp`), alongside configurable video feedback trails (`--feedback 0.0-0.99`, `--feedback-zoom`, `--feedback-rot`), additive/screen geometry blending (`--blend`, key **B**) and patch crossfades during playlist playback (`--morph`, see `Engine::morphTo` in `linux/whorld_core.cpp`). Projection mapping warps the image onto a convex quadrilateral with the same per-pixel transform on both backends (`--warp`, `--warp-file`, `--warp-save`; `linux/projection.cpp`). Real-time inter-service video streaming is supported via V4L2 virtual cameras (`--v4l2 /dev/video0`) and raw RGB pipes (`--pipe-out`). OSC input over UDP (`--osc [PORT]` and direct `--osc-port N`) binds addresses to the same 65 targets as MIDI, with `?`/`*` wildcards, Ctrl+M learn and a mapping-free address convention (`linux/osc.cpp`). Headless offscreen GPU rendering/streaming is supported via `--headless`, and a display-less appliance can select the SDL driver (`--video-driver NAME`, e.g. `kmsdrm`), start fullscreen (`--fullscreen`) and hide the pointer (`--hide-cursor`); see `deploy/`. Patches, playlists, snapshots and movies from an untrusted source are validated and size-bounded to keep malformed values from hanging the application.
 
-Tests: `whorld_core` (patch/mapping math and patch morphing), `whorld_media` (playlist, MIDI/14-bit/relative-encoder/soft-takeover and external-clock logic, CC encoding, gamepad/audio mappings, snapshot and movie round trips), `whorld_audio` (FFT band and onset/beat analysis, `Beat` audio mapping), OSC packet parsing and `[Osc]`-mapping tests (inside `whorld_media`), `whorld_osc` (packet/bundle parsing, convention addressing and a localhost UDP loopback), `whorld_projection` (quad/homography math for `--warp`), the headless PNG renders `whorld_image`, `whorld_playlist_image`, `whorld_snapshot_image`, `whorld_warp_image` and `whorld_movie_frame`, the display-less offscreen GPU render `whorld_headless_gpu`, the movie recording test `whorld_movie`, the `whorld_list_midi` discovery smoke test, and `whorld_gpu` (which renders the demo patch with both backends — including additive and screen blending — and fails if the OpenGL output diverges from Cairo; it skips when no OpenGL context is available). All are driven by CTest.
+Tests: `whorld_core` (patch/mapping math and patch morphing), `whorld_media` (playlist, MIDI/14-bit/relative-encoder/soft-takeover and external-clock logic, CC encoding, gamepad/audio mappings, snapshot and movie round trips), `whorld_audio` (FFT band and onset/beat analysis, `Beat` audio mapping), OSC packet parsing and `[Osc]`-mapping tests (inside `whorld_media`), `whorld_osc` (packet/bundle parsing, convention addressing and a localhost UDP loopback), `whorld_projection` (quad/homography math for `--warp`), `whorld_config` (show-config INI parser, typed getters, unknown-key preservation and a `ShowConfig` round trip), the headless PNG renders `whorld_image`, `whorld_playlist_image`, `whorld_snapshot_image`, `whorld_warp_image` and `whorld_movie_frame`, the `--config-save`/`--config` smoke pair `whorld_config_save` + `whorld_config_image`, the display-less offscreen GPU render `whorld_headless_gpu`, the movie recording test `whorld_movie`, the `whorld_list_midi` discovery smoke test, and `whorld_gpu` (which renders the demo patch with both backends — including additive and screen blending — and fails if the OpenGL output diverges from Cairo; it skips when no OpenGL context is available). All are driven by CTest.
 
 The upstream license is GPL; see `../LICENSE`.

@@ -2,10 +2,14 @@
 # KMS/DRM console, with no X server and no window manager.
 #
 # Install with deploy/install.sh, which copies this unit to
-# /etc/systemd/system and enables it. Operator options (USB MIDI, OSC,
-# projection mapping, patch/playlist) go in /etc/default/whorld via the
-# WHORLD_ARGS variable, or as extra arguments on the ExecStart line below.
-# See deploy/README.md for the full off-grid NUC guide.
+# /etc/systemd/system and enables it. The preferred way to configure the kiosk
+# is the show config file /usr/local/share/whorld/whorld.conf: put
+#   WHORLD_ARGS=--config /usr/local/share/whorld/whorld.conf
+# in /etc/default/whorld and edit that one readable file (see deploy/whorld.conf
+# for every key). Operator options (USB MIDI, OSC, projection mapping,
+# patch/playlist) can equally go in the WHORLD_ARGS variable as flags, or as
+# extra arguments on the ExecStart line below. Flags always override the config
+# file. See deploy/README.md for the full off-grid NUC guide.
 
 [Unit]
 Description=Whorld kiosk (KMS/DRM fullscreen visualizer)
@@ -35,9 +39,13 @@ Environment=HOME=/var/lib/whorld
 # Operator arguments: /etc/default/whorld sets WHORLD_ARGS (optional file).
 EnvironmentFile=-/etc/default/whorld
 # Come up fullscreen with the pointer hidden for projection. $WHORLD_ARGS is
-# appended so the environment file can add --midi-source, --osc-port, --warp,
-# --patch, --playlist, ... without editing this unit; when it is left unset it
-# expands to nothing. Run `systemctl edit whorld-kiosk` to override instead.
+# appended so the environment file can add --config, --midi-source, --osc-port,
+# --warp, --patch, --playlist, ... without editing this unit; when it is left
+# unset it expands to nothing. The flags below are command-line options and so
+# override any value for the same option in a --config file (config values are
+# defaults). To drive fullscreen/patch/playlist entirely from the config file,
+# drop the matching flag here with `systemctl edit whorld-kiosk`.
+# Run `systemctl edit whorld-kiosk` to override instead.
 ExecStart=/usr/local/bin/whorld --fullscreen --hide-cursor --patch /usr/local/share/whorld/demo.whp $WHORLD_ARGS
 Restart=always
 RestartSec=2

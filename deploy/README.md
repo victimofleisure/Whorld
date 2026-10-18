@@ -14,14 +14,15 @@ Everything here references flags and paths that exist after running
 | `/usr/local/bin/whorld` | the visualizer binary |
 | `/usr/local/share/whorld/demo.whp` | demo patch |
 | `/usr/local/share/whorld/demo.whl` | demo playlist (2 patches + CC mappings) |
+| `/usr/local/share/whorld/whorld.conf` | example show config (`--config`) |
 | `/usr/local/share/doc/whorld/DEPLOY.md` | this document |
 | `/etc/default/whorld` | operator arguments (`WHORLD_ARGS`) |
 | `/etc/systemd/system/whorld-kiosk.service` | the kiosk unit |
 
 Run the new CLI flags with `whorld --help`; the ones used here are
-`--video-driver NAME`, `--fullscreen`, `--hide-cursor`, `--patch`,
-`--playlist`, `--midi-source`, `--list-midi`, `--osc-port`, `--warp`,
-`--warp-file`, `--renderer` and `--render`.
+`--config`, `--config-save`, `--video-driver NAME`, `--fullscreen`,
+`--hide-cursor`, `--patch`, `--playlist`, `--midi-source`, `--list-midi`,
+`--osc-port`, `--warp`, `--warp-file`, `--renderer` and `--render`.
 
 ## 1. Build and install packages ahead of time
 
@@ -128,8 +129,28 @@ with `SDL_VIDEODRIVER=kmsdrm`, `SDL_KMSDRM_DEVICE_INDEX=0` and
 
 ### Operator arguments
 
-Put your show options in `/etc/default/whorld` as a single `WHORLD_ARGS` line,
-then `sudo systemctl restart whorld-kiosk`:
+The **preferred** way to configure the kiosk is the show config file
+`/usr/local/share/whorld/whorld.conf`, installed by `install.sh` as an example.
+Edit it (it documents every key: patch, playlist, renderer, warp, MIDI/OSC/audio
+options, ...) and point the unit at it with one line in `/etc/default/whorld`:
+
+```ini
+WHORLD_ARGS=--config /usr/local/share/whorld/whorld.conf
+```
+
+A config supplies *defaults*, and any flag in `WHORLD_ARGS` or on the `ExecStart`
+line still overrides it, so the same file works for several setups. Start from a
+working command line and let Whorld write the file for you:
+
+```sh
+whorld --patch /usr/local/share/whorld/demo.whp --mirror quad --osc-port 9000 \
+    --config-save /tmp/show.conf     # then review and copy into place
+```
+
+Then `sudo systemctl restart whorld-kiosk`.
+
+Alternatively, put every option in `WHORLD_ARGS` as a single space-separated
+line (this always works and needs no config file):
 
 ```ini
 WHORLD_ARGS=--midi-source 24:0 --osc-port 9000
@@ -212,8 +233,9 @@ on a surface that the projector sees at an angle. The corners are normalized to
 3. **Toggle and confirm at runtime** with the **W** key: the status line shows
    whether warping is on and prints the four corners, so you can verify the
    numbers without restarting.
-4. Put the chosen `--warp`/`--warp-file` in `/etc/default/whorld` and restart
-   the kiosk.
+4. Put the chosen `--warp`/`--warp-file` in `/etc/default/whorld` (or in
+   `/usr/local/share/whorld/whorld.conf` as `warp`/`warpFile`) and restart the
+   kiosk.
 
 `--warp` works in the offscreen `--render` path too, so you can preview a warp
 on a workstation with just `--render out.png`.
@@ -316,9 +338,10 @@ error lists the available SDL video drivers. (On a machine that has no display,
 6. `systemctl start whorld-kiosk` → fullscreen image on the projector.
 7. `journalctl -u whorld-kiosk -f` shows no `SDL initialization failed`.
 8. MIDI: `whorld --list-midi` lists the controller; `--midi-source` in
-   `/etc/default/whorld`; controller knobs move parameters.
+   `/etc/default/whorld` (or `midiSource` in `whorld.conf`); controller knobs
+   move parameters.
 9. Projection: **W** shows the warp corners; the image lands square on the
-   surface; the quad is saved in `/etc/default/whorld`.
+   surface; the quad is saved in `/etc/default/whorld` or `whorld.conf`.
 10. Pointer is hidden at launch; **F11/H/W/M/B/I/T/Space/Esc** still respond.
 11. `sudo systemctl restart whorld-kiosk` comes back to the same show.
 12. Reboot the NUC and confirm it comes up unattended.

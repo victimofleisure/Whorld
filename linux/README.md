@@ -151,6 +151,27 @@ End=100
 
 The `[Gamepad]` and `[Audio]` sections are a Linux-port extension: upstream readers ignore them, and the port only writes them when they are non-empty.
 
+### Open Sound Control (OSC)
+
+`--osc [PORT]` listens for OSC 1.0 messages over UDP (default port 8000; bundled and nested messages work, and one datagram may carry a bundle). The first numeric or boolean argument is the value; an argument-free message maps to 1, which makes pulses from anything comfortable: `/whorld/clear 1` pressed once in TouchOSC clears once. Mappings live in the playlist's `[Osc\N]` sections:
+
+```ini
+[Osc\0]
+Address=/whorld/ringgrowth
+Target=RingGrowth
+Prop=Val
+Min=0
+Max=1
+Start=0
+End=100
+```
+
+`Address` is matched against the message address with the OSC wildcards `?` (one character) and `*` (any run); the port does not implement `[]` character sets or `{}` alternation, so use a `*` between literal fragments instead. The value is placed into `Min`..`Max` (defaults 0..1, so a 0..127 sender needs `Min=0`, `Max=127`), clipped to 0..1, and then scaled onto `Start`/`End` exactly like the other inputs. Momentary targets (`Clear`, `Pause`, `Patch`, ...) fire when a datagram carries a non-zero value and stay silent on zero, since senders normally transmit only on change.
+
+**OSC learn:** **Ctrl+M** also learns OSC. With `--osc` running, select a row, press **Ctrl+M**, then send any message from your controller; its full address is bound to the row's current Tab property (rebinding the same address, as the other inputs do), and **Ctrl+Shift+S** saves the playlist to keep it. The exact incoming address is stored, so wildcards only come from hand-written mappings.
+
+Because the listener is a plain UDP socket, anything that can speak OSC 1.0 works: TouchOSC/Lemur on phones, Max, TouchDesigner, Reaper, and command-line tools such as `oscsend` (from `oscoutils`): `oscsend localhost 8000 /whorld/ringgrowth f 0.5`.
+
 ## Desktop launcher
 
 `linux/whorld.desktop` plus `linux/whorld.svg` are installed by `cmake --install`, so Whorld appears in the desktop application menu with an icon:
@@ -177,8 +198,8 @@ That puts the binary in `~/.local/bin` (add it to `PATH` if the launcher does no
 
 ## Port status
 
-Live geometry, straight and curved rings, shape primitives (`linux/shape_def.h`: polygon, circle, square, triangle, star, cross, line), color and alpha, `.whp` load/save, basic parameter editing, fullscreen and PNG output are supported. Playlists (`.whl`), snapshots (`.whs`), snapshot viewing, WHM2 movies (`.whm`, record/playback/single-frame render) and ALSA MIDI input are supported; see `linux/playlist.cpp`, `linux/snapshot.cpp`, `linux/movie.cpp`, `linux/midi_actions.cpp` and `linux/alsa_midi.cpp`. Canvas rendering runs on the GPU through OpenGL when available (`linux/gl_renderer.cpp`) with a Cairo fallback (`linux/cairo_canvas.cpp`). The full Windows docking UI is **not** ported yet. The Cairo fallback runs on the CPU and can be slower than Direct2D at high ring counts; select the OpenGL backend for those. `Mirror` (off, 4-way quad mirror, 8-way kaleidoscope, and 12-way radial modes) and `InvertColor` are now rendered via GLSL post-processing shaders (`linux/gl_renderer.cpp`), alongside configurable video feedback trails (`--feedback 0.0-0.99`, `--feedback-zoom`, `--feedback-rot`), additive/screen geometry blending (`--blend`, key **B**) and patch crossfades during playlist playback (`--morph`, see `Engine::morphTo` in `linux/whorld_core.cpp`). Projection mapping warps the image onto a convex quadrilateral with the same per-pixel transform on both backends (`--warp`, `--warp-file`, `--warp-save`; `linux/projection.cpp`). Real-time inter-service video streaming is supported via V4L2 virtual cameras (`--v4l2 /dev/video0`) and raw RGB pipes (`--pipe-out`). Headless offscreen GPU rendering/streaming is supported via `--headless`. Patches, playlists, snapshots and movies from an untrusted source are validated and size-bounded to keep malformed values from hanging the application.
+Live geometry, straight and curved rings, shape primitives (`linux/shape_def.h`: polygon, circle, square, triangle, star, cross, line), color and alpha, `.whp` load/save, basic parameter editing, fullscreen and PNG output are supported. Playlists (`.whl`), snapshots (`.whs`), snapshot viewing, WHM2 movies (`.whm`, record/playback/single-frame render) and ALSA MIDI input are supported; see `linux/playlist.cpp`, `linux/snapshot.cpp`, `linux/movie.cpp`, `linux/midi_actions.cpp` and `linux/alsa_midi.cpp`. Canvas rendering runs on the GPU through OpenGL when available (`linux/gl_renderer.cpp`) with a Cairo fallback (`linux/cairo_canvas.cpp`). The full Windows docking UI is **not** ported yet. The Cairo fallback runs on the CPU and can be slower than Direct2D at high ring counts; select the OpenGL backend for those. `Mirror` (off, 4-way quad mirror, 8-way kaleidoscope, and 12-way radial modes) and `InvertColor` are now rendered via GLSL post-processing shaders (`linux/gl_renderer.cpp`), alongside configurable video feedback trails (`--feedback 0.0-0.99`, `--feedback-zoom`, `--feedback-rot`), additive/screen geometry blending (`--blend`, key **B**) and patch crossfades during playlist playback (`--morph`, see `Engine::morphTo` in `linux/whorld_core.cpp`). Projection mapping warps the image onto a convex quadrilateral with the same per-pixel transform on both backends (`--warp`, `--warp-file`, `--warp-save`; `linux/projection.cpp`). Real-time inter-service video streaming is supported via V4L2 virtual cameras (`--v4l2 /dev/video0`) and raw RGB pipes (`--pipe-out`). OSC input over UDP (`--osc [PORT]`) binds addresses to the same 65 targets as MIDI, with `?`/`*` wildcards and Ctrl+M learn (`linux/osc_input.cpp`). Headless offscreen GPU rendering/streaming is supported via `--headless`. Patches, playlists, snapshots and movies from an untrusted source are validated and size-bounded to keep malformed values from hanging the application.
 
-Tests: `whorld_core` (patch/mapping math and patch morphing), `whorld_media` (playlist, MIDI/14-bit/relative-encoder/soft-takeover logic, gamepad/audio mappings, snapshot and movie round trips), `whorld_audio` (FFT band and onset/beat analysis, `Beat` audio mapping), `whorld_projection` (quad/homography math for `--warp`), the headless PNG renders `whorld_image`, `whorld_playlist_image`, `whorld_snapshot_image`, `whorld_warp_image` and `whorld_movie_frame`, the movie recording test `whorld_movie`, the `whorld_list_midi` discovery smoke test, and `whorld_gpu` (which renders the demo patch with both backends — including additive and screen blending — and fails if the OpenGL output diverges from Cairo; it skips when no OpenGL context is available). All are driven by CTest.
+Tests: `whorld_core` (patch/mapping math and patch morphing), `whorld_media` (playlist, MIDI/14-bit/relative-encoder/soft-takeover logic, gamepad/audio mappings, snapshot and movie round trips), `whorld_audio` (FFT band and onset/beat analysis, `Beat` audio mapping), OSC packet parsing and `[Osc]`-mapping tests (inside `whorld_media`), `whorld_projection` (quad/homography math for `--warp`), the headless PNG renders `whorld_image`, `whorld_playlist_image`, `whorld_snapshot_image`, `whorld_warp_image` and `whorld_movie_frame`, the movie recording test `whorld_movie`, the `whorld_list_midi` discovery smoke test, and `whorld_gpu` (which renders the demo patch with both backends — including additive and screen blending — and fails if the OpenGL output diverges from Cairo; it skips when no OpenGL context is available). All are driven by CTest.
 
 The upstream license is GPL; see `../LICENSE`.

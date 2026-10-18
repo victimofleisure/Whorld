@@ -12,6 +12,7 @@
 #include "projection.h"
 #include "video_streamer.h"
 #include "audio_input.h"
+#include "osc_input.h"
 #include <GL/gl.h>
 #include <SDL.h>
 #include <cairo/cairo.h>
@@ -215,6 +216,7 @@ void drawPanel(cairo_t* cr, const Engine& engine, const Playlist& playlist, int 
             for (const auto& m : playlist.mappings) if (m.target == name) { mapped = true; break; }
             if (!mapped) for (const auto& m : playlist.gamepadMappings) if (m.target == name) { mapped = true; break; }
             if (!mapped) for (const auto& m : playlist.audioMappings) if (m.target == name) { mapped = true; break; }
+            if (!mapped) for (const auto& m : playlist.oscMappings) if (m.target == name) { mapped = true; break; }
             if (mapped) {
                 cairo_set_source_rgb(cr, .35, .85, .5);
                 cairo_arc(cr, 9, y + 14, 2.5, 0, 6.283185307179586);
@@ -487,7 +489,7 @@ void help() {
               << "               [--warp \"TLx,TLy,TRx,TRy,BRx,BRy,BLx,BLy\"] [--warp-file FILE]\n"
               << "               [--warp-save FILE]\n"
               << "               [--v4l2 /dev/videoX] [--pipe-out PATH|-] [--headless]\n"
-              << "               [--audio] [--audio-device NAME] [--audio-gain F]\n"
+              << "               [--audio] [--audio-device NAME] [--audio-gain F] [--osc [PORT]]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
@@ -507,13 +509,17 @@ void help() {
               << "--headless runs offscreen GPU rendering/streaming without an X11 window.\n"
               << "--audio enables microphone/line input; --audio-device picks the ALSA device\n"
               << "        (default \"default\") and --audio-gain scales the analysis (default 1.0).\n"
+              << "--osc listens for Open Sound Control messages on a UDP port (default 8000)\n"
+              << "        and applies them through the playlist's [Osc] mappings; OSC messages\n"
+              << "        also participate in Ctrl+M learn (the next message binds the row).\n"
               << "Keys: Space pause, F/O fill and outline, L playlist, P PNG, H hide controls,\n"
               << "      M cycle mirror/kaleidoscope, B cycle blend, I toggle invert, W toggle warp,\n"
               << "      T cycle feedback trails,\n"
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
               << "      PgUp/PgDn step snapshots, s/-/= render scale, F11 fullscreen, R clear, Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
-              << "Gamepad and audio mappings live in the playlist ([Gamepad]/[Audio]); see README.\n";
+              << "Gamepad, audio and OSC mappings live in the playlist's [Gamepad],\n"
+              << "      [Audio] and [Osc] sections; see README.";
 }
 } // namespace
 
@@ -534,6 +540,8 @@ int main(int argc, char** argv) {
         std::string audioDevice;
         double audioGain = 1.0;
         bool audioEnabled = false;
+        bool oscEnabled = false;
+        int oscPort = 8000;
         double morphSeconds = 0; // 0 = instant playlist patch changes
         bool listMidi = false;
         MidiInputMode midiMode = MidiInputMode::Absolute;
@@ -545,6 +553,22 @@ int main(int argc, char** argv) {
             if (arg == "--headless") { headless = true; continue; }
             if (arg == "--audio") { audioEnabled = true; continue; }
             if (arg == "--list-midi") { listMidi = true; continue; }
+            if (arg == "--osc") {
+                oscEnabled = true;
+                // An optional port may follow; anything that is not a bare
+                // decimal number leaves the default untouched, because option
+                // values and the next flag share the same slot.
+                if (i + 1 < argc) {
+                    const std::string next = argv[i + 1];
+                    if (!next.empty() && next.size() <= 5 &&
+                        std::all_of(next.begin(), next.end(),
+                                    [](unsigned char c) { return c >= '0' && c <= '9'; })) {
+                        oscPort = std::stoi(next);
+                        ++i;
+                    }
+                }
+                continue;
+            }
             if (arg == "--midi-takeover") { midiTakeover = true; continue; }
             if (i + 1 >= argc) throw std::runtime_error("Missing value for " + arg);
             std::string value = argv[++i];
@@ -932,6 +956,16 @@ int main(int argc, char** argv) {
             std::string audioError;
             audioReady = audio.open(audioDevice, audioGain, 48000, audioError);
             if (!audioReady) std::cerr << "whorld: audio disabled: " << audioError << '\n';
+        }
+        // Open Sound Control input: UDP messages apply through the [Osc]
+        // mappings and take part in Ctrl+M learn like every other source.
+        OscReceiver osc;
+        bool oscReady = false;
+        if (oscEnabled) {
+            std::string oscError;
+            oscReady = osc.start(oscPort, oscError);
+            if (!oscReady) std::cerr << "whorld: OSC disabled: " << oscError << '\n';
+            else status = "OSC listening on UDP " + std::to_string(oscPort);
         }
         // Gamepad input (any SDL-mapped controller). Controllers are polled each
         // frame and applied through the playlist's [Gamepad] mappings.
@@ -1435,6 +1469,37 @@ int main(int argc, char** argv) {
                 for (const MappedAction& action : mapAudio(playlist, audio.features())) {
                     applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
                     syncTarget(action.target);
+                }
+            }
+            // OSC: drain UDP datagrams and dispatch through the [Osc]
+            // mappings. Learn is shared with MIDI and gamepads (Ctrl+M): the
+            // first arriving message after arming binds to the selected row.
+            if (oscReady) {
+                std::vector<OscMessage> oscMessages;
+                osc.poll(oscMessages);
+                for (const OscMessage& message : oscMessages) {
+                    if (midiLearn) {
+                        midiLearn = false; // one message ends the learn
+                        if (!message.address.empty()) {
+                            const std::string target = learnTargetName();
+                            if (!target.empty()) {
+                                const auto r = panelRows(engine.patch);
+                                const bool master = selected >= 0 &&
+                                                    selected < static_cast<int>(r.size()) &&
+                                                    r[selected].master;
+                                learnOsc(playlist, message.address, target,
+                                         master ? "Val" : kProps[property]);
+                                status = "Learned " + message.address + " -> " + target;
+                                panelDirty = true;
+                            }
+                        }
+                    } else {
+                        for (const MappedAction& action :
+                             mapOsc(playlist, message.address, message.value)) {
+                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                            syncTarget(action.target);
+                        }
+                    }
                 }
             }
             int left = hidden ? 0 : sidebar;

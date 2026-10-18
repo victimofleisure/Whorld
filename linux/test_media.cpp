@@ -4,10 +4,13 @@
 #include "midi_actions.h"
 #include "midi_decode.h"
 #include "movie.h"
+#include "osc_input.h"
 #include "playlist.h"
 #include "snapshot.h"
 #include "whorld_core.h"
 #include <cmath>
+#include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -576,6 +579,183 @@ int main(int argc, char** argv) {
     require(!engine.snapshotActive());
     for (int i = 0; i < 60; ++i) { engine.tick(480, 360); engine.frame(480, 360); }
     require(signature(engine.frame(480, 360)) != liveBefore); // live simulation resumed
+
+    // OSC: packet parsing, address matching, mapping and learn round trips.
+    {
+        std::vector<OscMessage> empty0;
+        require(!parseOsc("", 0, empty0));
+
+        // Helpers to build OSC packets by hand (big-endian, 4-byte lattice).
+        // Appends an OSC string: characters, NUL, then pad to a 4 multiple.
+        auto appendOscString = [](std::string& out, const std::string& text) {
+            out.append(text);
+            out.push_back('\0');
+            while (out.size() % 4 != 0) out.push_back('\0');
+        };
+        auto packet = [&](const char* address, char tag) -> std::string {
+            std::string out;
+            appendOscString(out, address);
+            appendOscString(out, std::string(",") + tag);
+            return out;
+        };
+        auto packetValue = [&](const char* address, char tag, double value) -> std::string {
+            std::string out = packet(address, tag);
+            if (tag == 'f') {
+                std::uint32_t bits;
+                const float f = static_cast<float>(value);
+                std::memcpy(&bits, &f, 4);
+                for (int b = 3; b >= 0; --b) out.push_back(static_cast<char>((bits >> (b * 8)) & 0xff));
+            } else {
+                const std::int32_t n = static_cast<std::int32_t>(value);
+                for (int b = 3; b >= 0; --b) out.push_back(static_cast<char>((n >> (b * 8)) & 0xff));
+            }
+            return out;
+        };
+        {
+            std::vector<OscMessage> parsed;
+            const std::string bytes = packetValue("/whorld/test", 'f', 0.5);
+            require(parseOsc(bytes.data(), bytes.size(), parsed));
+            require(parsed.size() == 1 && parsed[0].address == "/whorld/test");
+            require(parsed[0].value == 0.5);
+        }
+        {
+            std::vector<OscMessage> parsed;
+            const std::string bytes = packetValue("/whorld/test", 'i', 42);
+            require(parseOsc(bytes.data(), bytes.size(), parsed) &&
+                    parsed.size() == 1 && parsed[0].value == 42);
+        }
+        {
+            // True/false tags carry no argument bytes.
+            std::vector<OscMessage> parsed;
+            const std::string on = packet("/whorld/act", 'T');
+            require(parseOsc(on.data(), on.size(), parsed) && parsed.size() == 1 &&
+                    parsed[0].value == 1.0);
+            parsed.clear();
+            const std::string off = packet("/whorld/act", 'F');
+            require(parseOsc(off.data(), off.size(), parsed) && parsed.size() == 1 &&
+                    parsed[0].value == 0.0);
+        }
+        {
+            // An argument-free message still lands, with the default value.
+            std::vector<OscMessage> parsed;
+            // An address with an empty typetag string (just ",") carries no
+            // arguments at all; the message still lands with value 1.
+            std::string bare;
+            appendOscString(bare, "/whorld/naked");
+            appendOscString(bare, ",");
+            require(parseOsc(bare.data(), bare.size(), parsed) && parsed.size() == 1 &&
+                    parsed[0].address == "/whorld/naked" && parsed[0].value == 1);
+        }
+        {
+            // A bundle of two messages; members share the packet lattice.
+            std::string bundle = "#bundle";
+            bundle.push_back('\0'); // the literal still needs its OSC terminator
+            const unsigned char timetag[8] = { 0,0,0,0, 0,0,0,1 };
+            bundle.append(reinterpret_cast<const char*>(timetag), 8);
+            std::string one = packetValue("/whorld/a", 'i', 10);
+            std::string two = packetValue("/whorld/bb", 'i', 20);
+            for (std::string* element : { &one, &two }) {
+                std::uint32_t bits = static_cast<std::uint32_t>(element->size());
+                for (int b = 3; b >= 0; --b) bundle.push_back(static_cast<char>((bits >> (b * 8)) & 0xff));
+                bundle.append(*element);
+            }
+            std::vector<OscMessage> parsed;
+            require(parseOsc(bundle.data(), bundle.size(), parsed));
+            require(parsed.size() == 2);
+            require(parsed[0].address == "/whorld/a" && parsed[0].value == 10);
+            require(parsed[1].address == "/whorld/bb" && parsed[1].value == 20);
+        }
+        {
+            // Malformed bundle (member size overruns the packet) fails cleanly.
+            std::string bundle = "#bundle";
+            const unsigned char timetag[8] = { 0,0,0,0, 0,0,0,1 };
+            bundle.append(reinterpret_cast<const char*>(timetag), 8);
+            const char bad[4] = { 0, 0, 0, 64 };
+            bundle.append(bad, 4);
+            std::vector<OscMessage> parsed;
+            require(!parseOsc(bundle.data(), bundle.size(), parsed));
+        }
+    }
+    {
+        Playlist oscPlaylist;
+        OscMapping mapping;
+        mapping.address = "/whorld/zoom*";
+        mapping.target = "Zoom";
+        mapping.property = "Val";
+        mapping.min = 0;
+        mapping.max = 100;
+        mapping.start = 0;
+        mapping.end = 200;
+        oscPlaylist.oscMappings.push_back(mapping);
+        OscMapping second;
+        second.address = "/whorld/clear";
+        second.target = "Clear";
+        oscPlaylist.oscMappings.push_back(second);
+        auto actions = mapOsc(oscPlaylist, "/whorld/zoom/lift", 40);
+        require(actions.size() == 1 && actions[0].target == "Zoom" &&
+                actions[0].property == "Val");
+        require(std::abs(actions[0].amount - 0.8) < 1e-9); // 40% of 0..200%
+        require(mapOsc(oscPlaylist, "/whorld/other", 40).empty());
+        // Wildcards match by the stored pattern only ('?' one char, '*' any run).
+        require(!oscPatternMatch("/whorld", "/whorld/"));
+        require(oscPatternMatch("/whorld", "/whorld"));
+        require(oscPatternMatch("/whorld?", "/whorld1"));
+        require(!oscPatternMatch("/whorld?", "/whorld12"));
+        require(oscPatternMatch("*", "/anything") && !oscPatternMatch("*x", "/abc"));
+        // Momentary targets fire on non-zero datagrams only.
+        actions = mapOsc(oscPlaylist, "/whorld/clear", 1);
+        require(actions.size() == 1 && actions[0].target == "Clear");
+        require(mapOsc(oscPlaylist, "/whorld/clear", 0).empty());
+        // Out-of-domain values clamp into 0..1 before Start/End scaling.
+        oscPlaylist.oscMappings.clear();
+        OscMapping clamped;
+        clamped.address = "/whorld/zoom*";
+        clamped.target = "Zoom";
+        clamped.property = "Val";
+        clamped.min = 0;
+        clamped.max = 1;
+        clamped.start = 0;
+        clamped.end = 500;
+        oscPlaylist.oscMappings.push_back(clamped);
+        actions = mapOsc(oscPlaylist, "/whorld/zoomx", 9.0);
+        require(actions.size() == 1 && std::abs(actions[0].amount - 5.0) < 1e-9); // clamped to 100% of 0..500%
+    }
+    {
+        // Learn replaces the previous binding for the same address.
+        Playlist oscPlaylist;
+        learnOsc(oscPlaylist, "/whorld/x", "RingGrowth", "Wave");
+        learnOsc(oscPlaylist, "/whorld/x", "Zoom", "Val");
+        require(oscPlaylist.oscMappings.size() == 1 &&
+                oscPlaylist.oscMappings[0].target == "Zoom");
+        learnOsc(oscPlaylist, "/whorld/y", "Rings", "Val");
+        require(oscPlaylist.oscMappings.size() == 2);
+    }
+    {
+        // OSC sections round trip through the playlist file format.
+        const std::string oscWhl = (dir / "osc.whl").string();
+        Playlist saved;
+        Patch origin;
+        require(origin.save((dir / "origin.whp").string(), error));
+        saved.patches.push_back((dir / "origin.whp").string());
+        OscMapping m;
+        m.address = "/whorld/test";
+        m.target = "RingGrowth";
+        m.property = "PW";
+        m.min = -2;
+        m.max = 6;
+        m.start = 10;
+        m.end = 90;
+        saved.oscMappings.push_back(m);
+        require(saved.save(oscWhl, error));
+        Playlist loaded;
+        require(loaded.load(oscWhl, error));
+        require(loaded.oscMappings.size() == saved.oscMappings.size());
+        require(loaded.oscMappings[0].address == "/whorld/test" &&
+                loaded.oscMappings[0].target == "RingGrowth" &&
+                loaded.oscMappings[0].property == "PW" &&
+                loaded.oscMappings[0].min == -2 && loaded.oscMappings[0].max == 6 &&
+                loaded.oscMappings[0].start == 10 && loaded.oscMappings[0].end == 90);
+    }
 
     std::cout << "Playlist, MIDI mapping and snapshot roundtrips OK\n";
     fs::remove_all(dir, ec);

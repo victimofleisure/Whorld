@@ -320,6 +320,15 @@ void validateAudioMapping(const AudioMapping& m) {
         throw std::runtime_error("invalid audio mapping");
 }
 
+void validateOscMapping(const OscMapping& m) {
+    if (m.address.empty() || m.address[0] != '/' ||
+        m.address.find('\0') != std::string::npos || !validTarget(m.target) ||
+        (contains(m.target, kParameters) && !contains(m.property, kProperties)) ||
+        !std::isfinite(m.start) || !std::isfinite(m.end) ||
+        !std::isfinite(m.min) || !std::isfinite(m.max) || m.min > m.max)
+        throw std::runtime_error("invalid OSC mapping");
+}
+
 } // namespace
 
 bool Playlist::load(const std::string& filename, std::string& error) {
@@ -399,6 +408,24 @@ bool Playlist::load(const std::string& filename, std::string& error) {
             validateAudioMapping(m);
             parsed.audioMappings.push_back(std::move(m));
         }
+        // OSC mappings share the [Gamepad]/[Audio] extension convention: a
+        // Whorld/Linux addition that upstream readers ignore.
+        const auto* oscCountText = find(ini, "Osc", "Count");
+        const int oscCount = oscCountText ? number(*oscCountText, kMaxItems, "OSC count") : 0;
+        parsed.oscMappings.reserve(static_cast<std::size_t>(oscCount));
+        for (int i = 0; i < oscCount; ++i) {
+            const std::string section = "Osc\\" + std::to_string(i);
+            OscMapping m;
+            m.address = required(ini, section, "Address");
+            m.target = required(ini, section, "Target");
+            if (contains(m.target, kParameters)) m.property = required(ini, section, "Prop");
+            if (const auto* v = find(ini, section, "Min")) m.min = decodeRange(*v);
+            if (const auto* v = find(ini, section, "Max")) m.max = decodeRange(*v);
+            if (const auto* v = find(ini, section, "Start")) m.start = decodeRange(*v);
+            if (const auto* v = find(ini, section, "End")) m.end = decodeRange(*v);
+            validateOscMapping(m);
+            parsed.oscMappings.push_back(std::move(m));
+        }
         parsed.path = filename;
         *this = std::move(parsed);
         error.clear();
@@ -412,7 +439,8 @@ bool Playlist::load(const std::string& filename, std::string& error) {
 bool Playlist::save(const std::string& filename, std::string& error) {
     try {
         if (patches.size() > kMaxItems || mappings.size() > kMaxItems ||
-            gamepadMappings.size() > kMaxItems || audioMappings.size() > kMaxItems)
+            gamepadMappings.size() > kMaxItems || audioMappings.size() > kMaxItems ||
+            oscMappings.size() > kMaxItems)
             throw std::runtime_error("too many playlist items");
         std::string text;
         append(text, "[Settings]\nFileID=WhorldPlay\nFileVersion=1\n");
@@ -456,6 +484,20 @@ bool Playlist::save(const std::string& filename, std::string& error) {
                 append(text, "[Audio\\" + std::to_string(i) + "]\nFeature=" + m.feature +
                              "\nTarget=" + m.target + "\n");
                 if (contains(m.target, kParameters)) append(text, "Prop=" + m.property + "\n");
+                if (m.start != 0) append(text, "Start=" + encodeDouble(m.start) + "\n");
+                if (m.end != 100) append(text, "End=" + encodeDouble(m.end) + "\n");
+            }
+        }
+        if (!oscMappings.empty()) {
+            append(text, "[Osc]\nCount=" + std::to_string(oscMappings.size()) + "\n");
+            for (std::size_t i = 0; i < oscMappings.size(); ++i) {
+                const auto& m = oscMappings[i];
+                validateOscMapping(m);
+                append(text, "[Osc\\" + std::to_string(i) + "]\nAddress=" + m.address +
+                             "\nTarget=" + m.target + "\n");
+                if (contains(m.target, kParameters)) append(text, "Prop=" + m.property + "\n");
+                if (m.min != 0) append(text, "Min=" + encodeDouble(m.min) + "\n");
+                if (m.max != 1) append(text, "Max=" + encodeDouble(m.max) + "\n");
                 if (m.start != 0) append(text, "Start=" + encodeDouble(m.start) + "\n");
                 if (m.end != 100) append(text, "End=" + encodeDouble(m.end) + "\n");
             }
@@ -628,6 +670,68 @@ const std::vector<AudioMapping>& defaultAudioMappings() {
         {"High", "RotateSpeed", "Val", 50, 100},
     };
     return defaults;
+}
+
+// OSC address matching per the 1.0 spec subset the port uses: '?' matches one
+// character, '*' matches zero or more characters. (Character sets like [a-z]
+// and brace alternation {a,b} are not implemented; hand-writers who need them
+// can use a '*' between literal fragments.)
+bool oscPatternMatch(const std::string& pattern, const std::string& address) {
+    // Iterative matcher; recursion depth is bounded by the address length in
+    // the '*' branch, which loops instead of recursing.
+    const char* p = pattern.c_str();
+    const char* s = address.c_str();
+    const char* star = nullptr;         // back the '*' wildcard
+    const char* starS = nullptr;
+    while (*s) {
+        if (*p == '?' || *p == *s) { ++p, ++s; }
+        else if (*p == '*') { star = p++; starS = s; }
+        else if (star) { p = star + 1; s = ++starS; }
+        else return false;
+    }
+    while (*p == '*') ++p;
+    return *p == '\0';
+}
+
+std::vector<MappedAction> mapOsc(const Playlist& playlist, const std::string& address,
+                                 double value) {
+    std::vector<MappedAction> actions;
+    for (const auto& m : playlist.oscMappings) {
+        if (!validTarget(m.target) || !std::isfinite(m.start) || !std::isfinite(m.end) ||
+            !std::isfinite(m.min) || !std::isfinite(m.max))
+            continue;
+        if (!oscPatternMatch(m.address, address)) continue;
+        // Place the value into Min..Max and clip to 0..1 (the same space MIDI
+        // and gamepads use before Start..End scaling).
+        const double span = m.max - m.min;
+        double normalized;
+        if (span <= 0) normalized = std::clamp(value - m.min, 0.0, 1.0);
+        else normalized = std::clamp((value - m.min) / span, 0.0, 1.0);
+        // Momentary targets fire once per datagram carrying a non-zero value;
+        // OSC senders ordinarily transmit only on change, so a zero value
+        // (e.g. a toggle's off state) stays silent instead of re-triggering.
+        if (momentaryTarget(m.target) && normalized == 0) continue;
+        const double start = m.start / 100.0, end = m.end / 100.0;
+        actions.push_back({m.target, m.property, normalized * (end - start) + start});
+    }
+    return actions;
+}
+
+void learnOsc(Playlist& playlist, const std::string& address, const std::string& target,
+              const std::string& property) {
+    // Rebind the exact address: drop any previous mapping that matches it (so
+    // re-learning wildcards keeps the wildcard), then append the new one.
+    playlist.oscMappings.erase(std::remove_if(playlist.oscMappings.begin(),
+                                              playlist.oscMappings.end(),
+                                              [&](const OscMapping& m) {
+                                                  return m.address == address;
+                                              }),
+                               playlist.oscMappings.end());
+    OscMapping m;
+    m.address = address;
+    m.target = target;
+    m.property = property;
+    playlist.oscMappings.push_back(std::move(m));
 }
 
 } // namespace whorld

@@ -60,11 +60,24 @@ struct AudioMapping {
     double start = 0, end = 100; // percentages, applied to the 0..1 feature
 };
 
+// OSC messages are matched by address pattern (the stored address may use the
+// OSC '?'/'*' wildcards; '*' matches any sequence). The incoming first numeric
+// argument is placed into Min..Max and clipped to 0..1, then scaled onto
+// Start..End like every other source. Momentary targets fire once per datagram
+// that carries a non-zero value (senders normally transmit on change only).
+struct OscMapping {
+    std::string address = "/whorld/x";
+    std::string target, property;
+    double min = 0, max = 1; // the incoming value's expected domain
+    double start = 0, end = 100; // percentages, applied to the 0..1 value
+};
+
 struct Playlist {
     std::vector<std::string> patches; // stored path strings in playlist order
     std::vector<Mapping> mappings;
     std::vector<GamepadMapping> gamepadMappings;
     std::vector<AudioMapping> audioMappings;
+    std::vector<OscMapping> oscMappings;
     std::string path; // most recently opened/saved .whl
     bool load(const std::string& filename, std::string& error);
     bool save(const std::string& filename, std::string& error);
@@ -91,6 +104,18 @@ const char* gamepadControlName(int index);
 std::vector<MappedAction> mapGamepad(const Playlist& playlist, const GamepadState& current,
                                      const GamepadState& previous);
 std::vector<MappedAction> mapAudio(const Playlist& playlist, const AudioFeatures& features);
+// Maps one OSC message: the stored address may use '?' and '*' wildcards.
+std::vector<MappedAction> mapOsc(const Playlist& playlist, const std::string& address,
+                                 double value);
+// True when an OSC address pattern matches a message address ('?' one char,
+// '*' any sequence). Exposed for tests.
+bool oscPatternMatch(const std::string& pattern, const std::string& address);
+// Binds (or rebinds) an OSC address pattern to a target/property, replacing any
+// previous mapping for exactly the same address (mirrors the MIDI/gamepad
+// learn behaviour). The incoming address is stored as learned, wildcards only
+// come from hand-written mappings.
+void learnOsc(Playlist& playlist, const std::string& address, const std::string& target,
+              const std::string& property);
 // A sensible default set used when audio input is enabled but the playlist
 // carries no [Audio] mappings of its own.
 const std::vector<AudioMapping>& defaultAudioMappings();

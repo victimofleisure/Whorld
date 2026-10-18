@@ -8,6 +8,21 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Opt-in hardening build: AddressSanitizer + UndefinedBehaviorSanitizer for every
+# target, so `ctest` can run the whole suite against instrumented code. Off by
+# default, so the normal build (and the release binaries) are untouched. The
+# third-party GPU/SDL stack (Mesa, X11, ALSA) can leak on teardown; run the
+# sanitized suite with `ASAN_OPTIONS=detect_leaks=0` (or an LSan suppression
+# file) to ignore those and still catch memory errors in Whorld itself:
+#     cmake -S . -B build-asan -DWHORLD_SANITIZE=ON
+#     cmake --build build-asan -j4
+#     ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build-asan --output-on-failure
+option(WHORLD_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+if(WHORLD_SANITIZE)
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -g)
+    add_link_options(-fsanitize=address,undefined)
+endif()
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 pkg_check_modules(CAIRO REQUIRED IMPORTED_TARGET cairo)
@@ -142,6 +157,35 @@ if(BUILD_TESTING)
     target_compile_options(whorld_gpu_test PRIVATE -Wall -Wextra)
     add_test(NAME whorld_gpu COMMAND whorld_gpu_test ${CMAKE_SOURCE_DIR}/linux/demo.whp)
     set_tests_properties(whorld_gpu PROPERTIES SKIP_RETURN_CODE 77)
+
+    # Command-line smoke/error-path matrix: --help, bad --warp/--config, unknown
+    # flags, a --config-save/--config round trip rendered deterministically with
+    # the cairo backend under the offscreen SDL driver, and --list-midi. Passes
+    # the built binary, a private temp working directory and the source linux
+    # directory (for demo.whp). Needs no display and no GPU.
+    add_test(NAME whorld_cli_smoke COMMAND bash
+        ${CMAKE_CURRENT_SOURCE_DIR}/linux/cli_smoke.sh
+        $<TARGET_FILE:whorld> ${CMAKE_CURRENT_BINARY_DIR}/cli-smoke
+        ${CMAKE_CURRENT_SOURCE_DIR}/linux)
+    set_tests_properties(whorld_cli_smoke PROPERTIES
+        ENVIRONMENT "SDL_VIDEODRIVER=offscreen" TIMEOUT 120)
+
+    # Under the sanitizer build the SDL/GL/ALSA/X11 teardown paths of the
+    # third-party stack (Mesa, X11, ALSA) can report leaks that Whorld cannot
+    # fix. Ignore leaks for the tests that pull those libraries in so the
+    # sanitized suite stays green; the pure CPU tests keep full leak detection.
+    if(WHORLD_SANITIZE)
+        set_tests_properties(
+            whorld_list_midi whorld_image whorld_playlist_image whorld_post_image
+            whorld_warp_image whorld_config_save whorld_config_image
+            whorld_snapshot_fixture whorld_snapshot_image whorld_movie whorld_movie_frame
+            whorld_gpu
+            PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")
+        set_tests_properties(whorld_headless_gpu PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=offscreen;ASAN_OPTIONS=detect_leaks=0")
+        set_tests_properties(whorld_cli_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=offscreen;ASAN_OPTIONS=detect_leaks=0")
+    endif()
 endif()
 
 install(TARGETS whorld RUNTIME DESTINATION bin)

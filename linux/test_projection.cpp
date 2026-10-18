@@ -5,6 +5,7 @@
 #include "whorld_core.h"
 #include <cmath>
 #include <cstdio>
+#include <random>
 #include <string>
 
 using namespace whorld;
@@ -185,6 +186,87 @@ int main() {
         const WarpQuad almost{{0, 0}, {1, 0}, {1, 1}, {0, 1 + 1e-6}};
         require(!isIdentityWarp(almost, 1e-9));
         require(isIdentityWarp(almost, 1e-5));
+    }
+
+    // --- property / fuzz tests (fixed seed, so any failure reproduces) -------
+    {
+        std::mt19937 rng(0x5eed1234u); // fixed seed: reproducible
+        std::uniform_real_distribution<double> jitter(-0.2, 0.2);
+        std::uniform_real_distribution<double> interior(0.05, 0.95);
+
+        // A random convex quad: perturb each corner of the unit square a little,
+        // which keeps the quadrilateral convex and the mapping well-conditioned.
+        for (int iter = 0; iter < 400; ++iter) {
+            const WarpQuad quad{{jitter(rng), jitter(rng)},
+                                {1 + jitter(rng), jitter(rng)},
+                                {1 + jitter(rng), 1 + jitter(rng)},
+                                {jitter(rng), 1 + jitter(rng)}};
+            require(validWarp(quad));
+            double h[9], inv[9];
+            require(quadToHomography(quad, h));
+            require(quadToInverseHomography(quad, inv));
+
+            // Every unit-square corner maps exactly onto its quad corner
+            // (TL, TR, BR, BL order).
+            const Point corners[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+            const Point mapped[4] = {quad.tl, quad.tr, quad.br, quad.bl};
+            for (int c = 0; c < 4; ++c) {
+                Point p;
+                require(projectPoint(h, corners[c], p));
+                require(nearPt(p, mapped[c], 1e-9));
+            }
+
+            // The inverse round-trips random interior points.
+            for (int k = 0; k < 8; ++k) {
+                const Point src{interior(rng), interior(rng)};
+                Point dst, back;
+                require(projectPoint(h, src, dst));
+                require(projectPoint(inv, dst, back));
+                require(nearPt(src, back, 1e-7));
+            }
+        }
+
+        // A flat (collinear) quad must be rejected for every random position.
+        for (int iter = 0; iter < 200; ++iter) {
+            const double y = 0.5 + jitter(rng);
+            const WarpQuad flat{{jitter(rng), y}, {1 + jitter(rng), y},
+                                {1 + jitter(rng), y}, {jitter(rng), y}};
+            require(!validWarp(flat));
+            double bad[9];
+            require(!quadToHomography(flat, bad));
+        }
+
+        // Fuzzing warpFromString: random garbage must never crash, a rejection
+        // must leave the quad untouched, and an acceptance must yield eight
+        // finite numbers (the only documented success case).
+        const char alphabet[] = "0123456789+-.eE, \t\nxnaifNAN#/;:abcdef";
+        std::uniform_int_distribution<int> lenDist(0, 48);
+        std::uniform_int_distribution<int> charDist(0, int(sizeof(alphabet)) - 2);
+        for (int iter = 0; iter < 20000; ++iter) {
+            const int len = lenDist(rng);
+            std::string text;
+            text.reserve(std::size_t(len));
+            for (int i = 0; i < len; ++i) text.push_back(alphabet[charDist(rng)]);
+            const WarpQuad before = quad;
+            WarpQuad parsed = quad;
+            if (warpFromString(text, parsed)) {
+                require(std::isfinite(parsed.tl.x) && std::isfinite(parsed.tl.y) &&
+                        std::isfinite(parsed.tr.x) && std::isfinite(parsed.tr.y) &&
+                        std::isfinite(parsed.br.x) && std::isfinite(parsed.br.y) &&
+                        std::isfinite(parsed.bl.x) && std::isfinite(parsed.bl.y));
+            } else {
+                require(nearPt(parsed.tl, before.tl) && nearPt(parsed.tr, before.tr) &&
+                        nearPt(parsed.br, before.br) && nearPt(parsed.bl, before.bl));
+            }
+        }
+        // Explicitly malformed inputs are always rejected.
+        for (const char* bad : {"", " ", "abc", "1 2 3", "1 2 3 4 5 6 7",
+                                "1 2 3 4 5 6 7 8 9", "1,2,3,4,5,6,7,x",
+                                "nan nan nan nan nan nan nan nan",
+                                "inf 0 1 0 1 1 0 1"}) {
+            WarpQuad parsed = quad;
+            require(!warpFromString(bad, parsed));
+        }
     }
 
     std::printf("ok\n");

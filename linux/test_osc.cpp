@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -210,6 +211,49 @@ int main() {
         require(!oscToAction(m, a, err));
         m.address = "/whorld/";
         require(!oscToAction(m, a, err));
+    }
+
+    // --- fuzz: random bytes must be rejected without crashing ----------------
+    {
+        std::mt19937 rng(0x0ddf00du); // fixed seed: reproducible
+        std::uniform_int_distribution<int> lenDist(0, 256);
+        std::uniform_int_distribution<int> byteDist(0, 255);
+        OscMessage message;
+        std::vector<OscMessage> parsed;
+        for (int iter = 0; iter < 20000; ++iter) {
+            const int len = lenDist(rng);
+            std::vector<unsigned char> buffer(static_cast<std::size_t>(len));
+            for (unsigned char& b : buffer)
+                b = static_cast<unsigned char>(byteDist(rng));
+            const unsigned char* data = buffer.empty() ? nullptr : buffer.data();
+            // Whatever survives decoding must be a well-formed message.
+            if (parseOscMessage(data, buffer.size(), message))
+                require(!message.address.empty() && message.address[0] == '/');
+            parsed.clear();
+            if (!parseOscPacket(data, buffer.size(), parsed))
+                require(parsed.empty()); // a rejected packet decodes nothing
+        }
+
+        // Fuzz oscToAction with random addresses and argument shapes; a valid
+        // prefix exercises the target/property tables rather than just bailing.
+        const std::string alphabet =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/_*? .-";
+        std::uniform_int_distribution<int> addrLen(0, 64);
+        std::uniform_int_distribution<int> charIndex(0, int(alphabet.size()) - 1);
+        std::uniform_int_distribution<int> argCount(0, 3);
+        std::uniform_real_distribution<double> value(-10.0, 10.0);
+        MappedAction action;
+        std::string error;
+        for (int iter = 0; iter < 20000; ++iter) {
+            OscMessage m;
+            const int n = addrLen(rng);
+            for (int i = 0; i < n; ++i) m.address.push_back(alphabet[charIndex(rng)]);
+            if (iter % 2 == 0) m.address = "/whorld/" + m.address;
+            const int floats = argCount(rng), ints = argCount(rng);
+            for (int i = 0; i < floats; ++i) m.floats.push_back(value(rng));
+            for (int i = 0; i < ints; ++i) m.ints.push_back(static_cast<int>(value(rng)));
+            oscToAction(m, action, error); // must never crash
+        }
     }
 
     // --- UDP loopback: open on port 0, send a datagram, poll -----------------

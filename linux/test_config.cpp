@@ -8,7 +8,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <random>
 #include <string>
+#include <utility>
+#include <vector>
 
 using namespace whorld;
 
@@ -198,6 +201,53 @@ int main() {
         require(!loadShowConfig(kFile, show, error));
         require(writeFile(kFile, "warp = 0 0 1 0 1\n"));
         require(!loadShowConfig(kFile, show, error));
+    }
+
+    // --- fuzz: random/garbage INI text must never crash the loader -----------
+    {
+        std::mt19937 rng(0xc0ffeeu); // fixed seed: reproducible
+        std::uniform_int_distribution<int> lenDist(0, 2048);
+        std::uniform_int_distribution<int> byteDist(0, 255);
+        Config config;
+        std::string error;
+        for (int iter = 0; iter < 400; ++iter) {
+            const int len = lenDist(rng);
+            std::string text(static_cast<std::size_t>(len), '\0');
+            for (char& c : text) c = static_cast<char>(byteDist(rng));
+            require(writeFile(kFile, text));
+            // Any outcome is acceptable; the loader must not crash or throw.
+            config.load(kFile, error);
+        }
+    }
+
+    // --- round-trip random key/value sets -----------------------------------
+    {
+        std::mt19937 rng(0xf00d1234u);
+        // No whitespace/newline: save emits one line per key and load trims the
+        // edges, so keeping values whitespace-free makes the round trip exact.
+        const std::string valueChars = "abcXYZ019+-=.,_-()[]{}!@$%^&*;'\"<>?~`";
+        std::uniform_int_distribution<int> countDist(0, 40);
+        std::uniform_int_distribution<int> valueLen(0, 24);
+        std::uniform_int_distribution<int> charIndex(0, int(valueChars.size()) - 1);
+        std::string error;
+        for (int iter = 0; iter < 50; ++iter) {
+            Config config;
+            const int count = countDist(rng);
+            std::vector<std::pair<std::string, std::string>> expected;
+            for (int i = 0; i < count; ++i) {
+                const std::string key = "key" + std::to_string(i);
+                std::string value;
+                const int len = valueLen(rng);
+                for (int c = 0; c < len; ++c) value.push_back(valueChars[charIndex(rng)]);
+                config.set(key, value);
+                expected.emplace_back(key, value);
+            }
+            require(config.save(kRound, error));
+            Config loaded;
+            require(loaded.load(kRound, error));
+            for (const auto& entry : expected)
+                require(loaded.getString(entry.first, "<missing>") == entry.second);
+        }
     }
 
     removeFile(kFile);

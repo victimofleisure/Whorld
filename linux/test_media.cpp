@@ -14,8 +14,10 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <stdexcept>
 #include <string>
+#include <vector>
 #define require(expr) do { if (!(expr)) throw std::runtime_error("Check failed: " #expr); } while (false)
 
 // Fixture mode: whorld_media_test --write-snapshot FILE.whs
@@ -151,6 +153,80 @@ int main(int argc, char** argv) {
         TakeoverState away;
         require(!away.accept(0.10, 0.50));
         require(!away.accept(0.05, 0.50)); // moving away must not engage
+    }
+
+    // Exhaustive relative-encoder tables for all 128 7-bit values: each
+    // convention is decoded independently here (midi_decode.h documents them).
+    {
+        for (int v = 0; v <= 127; ++v) {
+            int twos = 0;
+            if (v != 0 && v != 64) twos = v < 64 ? v : v - 128;
+            require(relativeDelta(v, MidiInputMode::RelativeTwosComplement) == twos);
+
+            int sign = 0;
+            if (v != 0 && v != 64) sign = (v & 0x40) ? -(v & 0x3f) : (v & 0x3f);
+            require(relativeDelta(v, MidiInputMode::RelativeSignMagnitude) == sign);
+
+            require(relativeDelta(v, MidiInputMode::RelativeBinaryOffset) == v - 64);
+            require(relativeDelta(v, MidiInputMode::Absolute) == 0);
+        }
+        // midi14bit is the exact MSB<<7|LSB combine and clamps both bytes.
+        for (int msb = 0; msb <= 127; ++msb)
+            for (int lsb = 0; lsb <= 127; ++lsb)
+                require(midi14bit(msb, lsb) == msb * 128 + lsb);
+        require(midi14bit(-1, -1) == 0);
+        require(midi14bit(0, 200) == 127);
+        require(midi14bit(200, 0) == 127 << 7);
+        require(midi14bit(64, 64) == 64 * 128 + 64);
+    }
+
+    // shapeAxis: monotone, bounded and dead-zoned across a fine sweep for
+    // several parameter sets, including the exact endpoints and dead-zone edge.
+    {
+        const double deadzones[] = {0.0, 0.05, 0.15, 0.4};
+        const double exponents[] = {1.0, 1.6, 0.5, 3.0};
+        for (double dz : deadzones) {
+            for (double ex : exponents) {
+                double previous = -2.0;
+                for (int i = 0; i <= 2000; ++i) {
+                    const double raw = -1.0 + i * 0.001;
+                    const double shaped = shapeAxis(raw, dz, ex);
+                    require(std::isfinite(shaped));
+                    require(shaped >= -1.0 - 1e-12 && shaped <= 1.0 + 1e-12);
+                    require(shaped >= previous - 1e-12); // non-decreasing
+                    previous = shaped;
+                    if (std::abs(raw) <= dz)
+                        require(shaped == 0.0);
+                    else
+                        require((raw > 0) == (shaped > 0) || shaped == 0.0);
+                }
+                require(std::abs(shapeAxis(1.0, dz, ex) - 1.0) < 1e-12);
+                require(std::abs(shapeAxis(-1.0, dz, ex) + 1.0) < 1e-12);
+            }
+        }
+    }
+
+    // Random soft-takeover sequences: accept() must agree with the engaged
+    // flag, engagement is sticky, and non-finite samples never engage.
+    {
+        std::mt19937 rng(0x7a1ce0u); // fixed seed: reproducible
+        std::uniform_real_distribution<double> value(-0.2, 1.2);
+        for (int t = 0; t < 300; ++t) {
+            TakeoverState state;
+            const double current = value(rng);
+            bool everEngaged = false;
+            for (int i = 0; i < 40; ++i) {
+                const double incoming = value(rng);
+                const bool accepted = state.accept(incoming, current);
+                require(accepted == state.engaged);
+                if (accepted) everEngaged = true;
+                if (everEngaged) require(state.engaged);
+            }
+            TakeoverState fresh;
+            require(!fresh.accept(std::nan(""), current));
+            require(!fresh.accept(0.5, std::nan("")));
+            require(!fresh.engaged);
+        }
     }
 
     // encodeControlChange emits an exact 3-byte CC and clamps its arguments.

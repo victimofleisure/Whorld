@@ -153,6 +153,80 @@ int main(int argc, char** argv) {
         require(!away.accept(0.05, 0.50)); // moving away must not engage
     }
 
+    // encodeControlChange emits an exact 3-byte CC and clamps its arguments.
+    {
+        std::vector<unsigned char> cc;
+        encodeControlChange(cc, 0, 1, 64);
+        require(cc.size() == 3);
+        require(cc[0] == 0xb0 && cc[1] == 0x01 && cc[2] == 0x40);
+        cc.clear();
+        encodeControlChange(cc, 15, 127, 127);
+        require(cc[0] == 0xbf && cc[1] == 0x7f && cc[2] == 0x7f);
+        cc.clear();
+        encodeControlChange(cc, 99, -5, 999); // channel/control/value all clamp
+        require(cc[0] == 0xbf && cc[1] == 0x00 && cc[2] == 0x7f);
+        // Appends to the vector instead of replacing it.
+        encodeControlChange(cc, 1, 2, 3);
+        require(cc.size() == 6);
+        require(cc[3] == 0xb1 && cc[4] == 0x02 && cc[5] == 0x03);
+    }
+
+    // ClockTracker follows an external 24-PPQN clock with explicit timestamps,
+    // so the tempo math is exercised without any hardware. One beat at 120 BPM
+    // is 0.5 s, so its 24 pulses are 60/(120*24) s apart.
+    {
+        const double ppq = ClockTracker::pulsesPerBeat;
+        const double step120 = 60.0 / (120.0 * ppq);
+        const double step90 = 60.0 / (90.0 * ppq);
+        ClockTracker clock;
+        require(!clock.active()); // nothing has arrived yet
+        require(!clock.running());
+        clock.start();
+        require(clock.running());
+        // Exactly the right number of intervals at 120 BPM.
+        for (int i = 0; i < 48; ++i) clock.tick(i * step120);
+        const double last120 = 47 * step120;
+        require(clock.active());
+        require(clock.running());
+        require(std::abs(clock.bpm() - 120.0) < 1.0);
+        // ~1 s of silence expires an active clock but keeps the last tempo so
+        // the caller can leave Tempo where it was.
+        clock.update(last120 + 1.5);
+        require(!clock.active());
+        require(clock.running()); // transport state is independent of pulses
+        require(std::abs(clock.bpm() - 120.0) < 1.0);
+        clock.stop();
+        require(!clock.running());
+
+        // A second tempo proves the BPM is derived, not hard-coded, and that a
+        // fresh lock needs a few intervals before it reports active.
+        ClockTracker ninety;
+        ninety.start();
+        for (int i = 0; i < 6; ++i) ninety.tick(i * step90);
+        require(!ninety.active() || std::abs(ninety.bpm() - 90.0) < 1.0);
+        for (int i = 6; i < 48; ++i) ninety.tick(i * step90);
+        require(ninety.active());
+        require(std::abs(ninety.bpm() - 90.0) < 1.0);
+
+        // reset() forgets the transport, the lock and the smoothed tempo.
+        ninety.reset();
+        require(!ninety.running());
+        require(!ninety.active());
+        require(ninety.bpm() == 0);
+
+        // A long gap between pulses relocks instead of polluting the average.
+        ClockTracker relock;
+        relock.start();
+        for (int i = 0; i < 48; ++i) relock.tick(i * step120);
+        require(relock.active());
+        const double gap = last120 + 1.5;
+        relock.tick(gap); // a stray pulse after a long silence
+        require(!relock.active()); // must re-accumulate before reporting again
+        for (int i = 1; i < 48; ++i) relock.tick(gap + i * step120);
+        require(relock.active());
+        require(std::abs(relock.bpm() - 120.0) < 1.0);
+    }
+
     // applyRange honours Start/End, including reversed ranges, without clamping.
     {
         Mapping full;

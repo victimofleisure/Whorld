@@ -479,7 +479,8 @@ void help() {
               << "Usage: whorld [--patch FILE.whp] [--playlist FILE.whl] [--snapshot FILE.whs]\n"
               << "               [--movie FILE.whm] [--midi-source CLIENT:PORT] [--render IMAGE.png]\n"
               << "               [--midi-mode absolute|14bit|rel-twos|rel-sign|rel-binary]\n"
-              << "               [--midi-takeover] [--list-midi]\n"
+              << "               [--midi-takeover] [--list-midi] [--midi-clock]\n"
+              << "               [--midi-out [CLIENT:PORT]] [--midi-feedback]\n"
               << "               [--movie-out FILE.whm] [--movie-rate FPS] [--movie-frame N]\n"
               << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F]\n"
               << "               [--renderer auto|gpu|cairo]\n"
@@ -506,6 +507,11 @@ void help() {
               << "        combines MSB/LSB CC pairs; rel-twos/rel-sign/rel-binary decode\n"
               << "        relative encoders. --midi-takeover ignores an absolute/14-bit control\n"
               << "        until it is moved to (or past) the target's current value.\n"
+              << "--midi-clock follows an external MIDI clock (24 PPQN) as the master tempo;\n"
+              << "        the status bar shows BPM while a clock is active.\n"
+              << "--midi-out creates a virtual ALSA MIDI output (or connects CLIENT:PORT) for\n"
+              << "        feedback to a controller; --midi-feedback echoes mapped controls back\n"
+              << "        out so LED rings, lamps and motorized faders track the values.\n"
               << "--pipe-out streams raw RGB video frames to stdout (-) or a FIFO pipe.\n"
               << "--headless runs offscreen GPU rendering/streaming without an X11 window.\n"
               << "--audio enables microphone/line input; --audio-device picks the ALSA device\n"
@@ -553,6 +559,10 @@ int main(int argc, char** argv) {
         bool listMidi = false;
         MidiInputMode midiMode = MidiInputMode::Absolute;
         bool midiTakeover = false;
+        bool midiClockEnabled = false;  // --midi-clock: follow an external clock
+        bool midiOutEnabled = false;    // --midi-out
+        bool midiFeedback = false;      // --midi-feedback
+        std::string midiOutDestination; // empty = virtual output port
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (arg == "--help" || arg == "-h") { help(); return 0; }
@@ -560,6 +570,21 @@ int main(int argc, char** argv) {
             if (arg == "--headless") { headless = true; continue; }
             if (arg == "--audio") { audioEnabled = true; continue; }
             if (arg == "--list-midi") { listMidi = true; continue; }
+            if (arg == "--midi-clock") { midiClockEnabled = true; continue; }
+            if (arg == "--midi-feedback") { midiFeedback = true; continue; }
+            if (arg == "--midi-out") {
+                midiOutEnabled = true;
+                // An optional CLIENT:PORT may follow; anything that starts like
+                // another option leaves the default (virtual) port untouched.
+                if (i + 1 < argc) {
+                    const std::string next = argv[i + 1];
+                    if (next.rfind("--", 0) != 0) {
+                        midiOutDestination = next;
+                        ++i;
+                    }
+                }
+                continue;
+            }
             if (arg == "--osc") {
                 oscEnabled = true;
                 // An optional port may follow; anything that is not a bare
@@ -966,6 +991,20 @@ int main(int argc, char** argv) {
         std::string midiError;
         if (midi.open(midiSource, midiError)) status = "MIDI " + midi.portName();
         else std::cerr << "whorld: MIDI disabled: " << midiError << '\n';
+        // Optional MIDI output for soft-takeover feedback. A virtual port is
+        // created when no destination is given, so gear can aconnect to it.
+        MidiOutput midiOut;
+        bool midiOutOpen = false;
+        if (midiOutEnabled) {
+            std::string outError;
+            midiOutOpen = midiOut.open(midiOutDestination, outError);
+            if (!midiOutOpen) {
+                std::cerr << "whorld: MIDI output disabled: " << outError << '\n';
+            } else {
+                std::cerr << "whorld: MIDI output ready on " << midiOut.portName() << '\n';
+                status = "MIDI out";
+            }
+        }
         // Microphone/line input drives parameters through the [Audio] mappings.
         AudioInput audio;
         bool audioReady = false;
@@ -1046,6 +1085,16 @@ int main(int argc, char** argv) {
                 if (m.event == "CONTROL" && m.channel == channel && m.control == control) return &m;
             return nullptr;
         };
+        // Whether any [Mapping] listens on this message (used by MIDI feedback
+        // so only controls the playlist actually consumes are echoed back).
+        auto midiMapped = [&](const MidiMessage& message) {
+            const std::string event = midiEventName(message.event);
+            for (const Mapping& m : playlist.mappings)
+                if (m.event == event && m.channel == message.channel &&
+                    m.control == message.control)
+                    return true;
+            return false;
+        };
         auto applyAction = [&](const MappedAction& action) {
             applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
             syncTarget(action.target);
@@ -1113,6 +1162,7 @@ int main(int argc, char** argv) {
         auto canvasWidth = [&] { return width - (hidden ? 0 : sidebar); };
         std::string playingPatch;   // basename of the current playlist entry
         bool morphingShown = false; // whether the status bar currently says "Morphing"
+        bool clockWasActive = false; // whether the external MIDI clock was followed
         auto playPatch = [&](int index) {
             if (index < 0 || index >= static_cast<int>(playlist.patches.size())) {
                 status = playlist.patches.empty() ? "Playlist is empty" : "No such playlist entry";
@@ -1455,7 +1505,43 @@ int main(int argc, char** argv) {
                         continue;
                     }
                     dispatchMidi(message);
+                    // Soft-takeover feedback: echo a mapped control back out so
+                    // a controller's LEDs/faders reflect the value. Only the
+                    // raw incoming message is echoed (clock is never mapped),
+                    // and only when a mapping listens on it.
+                    if (midiFeedback && midiOutOpen && midiMapped(message)) {
+                        if (message.event == MidiEvent::Control) {
+                            midiOut.sendControl(message.channel, message.control, message.value);
+                        } else if (message.event == MidiEvent::NoteOn ||
+                                   message.event == MidiEvent::NoteOff) {
+                            std::vector<unsigned char> raw = {
+                                static_cast<unsigned char>(
+                                    (message.event == MidiEvent::NoteOn ? 0x90 : 0x80) |
+                                    (std::clamp(message.channel, 0, 15) & 0x0f)),
+                                static_cast<unsigned char>(std::clamp(message.control, 0, 127)),
+                                static_cast<unsigned char>(std::clamp(message.value, 0, 127)) };
+                            midiOut.sendRaw(raw);
+                        }
+                    }
                 }
+            }
+            // External MIDI clock as the master tempo: while the clock is
+            // active, drive Tempo from it and show the readout; once it stops
+            // being active the last tempo is left untouched. No effect unless
+            // --midi-clock was given.
+            if (midiClockEnabled && midi.clockActive()) {
+                const double bpm = std::clamp(midi.clockBpm(), 20.0, 300.0);
+                engine.patch.master[MASTER_Tempo] = bpm;
+                char clockStatus[48];
+                std::snprintf(clockStatus, sizeof clockStatus, "BPM %.1f %s", bpm,
+                              midi.clockRunning() ? "(run)" : "(stopped)");
+                status = clockStatus; // the tempo readout takes the status line
+                clockWasActive = true;
+            } else if (midiClockEnabled && clockWasActive) {
+                // Report the loss once; the last tempo is deliberately kept.
+                status = "MIDI clock stopped";
+                clockWasActive = false;
+                panelDirty = true;
             }
             // Gamepad: refresh state once per frame, then read every open pad
             // (only changed buttons emit). Poll while learning too, even with no

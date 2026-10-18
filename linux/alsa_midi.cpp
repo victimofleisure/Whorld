@@ -1,4 +1,5 @@
-// Optional ALSA sequencer MIDI input, pumped on the UI thread (GPL-3.0-or-later).
+// Optional ALSA sequencer MIDI input/output, pumped on the UI thread
+// (GPL-3.0-or-later).
 #include "alsa_midi.h"
 
 #include <alsa/asoundlib.h>
@@ -16,6 +17,24 @@ constexpr int maxEventsPerPoll = 256;
 constexpr auto reconnectInterval = std::chrono::seconds(2);
 
 int midi7(int value) { return std::clamp(value, 0, 127); }
+
+// Monotonic seconds for the clock tracker. steady_clock cannot jump with the
+// wall clock, so a tempo change caused by NTP/DPMS is impossible.
+double monotonicSeconds() {
+    return std::chrono::duration<double>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+// Preferred timestamp for a system clock event. ALSA stamps it with the
+// sequencer's real-time clock, which keeps the true spacing when several
+// pulses are drained in one UI poll (steady_clock would collapse them to ~0);
+// events without a real-time stamp fall back to steady_clock. Only deltas are
+// used, and a stamp switch simply makes tick() relock, so mixing is safe.
+double clockSeconds(const snd_seq_event_t* event) {
+    if ((event->flags & SND_SEQ_TIME_STAMP_MASK) == SND_SEQ_TIME_STAMP_REAL)
+        return event->time.time.tv_sec + event->time.time.tv_nsec * 1e-9;
+    return monotonicSeconds();
+}
 
 std::string sequencerUnavailable() {
     if (errno == ENOENT) {
@@ -73,6 +92,7 @@ struct MidiInput::Impl {
     int port = -1;
     std::string source; // remembered so a dropped subscription can be retried
     std::chrono::steady_clock::time_point nextRetry{};
+    ClockTracker clock;
 };
 
 MidiInput::MidiInput() : impl(new Impl) {}
@@ -154,6 +174,7 @@ void MidiInput::close() {
         impl->seq = nullptr;
     }
     impl->port = -1;
+    impl->clock.reset(); // a closed source no longer supplies a clock
 }
 
 bool MidiInput::isOpen() const {
@@ -163,6 +184,9 @@ bool MidiInput::isOpen() const {
 std::vector<MidiMessage> MidiInput::poll() {
     std::vector<MidiMessage> messages;
     if (!impl->seq) return messages;
+
+    // Let a silent clock expire between frames (no pulse arrives to say so).
+    impl->clock.update(monotonicSeconds());
 
     // Bound both recognized and unrecognized events so a busy source cannot stall the UI.
     for (int i = 0; i < maxEventsPerPoll; ++i) {
@@ -179,6 +203,20 @@ std::vector<MidiMessage> MidiInput::poll() {
         MidiMessage msg;
         bool recognized = true;
         switch (event->type) {
+        // System real-time: drive the tempo tracker but never map them.
+        case SND_SEQ_EVENT_CLOCK:
+            impl->clock.tick(clockSeconds(event));
+            recognized = false;
+            break;
+        case SND_SEQ_EVENT_START:
+        case SND_SEQ_EVENT_CONTINUE:
+            impl->clock.start();
+            recognized = false;
+            break;
+        case SND_SEQ_EVENT_STOP:
+            impl->clock.stop();
+            recognized = false;
+            break;
         case SND_SEQ_EVENT_NOTEOFF:
             msg.event = MidiEvent::NoteOff;
             msg.channel = std::clamp(static_cast<int>(event->data.note.channel), 0, 15);
@@ -231,6 +269,123 @@ std::vector<MidiMessage> MidiInput::poll() {
 std::string MidiInput::portName() const {
     if (!impl->seq || impl->port < 0) return {};
     return std::to_string(snd_seq_client_id(impl->seq)) + ":" + std::to_string(impl->port);
+}
+
+bool MidiInput::clockActive() const { return impl->clock.active(); }
+
+bool MidiInput::clockRunning() const { return impl->clock.running(); }
+
+double MidiInput::clockBpm() const { return impl->clock.bpm(); }
+
+struct MidiOutput::Impl {
+    snd_seq_t* seq = nullptr;
+    int port = -1;
+    snd_midi_event_t* encoder = nullptr; // raw bytes -> sequencer events
+};
+
+MidiOutput::MidiOutput() : impl(new Impl) {}
+
+MidiOutput::~MidiOutput() {
+    close();
+    delete impl;
+}
+
+bool MidiOutput::open(const std::string& destination, std::string& error) {
+    close();
+    error.clear();
+    if (access("/dev/snd/seq", F_OK) != 0) {
+        error = sequencerUnavailable();
+        return false;
+    }
+
+    int rc = snd_seq_open(&impl->seq, "default", SND_SEQ_OPEN_OUTPUT, SND_SEQ_NONBLOCK);
+    if (rc < 0) {
+        error = std::string("Unable to open ALSA MIDI sequencer: ") + snd_strerror(rc);
+        close();
+        return false;
+    }
+    rc = snd_seq_set_client_name(impl->seq, "Whorld");
+    if (rc < 0) {
+        error = std::string("Unable to name ALSA MIDI client: ") + snd_strerror(rc);
+        close();
+        return false;
+    }
+    // An output port is one others read from, so it advertises READ/SUBS_READ.
+    impl->port = snd_seq_create_simple_port(impl->seq, "MIDI Output",
+                                            SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+                                            SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
+    if (impl->port < 0) {
+        error = std::string("Unable to create ALSA MIDI output port: ") + snd_strerror(impl->port);
+        close();
+        return false;
+    }
+
+    if (!destination.empty()) {
+        snd_seq_addr_t addr{};
+        rc = snd_seq_parse_address(impl->seq, &addr, destination.c_str());
+        if (rc < 0) {
+            error = std::string("Invalid ALSA MIDI destination '") + destination + "': " + snd_strerror(rc);
+            close();
+            return false;
+        }
+        rc = snd_seq_connect_to(impl->seq, impl->port, addr.client, addr.port);
+        if (rc < 0) {
+            error = std::string("Unable to connect to ALSA MIDI destination '") + destination + "': " + snd_strerror(rc);
+            close();
+            return false;
+        }
+    }
+
+    rc = snd_midi_event_new(64, &impl->encoder);
+    if (rc < 0) {
+        error = std::string("Unable to create MIDI event encoder: ") + snd_strerror(rc);
+        close();
+        return false;
+    }
+    return true;
+}
+
+void MidiOutput::close() {
+    if (impl->encoder) {
+        snd_midi_event_free(impl->encoder);
+        impl->encoder = nullptr;
+    }
+    if (impl->seq) {
+        snd_seq_close(impl->seq); // Closing the client also removes its port and subscriptions.
+        impl->seq = nullptr;
+    }
+    impl->port = -1;
+}
+
+bool MidiOutput::isOpen() const { return impl->seq != nullptr; }
+
+std::string MidiOutput::portName() const {
+    if (!impl->seq || impl->port < 0) return {};
+    return std::to_string(snd_seq_client_id(impl->seq)) + ":" + std::to_string(impl->port);
+}
+
+void MidiOutput::sendRaw(const std::vector<unsigned char>& bytes) {
+    if (!impl->seq || !impl->encoder || bytes.empty()) return;
+    snd_seq_event_t event;
+    snd_seq_ev_clear(&event);
+    snd_midi_event_reset_encode(impl->encoder);
+    // encode() consumes a complete message and fills the event; a status byte
+    // that expects more bytes than we were given is dropped rather than sent.
+    const long used = snd_midi_event_encode(impl->encoder, bytes.data(),
+                                            static_cast<long>(bytes.size()), &event);
+    if (used < static_cast<long>(bytes.size())) return;
+    snd_seq_ev_set_source(&event, impl->port);
+    snd_seq_ev_set_subs(&event);
+    snd_seq_ev_set_direct(&event);
+    snd_seq_event_output(impl->seq, &event);
+    snd_seq_drain_output(impl->seq);
+}
+
+void MidiOutput::sendControl(int channel, int control, int value) {
+    if (!impl->seq) return;
+    std::vector<unsigned char> bytes;
+    encodeControlChange(bytes, channel, control, value);
+    sendRaw(bytes);
 }
 
 } // namespace whorld

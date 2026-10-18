@@ -38,6 +38,32 @@ bool invert3x3(const double h[9], double out[9]);
 // True when `quad` is a usable, non-degenerate projection mapping.
 bool validWarp(const WarpQuad& quad);
 
+// Interactive corner editing (used by the on-screen warp editor). None is the
+// "no corner" sentinel; the other values match the WarpQuad member order.
+enum class WarpCorner { None, TL, TR, BR, BL };
+
+// The quad's corner as a point; (0,0) for None.
+Point warpCornerPoint(const WarpQuad& quad, WarpCorner corner);
+
+// The corner within `radius` of `p` (normalized units), preferring the closest.
+// Returns None when no corner is within range.
+WarpCorner warpCornerAt(const WarpQuad& quad, Point p, double radius);
+
+// Moves one corner to `p`, clamping each coordinate to -0.5..1.5 so a corner can
+// overshoot a little for calibration but never run away. None is a no-op.
+void setWarpCorner(WarpQuad& quad, WarpCorner corner, Point p);
+
+// Moves one corner by (dx, dy), with the same clamping as setWarpCorner.
+void nudgeWarpCorner(WarpQuad& quad, WarpCorner corner, double dx, double dy);
+
+// Snaps coordinates within `epsilon` of 0 or 1 to exactly 0/1, so the operator
+// can align a corner to a projector edge; interior values are left untouched.
+void snapWarpQuad(WarpQuad& quad, double epsilon = 0.01);
+
+// The identity warp (the unit square) and a tolerance test for it.
+WarpQuad identityWarp();
+bool isIdentityWarp(const WarpQuad& quad, double epsilon = 1e-9);
+
 // Text (de)serialization as four "x y" pairs in TL, TR, BR, BL order. The
 // parser accepts whitespace or comma separators and tolerates newlines; it
 // rejects any input that is not exactly eight finite numbers. Returns false and

@@ -128,6 +128,65 @@ int main() {
         require(nearPt(q.tl, before.tl) && nearPt(q.bl, before.bl));
     }
 
+    // Interactive corner editing helpers used by the on-screen warp editor.
+    {
+        // warpCornerAt picks the nearest corner inside the radius and returns
+        // None outside it.
+        require(warpCornerAt(quad, {0.11, 0.21}, 0.05) == WarpCorner::TL);
+        require(warpCornerAt(quad, {0.89, 0.09}, 0.05) == WarpCorner::TR);
+        require(warpCornerAt(quad, {0.81, 0.93}, 0.05) == WarpCorner::BR);
+        require(warpCornerAt(quad, {0.15, 0.85}, 0.05) == WarpCorner::BL);
+        require(warpCornerAt(quad, {0.5, 0.5}, 0.05) == WarpCorner::None);
+        // With several corners in range the closest one wins.
+        require(warpCornerAt(quad, {0.48, 0.14}, 0.60) == WarpCorner::TL);
+        require(warpCornerAt(quad, {0.52, 0.14}, 0.60) == WarpCorner::TR);
+
+        // warpCornerPoint agrees with the quad members.
+        require(nearPt(warpCornerPoint(quad, WarpCorner::TL), quad.tl));
+        require(nearPt(warpCornerPoint(quad, WarpCorner::BL), quad.bl));
+
+        // setWarpCorner moves only the requested corner.
+        WarpQuad moved = quad;
+        setWarpCorner(moved, WarpCorner::TR, {0.95, 0.02});
+        require(nearPt(moved.tr, {0.95, 0.02}));
+        require(nearPt(moved.tl, quad.tl) && nearPt(moved.br, quad.br) && nearPt(moved.bl, quad.bl));
+        // Coordinates are clamped to the generous -0.5..1.5 range.
+        setWarpCorner(moved, WarpCorner::TR, {5.0, -5.0});
+        require(nearPt(moved.tr, {1.5, -0.5}));
+        // None is a no-op.
+        const WarpQuad beforeNone = moved;
+        setWarpCorner(moved, WarpCorner::None, {0.25, 0.25});
+        require(nearPt(moved.tr, beforeNone.tr) && nearPt(moved.tl, beforeNone.tl));
+
+        // nudgeWarpCorner moves only the requested corner by the delta.
+        WarpQuad nudged = quad;
+        nudgeWarpCorner(nudged, WarpCorner::BL, 0.01, -0.02);
+        require(nearPt(nudged.bl, {quad.bl.x + 0.01, quad.bl.y - 0.02}));
+        require(nearPt(nudged.tl, quad.tl) && nearPt(nudged.tr, quad.tr) &&
+                nearPt(nudged.br, quad.br));
+
+        // snapWarpQuad snaps near-edge values and leaves interior values alone.
+        WarpQuad snap{{0.004, 0.996}, {0.5, 0.3}, {1.0, 0.0}, {0.15, 0.995}};
+        snapWarpQuad(snap);
+        require(near(snap.tl.x, 0.0) && near(snap.tl.y, 1.0));
+        require(near(snap.tr.x, 0.5) && near(snap.tr.y, 0.3));
+        require(near(snap.br.x, 1.0) && near(snap.br.y, 0.0));
+        require(near(snap.bl.x, 0.15) && near(snap.bl.y, 1.0));
+        // A value just outside epsilon is untouched.
+        WarpQuad keep{{0.02, 0.03}, {1.0, 1.0}, {1.0, 1.0}, {0.0, 0.0}};
+        snapWarpQuad(keep, 0.01);
+        require(near(keep.tl.x, 0.02) && near(keep.tl.y, 0.03));
+
+        // identityWarp / isIdentityWarp.
+        require(isIdentityWarp(identityWarp()));
+        require(isIdentityWarp(WarpQuad{}));
+        require(nearPt(identityWarp().tl, {0, 0}) && nearPt(identityWarp().bl, {0, 1}));
+        require(!isIdentityWarp(quad));
+        const WarpQuad almost{{0, 0}, {1, 0}, {1, 1}, {0, 1 + 1e-6}};
+        require(!isIdentityWarp(almost, 1e-9));
+        require(isIdentityWarp(almost, 1e-5));
+    }
+
     std::printf("ok\n");
     return 0;
 }

@@ -1,6 +1,7 @@
 // Projection mapping (quad -> homography) implementation. See projection.h.
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "projection.h"
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <sstream>
@@ -12,6 +13,17 @@ namespace {
 // to 0..1, so these are comfortably above double rounding noise yet far below
 // any meaningful mapping.
 constexpr double kEps = 1e-9;
+
+// Generous corner range: corners may overshoot the unit square for calibration,
+// but not so far that numeric runaway is possible.
+constexpr double kCornerMin = -0.5;
+constexpr double kCornerMax = 1.5;
+
+double snapCoord(double v, double epsilon) {
+    if (std::abs(v) <= epsilon) return 0.0;
+    if (std::abs(v - 1.0) <= epsilon) return 1.0;
+    return v;
+}
 
 double det3x3(const double h[9]) {
     return h[0] * (h[4] * h[8] - h[5] * h[7]) -
@@ -100,6 +112,66 @@ bool invert3x3(const double h[9], double out[9]) {
 bool validWarp(const WarpQuad& quad) {
     double h[9];
     return quadToHomography(quad, h);
+}
+
+Point warpCornerPoint(const WarpQuad& quad, WarpCorner corner) {
+    switch (corner) {
+    case WarpCorner::TL: return quad.tl;
+    case WarpCorner::TR: return quad.tr;
+    case WarpCorner::BR: return quad.br;
+    case WarpCorner::BL: return quad.bl;
+    case WarpCorner::None: break;
+    }
+    return {0, 0};
+}
+
+WarpCorner warpCornerAt(const WarpQuad& quad, Point p, double radius) {
+    constexpr WarpCorner ids[4] = {WarpCorner::TL, WarpCorner::TR, WarpCorner::BR, WarpCorner::BL};
+    double best = radius;
+    WarpCorner result = WarpCorner::None;
+    for (int i = 0; i < 4; ++i) {
+        const Point c = warpCornerPoint(quad, ids[i]);
+        const double d = std::hypot(p.x - c.x, p.y - c.y);
+        if (d <= best) {
+            best = d;
+            result = ids[i];
+        }
+    }
+    return result;
+}
+
+void setWarpCorner(WarpQuad& quad, WarpCorner corner, Point p) {
+    const Point c{std::clamp(p.x, kCornerMin, kCornerMax),
+                  std::clamp(p.y, kCornerMin, kCornerMax)};
+    switch (corner) {
+    case WarpCorner::TL: quad.tl = c; break;
+    case WarpCorner::TR: quad.tr = c; break;
+    case WarpCorner::BR: quad.br = c; break;
+    case WarpCorner::BL: quad.bl = c; break;
+    case WarpCorner::None: break;
+    }
+}
+
+void nudgeWarpCorner(WarpQuad& quad, WarpCorner corner, double dx, double dy) {
+    const Point c = warpCornerPoint(quad, corner);
+    setWarpCorner(quad, corner, {c.x + dx, c.y + dy});
+}
+
+void snapWarpQuad(WarpQuad& quad, double epsilon) {
+    quad.tl = {snapCoord(quad.tl.x, epsilon), snapCoord(quad.tl.y, epsilon)};
+    quad.tr = {snapCoord(quad.tr.x, epsilon), snapCoord(quad.tr.y, epsilon)};
+    quad.br = {snapCoord(quad.br.x, epsilon), snapCoord(quad.br.y, epsilon)};
+    quad.bl = {snapCoord(quad.bl.x, epsilon), snapCoord(quad.bl.y, epsilon)};
+}
+
+WarpQuad identityWarp() { return WarpQuad{}; }
+
+bool isIdentityWarp(const WarpQuad& quad, double epsilon) {
+    const WarpQuad id;
+    return std::abs(quad.tl.x - id.tl.x) <= epsilon && std::abs(quad.tl.y - id.tl.y) <= epsilon &&
+           std::abs(quad.tr.x - id.tr.x) <= epsilon && std::abs(quad.tr.y - id.tr.y) <= epsilon &&
+           std::abs(quad.br.x - id.br.x) <= epsilon && std::abs(quad.br.y - id.br.y) <= epsilon &&
+           std::abs(quad.bl.x - id.bl.x) <= epsilon && std::abs(quad.bl.y - id.bl.y) <= epsilon;
 }
 
 std::string warpToString(const WarpQuad& q) {

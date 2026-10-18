@@ -41,6 +41,8 @@ constexpr int rowHeight = 29;
 constexpr int kShapeStripTop = 128;
 constexpr int kShapeStripHeight = 22;
 constexpr int kListTop = 158;
+// Corner hit radius for the interactive warp editor, in screen pixels.
+constexpr double kWarpHandlePx = 12.0;
 using Surface = std::unique_ptr<cairo_surface_t, decltype(&cairo_surface_destroy)>;
 using Context = std::unique_ptr<cairo_t, decltype(&cairo_destroy)>;
 
@@ -504,6 +506,59 @@ void loadWarpFile(const std::string& path, WarpQuad& warp) {
     if (!validWarp(warp))
         throw std::runtime_error("Degenerate warp quad in " + path);
 }
+// Corner-index helpers for the warp editor. The UI works with 0..3 in
+// TL,TR,BR,BL order, matching WarpCorner; -1 is the "no corner" index.
+int warpCornerIndex(WarpCorner corner) {
+    switch (corner) {
+    case WarpCorner::TL: return 0;
+    case WarpCorner::TR: return 1;
+    case WarpCorner::BR: return 2;
+    case WarpCorner::BL: return 3;
+    case WarpCorner::None: break;
+    }
+    return -1;
+}
+WarpCorner warpCornerForIndex(int index) {
+    switch (index) {
+    case 0: return WarpCorner::TL;
+    case 1: return WarpCorner::TR;
+    case 2: return WarpCorner::BR;
+    case 3: return WarpCorner::BL;
+    default: break;
+    }
+    return WarpCorner::None;
+}
+const char* warpCornerName(int index) {
+    static const char* names[4] = {"TL", "TR", "BR", "BL"};
+    return index >= 0 && index < 4 ? names[index] : "?";
+}
+// Draws the warp-editor guide over the canvas with SDL primitives, mirroring
+// GlRenderer::drawWarpOverlay so both backends look the same.
+void drawWarpOverlaySdl(SDL_Renderer* renderer, const WarpQuad& quad, int selected, int hovered,
+                        int canvasX, int canvasW, int canvasH, const Color& color) {
+    if (!renderer) return;
+    const Uint8 r = static_cast<Uint8>(std::clamp(color.r, 0.0, 1.0) * 255.0 + 0.5);
+    const Uint8 g = static_cast<Uint8>(std::clamp(color.g, 0.0, 1.0) * 255.0 + 0.5);
+    const Uint8 b = static_cast<Uint8>(std::clamp(color.b, 0.0, 1.0) * 255.0 + 0.5);
+    const Point corners[4] = {quad.tl, quad.tr, quad.br, quad.bl};
+    auto sx = [&](double nx) { return int(std::lround(canvasX + nx * canvasW)); };
+    auto sy = [&](double ny) { return int(std::lround(ny * canvasH)); };
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+    for (int i = 0; i < 4; ++i) {
+        const Point& a = corners[i];
+        const Point& c = corners[(i + 1) % 4];
+        SDL_RenderDrawLine(renderer, sx(a.x), sy(a.y), sx(c.x), sy(c.y));
+    }
+    for (int i = 0; i < 4; ++i) {
+        const bool active = i == selected;
+        const bool over = i == hovered;
+        const int half = active ? 8 : over ? 7 : 5;
+        SDL_Rect handle{sx(corners[i].x) - half, sy(corners[i].y) - half, 2 * half, 2 * half};
+        SDL_SetRenderDrawColor(renderer, r, g, b, active || over ? 255 : 178);
+        SDL_RenderFillRect(renderer, &handle);
+    }
+}
 void help() {
     std::cout << "Whorld native Linux port\n"
               << "Usage: whorld [--patch FILE.whp] [--playlist FILE.whl] [--snapshot FILE.whs]\n"
@@ -569,7 +624,9 @@ void help() {
               << "        operator can capture a working setup. See deploy/whorld.conf.\n"
               << "Keys: Space pause, F/O fill and outline, L playlist, P PNG, H hide controls,\n"
               << "      M cycle mirror/kaleidoscope, B cycle blend, I toggle invert, W toggle warp,\n"
-              << "      T cycle feedback trails,\n"
+              << "      T cycle feedback trails, E warp edit (arrows nudge the selected corner,\n"
+              << "      Tab/1-4 select TL/TR/BR/BL, Del/0 reset, drag corners on screen,\n"
+              << "      Ctrl+Shift+W save the quad to --warp-file),\n"
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
               << "      PgUp/PgDn step snapshots, s/-/= render scale, F11 fullscreen, R clear, Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
@@ -591,6 +648,7 @@ int main(int argc, char** argv) {
         std::string v4l2Device;
         std::string pipeOutPath;
         std::string warpSaveFile;
+        std::string warpFilePath; // --warp-file/--config warpFile, reused by Ctrl+Shift+W
         bool headless = false;
         std::string videoDriver; // --video-driver NAME, applied before SDL_Init
         bool fullscreen = false; // --fullscreen: start in SDL_WINDOW_FULLSCREEN_DESKTOP
@@ -647,6 +705,7 @@ int main(int argc, char** argv) {
                 postProcess.warpEnabled = true;
             } else if (!show.warpFile.empty()) {
                 loadWarpFile(show.warpFile, postProcess.warp);
+                warpFilePath = show.warpFile;
                 postProcess.warpEnabled = true;
             }
             videoDriver = show.videoDriver;
@@ -785,6 +844,7 @@ int main(int argc, char** argv) {
             }
             else if (arg == "--warp-file") {
                 loadWarpFile(value, postProcess.warp);
+                warpFilePath = value;
                 postProcess.warpEnabled = true;
             }
             else if (arg == "--warp-save") {
@@ -1130,6 +1190,12 @@ int main(int argc, char** argv) {
                          rendererMode.c_str());
         bool running = true, paused = false, hidden = false, dragging = false, entering = false;
         bool cursorHidden = hideCursor; // --hide-cursor, cleared on mouse motion
+        // Interactive warp (projection-mapping) corner editor, toggled with 'e'.
+        bool warpEdit = false;
+        int warpEditSel = 0; // 0..3 = TL,TR,BR,BL
+        WarpCorner draggingWarpCorner = WarpCorner::None;
+        WarpCorner hoveredWarpCorner = WarpCorner::None;
+        const Color warpOverlayColor{1.0, 0.85, 0.10, 1.0}; // reads on light and dark frames
         bool showPlaylist = false;
         bool warnedCairoFeedback = false;
         int selected = 0, property = 0, scroll = 0;
@@ -1320,6 +1386,14 @@ int main(int argc, char** argv) {
             }
         };
         auto canvasWidth = [&] { return width - (hidden ? 0 : sidebar); };
+        auto warpEditStatus = [&]() -> std::string {
+            const Point c = warpCornerPoint(postProcess.warp, warpCornerForIndex(warpEditSel));
+            char buf[176];
+            std::snprintf(buf, sizeof(buf),
+                          "Warp edit: %s (%.3f,%.3f) [Tab/1-4 select, arrows nudge, Del/0 reset]",
+                          warpCornerName(warpEditSel), c.x, c.y);
+            return buf;
+        };
         std::string playingPatch;   // basename of the current playlist entry
         bool morphingShown = false; // whether the status bar currently says "Morphing"
         bool clockWasActive = false; // whether the external MIDI clock was followed
@@ -1426,6 +1500,44 @@ int main(int argc, char** argv) {
                                 }
                             } catch (const std::exception& e) { status = e.what(); }
                         }
+                    } else if (warpEdit && (key == SDLK_UP || key == SDLK_DOWN ||
+                                            key == SDLK_LEFT || key == SDLK_RIGHT)) {
+                        const double step = shift ? 0.05 : 0.005;
+                        const double dx = key == SDLK_LEFT ? -step : key == SDLK_RIGHT ? step : 0.0;
+                        const double dy = key == SDLK_UP ? -step : key == SDLK_DOWN ? step : 0.0;
+                        nudgeWarpCorner(postProcess.warp, warpCornerForIndex(warpEditSel), dx, dy);
+                        status = warpEditStatus();
+                    } else if (warpEdit && key == SDLK_TAB) {
+                        warpEditSel = (warpEditSel + 1) % 4;
+                        status = warpEditStatus();
+                    } else if (warpEdit && key >= SDLK_1 && key <= SDLK_4) {
+                        warpEditSel = key - SDLK_1;
+                        status = warpEditStatus();
+                    } else if (warpEdit &&
+                               (key == SDLK_DELETE || key == SDLK_0 || key == SDLK_KP_0)) {
+                        postProcess.warp = identityWarp();
+                        status = "Warp reset to identity";
+                    } else if (key == SDLK_e) {
+                        warpEdit = !warpEdit;
+                        draggingWarpCorner = WarpCorner::None;
+                        hoveredWarpCorner = WarpCorner::None;
+                        if (warpEdit) {
+                            postProcess.warpEnabled = true; // show the effect while editing
+                            status = warpEditStatus();
+                        } else {
+                            status = "Warp edit: off";
+                        }
+                    } else if (ctrl && shift && key == SDLK_w) {
+                        // Persist the current quad for the next show. Reuse the
+                        // path --warp-file loaded from, or a --warp-save target.
+                        const std::string path = !warpSaveFile.empty() ? warpSaveFile : warpFilePath;
+                        if (path.empty()) {
+                            status = "No warp file (use --warp-file or --warp-save)";
+                        } else {
+                            std::ofstream out(path);
+                            out << warpToString(postProcess.warp);
+                            status = out ? "Saved " + path : "Cannot write warp file: " + path;
+                        }
                     } else if (ctrl && shift && (key == SDLK_o || key == SDLK_s || key == SDLK_n)) {
                         command = key == SDLK_o ? "openlist" : key == SDLK_s ? "savelist" : "newlist";
                         input = playlist.path.empty() ? "playlist.whl" : playlist.path;
@@ -1465,7 +1577,15 @@ int main(int argc, char** argv) {
                             midiLearn = !midiLearn;
                             status = midiLearn ? "MIDI learn: move a control for " + target : "MIDI learn: off";
                         }
-                    } else if (key == SDLK_ESCAPE) running = false;
+                    } else if (key == SDLK_ESCAPE) {
+                        if (warpEdit) {
+                            warpEdit = false;
+                            draggingWarpCorner = WarpCorner::None;
+                            status = "Warp edit: off";
+                        } else {
+                            running = false;
+                        }
+                    }
                     else if (key == SDLK_SPACE) {
                         if (movieActive) { movieActive = false; engine.stopSnapshot(); paused = false; }
                         else if (engine.snapshotActive()) { engine.stopSnapshot(); paused = false; }
@@ -1604,7 +1724,24 @@ int main(int argc, char** argv) {
                         }
                     }
                 } else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
-                    if (!hidden && ev.button.x < sidebar) {
+                    const int leftEdge = hidden ? 0 : sidebar;
+                    const int canvasW_ = std::max(1, width - leftEdge);
+                    if (warpEdit && (hidden || ev.button.x >= sidebar)) {
+                        // Warp editor: hit-test the corner handles first; a miss
+                        // falls through to the normal patch-origin drag.
+                        const Point p{(ev.button.x - leftEdge) / double(canvasW_),
+                                      ev.button.y / double(std::max(1, height))};
+                        const double radius =
+                            kWarpHandlePx / double(std::max(1, std::min(canvasW_, height)));
+                        const WarpCorner hit = warpCornerAt(postProcess.warp, p, radius);
+                        if (hit != WarpCorner::None) {
+                            draggingWarpCorner = hit;
+                            warpEditSel = warpCornerIndex(hit);
+                            status = warpEditStatus();
+                        } else {
+                            dragging = true;
+                        }
+                    } else if (!hidden && ev.button.x < sidebar) {
                         const int bottom = std::max(kListTop, height - 157);
                         if (ev.button.y >= kShapeStripTop && ev.button.y < kShapeStripTop + kShapeStripHeight) {
                             // Click a shape chip to activate that primitive.
@@ -1630,15 +1767,31 @@ int main(int argc, char** argv) {
                             }
                         }
                     } else dragging = true;
-                } else if (ev.type == SDL_MOUSEBUTTONUP) dragging = false;
-                else if (ev.type == SDL_MOUSEMOTION) {
+                } else if (ev.type == SDL_MOUSEBUTTONUP) {
+                    dragging = false;
+                    draggingWarpCorner = WarpCorner::None;
+                } else if (ev.type == SDL_MOUSEMOTION) {
                     // --hide-cursor hides the pointer for projection; moving the
                     // mouse brings it back so the operator can still find it.
                     if (cursorHidden) { SDL_ShowCursor(SDL_ENABLE); cursorHidden = false; }
-                    if (dragging) {
-                        int left = hidden ? 0 : sidebar;
-                        mx = std::clamp((ev.motion.x - left) / double(std::max(1, width - left)), 0.0, 1.0);
-                        my = std::clamp(ev.motion.y / double(std::max(1, height)), 0.0, 1.0);
+                    const int left = hidden ? 0 : sidebar;
+                    const double nx = (ev.motion.x - left) / double(std::max(1, width - left));
+                    const double ny = ev.motion.y / double(std::max(1, height));
+                    if (draggingWarpCorner != WarpCorner::None) {
+                        setWarpCorner(postProcess.warp, draggingWarpCorner, {nx, ny});
+                        hoveredWarpCorner = draggingWarpCorner;
+                    } else if (warpEdit) {
+                        const double radius = kWarpHandlePx /
+                            double(std::max(1, std::min(width - left, height)));
+                        hoveredWarpCorner = warpCornerAt(postProcess.warp, {nx, ny}, radius);
+                        if (dragging) {
+                            mx = std::clamp(nx, 0.0, 1.0);
+                            my = std::clamp(ny, 0.0, 1.0);
+                            engine.patch.orgMotion = OM_DRAG;
+                        }
+                    } else if (dragging) {
+                        mx = std::clamp(nx, 0.0, 1.0);
+                        my = std::clamp(ny, 0.0, 1.0);
                         engine.patch.orgMotion = OM_DRAG;
                     }
                 }
@@ -1866,6 +2019,10 @@ int main(int argc, char** argv) {
             if (useGl) {
                 gl.render(frame, engine.patch.antialiasing, left, cw, height, width, height,
                           uiSurface, hidden ? 0 : sidebar, height, renderScale, postProcess);
+                if (warpEdit)
+                    gl.drawWarpOverlay(postProcess.warp, warpEditSel,
+                                       warpCornerIndex(hoveredWarpCorner), left, cw, height,
+                                       warpOverlayColor);
                 gl.swap(window);
                 if (streamer.active()) {
                     const std::size_t fBytes = static_cast<std::size_t>(cw) * height * 3;
@@ -1908,6 +2065,10 @@ int main(int argc, char** argv) {
                     SDL_Rect panelDst{0, 0, sidebar, height};
                     SDL_RenderCopy(renderer, panel.texture, nullptr, &panelDst);
                 }
+                if (warpEdit)
+                    drawWarpOverlaySdl(renderer, postProcess.warp, warpEditSel,
+                                       warpCornerIndex(hoveredWarpCorner), left, cw, height,
+                                       warpOverlayColor);
                 SDL_RenderPresent(renderer);
             }
             auto tPanel = std::chrono::steady_clock::now();

@@ -706,4 +706,55 @@ void GlRenderer::swap(SDL_Window* window) {
     if (context) SDL_GL_SwapWindow(window);
 }
 
+void GlRenderer::drawWarpOverlay(const WarpQuad& quad, int selected, int hovered, int canvasX,
+                                 int canvasW, int canvasH, const Color& color) {
+    if (!context) return;
+    const Point corners[4] = {quad.tl, quad.tr, quad.br, quad.bl};
+    auto sx = [&](double nx) { return float(canvasX + nx * canvasW); };
+    auto sy = [&](double ny) { return float(ny * canvasH); };
+
+    // render() leaves a screen-space ortho (0..windowW, windowH..0) and an
+    // identity modelview in place, so normalized (nx, ny) maps straight to
+    // canvas-space pixels. Save everything we touch and restore it afterwards.
+    glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_STENCIL_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    const float r = float(color.r), g = float(color.g), b = float(color.b);
+    glColor4f(r, g, b, float(color.a));
+    glLineWidth(1.0f);
+    glBegin(GL_LINE_LOOP);
+    for (const Point& c : corners) glVertex2f(sx(c.x), sy(c.y));
+    glEnd();
+
+    // One filled square per corner; the selected handle is largest and opaque.
+    for (int i = 0; i < 4; ++i) {
+        const bool active = i == selected;
+        const bool over = i == hovered;
+        const float half = active ? 8.0f : over ? 7.0f : 5.0f;
+        const float x = sx(corners[i].x), y = sy(corners[i].y);
+        glColor4f(r, g, b, active || over ? 1.0f : 0.7f);
+        glBegin(GL_QUADS);
+        glVertex2f(x - half, y - half);
+        glVertex2f(x + half, y - half);
+        glVertex2f(x + half, y + half);
+        glVertex2f(x - half, y + half);
+        glEnd();
+    }
+    // A dark centre dot keeps the selected handle readable on a light frame.
+    if (selected >= 0 && selected < 4) {
+        const float x = sx(corners[selected].x), y = sy(corners[selected].y);
+        glColor4f(0.05f, 0.05f, 0.05f, 1.0f);
+        glBegin(GL_QUADS);
+        glVertex2f(x - 2.0f, y - 2.0f);
+        glVertex2f(x + 2.0f, y - 2.0f);
+        glVertex2f(x + 2.0f, y + 2.0f);
+        glVertex2f(x - 2.0f, y + 2.0f);
+        glEnd();
+    }
+    glPopAttrib();
+}
+
 } // namespace whorld

@@ -45,6 +45,13 @@ public:
     void swap(SDL_Window* window);
     void clearFeedback();
 
+    // Draws the interactive warp-editor guide (a thin quad outline plus one
+    // handle per corner) in screen space, on top of whatever render() left. Must
+    // be called between render() and swap(), which leave a screen-space ortho in
+    // place. `selected`/`hovered` are corner indices 0..3 (TL,TR,BR,BL) or -1.
+    void drawWarpOverlay(const WarpQuad& quad, int selected, int hovered, int canvasX,
+                         int canvasW, int canvasH, const Color& color);
+
     // Releases the GL context, shaders, and textures. Safe to call more than once,
     // and must run before SDL_Quit.
     void shutdown();

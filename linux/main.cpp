@@ -474,6 +474,23 @@ void learnMidi(Playlist& playlist, const MidiMessage& message, const std::string
     m.end = 100;
     playlist.mappings.push_back(std::move(m));
 }
+// Formats an SDL failure with the video drivers this build actually provides,
+// so an operator on an offline NUC can see what is available (or that a
+// requested --video-driver was not compiled in). Safe to call before SDL_Init:
+// the driver list is static.
+std::string sdlError(const std::string& what) {
+    std::string message = what + ": " + SDL_GetError() + " (available drivers:";
+    const int count = SDL_GetNumVideoDrivers();
+    if (count <= 0) {
+        message += " none";
+    } else {
+        for (int i = 0; i < count; ++i) {
+            message += i == 0 ? " " : ", ";
+            message += SDL_GetVideoDriver(i);
+        }
+    }
+    return message + ")";
+}
 void help() {
     std::cout << "Whorld native Linux port\n"
               << "Usage: whorld [--patch FILE.whp] [--playlist FILE.whl] [--snapshot FILE.whs]\n"
@@ -490,6 +507,7 @@ void help() {
               << "               [--warp \"TLx,TLy,TRx,TRy,BRx,BRy,BLx,BLy\"] [--warp-file FILE]\n"
               << "               [--warp-save FILE]\n"
               << "               [--v4l2 /dev/videoX] [--pipe-out PATH|-] [--headless]\n"
+              << "               [--video-driver NAME] [--fullscreen] [--hide-cursor]\n"
               << "               [--audio] [--audio-device NAME] [--audio-gain F] [--osc [PORT]]\n"
               << "               [--osc-port N]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
@@ -514,6 +532,12 @@ void help() {
               << "        out so LED rings, lamps and motorized faders track the values.\n"
               << "--pipe-out streams raw RGB video frames to stdout (-) or a FIFO pipe.\n"
               << "--headless runs offscreen GPU rendering/streaming without an X11 window.\n"
+              << "--video-driver NAME sets SDL_VIDEODRIVER before any SDL_Init, so a kiosk\n"
+              << "        without a desktop can select kmsdrm (DRM/KMS console), x11,\n"
+              << "        wayland or offscreen. With --headless and no explicit driver, the\n"
+              << "        offscreen driver is used when this SDL build provides it.\n"
+              << "--fullscreen starts the window fullscreen on the desktop; F11 still toggles it.\n"
+              << "--hide-cursor hides the mouse pointer for projection; moving the mouse shows it.\n"
               << "--audio enables microphone/line input; --audio-device picks the ALSA device\n"
               << "        (default \"default\") and --audio-gain scales the analysis (default 1.0).\n"
               << "--osc listens for Open Sound Control messages on a UDP port (default 8000)\n"
@@ -548,6 +572,9 @@ int main(int argc, char** argv) {
         std::string pipeOutPath;
         std::string warpSaveFile;
         bool headless = false;
+        std::string videoDriver; // --video-driver NAME, applied before SDL_Init
+        bool fullscreen = false; // --fullscreen: start in SDL_WINDOW_FULLSCREEN_DESKTOP
+        bool hideCursor = false; // --hide-cursor
         std::string audioDevice;
         double audioGain = 1.0;
         bool audioEnabled = false;
@@ -568,6 +595,8 @@ int main(int argc, char** argv) {
             if (arg == "--help" || arg == "-h") { help(); return 0; }
             if (arg == "--invert") { postProcess.invertColor = true; continue; }
             if (arg == "--headless") { headless = true; continue; }
+            if (arg == "--fullscreen") { fullscreen = true; continue; }
+            if (arg == "--hide-cursor") { hideCursor = true; continue; }
             if (arg == "--audio") { audioEnabled = true; continue; }
             if (arg == "--list-midi") { listMidi = true; continue; }
             if (arg == "--midi-clock") { midiClockEnabled = true; continue; }
@@ -692,6 +721,7 @@ int main(int argc, char** argv) {
             else if (arg == "--v4l2") {
                 v4l2Device = value;
             }
+            else if (arg == "--video-driver") videoDriver = value;
             else if (arg == "--pipe-out") {
                 pipeOutPath = value;
             }
@@ -716,6 +746,21 @@ int main(int argc, char** argv) {
                 height = std::stoi(value.substr(x + 1));
             } else throw std::runtime_error("Unknown option " + arg);
         }
+        // Select the SDL video driver before any SDL_Init call. An explicit
+        // --video-driver always wins; a headless kiosk prefers the offscreen
+        // driver when this build provides it, so offscreen GPU rendering and
+        // streaming work with no display, window manager or X server. An
+        // unknown driver is left for SDL to reject, with sdlError() listing
+        // the drivers that are actually available.
+        if (videoDriver.empty() && headless) {
+            for (int i = 0; i < SDL_GetNumVideoDrivers(); ++i) {
+                if (std::strcmp(SDL_GetVideoDriver(i), "offscreen") == 0) {
+                    videoDriver = "offscreen";
+                    break;
+                }
+            }
+        }
+        if (!videoDriver.empty()) setenv("SDL_VIDEODRIVER", videoDriver.c_str(), 1);
         if (listMidi) {
             // Discovery must work without a display and even when the sequencer
             // is absent, so print a clear message and exit successfully either way.
@@ -786,7 +831,7 @@ int main(int argc, char** argv) {
 
         if (headless) {
             if (SDL_Init(SDL_INIT_VIDEO) != 0)
-                throw std::runtime_error(std::string("SDL initialization failed: ") + SDL_GetError());
+                throw std::runtime_error(sdlError("SDL initialization failed"));
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -886,7 +931,7 @@ int main(int argc, char** argv) {
                 if (offscreen) SDL_DestroyWindow(offscreen);
                 SDL_Quit();
             } else if (tryGpu && rendererMode == "gpu") {
-                throw std::runtime_error(std::string("SDL initialization failed: ") + SDL_GetError());
+                throw std::runtime_error(sdlError("SDL initialization failed"));
             }
             if (!rendered) {
                 // Feedback trails keep per-frame history, which only the GPU
@@ -927,7 +972,7 @@ int main(int argc, char** argv) {
             movieStart = std::chrono::steady_clock::now();
         }
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
-            throw std::runtime_error(std::string("SDL initialization failed: ") + SDL_GetError());
+            throw std::runtime_error(sdlError("SDL initialization failed"));
         // Prefer the OpenGL canvas renderer (stencil even-odd fills on the GPU);
         // fall back to SDL_Renderer + cairo when OpenGL is unavailable.
         SDL_Window* window = nullptr;
@@ -942,7 +987,8 @@ int main(int argc, char** argv) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
             window = SDL_CreateWindow("Whorld - Linux", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
+                width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL |
+                (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
             if (window) {
                 std::string glError;
                 if (gl.init(window, glError)) {
@@ -960,16 +1006,19 @@ int main(int argc, char** argv) {
         }
         if (!useGl) {
             window = SDL_CreateWindow("Whorld - Linux", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+                width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI |
+                (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
             if (!window) throw std::runtime_error(std::string("Cannot create window: ") + SDL_GetError());
             renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
             if (!renderer) renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
             if (!renderer) throw std::runtime_error(std::string("Cannot create renderer: ") + SDL_GetError());
         }
+        if (hideCursor) SDL_ShowCursor(SDL_DISABLE);
         if (std::getenv("WHORLD_TIMING"))
             std::fprintf(stderr, "canvas backend: %s (mode=%s)\n", useGl ? "opengl" : "cairo-sdl",
                          rendererMode.c_str());
         bool running = true, paused = false, hidden = false, dragging = false, entering = false;
+        bool cursorHidden = hideCursor; // --hide-cursor, cleared on mouse motion
         bool showPlaylist = false;
         bool warnedCairoFeedback = false;
         int selected = 0, property = 0, scroll = 0;
@@ -1471,11 +1520,16 @@ int main(int argc, char** argv) {
                         }
                     } else dragging = true;
                 } else if (ev.type == SDL_MOUSEBUTTONUP) dragging = false;
-                else if (ev.type == SDL_MOUSEMOTION && dragging) {
-                    int left = hidden ? 0 : sidebar;
-                    mx = std::clamp((ev.motion.x - left) / double(std::max(1, width - left)), 0.0, 1.0);
-                    my = std::clamp(ev.motion.y / double(std::max(1, height)), 0.0, 1.0);
-                    engine.patch.orgMotion = OM_DRAG;
+                else if (ev.type == SDL_MOUSEMOTION) {
+                    // --hide-cursor hides the pointer for projection; moving the
+                    // mouse brings it back so the operator can still find it.
+                    if (cursorHidden) { SDL_ShowCursor(SDL_ENABLE); cursorHidden = false; }
+                    if (dragging) {
+                        int left = hidden ? 0 : sidebar;
+                        mx = std::clamp((ev.motion.x - left) / double(std::max(1, width - left)), 0.0, 1.0);
+                        my = std::clamp(ev.motion.y / double(std::max(1, height)), 0.0, 1.0);
+                        engine.patch.orgMotion = OM_DRAG;
+                    }
                 }
             }
             // Reconnect a configured source that was missing at launch or whose

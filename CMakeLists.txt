@@ -73,6 +73,16 @@ if(BUILD_TESTING)
         --warp "0.06,0.04,0.95,0.10,0.90,0.96,0.10,0.88"
         --render ${CMAKE_CURRENT_BINARY_DIR}/test-warp.png --frames 30 --size 320x240)
 
+    # Display-less GPU rendering: --render --renderer gpu with the offscreen SDL
+    # video driver must produce a PNG with no X server (the kiosk case). If this
+    # SDL build has no usable offscreen driver or GL, the run exits 77 and the
+    # test is skipped rather than failing an otherwise healthy machine.
+    add_test(NAME whorld_headless_gpu COMMAND sh -c
+        "$<TARGET_FILE:whorld> --patch '${CMAKE_SOURCE_DIR}/linux/demo.whp' --render '${CMAKE_CURRENT_BINARY_DIR}/test-headless.png' --frames 5 --size 160x120 --renderer gpu || exit 77")
+    set_tests_properties(whorld_headless_gpu PROPERTIES
+        ENVIRONMENT "SDL_VIDEODRIVER=offscreen"
+        SKIP_RETURN_CODE 77)
+
     # CPU-only cairo post-processing unit test (no SDL/OpenGL, so never skipped).
     add_executable(whorld_post_test linux/test_post.cpp linux/cairo_canvas.cpp)
     target_link_libraries(whorld_post_test PRIVATE whorld_core PkgConfig::CAIRO)

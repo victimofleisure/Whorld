@@ -1,0 +1,55 @@
+# Whorld kiosk: run the sacred-geometry visualizer fullscreen on the bare
+# KMS/DRM console, with no X server and no window manager.
+#
+# Install with deploy/install.sh, which copies this unit to
+# /etc/systemd/system and enables it. Operator options (USB MIDI, OSC,
+# projection mapping, patch/playlist) go in /etc/default/whorld via the
+# WHORLD_ARGS variable, or as extra arguments on the ExecStart line below.
+# See deploy/README.md for the full off-grid NUC guide.
+
+[Unit]
+Description=Whorld kiosk (KMS/DRM fullscreen visualizer)
+Documentation=file:/usr/local/share/doc/whorld/DEPLOY.md
+# Take over tty1 from the getty so nothing else reads the console.
+Conflicts=getty@tty1.service
+After=systemd-user-sessions.service
+Before=getty.target
+
+[Service]
+Type=simple
+# Run as an unprivileged user in the video group (created by install.sh).
+# The video group is what grants access to /dev/dri/card* for KMS/DRM.
+User=whorld
+Group=video
+# audio for ALSA MIDI/`--audio`, input for gamepads. (If your distribution
+# exposes the DRM render node through a separate `render` group and Whorld
+# needs it, add it here -- on Debian/Ubuntu `card0` is in the video group.)
+SupplementaryGroups=audio input
+# SDL drives DRM/KMS directly. SDL_KMSDRM_DEVICE_INDEX picks the card when
+# there is more than one /dev/dri/cardN; SDL_AUDIODRIVER=alsa keeps ALSA happy
+# with no PulseAudio/PipeWire session on a kiosk.
+Environment=SDL_VIDEODRIVER=kmsdrm
+Environment=SDL_KMSDRM_DEVICE_INDEX=0
+Environment=SDL_AUDIODRIVER=alsa
+Environment=HOME=/var/lib/whorld
+# Operator arguments: /etc/default/whorld sets WHORLD_ARGS (optional file).
+EnvironmentFile=-/etc/default/whorld
+# Come up fullscreen with the pointer hidden for projection. $WHORLD_ARGS is
+# appended so the environment file can add --midi-source, --osc-port, --warp,
+# --patch, --playlist, ... without editing this unit; when it is left unset it
+# expands to nothing. Run `systemctl edit whorld-kiosk` to override instead.
+ExecStart=/usr/local/bin/whorld --fullscreen --hide-cursor --patch /usr/local/share/whorld/demo.whp $WHORLD_ARGS
+Restart=always
+RestartSec=2
+# Own the console: no getty, and reset/hang up the tty when we stop so a
+# following getty starts cleanly.
+StandardInput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+# The kiosk has no readable terminal, so keep everything in the journal.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

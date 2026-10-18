@@ -17,7 +17,7 @@ pkg_check_modules(GL REQUIRED IMPORTED_TARGET gl)
 add_library(whorld_core
     linux/whorld_core.cpp
     linux/playlist.cpp
-    linux/osc_input.cpp
+    linux/osc.cpp
     linux/gamepad.cpp
     linux/midi_decode.cpp
     linux/snapshot.cpp
@@ -84,6 +84,12 @@ if(BUILD_TESTING)
     target_link_libraries(whorld_projection_test PRIVATE whorld_core)
     target_compile_options(whorld_projection_test PRIVATE -Wall -Wextra)
     add_test(NAME whorld_projection COMMAND whorld_projection_test)
+
+    # OSC parsing, convention addressing and a localhost UDP loopback.
+    add_executable(whorld_osc_test linux/test_osc.cpp)
+    target_link_libraries(whorld_osc_test PRIVATE whorld_core)
+    target_compile_options(whorld_osc_test PRIVATE -Wall -Wextra)
+    add_test(NAME whorld_osc COMMAND whorld_osc_test)
 
     add_test(NAME whorld_snapshot_fixture COMMAND whorld_media_test --write-snapshot
         ${CMAKE_CURRENT_BINARY_DIR}/fixture.whs)

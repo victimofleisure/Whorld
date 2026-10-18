@@ -98,10 +98,6 @@ bool contains(const std::string& tag, const char* const (&tags)[N]) {
     return false;
 }
 
-bool validTarget(const std::string& tag) {
-    return contains(tag, kParameters) || contains(tag, kMasters) || contains(tag, kMisc);
-}
-
 bool validGamepadControl(const std::string& tag) { return contains(tag, kGamepadControls); }
 
 // The name tables above follow the enum order: axes first, then buttons.
@@ -330,6 +326,13 @@ void validateOscMapping(const OscMapping& m) {
 }
 
 } // namespace
+
+// Public validators (declared in playlist.h): the OSC convention parser checks
+// targets and properties against the same tables the playlist loaders use.
+bool validTarget(const std::string& tag) {
+    return contains(tag, kParameters) || contains(tag, kMasters) || contains(tag, kMisc);
+}
+bool validProperty(const std::string& tag) { return contains(tag, kProperties); }
 
 bool Playlist::load(const std::string& filename, std::string& error) {
     try {

@@ -12,7 +12,7 @@
 #include "projection.h"
 #include "video_streamer.h"
 #include "audio_input.h"
-#include "osc_input.h"
+#include "osc.h"
 #include <GL/gl.h>
 #include <SDL.h>
 #include <cairo/cairo.h>
@@ -490,6 +490,7 @@ void help() {
               << "               [--warp-save FILE]\n"
               << "               [--v4l2 /dev/videoX] [--pipe-out PATH|-] [--headless]\n"
               << "               [--audio] [--audio-device NAME] [--audio-gain F] [--osc [PORT]]\n"
+              << "               [--osc-port N]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
@@ -512,6 +513,10 @@ void help() {
               << "--osc listens for Open Sound Control messages on a UDP port (default 8000)\n"
               << "        and applies them through the playlist's [Osc] mappings; OSC messages\n"
               << "        also participate in Ctrl+M learn (the next message binds the row).\n"
+              << "--osc-port N listens for OSC on UDP port N and drives targets directly from\n"
+              << "        the address (no playlist mapping needed): /whorld/<Target>,\n"
+              << "        /whorld/<Target>/<Property> and /whorld/action/<Target>. The first\n"
+              << "        argument is the value in 0..1; see README.\n"
               << "Keys: Space pause, F/O fill and outline, L playlist, P PNG, H hide controls,\n"
               << "      M cycle mirror/kaleidoscope, B cycle blend, I toggle invert, W toggle warp,\n"
               << "      T cycle feedback trails,\n"
@@ -542,6 +547,8 @@ int main(int argc, char** argv) {
         bool audioEnabled = false;
         bool oscEnabled = false;
         int oscPort = 8000;
+        bool oscDirectEnabled = false; // --osc-port: convention addressing
+        int oscDirectPort = 8000;
         double morphSeconds = 0; // 0 = instant playlist patch changes
         bool listMidi = false;
         MidiInputMode midiMode = MidiInputMode::Absolute;
@@ -586,6 +593,16 @@ int main(int argc, char** argv) {
                     "--midi-mode must be absolute, 14bit, rel-twos, rel-sign or rel-binary");
             }
             else if (arg == "--render") renderFile = value;
+            else if (arg == "--osc-port") {
+                if (value.empty() || value.size() > 5 ||
+                    !std::all_of(value.begin(), value.end(),
+                                 [](unsigned char c) { return c >= '0' && c <= '9'; }))
+                    throw std::runtime_error("--osc-port expects a decimal port number");
+                oscDirectPort = std::stoi(value);
+                if (oscDirectPort < 1 || oscDirectPort > 65535)
+                    throw std::runtime_error("--osc-port must be between 1 and 65535");
+                oscDirectEnabled = true;
+            }
             else if (arg == "--scale") {
                 forcedScale = std::stod(value);
                 if (forcedScale < 0.25 || forcedScale > 2.0)
@@ -966,6 +983,19 @@ int main(int argc, char** argv) {
             oscReady = osc.start(oscPort, oscError);
             if (!oscReady) std::cerr << "whorld: OSC disabled: " << oscError << '\n';
             else status = "OSC listening on UDP " + std::to_string(oscPort);
+        }
+        // Convention-addressed OSC (--osc-port N): the address names the target
+        // directly, so no playlist mapping is needed. Dispatched through the
+        // same applyAction path as MIDI/gamepad/audio.
+        OscReceiver oscDirect;
+        bool oscDirectReady = false;
+        if (oscDirectEnabled) {
+            std::string oscError;
+            oscDirectReady = oscDirect.open(oscDirectPort, oscError);
+            if (!oscDirectReady)
+                std::cerr << "whorld: OSC (--osc-port) disabled: " << oscError << '\n';
+            else
+                status = "OSC: port " + std::to_string(oscDirect.port());
         }
         // Gamepad input (any SDL-mapped controller). Controllers are polled each
         // frame and applied through the playlist's [Gamepad] mappings.
@@ -1500,6 +1530,22 @@ int main(int argc, char** argv) {
                             syncTarget(action.target);
                         }
                     }
+                }
+            }
+            // Convention-addressed OSC (--osc-port N): translate each message
+            // and dispatch through the same applyAction path. Addresses outside
+            // /whorld/ or naming an unknown target/property are ignored.
+            if (oscDirectReady) {
+                std::vector<OscMessage> oscMessages;
+                std::string oscError;
+                if (oscDirect.poll(oscMessages, oscError)) {
+                    for (const OscMessage& message : oscMessages) {
+                        MappedAction action;
+                        std::string reason;
+                        if (oscToAction(message, action, reason)) applyAction(action);
+                    }
+                } else {
+                    std::cerr << "whorld: OSC: " << oscError << '\n';
                 }
             }
             int left = hidden ? 0 : sidebar;

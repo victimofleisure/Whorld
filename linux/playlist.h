@@ -87,6 +87,11 @@ struct Playlist {
 // (percentages). No universal clamp: inverted/out-of-range ranges are valid, as
 // in mapMidi. Relative-encoder modes reuse this for their running value.
 double applyRange(const Mapping& mapping, double normalized);
+// Tag validation shared by the playlist loaders and the OSC convention parser
+// (`oscToAction`). `validTarget` accepts the 35 parameters, 10 masters and misc
+// actions; `validProperty` accepts the parameter properties (Val/Wave/...).
+bool validTarget(const std::string& tag);
+bool validProperty(const std::string& tag);
 // Maps a pre-normalized 0..1 control value onto every matching mapping. Shares
 // mapMidi's matching and validation semantics but skips value decoding, so the
 // relative-encoder modes can supply their own running value.

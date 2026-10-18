@@ -4,7 +4,7 @@
 #include "midi_actions.h"
 #include "midi_decode.h"
 #include "movie.h"
-#include "osc_input.h"
+#include "osc.h"
 #include "playlist.h"
 #include "snapshot.h"
 #include "whorld_core.h"

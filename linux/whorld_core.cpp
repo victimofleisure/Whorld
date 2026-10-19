@@ -754,6 +754,41 @@ void Engine::randomizePhase() {
     // frequency-resync continuity intact while giving every LFO a new start.
     for (auto& o : impl->osc) o.phaseOffset = random01(impl->rng);
 }
+
+Patch mixPatch(const Patch& a, const Patch& b, double t) {
+    t = std::clamp(finite(t), 0.0, 1.0);
+    if (t <= 0) return a;
+    if (t >= 1) return b;
+    Patch mid = a;
+    for (int i = 0; i < PARAM_COUNT; ++i) {
+        const ParamRow& x = a.params[i];
+        const ParamRow& y = b.params[i];
+        ParamRow& row = mid.params[i];
+        row.value = x.value + (y.value - x.value) * t;
+        row.amp = x.amp + (y.amp - x.amp) * t;
+        row.freq = x.freq + (y.freq - x.freq) * t;
+        row.pw = x.pw + (y.pw - x.pw) * t;
+        row.global = x.global + (y.global - x.global) * t;
+        row.wave = t < 0.5 ? x.wave : y.wave; // the morph's halfway rule
+    }
+    for (int i = 0; i < MASTER_COUNT; ++i)
+        mid.master[i] = a.master[i] + (b.master[i] - a.master[i]) * t;
+    mid.hue = a.hue + (b.hue - a.hue) * t;
+    mid.origin.x = a.origin.x + (b.origin.x - a.origin.x) * t;
+    mid.origin.y = a.origin.y + (b.origin.y - a.origin.y) * t;
+    if (t >= 0.5) { // discrete fields switch at halfway, like the morph
+        mid.drawMode = b.drawMode;
+        mid.orgMotion = b.orgMotion;
+        mid.mirror = b.mirror;
+        mid.reverse = b.reverse;
+        mid.convex = b.convex;
+        mid.invertColor = b.invertColor;
+        mid.loopHue = b.loopHue;
+        mid.zoomCenter = b.zoomCenter;
+        mid.antialiasing = b.antialiasing;
+    }
+    return mid;
+}
 std::size_t Engine::ringCount() const { return impl->rings.size(); }
 
 void Engine::tick(int width, int height, double mouseX, double mouseY) {

@@ -295,7 +295,7 @@ Surface makeSurface(int w, int h) {
 }
 void image(Engine& engine, const std::string& output, int width, int height,
            const PostProcess& pp = {}, const VideoFrame* videoFrame = nullptr,
-           int videoBlend = VIDEO_BLEND_NORMAL, double videoAlpha = 1.0) {
+           int videoBlend = VIDEO_BLEND_NORMAL, [[maybe_unused]] double videoAlpha = 1.0) {
     auto surface = makeSurface(width, height);
     const Frame frame = engine.frame(width, height);
     {
@@ -597,6 +597,8 @@ void help() {
               << "--invert inverts color channels.\n"
               << "--blend geometry compositing: normal (alpha over), add (additive glow) or screen.\n"
               << "--morph crossfades playlist patches over SECONDS (default 0 = instant).\n"
+              << "Manual A/B crossfader: --crossfade-b FILE.whp + --crossfade-pos [0-1] starts\n"
+              << "   one at launch; runtime Ctrl+X loads side B, z/x nudge the fader.\n"
               << "--feedback enables video feedback trails with controllable decay (0.0-0.99).\n"
               << "--warp maps the rendered image onto a convex quadrilateral (normalized 0..1, in\n"
               << "        TL,TR,BR,BL order) for projection mapping; --warp-file reads four x y\n"
@@ -641,7 +643,8 @@ void help() {
               << "      Tab/1-4 select TL/TR/BR/BL, Del/0 reset, drag corners on screen,\n"
               << "      Ctrl+Shift+W save the quad to --warp-file),\n"
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
-              << "      PgUp/PgDn step snapshots, g slideshow on/off, s/-/= render scale,\n"
+              << "      PgUp/PgDn step snapshots, g slideshow on/off, z/x A/B fader, Ctrl+X arm B,\n"
+              << "      s/-/= render scale,\n"
               << "      F11 fullscreen, R clear, Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
               << "Gamepad, audio and OSC mappings live in the playlist's [Gamepad],\n"
@@ -655,6 +658,8 @@ int main(int argc, char** argv) {
         std::string patchFile, renderFile, playlistFile, midiSource;
         std::vector<std::string> snapshotFiles, snapshotDirs; // --snapshot, --snapshot-dir
         std::string movieFile, movieOut, movieExport;
+        std::string crossfadeBFile;              // --crossfade-b: crossfader B patch
+        double crossfadePos = -1;                // --crossfade-pos / runtime fader position
         std::string exportAllPath;             // --export-all DIR
         bool slideshow = false;                // --slideshow: auto-advance snapshots
         double slideshowSeconds = 5;
@@ -849,6 +854,12 @@ int main(int argc, char** argv) {
                 if (!(morphSeconds >= 0) || morphSeconds > 3600)
                     throw std::runtime_error("--morph must be between 0 and 3600 seconds");
             }
+            else if (arg == "--crossfade-b") crossfadeBFile = value;
+            else if (arg == "--crossfade-pos") {
+                crossfadePos = std::stod(value);
+                if (crossfadePos < 0 || crossfadePos > 1)
+                    throw std::runtime_error("--crossfade-pos must be between 0 and 1");
+            }
             else if (arg == "--mirror") {
                 if (!parseMirrorMode(value, postProcess.mirrorMode))
                     throw std::runtime_error("Invalid --mirror option (expected off, quad, kaleidoscope, radial)");
@@ -1004,6 +1015,9 @@ int main(int argc, char** argv) {
         Playlist playlist;
         std::vector<Snapshot> snapshots;
         int playlistIndex = -1, snapshotIndex = -1;
+        Patch crossfaderA, crossfaderB; // manual crossfader endpoints
+        bool crossfaderBValid = false;  // true once a B patch is loaded
+        std::string crossfaderBName;    // last loaded B patch path
         std::string error;
         if (!playlistFile.empty()) {
             if (!playlist.load(playlistFile, error)) throw std::runtime_error(error);
@@ -1022,6 +1036,18 @@ int main(int argc, char** argv) {
             engine.setPatch(patch);
             if (engine.patch.invertColor) postProcess.invertColor = true;
             if (engine.patch.mirror && postProcess.mirrorMode == 0) postProcess.mirrorMode = 1;
+        }
+        // Manual A/B crossfader: at launch side A is the live patch and side B
+        // comes from --crossfade-b; --crossfade-pos sets the initial fader
+        // position (0 = A, 1 = B). Without flags the fader stays inactive.
+        if (!crossfadeBFile.empty()) {
+            if (!crossfaderB.load(crossfadeBFile, error)) throw std::runtime_error(error);
+            crossfaderA = engine.patch;
+            crossfaderBValid = true;
+            crossfaderBName = crossfadeBFile;
+            if (crossfadePos < 0) crossfadePos = 0;
+            engine.stopSnapshot(); engine.setPatch(mixPatch(crossfaderA, crossfaderB, crossfadePos));
+            std::cout << "Crossfader: " << crossfadeBFile << " at " << crossfadePos << "\n";
         }
         // Snapshot batch: every --snapshot FILE and every *.whs in each
         // --snapshot-dir loads (plain-fs lexical order),filling the navigation
@@ -1656,6 +1682,27 @@ int main(int argc, char** argv) {
             snapshotIndex = index;
             status = "Snapshot " + std::to_string(index + 1) + "/" + std::to_string(snapshots.size());
         };
+        // Manual A/B crossfader: side A is the patch the fader armed with, side
+        // B comes from Ctrl+X (or --crossfade-b). z/x nudge toward A/B; while
+        // the fader is live, engine.patch is the mix at the current position.
+        auto nudgeCrossfader = [&](double delta) {
+            if (engine.snapshotActive()) {
+                status = "Crossfader unavailable in snapshot view";
+                return;
+            }
+            if (!crossfaderBValid) {
+                status = "Crossfader: no B patch (Ctrl+X)";
+                return;
+            }
+            if (crossfadePos < 0) {
+                crossfadePos = 0;
+                crossfaderA = engine.patch;
+            }
+            crossfadePos = std::clamp(crossfadePos + delta, 0.0, 1.0);
+            engine.setPatch(mixPatch(crossfaderA, crossfaderB, crossfadePos));
+            status = "Crossfader " + std::to_string(int(std::lround(crossfadePos * 100))) +
+                     "% toward B (z/A, x/B, Ctrl+Shift+X off)";
+        };
         auto listRows = [&] {
             return showPlaylist ? static_cast<int>(playlist.patches.size())
                                 : static_cast<int>(panelRows(engine.patch).size());
@@ -1748,6 +1795,17 @@ int main(int argc, char** argv) {
                                     if (!patch.load(input, failure)) throw std::runtime_error(failure);
                                     engine.stopSnapshot();
                                     engine.setPatch(patch); patchFile = input; status = "Loaded " + input;
+                                } else if (command == "crossfadeb") {
+                                    Patch b;
+                                    if (!b.load(input, failure)) throw std::runtime_error(failure);
+                                    crossfaderB = b;
+                                    crossfaderBName = input;
+                                    crossfaderBValid = true;
+                                    crossfadePos = 0;
+                                    crossfaderA = engine.patch;
+                                    engine.stopSnapshot();
+                                    engine.setPatch(crossfaderA);
+                                    status = "Crossfader armed: " + input;
                                 } else if (command == "save") {
                                     if (!engine.patch.save(input, failure)) throw std::runtime_error(failure);
                                     patchFile = input; status = "Saved " + input;
@@ -1829,6 +1887,21 @@ int main(int argc, char** argv) {
                             showPlaylist = true;
                             status = "Added " + patchFile;
                         }
+                    } else if (ctrl && shift && key == SDLK_x) {
+                        // Leave crossfader mode: restore side A as the live
+                        // patch and disarm the fader.
+                        crossfadePos = -1;
+                        if (crossfaderBValid) engine.setPatch(crossfaderA);
+                        status = crossfaderBValid ? "Crossfader off (A side)"
+                                                  : "Crossfader: no B patch (Ctrl+X)";
+                    } else if (ctrl && key == SDLK_x) {
+                        // Manual crossfader: type the patch file for side B;
+                        // arming keeps side A = the current live patch and
+                        // resets the fader position to 0 (A side).
+                        command = "crossfadeb";
+                        input = crossfaderBName.empty() ? "patch-b.whp" : crossfaderBName;
+                        entering = true; SDL_StartTextInput();
+                        status = "crossfader B patch:";
                     } else if (ctrl && key == SDLK_v) {
                         if (videoLayer.active()) {
                             videoLayer.close();
@@ -1978,6 +2051,10 @@ int main(int argc, char** argv) {
                         showSnapshot(snapshotIndex + 1);
                         repaceSlideshow();
                     }
+                    // Manual A/B crossfader fader nudges (plain keys z/x work
+                    // regardless of whether the sidebar shows the playlist).
+                    else if (key == SDLK_z) nudgeCrossfader(-0.25);
+                    else if (key == SDLK_x) nudgeCrossfader(0.25);
                     else if (showPlaylist && key == SDLK_RETURN) playPatch(playlistIndex);
                     else if (showPlaylist && key == SDLK_DELETE) {
                         if (playlistIndex >= 0 && playlistIndex < static_cast<int>(playlist.patches.size())) {

@@ -306,5 +306,40 @@ int main() {
         require(!cancel.morphing());
         require(cancel.patch.params[PARAM_RingSpacing].value == 5);
     }
+    // Manual A/B crossfader (mixPatch): edges snap to the endpoints, continuous
+    // fields midpoint halfway, discrete fields switch at the halfway rule.
+    {
+        Patch a, b;
+        a.params[PARAM_RingSpacing].value = 5;
+        b.params[PARAM_RingSpacing].value = 45;
+        a.params[PARAM_RingGrowth].wave = 0;
+        b.params[PARAM_RingGrowth].wave = 4;
+        a.master[MASTER_Zoom] = 1;
+        b.master[MASTER_Zoom] = 3;
+        a.hue = 0;
+        b.hue = 180;
+        a.invertColor = false;
+        b.invertColor = true;
+        a.drawMode = DM_FILL;
+        b.drawMode = DM_OUTLINE;
+        require(mixPatch(a, b, 0).params[PARAM_RingSpacing].value == a.params[PARAM_RingSpacing].value);
+        const Patch zero = mixPatch(a, b, 0);
+        require(!zero.invertColor && zero.drawMode == DM_FILL); // endpoint at t=0
+        const Patch half = mixPatch(a, b, 0.5);
+        require(half.params[PARAM_RingSpacing].value == 25);
+        require(half.master[MASTER_Zoom] == 2);
+        require(half.hue == 90);
+        require(half.params[PARAM_RingGrowth].wave == b.params[PARAM_RingGrowth].wave);
+        require(half.invertColor && half.drawMode == DM_OUTLINE); // discrete switched at 0.5
+        const Patch q = mixPatch(a, b, 0.25);
+        require(q.params[PARAM_RingSpacing].value == 15);
+        require(q.master[MASTER_Zoom] == 1.5);
+        require(q.hue == 45);
+        require(q.params[PARAM_RingGrowth].wave == a.params[PARAM_RingGrowth].wave);
+        require(!q.invertColor && q.drawMode == DM_FILL);
+        // Out-of-range positions clamp to the endpoints.
+        require(mixPatch(a, b, -0.5).params[PARAM_RingSpacing].value == 5);
+        require(mixPatch(a, b, 1.5).master[MASTER_Zoom] == 3);
+    }
     std::cout << "Whorld patch roundtrip and animated geometry OK\n";
 }

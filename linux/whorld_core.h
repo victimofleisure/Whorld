@@ -89,8 +89,7 @@ public:
     // non-positive `seconds` falls back to an instant setPatch. Any explicit
     // setPatch cancels an active morph.
     void morphTo(const Patch& target, double seconds);
-    bool morphing() const;
-    void setDrawMode(int mode); // changes existing rings too
+    bool morphing() const;    void setDrawMode(int mode); // changes existing rings too
     void clear();
     // Gives every oscillator a fresh random phase, like upstream's
     // Random Phase action. Deterministic for a given engine (uses its RNG).
@@ -113,4 +112,11 @@ public:
     Engine(const Engine&) = delete;
     Engine& operator=(const Engine&) = delete;
 };
+// Manual A/B crossfader: blends two patches at fader position t (0 = a, 1 = b,
+// clamped). Continuous fields (param value/amp/freq/pw/global, master[], hue,
+// origin) interpolate linearly with the same math as the timed morph; discrete
+// fields (waveform, draw mode, origin motion, boolean flags) switch at the
+// halfway point so the result matches morphTo's wave behavior. Finiteness is
+// assumed handled by setPatch, which receives the result.
+Patch mixPatch(const Patch& a, const Patch& b, double t);
 } // namespace whorld

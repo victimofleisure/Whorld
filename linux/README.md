@@ -195,6 +195,20 @@ No device auto-connects: after plugging in, run `aconnect 'Device':0 Whorld:0`, 
 
 Verified on the port's reference machine (Ubuntu, kernel 6.8): `snd-usb-audio` and `snd-seq-midi` are available (`CONFIG_SND_USB_AUDIO_MIDI_V2=y`), `/dev/snd/seq` is present, and `--midi-source` accepts numeric and named ALSA addresses.
 
+#### MIDI hardware suggestions (NOT TESTED — unverified)
+
+The general-purpose USB-MIDI controllers below are **suggestions only: none of them have been plugged into Whorld or verified by us**. They are class-compliant devices that ALSA normally recognizes via `snd-seq-midi` (public manufacturer specs), but confirm on your own system: plug in, run `aconnect -l` (or `amidi -l`), then `--list-midi` and `aconnect CLIENT:PORT Whorld:0`. Whorld's `[Mapping]` format is generic CC/note mapping, so any controller with programmable CCs can be molded to the wall of targets; `Ctrl+M` learn-mode avoids hand-editing entirely.
+
+| Device | Why it's a plausible fit | Untested caveats |
+|---|---|---|
+| Korg nanoKONTROL2 (USB) | 9 sliders, 18 buttons, 8 knobs, compact, class-compliant | Faders are 7-bit; no configurable CC mapping (fixed layout) unless used with Korg's editor; unverified here |
+| Behringer BCF2000 / BCR2000 (USB) | Motorized faders (BCF)/rotary encoders (BCR); freely assignable CCs; classic live-visual pairing | Class compliant but `snd-seq-midi` behavior under Linux can vary per firmware; motorized feedback not tested |
+| Arturia BeatStep (USB) | 16 velocity-sensitive pads plus a bank of rotary encoders; class compliant | Pad sensitivity details and default CC map unverified here |
+| AKAI MPK Mini MK3 / LPD8 (USB) | Common USB controllers with programmable knobs/pads | Editor software is Windows-only, so remapping untested under Linux |
+| Behringer X-Touch Mini (USB) | 16 assignable buttons plus paging; two layers of encoders | Layer switching, LED rings and encoder acceleration untested here |
+
+Again: **this is a starting-hardware shortlist for what to plug in and try, NOT a list of verified devices.** Report (`github.com/dchristlieb/Whorld`) which controller you used and what worked, so the list can be replaced by verified entries later.
+
 ### Gamepads
 
 Any number of controllers SDL recognises work out of the box, with hotplug; every connected pad shares the same mapping set, and a removed pad is closed cleanly. Mappings live in the playlist's `[Gamepad\N]` sections:

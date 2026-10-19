@@ -153,7 +153,7 @@ void drawShapeChips(cairo_t* cr, int top, int active) {
 void drawPanel(cairo_t* cr, const Engine& engine, const Playlist& playlist, int playlistIndex,
            bool showPlaylist, int width, int height, int selected, int scroll, int property,
            bool paused, const std::string& status, const std::string& input, bool entering,
-           bool midiLearn) {
+           bool midiLearn, double fps, int frameDrops) {
     cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
     cairo_set_source_rgb(cr, .085, .10, .14);
     cairo_rectangle(cr, 0, 0, sidebar, height);
@@ -282,6 +282,17 @@ void drawPanel(cairo_t* cr, const Engine& engine, const Playlist& playlist, int 
         cairo_fill(cr);
         cairo_set_source_rgb(cr, 1, 1, 1);
         text(cr, 13, height - 17, input.substr(input.size() > 32 ? input.size() - 32 : 0) + "_", 12);
+    }
+    // Performance footer: measured display rate and over-budget frames (an
+    // iteration is a drop when it exceeds twice the 60 FPS budget). The
+    // simulation ticks at 60 Hz and the canvas renders at up to 30 FPS, so a
+    // healthy number is >= 30 with zero drops.
+    if (fps > 0) {
+        cairo_set_source_rgb(cr, .55, .60, .66);
+        char pbuf[64];
+        std::snprintf(pbuf, sizeof(pbuf), "%.1f fps%s", fps,
+                      frameDrops > 0 ? " (slow)" : "");
+        text(cr, 15, height - 55, pbuf, 10);
     }
     (void)width;
 }
@@ -578,7 +589,8 @@ void help() {
               << "               [--movie-out FILE.whm] [--movie-rate FPS] [--movie-frame N]\n"
               << "               [--movie-export FILE.avi|.mp4]\n"
               << "               [--slideshow] [--slideshow-seconds N] [--export-all DIR]\n"
-              << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F] [--panel-side left|right]\n"
+              << "               [--frames N] [--quit-after N] [--size WIDTHxHEIGHT] [--scale F]\n"
+              << "               [--panel-side left|right]\n"
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
               << "               [--blend normal|add|screen] [--morph SECONDS]\n"
@@ -593,6 +605,7 @@ void help() {
               << "               [--osc-port N]\n"
               << "               [--config FILE] [--config-save FILE]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
+              << "--quit-after N ends the display loop after N draws (performance runs).\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
               << "--blend geometry compositing: normal (alpha over), add (additive glow) or screen.\n"
@@ -670,6 +683,7 @@ int main(int argc, char** argv) {
         double videoAlpha = 1.0;
         int videoFrameIndex = -1;              // --video-frame: deterministic stills
         std::string rendererMode = "auto";
+        int quitAfter = 0;                     // --quit-after N: stop the draw loop after N frames (perf runs)
         std::string panelSide = "left";        // --panel-side / config panelSide
         double forcedScale = 0; // 0 means adaptive
         PostProcess postProcess;
@@ -767,6 +781,12 @@ int main(int argc, char** argv) {
             }
             if (arg == "--invert") { postProcess.invertColor = true; continue; }
             if (arg == "--headless") { headless = true; continue; }
+            if (arg == "--quit-after") {
+                if (i + 1 >= argc) throw std::runtime_error("Missing value for " + arg);
+                quitAfter = std::stoi(argv[++i]);
+                if (quitAfter < 0) throw std::runtime_error("--quit-after must be >= 0");
+                continue;
+            }
             if (arg == "--panel-side") {
                 if (i + 1 >= argc) throw std::runtime_error("Missing value for " + arg);
                 panelSide = argv[++i];
@@ -1746,9 +1766,18 @@ int main(int argc, char** argv) {
         auto msSince = [](std::chrono::steady_clock::time_point a, std::chrono::steady_clock::time_point b) {
             return std::chrono::duration<double, std::milli>(b - a).count();
         };
+        // Display-rate meter: counts loop iterations (one per canvas draw)
+        // over half-second windows and flags iterations that blow the 60 FPS
+        // budget, shown in the panel footer and echoed by --frames runs.
+        double fps = 0, lastFps = -1;
+        int fpsFrames = 0, frameDrops = 0;
+        auto fpsStart = std::chrono::steady_clock::now();
+        auto lastIter = std::chrono::steady_clock::now();
+        int framesDrawn = 0;
         // --video starts the overlay immediately after the backend is set up.
         if (!videoFile.empty()) openVideoOverlay(videoFile);
         while (running) {
+            if (quitAfter && ++framesDrawn > quitAfter) running = false;
             // Video cycle timer: advance playlist video entries at 60/Tempo
             // (BPM) seconds, wrapping through every video row; then sample the
             // latest decoded overlay frame for this loop iteration.
@@ -2384,6 +2413,18 @@ int main(int argc, char** argv) {
                     std::cerr << "whorld: OSC: " << oscError << '\n';
                 }
             }
+            const auto now0 = std::chrono::steady_clock::now();
+            const double iterMs = msSince(lastIter, now0);
+            lastIter = now0;
+            ++fpsFrames;
+            if (iterMs > 2.0 * 1000.0 / 60.0) ++frameDrops;
+            const double sinceFps = msSince(fpsStart, now0);
+            if (sinceFps >= 500) {
+                fps = fpsFrames * 1000.0 / sinceFps;
+                fpsFrames = 0;
+                fpsStart = now0;
+                if (std::fabs(fps - lastFps) > 0.8) { panelDirty = true; lastFps = fps; }
+            }
             int left = canvasX();
             int cw = width - left;
             const int panelPx = panelX();
@@ -2423,6 +2464,7 @@ int main(int argc, char** argv) {
                 panelDirty = true;
             }
             auto tTick = std::chrono::steady_clock::now();
+            auto tPresent = tTick;
             const Frame frame = engine.frame(cw, height);
             auto tFrame = std::chrono::steady_clock::now();
 
@@ -2439,7 +2481,7 @@ int main(int argc, char** argv) {
                     Context cr(cairo_create(panel.surface.get()), cairo_destroy);
                     drawPanel(cr.get(), engine, playlist, playlistIndex, showPlaylist, width,
                               height, selected, scroll, property, paused, status, input, entering,
-                              midiLearn);
+                              midiLearn, fps, frameDrops);
                     cairo_surface_flush(panel.surface.get());
                     panelDirty = false;
                     if (useGl) uiSurface = panel.surface.get();
@@ -2458,6 +2500,7 @@ int main(int argc, char** argv) {
                                        warpCornerIndex(hoveredWarpCorner), left, cw, height,
                                        warpOverlayColor);
                 gl.swap(window);
+                if (timing) tPresent = std::chrono::steady_clock::now();
                 if (streamer.active()) {
                     const std::size_t fBytes = static_cast<std::size_t>(cw) * height * 3;
                     static std::vector<unsigned char> streamBuf;
@@ -2508,16 +2551,17 @@ int main(int argc, char** argv) {
                                        warpCornerIndex(hoveredWarpCorner), left, cw, height,
                                        warpOverlayColor);
                 SDL_RenderPresent(renderer);
+                if (timing) tPresent = std::chrono::steady_clock::now();
             }
             auto tPanel = std::chrono::steady_clock::now();
             auto tCanvas = tPanel;
-            auto workEnd = tPanel;
+            workEnd = tPresent;
             if (timing) {
                 accTick += msSince(frameStart, tTick);
                 accFrame += msSince(tTick, tFrame);
                 accCanvas += msSince(tFrame, tCanvas);
                 accPanel += msSince(tCanvas, tPanel);
-                accPresent += msSince(tPanel, workEnd);
+                accPresent += msSince(tPanel, tPresent);
                 if (++accN >= 60) {
                     std::fprintf(stderr, "timing ms: tick=%.2f frame=%.2f canvas=%.2f "
                         "panel=%.2f present=%.2f scale=%.2f %s rings=%zu\n", accTick / accN, accFrame / accN,

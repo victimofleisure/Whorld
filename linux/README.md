@@ -60,6 +60,14 @@ The overlay is built on ffmpeg: when the build finds `libavcodec/libavformat/lib
 
 `--movie-export FILE.avi|.mp4|.mov|.mkv` renders the same canvas the live viewer draws - including post-processing and blending - and encodes it with ffmpeg's H.264 encoder into the container implied by the extension, at `--movie-rate FPS` for `--frames N` frames. The CPU/cairo path is deterministic on any machine; `--feedback` trails (and `--renderer gpu`) switch to the offscreen OpenGL renderer with identical shader post-processing. Requires the ffmpeg dev libraries; without them the flag reports that video export is unavailable (WHM2 recording is independent). The `whorld_movie_export`/`whorld_movie_export_roundtrip` CTest pair records a clip and re-decodes it through the video overlay layer.
 
+### Performance meter and sweep
+
+The sidebar footer shows a live fps meter: it counts draw-loop iterations over half-second windows and flags iterations that exceed twice the 60 FPS draw budget (about 33 ms); `(slow)` appears while any slow frames occurred in the current window. A healthy number is >= 30 with no slowdown tag, because the simulation ticks at 60 Hz while the canvas draws at up to 30 FPS.
+
+Every stage of the main loop is instrumented: with `WHORLD_TIMING=1` the binary prints a bucket line every 60 draws - `timing ms: tick=.. frame=.. canvas=.. panel=.. present=.. scale=.. gl|cairo rings=N` - covering the simulation tick, the engine frame build, the canvas draw (GL or cairo), the sidebar refresh (mostly zero because it only redraws when dirty) and the swap/present call.
+
+`linux/perf_sweep.sh BINARY [FRAMES] [--cairo-only]` runs the bundled demo patch across 640x480, 1280x720 and 1920x1080 under the offscreen SDL driver (needs no display), prints per-stage means and the implied fps for `--renderer auto` and `--renderer cairo` (or cairo only with the flag), so one command compares backends and stages at VJ resolutions. `--quit-after N` ends the display draw loop after N draws; it exists so perf runs (and scripted regressions like the `whorld_quit_after` CTest) can bound the interactive path without keystrokes.
+
 ### Renderer selection
 
 `--renderer auto|gpu|cairo` picks the canvas backend (`auto` is the default). The OpenGL backend draws each ring with the stencil buffer so the even-odd (alternate) fill matches Direct2D exactly, into a multisampled offscreen framebuffer that is resolved and composited; it is typically several times faster than the Cairo path at high ring counts. `gpu` fails fast if OpenGL is unavailable; `auto` quietly falls back to Cairo. The sidebar is always drawn with Cairo (for crisp text) and uploaded as a texture.

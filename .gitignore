@@ -2,3 +2,4 @@
 *.filters
 /build/
 /_build/
+build-asan/

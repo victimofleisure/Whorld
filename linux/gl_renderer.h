@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "post_process.h"
+#include "video_layer.h"
 #include "whorld_core.h"
 #include <SDL.h>
 #include <cairo/cairo.h>
@@ -33,14 +34,17 @@ public:
     // `pp` supplies post-processing options (mirror, invert, feedback trails).
     void render(const Frame& frame, bool antialias, int canvasX, int canvasW, int canvasH,
                 int windowW, int windowH, cairo_surface_t* ui, int uiW, int uiH,
-                double superScale = 1.0, const PostProcess& pp = {});
+                double superScale = 1.0, const PostProcess& pp = {},
+                const VideoFrame* videoFrame = nullptr, int videoBlend = VIDEO_BLEND_NORMAL,
+                double videoAlpha = 1.0);
 
     // Renders a single frame into a w x h backbuffer and reads it back as
     // BGRA rows (w*h*4 bytes). Used for headless GPU renders. `superScale`
-    // supersamples the canvas as in render().
+    // supersamples the canvas as in render(). Video overlay args match render().
     bool renderOffscreen(const Frame& frame, bool antialias, int w, int h,
                          std::vector<unsigned char>& bgra, double superScale = 1.0,
-                         const PostProcess& pp = {});
+                         const PostProcess& pp = {}, const VideoFrame* videoFrame = nullptr,
+                         int videoBlend = VIDEO_BLEND_NORMAL, double videoAlpha = 1.0);
 
     void swap(SDL_Window* window);
     void clearFeedback();
@@ -61,9 +65,16 @@ private:
                     int blendMode);
     bool ensureFbo(int w, int h);
     void uploadUi(cairo_surface_t* surface, int w, int h);
+    // Blends one decoded overlay frame over [x0,x0+w) x [y0,y0+h) in the
+    // current ortho space, using theVIDEO_BLEND_* mode and `alpha` (0..1).
+    // Call inside render() after the canvas is drawn; the caller owns pacing.
+    void drawVideoOverlay(const VideoFrame& vf, float x0, float y0, float w, float h,
+                          int blendMode, double alpha);
     SDL_GLContext context = nullptr;
     unsigned uiTexture = 0;
     int uiW = 0, uiH = 0;
+    unsigned videoTexture = 0;
+    int videoTexW = 0, videoTexH = 0;
     bool msaa = false;
     unsigned fbo = 0, fboColor = 0, fboDepthStencil = 0;
     unsigned fboMs = 0, msColor = 0, msDepthStencil = 0;

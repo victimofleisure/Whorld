@@ -2,6 +2,7 @@
 #include "playlist.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -735,6 +736,18 @@ void learnOsc(Playlist& playlist, const std::string& address, const std::string&
     m.target = target;
     m.property = property;
     playlist.oscMappings.push_back(std::move(m));
+}
+
+bool isVideoPath(const std::string& path) {
+    std::string lower = path;
+    std::transform(lower.begin(), lower.end(), lower.begin(),
+                   [](unsigned char c) { return char(std::tolower(c)); });
+    const std::size_t dot = lower.find_last_of('.');
+    if (dot == std::string::npos) return false;
+    const std::string ext = lower.substr(dot + 1);
+    return ext == "avi" || ext == "mp4" || ext == "m4v" || ext == "mkv" ||
+           ext == "webm" || ext == "mov" || ext == "mpg" || ext == "mpeg" ||
+           ext == "ts";
 }
 
 } // namespace whorld

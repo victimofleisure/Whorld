@@ -1,6 +1,7 @@
 // Cairo canvas rasterizer implementation.
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "cairo_canvas.h"
+#include "video_layer.h"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -183,6 +184,60 @@ void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp, const Col
         }
     }
     cairo_surface_mark_dirty(surface);
+}
+
+void blendVideoCairo(cairo_surface_t* canvas, const unsigned char* bgra,
+                     int w, int h, int blendMode) {
+    if (!canvas || !bgra || w < 1 || h < 1) return;
+    if (cairo_surface_get_type(canvas) != CAIRO_SURFACE_TYPE_IMAGE) return;
+    if (cairo_image_surface_get_format(canvas) != CAIRO_FORMAT_ARGB32) return;
+    if (cairo_image_surface_get_width(canvas) != w ||
+        cairo_image_surface_get_height(canvas) != h) return;
+
+    // Cairo ARGB32 stores premultiplied BGRA bytes, so the straight-alpha video
+    // data only needs per-pixel premultiplication (the BGRA byte order is the
+    // same on little-endian machines); alpha 0 letterbox bars become fully
+    // transparent, which keeps the canvas visible around the video rectangle.
+    std::vector<unsigned char> pixels(std::size_t(w) * h * 4);
+    for (std::size_t i = 0; i < pixels.size(); i += 4) {
+        const unsigned a = bgra[i + 3];
+        if (a == 255) {
+            std::memcpy(&pixels[i], &bgra[i], 4);
+        } else if (a == 0) {
+            pixels[i + 0] = 0;
+            pixels[i + 1] = 0;
+            pixels[i + 2] = 0;
+            pixels[i + 3] = 0;
+        } else {
+            pixels[i + 0] = static_cast<unsigned char>(bgra[i + 0] * a / 255);
+            pixels[i + 1] = static_cast<unsigned char>(bgra[i + 1] * a / 255);
+            pixels[i + 2] = static_cast<unsigned char>(bgra[i + 2] * a / 255);
+            pixels[i + 3] = static_cast<unsigned char>(a);
+        }
+    }
+    cairo_surface_t* overlay = cairo_image_surface_create_for_data(
+        pixels.data(), CAIRO_FORMAT_ARGB32, w, h, w * 4);
+    if (!overlay || cairo_surface_status(overlay) != CAIRO_STATUS_SUCCESS) {
+        if (overlay) cairo_surface_destroy(overlay);
+        return;
+    }
+
+    // Fixed-function counterpart to theiend GL blend pairs (see gl_renderer):
+    // Normal is the plain alpha-over write-back, Add/Screen/Multiply reuse the
+    // shape compositing operators.
+    const cairo_operator_t op =
+        blendMode == VIDEO_BLEND_ADD      ? CAIRO_OPERATOR_ADD
+        : blendMode == VIDEO_BLEND_SCREEN ? CAIRO_OPERATOR_SCREEN
+        : blendMode == VIDEO_BLEND_MULTIPLY ? CAIRO_OPERATOR_MULTIPLY
+                                            : CAIRO_OPERATOR_OVER;
+    cairo_surface_flush(canvas);
+    cairo_t* cr = cairo_create(canvas);
+    cairo_set_operator(cr, op);
+    cairo_set_source_surface(cr, overlay, 0, 0);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+    cairo_surface_destroy(overlay);
+    cairo_surface_mark_dirty(canvas);
 }
 
 } // namespace whorld

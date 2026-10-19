@@ -9,6 +9,7 @@
 #include "gl_renderer.h"
 #include "movie.h"
 #include "cairo_canvas.h"
+#include "video_layer.h"
 #include "projection.h"
 #include "video_streamer.h"
 #include "audio_input.h"
@@ -271,6 +272,7 @@ void drawPanel(cairo_t* cr, const Engine& engine, const Playlist& playlist, int 
     text(cr, 15, y + 38, "Ctrl+O/S patch   Ctrl+Shift+O/S/N list", 11);
     text(cr, 15, y + 57, "L playlist  P PNG  s/-/= scale", 12);
     text(cr, 15, y + 76, "Ctrl+T/L snap  PgUp/Dn  Ctrl+M learn", 11);
+    text(cr, 15, y + 95, "Ctrl+V video  Ctrl+J video cycle", 11);
     cairo_set_source_rgb(cr, .94, .75, .36);
     text(cr, 15, y + 101, status.substr(0, 37), 11);
     if (entering) {
@@ -291,12 +293,18 @@ Surface makeSurface(int w, int h) {
     return Surface(raw, cairo_surface_destroy);
 }
 void image(Engine& engine, const std::string& output, int width, int height,
-           const PostProcess& pp = {}) {
+           const PostProcess& pp = {}, const VideoFrame* videoFrame = nullptr,
+           int videoBlend = VIDEO_BLEND_NORMAL, double videoAlpha = 1.0) {
     auto surface = makeSurface(width, height);
     const Frame frame = engine.frame(width, height);
     {
         Context cr(cairo_create(surface.get()), cairo_destroy);
         drawFrameCairo(cr.get(), frame, width, height, engine.patch.antialiasing, pp.blendMode);
+        // The video overlay composites onto the canvas before post-processing,
+        // exactly as the GPU path does inside the offscreen framebuffer.
+        if (videoFrame && videoFrame->width > 0 && videoFrame->height > 0)
+            blendVideoCairo(surface.get(), videoFrame->bgra.data(), videoFrame->width,
+                            videoFrame->height, videoBlend);
     }
     // The shader is the reference; warp/mirror/invert also run on the cairo path.
     postProcessCairo(surface.get(), pp, frame.background);
@@ -572,6 +580,8 @@ void help() {
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
               << "               [--blend normal|add|screen] [--morph SECONDS]\n"
               << "               [--feedback 0.0-0.99] [--feedback-zoom F] [--feedback-rot F]\n"
+              << "               [--video FILE.avi|.mp4|..] [--video-blend normal|add|screen|multiply]\n"
+              << "               [--video-alpha F] [--video-frame N]\n"
               << "               [--warp \"TLx,TLy,TRx,TRy,BRx,BRy,BLx,BLy\"] [--warp-file FILE]\n"
               << "               [--warp-save FILE]\n"
               << "               [--v4l2 /dev/videoX] [--pipe-out PATH|-] [--headless]\n"
@@ -642,6 +652,10 @@ int main(int argc, char** argv) {
         std::string movieFile, movieOut;
         double movieRate = 60;
         int movieFrame = 0;
+        std::string videoFile;                 // --video: overlay movie/clip file
+        int videoBlendMode = VIDEO_BLEND_NORMAL;
+        double videoAlpha = 1.0;
+        int videoFrameIndex = -1;              // --video-frame: deterministic stills
         std::string rendererMode = "auto";
         double forcedScale = 0; // 0 means adaptive
         PostProcess postProcess;
@@ -867,7 +881,21 @@ int main(int argc, char** argv) {
             else if (arg == "--movie") movieFile = value;
             else if (arg == "--movie-out") movieOut = value;
             else if (arg == "--movie-frame") movieFrame = std::stoi(value);
-            else if (arg == "--movie-rate") {
+            else if (arg == "--video") videoFile = value;
+            else if (arg == "--video-blend") {
+                if (value == "normal") videoBlendMode = VIDEO_BLEND_NORMAL;
+                else if (value == "add") videoBlendMode = VIDEO_BLEND_ADD;
+                else if (value == "screen") videoBlendMode = VIDEO_BLEND_SCREEN;
+                else if (value == "multiply") videoBlendMode = VIDEO_BLEND_MULTIPLY;
+                else throw std::runtime_error("--video-blend must be normal|add|screen|multiply");
+            } else if (arg == "--video-alpha") {
+                videoAlpha = std::stod(value);
+                if (videoAlpha < 0 || videoAlpha > 1)
+                    throw std::runtime_error("--video-alpha must be 0-1");
+            } else if (arg == "--video-frame") {
+                videoFrameIndex = std::stoi(value);
+                if (videoFrameIndex < 0) throw std::runtime_error("--video-frame must be >= 0");
+            } else if (arg == "--movie-rate") {
                 movieRate = std::stod(value);
                 if (movieRate < 1 || movieRate > 240) throw std::runtime_error("--movie-rate must be 1-240");
             }
@@ -1070,6 +1098,18 @@ int main(int argc, char** argv) {
             // cairo always uses the cairo path (mirror/invert run on the CPU);
             // --renderer gpu must use OpenGL or fail.
             const bool tryGpu = rendererMode == "gpu" || (rendererMode == "auto" && wantPost);
+            // Deterministic video overlay still: one specific frame letterboxed
+            // at full render size, so tests get reproducible output.
+            VideoFrame videoStill;
+            bool haveVideoStill = false;
+            if (!videoFile.empty()) {
+                std::string videoErr;
+                const int frameIndex = videoFrameIndex >= 0 ? videoFrameIndex : 0;
+                if (!decodeVideoFrame(videoFile, frameIndex, width, height, videoStill,
+                                      videoErr))
+                    throw std::runtime_error(videoErr);
+                haveVideoStill = true;
+            }
             bool rendered = false;
             if (tryGpu && SDL_Init(SDL_INIT_VIDEO) == 0) {
                 // Headless GPU render: render the frame with OpenGL and read it
@@ -1087,7 +1127,9 @@ int main(int argc, char** argv) {
                 if (offscreen && gpu.init(offscreen, glError)) {
                     std::vector<unsigned char> pixels;
                     if (!gpu.renderOffscreen(engine.frame(width, height), engine.patch.antialiasing,
-                                             width, height, pixels, forcedScale > 0 ? forcedScale : 1.0, postProcess))
+                                             width, height, pixels, forcedScale > 0 ? forcedScale : 1.0,
+                                             postProcess, haveVideoStill ? &videoStill : nullptr,
+                                             videoBlendMode, videoAlpha))
                         throw std::runtime_error("GPU render failed");
                     imageBgra(renderFile, pixels, width, height);
                     rendered = true;
@@ -1109,7 +1151,8 @@ int main(int argc, char** argv) {
                 // backend stores; the cairo path cannot reproduce them.
                 if (postProcess.feedback > 0.01)
                     std::cerr << "whorld: feedback trails require the GPU backend; rendering without them\n";
-                image(engine, renderFile, width, height, postProcess);
+                image(engine, renderFile, width, height, postProcess,
+                      haveVideoStill ? &videoStill : nullptr, videoBlendMode, videoAlpha);
             }
             const std::size_t rings = engine.snapshotActive() && !snapshots.empty()
                                     ? snapshots.front().rings.size() : engine.ringCount();
@@ -1286,6 +1329,31 @@ int main(int argc, char** argv) {
         if (hasGamepadMappings(playlist.gamepadMappings)) gamepadDefaultsLoaded = true;
         // MIDI learn: Ctrl+M arms the next incoming message for the selected row.
         bool midiLearn = false;
+        // Video overlay layer: plays its own decode thread; GL and cairo draw
+        // paths blend whatever frame() currently shows. Ctrl+J cycles playlist
+        // video entries on the master tempo (interval = 60 / BPM).
+        VideoLayer videoLayer;
+        std::vector<int> videoEntries; // rescan of playlist video rows
+        bool videoAutoCycle = false;
+        std::chrono::steady_clock::time_point lastVideoCycle;
+        auto openVideoOverlay = [&](const std::string& path) {
+            std::string videoErr;
+            const int cw = width - (hidden ? 0 : sidebar);
+            if (!videoLayer.open(path, std::max(64, cw), std::max(64, height), videoErr)) {
+                status = videoErr;
+                return false;
+            }
+            videoFile = path;
+            status = "Video " + std::filesystem::path(path).filename().string();
+            return true;
+        };
+        auto scanVideoEntries = [&] {
+            videoEntries.clear();
+            for (int i = 0; i < static_cast<int>(playlist.patches.size()); ++i) {
+                const std::string path = playlist.resolvePath(i);
+                if (isVideoPath(path)) videoEntries.push_back(i);
+            }
+        };
         auto learnTargetName = [&]() -> std::string {
             if (showPlaylist) return {};
             const auto rows = panelRows(engine.patch);
@@ -1403,6 +1471,15 @@ int main(int argc, char** argv) {
                 return;
             }
             const std::string path = playlist.resolvePath(index);
+            // Video rows open the overlay instead of the patch loader (the
+            // entry is selected and reported like any other playlist row).
+            if (isVideoPath(path)) {
+                playlistIndex = index;
+                if (!openVideoOverlay(path)) return;
+                videoFrameIndex = -1;
+                videoAutoCycle = false;
+                return;
+            }
             Patch next;
             std::string failure;
             if (!next.load(path, failure)) { status = failure; return; }
@@ -1442,7 +1519,36 @@ int main(int argc, char** argv) {
         auto msSince = [](std::chrono::steady_clock::time_point a, std::chrono::steady_clock::time_point b) {
             return std::chrono::duration<double, std::milli>(b - a).count();
         };
+        // --video starts the overlay immediately after the backend is set up.
+        if (!videoFile.empty()) openVideoOverlay(videoFile);
         while (running) {
+            // Video cycle timer: advance playlist video entries at 60/Tempo
+            // (BPM) seconds, wrapping through every video row; then sample the
+            // latest decoded overlay frame for this loop iteration.
+            if (videoAutoCycle) {
+                const double interval =
+                    60.0 / std::max(1.0, engine.patch.master[MASTER_Tempo]);
+                const double sinceVideo = std::chrono::duration<double>(
+                    std::chrono::steady_clock::now() - lastVideoCycle).count();
+                if (sinceVideo >= std::max(0.2, interval)) {
+                    scanVideoEntries();
+                    if (videoEntries.empty()) {
+                        videoAutoCycle = false;
+                        status = "No video entries in playlist";
+                    } else {
+                        int position = -1;
+                        for (int entry : videoEntries)
+                            if (playlist.resolvePath(entry) == videoFile) { position = entry; break; }
+                        auto nextIt = std::find_if(videoEntries.begin(), videoEntries.end(),
+                                                   [&](int entry) { return entry > position; });
+                        if (nextIt == videoEntries.end()) nextIt = videoEntries.begin();
+                        openVideoOverlay(playlist.resolvePath(*nextIt));
+                    }
+                    lastVideoCycle = std::chrono::steady_clock::now();
+                }
+            }
+            videoLayer.poll();
+            const VideoFrame* videoFrame = videoLayer.frame();
             SDL_Event ev;
             while (SDL_PollEvent(&ev)) {
                 panelDirty = true; // any event may change what the sidebar shows
@@ -1550,6 +1656,30 @@ int main(int argc, char** argv) {
                             showPlaylist = true;
                             status = "Added " + patchFile;
                         }
+                    } else if (ctrl && key == SDLK_v) {
+                        if (videoLayer.active()) {
+                            videoLayer.close();
+                            status = "Video: off";
+                        } else if (videoFile.empty()) {
+                            status = "No video (load a video playlist row or use --video)";
+                        } else if (!openVideoOverlay(videoFile)) {
+                            // status carries the failure
+                        }
+                    } else if (ctrl && key == SDLK_j) {
+                        // Video cycle: switches to the next video entry in the
+                        // playlist and keeps advancing on the master tempo
+                        // (interval 60/BPM). Turn it off with another press.
+                        scanVideoEntries();
+                        if (videoEntries.empty()) {
+                            status = "No video entries in playlist";
+                        } else if (videoAutoCycle) {
+                            videoAutoCycle = false;
+                            status = "Video cycle: off";
+                        } else {
+                            videoAutoCycle = true;
+                            lastVideoCycle = std::chrono::steady_clock::now() -  // switch immediately
+                                             std::chrono::seconds(60);
+                        }
                     } else if (ctrl && key == SDLK_t) {
                         command = "takesnap"; input = "snapshot.whs";
                         entering = true; SDL_StartTextInput(); status = "take snapshot:";
@@ -1635,8 +1765,11 @@ int main(int argc, char** argv) {
                     else if (key == SDLK_f) engine.setDrawMode(engine.patch.drawMode ^ DM_FILL);
                     else if (key == SDLK_o) engine.setDrawMode(engine.patch.drawMode ^ DM_OUTLINE);
                     else if (key == SDLK_p) {
-                        try { image(engine, "whorld.png", std::max(64, width - (hidden ? 0 : sidebar)), height); status = "Saved whorld.png"; }
-                        catch (const std::exception& e) { status = e.what(); }
+                        try {
+                            image(engine, "whorld.png", std::max(64, width - (hidden ? 0 : sidebar)),
+                                  height, postProcess, videoFrame, videoBlendMode, videoAlpha);
+                            status = "Saved whorld.png";
+                        } catch (const std::exception& e) { status = e.what(); }
                     } else if (key == SDLK_l) showPlaylist = !showPlaylist;
                     else if (key == SDLK_s) {
                         autoScale = !autoScale;
@@ -2018,7 +2151,8 @@ int main(int argc, char** argv) {
             // stretches the result over the canvas rectangle.
             if (useGl) {
                 gl.render(frame, engine.patch.antialiasing, left, cw, height, width, height,
-                          uiSurface, hidden ? 0 : sidebar, height, renderScale, postProcess);
+                          uiSurface, hidden ? 0 : sidebar, height, renderScale, postProcess,
+                          videoFrame, videoBlendMode, videoAlpha);
                 if (warpEdit)
                     gl.drawWarpOverlay(postProcess.warp, warpEditSel,
                                        warpCornerIndex(hoveredWarpCorner), left, cw, height,
@@ -2056,6 +2190,10 @@ int main(int argc, char** argv) {
                     std::cerr << "whorld: feedback trails require the GPU backend; "
                                  "the cairo canvas ignores them\n";
                 }
+                // Same overlay order as GL: composite before post-processing.
+                if (videoFrame && videoFrame->width > 0 && videoFrame->height > 0)
+                    blendVideoCairo(canvas.surface.get(), videoFrame->bgra.data(),
+                                    videoFrame->width, videoFrame->height, videoBlendMode);
                 postProcessCairo(canvas.surface.get(), postProcess, frame.background);
                 cairo_surface_flush(canvas.surface.get());
                 uploadTexture(canvas.texture, canvas.surface.get());

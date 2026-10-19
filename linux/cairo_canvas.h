@@ -25,4 +25,12 @@ void drawFrameCairo(cairo_t* cr, const Frame& frame, int w, int h, bool antialia
 void postProcessCairo(cairo_surface_t* surface, const PostProcess& pp,
                       const Color& background = Color{});
 
+// Blends one BGRA video overlay frame over the canvas: `bgra` is w x h *4
+// bytes, top-down, straight (non-premultiplied) alpha with the letterbox bars
+// transparent. `blendMode` is a VIDEO_BLEND_* value from video_layer.h
+// (Normal/Add/Screen/Multiply; anything else falls back to Normal). The canvas
+// must be an ARGB32 image surface. A no-op for other formats.
+void blendVideoCairo(cairo_surface_t* canvas, const unsigned char* bgra,
+                     int w, int h, int blendMode);
+
 } // namespace whorld

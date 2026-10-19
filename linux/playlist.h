@@ -130,4 +130,8 @@ const std::vector<AudioMapping>& defaultAudioMappings();
 bool momentaryTarget(const std::string& target);
 // The V2 tag name for a message event, e.g. MidiEvent::Control -> "CONTROL".
 std::string midiEventName(MidiEvent event);
+// True when a playlist path looks like a video file that the overlay layer
+// can open (by extension: .avi/.mp4/.mkv/.webm/.mov/.mpg/.mpeg/.m4v/.ts).
+// Used to route playlist rows to the video overlay instead of the patch loader.
+bool isVideoPath(const std::string& path);
 } // namespace whorld

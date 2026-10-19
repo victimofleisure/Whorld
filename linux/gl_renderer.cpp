@@ -287,6 +287,8 @@ void GlRenderer::shutdown() {
         if (feedbackFbo[i]) { glDeleteFramebuffers(1, &feedbackFbo[i]); feedbackFbo[i] = 0; }
     }
     if (uiTexture) { glDeleteTextures(1, &uiTexture); uiTexture = 0; }
+    if (videoTexture) { glDeleteTextures(1, &videoTexture); videoTexture = 0; }
+    videoTexW = videoTexH = 0;
     if (fboColor) { glDeleteTextures(1, &fboColor); fboColor = 0; }
     if (fboDepthStencil) { glDeleteRenderbuffers(1, &fboDepthStencil); fboDepthStencil = 0; }
     if (fbo) { glDeleteFramebuffers(1, &fbo); fbo = 0; }
@@ -426,8 +428,56 @@ void GlRenderer::uploadUi(cairo_surface_t* surface, int w, int h) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-bool GlRenderer::ensureFbo(int w, int h) {
-    if (fbo && fboW == w && fboH == h) return true;
+// Video overlay texture upload + blend. Re-runs per displayed frame: the tex
+// is reused while its size stays constant, which keeps playback cheap. Blend
+// is fixed-function, matching blendVideoCairo's operator selection.
+void GlRenderer::drawVideoOverlay(const VideoFrame& vf, float x0, float y0, float w, float h,
+                                  int blendMode, double alpha) {
+    if (!context || w < 1 || h < 1 || vf.width < 1 || vf.height < 1 || vf.bgra.empty()) return;
+    if (videoTexture == 0) glGenTextures(1, &videoTexture);
+    glBindTexture(GL_TEXTURE_2D, videoTexture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // overlay rows are tightly packed
+    if (vf.width != videoTexW || vf.height != videoTexH) {
+        videoTexW = vf.width;
+        videoTexH = vf.height;
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, videoTexW, videoTexH, 0,
+                     GL_BGRA, GL_UNSIGNED_BYTE, vf.bgra.data());
+    } else {
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, videoTexW, videoTexH,
+                        GL_BGRA, GL_UNSIGNED_BYTE, vf.bgra.data());
+    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glEnable(GL_BLEND);
+    if (blendMode == VIDEO_BLEND_ADD) {
+        glBlendFunc(GL_ONE, GL_ONE);
+    } else if (blendMode == VIDEO_BLEND_SCREEN) {
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+    } else if (blendMode == VIDEO_BLEND_MULTIPLY) {
+        glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        // Normal: straight-alpha source over the premultiplied (opaque) canvas,
+        // so the expectation is ONE for the added source term.
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    glColor4f(1.0f, 1.0f, 1.0f, float(std::clamp(alpha, 0.0, 1.0)));
+    glEnable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 1); glVertex2f(x0, y0);
+    glTexCoord2f(1, 1); glVertex2f(x0 + w, y0);
+    glTexCoord2f(1, 0); glVertex2f(x0 + w, y0 + h);
+    glTexCoord2f(0, 0); glVertex2f(x0, y0 + h);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glPopAttrib();
+}
+
+bool GlRenderer::ensureFbo(int w, int h) {    if (fbo && fboW == w && fboH == h) return true;
     if (fboColor) { glDeleteTextures(1, &fboColor); fboColor = 0; }
     if (fboDepthStencil) { glDeleteRenderbuffers(1, &fboDepthStencil); fboDepthStencil = 0; }
     if (fbo) { glDeleteFramebuffers(1, &fbo); fbo = 0; }
@@ -514,7 +564,8 @@ bool GlRenderer::ensureFbo(int w, int h) {
 
 void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int canvasW, int canvasH,
                         int windowW, int windowH, cairo_surface_t* ui, int uiW_, int uiH_,
-                        double superScale, const PostProcess& pp) {
+                        double superScale, const PostProcess& pp, const VideoFrame* videoFrame,
+                        int videoBlend, double videoAlpha) {
     if (!context) return;
     if (superScale < 1.0) superScale = 1.0;
     const int fboW_ = std::max(1, int(std::lround(canvasW * superScale)));
@@ -533,6 +584,12 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
         glClearColor(float(bg.r), float(bg.g), float(bg.b), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         drawCanvas(frame, antialias, 0, canvasW, canvasH, pp.blendMode);
+        // Overlays composite onto the same offscreen target, before the MSAA
+        // resolve and before post-processing (warp/mirror operate on the
+        // composited image). The ortho here is still 0..canvasW / 0..canvasH.
+        if (videoFrame)
+            drawVideoOverlay(*videoFrame, 0, 0, float(canvasW), float(canvasH),
+                             videoBlend, videoAlpha);
         if (multisample) {
             glBindFramebuffer(GL_READ_FRAMEBUFFER, fboMs);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
@@ -674,6 +731,9 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {
         drawCanvas(frame, antialias, canvasX, canvasW, canvasH, pp.blendMode);
+        if (videoFrame)
+            drawVideoOverlay(*videoFrame, float(canvasX), 0, float(canvasW), float(canvasH),
+                             videoBlend, videoAlpha);
     }
     if (ui) uploadUi(ui, uiW_, uiH_);
     if (uiTexture && uiW_ > 0 && uiH_ > 0) {
@@ -694,9 +754,11 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
 
 bool GlRenderer::renderOffscreen(const Frame& frame, bool antialias, int w, int h,
                                  std::vector<unsigned char>& bgra, double superScale,
-                                 const PostProcess& pp) {
+                                 const PostProcess& pp, const VideoFrame* videoFrame,
+                                 int videoBlend, double videoAlpha) {
     if (!context) return false;
-    render(frame, antialias, 0, w, h, w, h, nullptr, 0, 0, superScale, pp);
+    render(frame, antialias, 0, w, h, w, h, nullptr, 0, 0, superScale, pp, videoFrame,
+           videoBlend, videoAlpha);
     bgra.assign(static_cast<std::size_t>(w) * h * 4, 0);
     glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_BYTE, bgra.data());
     return true;

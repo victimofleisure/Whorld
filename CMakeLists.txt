@@ -40,10 +40,21 @@ add_library(whorld_core
     linux/midi_actions.cpp
     linux/projection.cpp
     linux/config.cpp
+    linux/video_layer.cpp
 )
 
 target_include_directories(whorld_core PUBLIC linux)
 target_compile_options(whorld_core PRIVATE -Wall -Wextra)
+
+# Optional ffmpeg support powers the video overlay layer (WHM2 movies have their
+# own decoder; this one is for arbitrary .avi/.mp4/.mkv/.webm/.mov files). When
+# the dev libraries are missing, video_layer.cpp compiles as a stub and open()
+# reports that ffmpeg support was not built, so the rest of Whorld is unaffected.
+pkg_check_modules(FFMPEG IMPORTED_TARGET libavcodec libavformat libavutil libswscale)
+if(FFMPEG_FOUND)
+    target_compile_definitions(whorld_core PRIVATE WHORLD_HAVE_FFMPEG)
+    target_link_libraries(whorld_core PRIVATE PkgConfig::FFMPEG)
+endif()
 
 add_library(whorld_midi STATIC linux/alsa_midi.cpp)
 target_include_directories(whorld_midi PUBLIC linux)
@@ -110,6 +121,15 @@ if(BUILD_TESTING)
     target_link_libraries(whorld_projection_test PRIVATE whorld_core)
     target_compile_options(whorld_projection_test PRIVATE -Wall -Wextra)
     add_test(NAME whorld_projection COMMAND whorld_projection_test)
+
+    # Video overlay decode: deterministic frame extraction through the ffmpeg
+    # layer; skipped (77) when ffmpeg support was not compiled in, or when no
+    # fixture can be generated (needs the ffmpeg CLI in the test environment).
+    add_executable(whorld_video_test linux/test_video.cpp)
+    target_link_libraries(whorld_video_test PRIVATE whorld_core)
+    target_compile_options(whorld_video_test PRIVATE -Wall -Wextra)
+    add_test(NAME whorld_video COMMAND whorld_video_test)
+    set_tests_properties(whorld_video PROPERTIES SKIP_RETURN_CODE 77)
 
     # Show-config INI parser and ShowConfig (de)serialization; pure, no GL/SDL.
     add_executable(whorld_config_test linux/test_config.cpp)

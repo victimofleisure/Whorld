@@ -20,7 +20,7 @@ Launch from an X11 or Wayland desktop session. For a server or SSH session witho
 ./build/whorld --patch linux/demo.whp --render /tmp/whorld.png --frames 240 --size 1280x720
 ```
 
-Launch any V2 patch with `--patch /path/to/file.whp`. `--playlist linux/demo.whl` opens a demo playlist (it references `demo.whp` plus two CC mappings), `--snapshot file.whs` starts in snapshot view, and `--midi-source CLIENT:PORT` connects an ALSA MIDI source (otherwise only a subscribable input port is created); `--midi-mode`/`--midi-takeover` handle 14-bit and relative controllers, and `--list-midi` lists the available sources. `--help` lists CLI options. The demo patch and playlist here were created for the port (the upstream checkout does not contain them).
+Launch any V2 patch with `--patch /path/to/file.whp`. `--playlist linux/demo.whl` opens a demo playlist (it references `demo.whp` plus two CC mappings), `--snapshot file.whs` starts in snapshot view (`--snapshot` may be repeated and `--snapshot-dir DIR` adds every `*.whs` in the directory, filling the navigation list), and `--midi-source CLIENT:PORT` connects an ALSA MIDI source (otherwise only a subscribable input port is created); `--midi-mode`/`--midi-takeover` handle 14-bit and relative controllers, and `--list-midi` lists the available sources. `--help` lists CLI options. The demo patch and playlist here were created for the port (the upstream checkout does not contain them).
 
 ### Sanitizer build
 
@@ -45,6 +45,8 @@ third-party leak never fails the sanitized run. Use
 silence the third-party frames.
 
 ### Movies
+
+--export-all DIR renders every loaded snapshot to `DIR/snapshot-001.png`, `snapshot-002.png`, ... on the deterministic cairo path (no video overlay, no feedback trails) — the parity equivalent of the upstream Snapshot|Export All menu.
 
 `--movie-out file.whm` records the running simulation to a WHM2 movie (`--frames N` frames at `--movie-rate FPS`, default 60) without needing a display. `--movie file.whm` plays a movie back, advancing frames by wall clock and looping; **Space** returns to the live simulation. `--movie file.whm --movie-frame N --render out.png` renders a single movie frame to an image. The format is the upstream WHM2 container: a 40-byte header (frame rate, target size, frame count, index offset), the same snapshot records used by `.whs` files, and a trailing array of 64-bit frame offsets.
 
@@ -290,7 +292,7 @@ The `deploy/` directory holds a systemd unit (`whorld-kiosk.service`), an idempo
 - **W** toggles projection-mapping warp, which maps the frame onto a convex quadrilateral set with `--warp "TLx,TLy,TRx,TRy,BRx,BRy,BLx,BLy"` (or `--warp-file`); the status line shows whether it is on and the corners.
 - **T** cycles video feedback trails (Off -> 0.70 -> 0.85 -> 0.93 decay).
 - **Ctrl+O** / **Ctrl+S** opens/saves a `.whp` patch: type the filename into the box and press Enter (Esc cancels). **P** writes `whorld.png` into the current directory.
-- **Ctrl+T** saves a snapshot to a typed filename (default `snapshot.whs`); **Ctrl+L** loads one; **PgUp/PgDn** step through the snapshots loaded in this session. While a snapshot is on screen the view is frozen; **Space** returns to the live simulation.
+- **Ctrl+T** saves a snapshot to a typed filename (default `snapshot.whs`); **Ctrl+L** loads one; **PgUp/PgDn** step through the snapshots loaded in this session; **G** toggles the slideshow (auto-advance across the loaded snapshots at `--slideshow-seconds N`, default 5, wrapping at the end). While a snapshot is on screen the view is frozen; **Space** returns to the live simulation and stops the slideshow.
 - **L** toggles the playlist bar. In the playlist: **Enter** plays the selected patch, **Del** removes it, **[**/**]** steps through patches, and **Ctrl+Shift+O**/**S**/**N** open/save/new a `.whl` playlist, **Ctrl+Shift+A** adds the current patch, **Up/Down** move the selection.
 - **Ctrl+V** toggles the video overlay (opened from a video playlist row or `--video`); **Ctrl+J** cycles video entries in the playlist, auto-advancing on the master tempo. See **Video overlay** above.
 - MIDI CC/notes are mapped through the mappings stored in the open playlist (`mapMidi` in `playlist.cpp`); targets include parameter rows (Val/Wave/Amp/Freq/PW/Global) and the master/misc actions. Gamepads and audio input use the same targets via the `[Gamepad]`/`[Audio]` sections; see **Input devices** above.

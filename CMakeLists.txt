@@ -163,6 +163,25 @@ if(BUILD_TESTING)
         --render ${CMAKE_CURRENT_BINARY_DIR}/test-snapshot.png --frames 60 --size 480x360)
     set_tests_properties(whorld_snapshot_image PROPERTIES FIXTURES_REQUIRED whorld_snapshot)
 
+    # Batch snapshots + --export-all: the same fixture twice (as --snapshot and
+    # inside a --snapshot-dir) must export one image per snapshot.
+    add_test(NAME whorld_snapshot_export_all COMMAND whorld
+        --snapshot ${CMAKE_CURRENT_BINARY_DIR}/fixture.whs
+        --snapshot ${CMAKE_CURRENT_BINARY_DIR}/fixture.whs
+        --export-all ${CMAKE_CURRENT_BINARY_DIR}/export-all
+        --size 320x240)
+    set_tests_properties(whorld_snapshot_export_all PROPERTIES FIXTURES_REQUIRED whorld_snapshot)
+    add_test(NAME whorld_snapshot_dir COMMAND bash -c
+        "set -e; d=${CMAKE_CURRENT_BINARY_DIR}/snaps-dir; mkdir -p \"$d\"; \
+         cp ${CMAKE_CURRENT_BINARY_DIR}/fixture.whs \"$d/a.whs\"; \
+         cp ${CMAKE_CURRENT_BINARY_DIR}/fixture.whs \"$d/b.whs\"; \
+         $<TARGET_FILE:whorld> --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp \
+         --snapshot-dir \"$d\" --slideshow-seconds 3 --export-all \"$d\" --size 320x240; \
+         test -f \"$d/snapshot-001.png\" && test -f \"$d/snapshot-002.png\"; \
+         $<TARGET_FILE:whorld> --help >/dev/null && \
+         if $<TARGET_FILE:whorld> --slideshow-seconds 0 >/dev/null 2>&1; then exit 1; else true; fi")
+    set_tests_properties(whorld_snapshot_dir PROPERTIES FIXTURES_REQUIRED whorld_snapshot)
+
     # Record a WHM2 movie, then render one of its frames back to an image.
     add_test(NAME whorld_movie COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
         --movie-out ${CMAKE_CURRENT_BINARY_DIR}/test.whm --frames 30 --size 320x240 --movie-rate 30)
@@ -215,7 +234,8 @@ if(BUILD_TESTING)
         set_tests_properties(
             whorld_list_midi whorld_image whorld_playlist_image whorld_post_image
             whorld_warp_image whorld_config_save whorld_config_image
-            whorld_snapshot_fixture whorld_snapshot_image whorld_movie whorld_movie_frame
+            whorld_snapshot_fixture whorld_snapshot_image whorld_snapshot_export_all
+            whorld_snapshot_dir whorld_movie whorld_movie_frame
             whorld_movie_export whorld_movie_export_roundtrip
             whorld_gpu
             PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")

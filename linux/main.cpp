@@ -577,6 +577,7 @@ void help() {
               << "               [--midi-out [CLIENT:PORT]] [--midi-feedback]\n"
               << "               [--movie-out FILE.whm] [--movie-rate FPS] [--movie-frame N]\n"
               << "               [--movie-export FILE.avi|.mp4]\n"
+              << "               [--slideshow] [--slideshow-seconds N] [--export-all DIR]\n"
               << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F]\n"
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
@@ -640,7 +641,8 @@ void help() {
               << "      Tab/1-4 select TL/TR/BR/BL, Del/0 reset, drag corners on screen,\n"
               << "      Ctrl+Shift+W save the quad to --warp-file),\n"
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
-              << "      PgUp/PgDn step snapshots, s/-/= render scale, F11 fullscreen, R clear, Esc quit.\n"
+              << "      PgUp/PgDn step snapshots, g slideshow on/off, s/-/= render scale,\n"
+              << "      F11 fullscreen, R clear, Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
               << "Gamepad, audio and OSC mappings live in the playlist's [Gamepad],\n"
               << "      [Audio] and [Osc] sections; see README.";
@@ -650,8 +652,12 @@ void help() {
 int main(int argc, char** argv) {
     try {
         int width = 1100, height = 740, frames = 240;
-        std::string patchFile, renderFile, playlistFile, midiSource, snapshotFile;
+        std::string patchFile, renderFile, playlistFile, midiSource;
+        std::vector<std::string> snapshotFiles, snapshotDirs; // --snapshot, --snapshot-dir
         std::string movieFile, movieOut, movieExport;
+        std::string exportAllPath;             // --export-all DIR
+        bool slideshow = false;                // --slideshow: auto-advance snapshots
+        double slideshowSeconds = 5;
         double movieRate = 60;
         int movieFrame = 0;
         std::string videoFile;                 // --video: overlay movie/clip file
@@ -798,7 +804,15 @@ int main(int argc, char** argv) {
             std::string value = argv[++i];
             if (arg == "--patch") patchFile = value;
             else if (arg == "--playlist") playlistFile = value;
-            else if (arg == "--snapshot") snapshotFile = value;
+            else if (arg == "--snapshot") snapshotFiles.push_back(value);
+            else if (arg == "--snapshot-dir") snapshotDirs.push_back(value);
+            else if (arg == "--slideshow") slideshow = true;
+            else if (arg == "--slideshow-seconds") {
+                slideshowSeconds = std::stod(value);
+                if (slideshowSeconds < 1 || slideshowSeconds > 300)
+                    throw std::runtime_error("--slideshow-seconds must be between 1 and 300");
+            }
+            else if (arg == "--export-all") exportAllPath = value;
             else if (arg == "--midi-source") midiSource = value;
             else if (arg == "--midi-mode") {
                 if (!parseMidiModeInput(value, midiMode))
@@ -1009,13 +1023,44 @@ int main(int argc, char** argv) {
             if (engine.patch.invertColor) postProcess.invertColor = true;
             if (engine.patch.mirror && postProcess.mirrorMode == 0) postProcess.mirrorMode = 1;
         }
-        if (!snapshotFile.empty()) {
-            Snapshot snapshot;
-            if (!snapshot.load(snapshotFile, error)) throw std::runtime_error(error);
-            if (!engine.displaySnapshot(snapshot, width, height))
-                throw std::runtime_error("Invalid snapshot: " + snapshotFile);
-            snapshots.push_back(snapshot);
-            snapshotIndex = 0;
+        // Snapshot batch: every --snapshot FILE and every *.whs in each
+        // --snapshot-dir loads (plain-fs lexical order),filling the navigation
+        // list; the first one is also displayed so the behavior matches the
+        // single-file case.
+        {
+            std::vector<std::string> batch = snapshotFiles;
+            for (const std::string& dirPath : snapshotDirs) {
+                std::vector<std::string> dirFiles;
+                std::error_code ec;
+                const std::filesystem::directory_iterator end;
+                const std::string suffix = ".whs";
+                for (std::filesystem::directory_iterator it(dirPath, ec); it != end && !ec; ++it) {
+                    const std::string name = it->path().filename().string();
+                    if (name.size() > suffix.size() &&
+                        name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0)
+                        dirFiles.push_back((std::filesystem::path(dirPath) / name).string());
+                }
+                std::sort(dirFiles.begin(), dirFiles.end());
+                if (!ec && dirFiles.empty())
+                    std::cout << "whorld: no .whs files in " << dirPath << "\n";
+                batch.insert(batch.end(), dirFiles.begin(), dirFiles.end());
+            }
+            bool displayedFirst = false;
+            for (const std::string& file : batch) {
+                Snapshot snapshot;
+                if (!snapshot.load(file, error)) throw std::runtime_error(error);
+                snapshots.push_back(snapshot);
+                if (!displayedFirst) {
+                    if (!engine.displaySnapshot(snapshot, width, height))
+                        throw std::runtime_error("Invalid snapshot: " + file);
+                    snapshotIndex = static_cast<int>(snapshots.size()) - 1;
+                    displayedFirst = true;
+                }
+            }
+            if (slideshow && snapshots.empty()) {
+                slideshow = false;
+                std::cout << "whorld: no snapshots loaded, slideshow not started\n";
+            }
         }
         VideoStreamer streamer;
         if (!v4l2Device.empty()) {
@@ -1160,6 +1205,30 @@ int main(int argc, char** argv) {
             const std::size_t rings = engine.snapshotActive() && !snapshots.empty()
                                     ? snapshots.front().rings.size() : engine.ringCount();
             std::cout << "Saved " << renderFile << " (" << rings << " rings)\n";
+            return 0;
+        }
+        // Export all loaded snapshots as numbered PNGs into a directory, one
+        // image per snapshot (cairo path, deterministic; no video overlay, no
+        // feedback trails). Matches the upstream snapshot export-all feature.
+        if (!exportAllPath.empty()) {
+            if (snapshots.empty()) throw std::runtime_error("No snapshots loaded to export");
+            if (postProcess.feedback > 0.01)
+                std::cerr << "whorld: feedback trails require the GPU backend; rendering without them\n";
+            if (!std::filesystem::is_directory(exportAllPath)) {
+                std::error_code ec;
+                if (!std::filesystem::create_directories(exportAllPath, ec))
+                    throw std::runtime_error("Cannot create directory: " + exportAllPath);
+            }
+            for (int i = 0; i < static_cast<int>(snapshots.size()); ++i) {
+                if (!engine.displaySnapshot(snapshots[i], width, height))
+                    throw std::runtime_error("Invalid snapshot at index " + std::to_string(i));
+                char name[64];
+                std::snprintf(name, sizeof(name), "snapshot-%03d.png", i + 1);
+                image(engine, (std::filesystem::path(exportAllPath) / name).string(),
+                      width, height, postProcess);
+            }
+            std::cout << "Exported " << snapshots.size() << " snapshots to "
+                      << exportAllPath << "\n";
             return 0;
         }
         if (!movieOut.empty()) {
@@ -1592,6 +1661,19 @@ int main(int argc, char** argv) {
                                 : static_cast<int>(panelRows(engine.patch).size());
         };
         auto last = std::chrono::steady_clock::now();
+        auto lastSlide = std::chrono::steady_clock::now();
+        // Reset the slideshow pace on every programmatic display so PgUp/PgDn
+        // manual steps do not cause an immediate ambient advance.
+        auto repaceSlideshow = [&] { lastSlide = std::chrono::steady_clock::now(); };
+        // --slideshow and the runtime g key both use slideshowOn; showSnapshot
+        // was still pending any snapshot that a CLI batch already displayed.
+        if (slideshow) {
+            if (snapshotIndex < 0 && !snapshots.empty())
+                showSnapshot(0);
+            repaceSlideshow();
+            std::cout << "Slideshow: " << snapshots.size() << " snapshot(s), "
+                      << slideshowSeconds << "s each\n";
+        }
         const bool timing = std::getenv("WHORLD_TIMING") != nullptr;
         double accTick = 0, accFrame = 0, accCanvas = 0, accPanel = 0, accPresent = 0;
         int accN = 0;
@@ -1627,6 +1709,18 @@ int main(int argc, char** argv) {
                 }
             }
             videoLayer.poll();
+            // Slideshow auto-advance: wraps the loaded snapshot list at the
+            // configured interval; a manual PgUp/PgDn re-paces the timer (the
+            // advance function wraps, so the list is cyclic).
+            if (slideshow && !snapshots.empty()) {
+                const double sinceSlide = std::chrono::duration<double>(
+                    std::chrono::steady_clock::now() - lastSlide).count();
+                if (sinceSlide >= slideshowSeconds) {
+                    showSnapshot(snapshotIndex < 0
+                                 ? 0 : (snapshotIndex + 1) % static_cast<int>(snapshots.size()));
+                    repaceSlideshow();
+                }
+            }
             const VideoFrame* videoFrame = videoLayer.frame();
             SDL_Event ev;
             while (SDL_PollEvent(&ev)) {
@@ -1796,8 +1890,8 @@ int main(int argc, char** argv) {
                         }
                     }
                     else if (key == SDLK_SPACE) {
-                        if (movieActive) { movieActive = false; engine.stopSnapshot(); paused = false; }
-                        else if (engine.snapshotActive()) { engine.stopSnapshot(); paused = false; }
+                        if (movieActive) { movieActive = false; engine.stopSnapshot(); paused = false; slideshow = false; }
+                        else if (engine.snapshotActive()) { engine.stopSnapshot(); paused = false; slideshow = false; }
                         else paused = !paused;
                     }
                     else if (key == SDLK_F11) SDL_SetWindowFullscreen(window,
@@ -1861,8 +1955,29 @@ int main(int argc, char** argv) {
                         std::snprintf(buf, sizeof(buf), "Render scale: %.2f", renderScale);
                         status = buf;
                     }
-                    else if (key == SDLK_PAGEUP) showSnapshot(snapshotIndex - 1);
-                    else if (key == SDLK_PAGEDOWN) showSnapshot(snapshotIndex + 1);
+                    else if (key == SDLK_g) {
+                        if (snapshots.empty()) {
+                            status = "No snapshots loaded";
+                            slideshow = false;
+                        } else {
+                            slideshow = !slideshow;
+                            repaceSlideshow();
+                            if (slideshow) {
+                                showSnapshot(std::max(snapshotIndex, 0));
+                                status = "Slideshow: on (g off)";
+                            } else {
+                                status = "Slideshow: off";
+                            }
+                        }
+                    }
+                    else if (key == SDLK_PAGEUP) {
+                        showSnapshot(snapshotIndex - 1);
+                        repaceSlideshow();
+                    }
+                    else if (key == SDLK_PAGEDOWN) {
+                        showSnapshot(snapshotIndex + 1);
+                        repaceSlideshow();
+                    }
                     else if (showPlaylist && key == SDLK_RETURN) playPatch(playlistIndex);
                     else if (showPlaylist && key == SDLK_DELETE) {
                         if (playlistIndex >= 0 && playlistIndex < static_cast<int>(playlist.patches.size())) {

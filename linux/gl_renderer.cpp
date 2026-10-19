@@ -564,8 +564,8 @@ bool GlRenderer::ensureFbo(int w, int h) {    if (fbo && fboW == w && fboH == h)
 
 void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int canvasW, int canvasH,
                         int windowW, int windowH, cairo_surface_t* ui, int uiW_, int uiH_,
-                        double superScale, const PostProcess& pp, const VideoFrame* videoFrame,
-                        int videoBlend, double videoAlpha) {
+                        int uiX_, double superScale, const PostProcess& pp,
+                        const VideoFrame* videoFrame, int videoBlend, double videoAlpha) {
     if (!context) return;
     if (superScale < 1.0) superScale = 1.0;
     const int fboW_ = std::max(1, int(std::lround(canvasW * superScale)));
@@ -742,10 +742,10 @@ void GlRenderer::render(const Frame& frame, bool antialias, int canvasX, int can
         glBindTexture(GL_TEXTURE_2D, uiTexture);
         setColor({1, 1, 1, 1});
         glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex2f(0, 0);
-        glTexCoord2f(1, 0); glVertex2f(float(uiW_), 0);
-        glTexCoord2f(1, 1); glVertex2f(float(uiW_), float(uiH_));
-        glTexCoord2f(0, 1); glVertex2f(0, float(uiH_));
+        glTexCoord2f(0, 0); glVertex2f(float(uiX_), 0);
+        glTexCoord2f(1, 0); glVertex2f(float(uiX_ + uiW_), 0);
+        glTexCoord2f(1, 1); glVertex2f(float(uiX_ + uiW_), float(uiH_));
+        glTexCoord2f(0, 1); glVertex2f(float(uiX_), float(uiH_));
         glEnd();
         glDisable(GL_TEXTURE_2D);
     }
@@ -757,7 +757,7 @@ bool GlRenderer::renderOffscreen(const Frame& frame, bool antialias, int w, int 
                                  const PostProcess& pp, const VideoFrame* videoFrame,
                                  int videoBlend, double videoAlpha) {
     if (!context) return false;
-    render(frame, antialias, 0, w, h, w, h, nullptr, 0, 0, superScale, pp, videoFrame,
+    render(frame, antialias, 0, w, h, w, h, nullptr, 0, 0, 0, superScale, pp, videoFrame,
            videoBlend, videoAlpha);
     bgra.assign(static_cast<std::size_t>(w) * h * 4, 0);
     glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_BYTE, bgra.data());

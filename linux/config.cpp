@@ -283,6 +283,11 @@ bool loadShowConfig(const std::string& path, ShowConfig& show, std::string& erro
     parsed.videoDriver = config.getString("videoDriver", parsed.videoDriver);
     parsed.fullscreen = config.getBool("fullscreen", parsed.fullscreen);
     parsed.hideCursor = config.getBool("hideCursor", parsed.hideCursor);
+    parsed.panelSide = config.getString("panelSide", parsed.panelSide);
+    if (config.has("panelSide") && parsed.panelSide != "left" && parsed.panelSide != "right") {
+        error = "config panelSide must be left or right";
+        return false;
+    }
     parsed.midiSource = config.getString("midiSource", parsed.midiSource);
     if (config.has("midiMode") && !config.getString("midiMode").empty() &&
         !parseMidiModeInput(config.getString("midiMode"), parsed.midiMode)) {
@@ -335,6 +340,7 @@ bool saveShowConfig(const std::string& path, const ShowConfig& show, std::string
     config.set("videoDriver", show.videoDriver);
     config.set("fullscreen", show.fullscreen ? "true" : "false");
     config.set("hideCursor", show.hideCursor ? "true" : "false");
+    config.set("panelSide", show.panelSide);
     config.set("midiSource", show.midiSource);
     config.set("midiMode", midiModeName(show.midiMode));
     config.set("midiTakeover", show.midiTakeover ? "true" : "false");

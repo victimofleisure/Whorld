@@ -578,7 +578,7 @@ void help() {
               << "               [--movie-out FILE.whm] [--movie-rate FPS] [--movie-frame N]\n"
               << "               [--movie-export FILE.avi|.mp4]\n"
               << "               [--slideshow] [--slideshow-seconds N] [--export-all DIR]\n"
-              << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F]\n"
+              << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F] [--panel-side left|right]\n"
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
               << "               [--blend normal|add|screen] [--morph SECONDS]\n"
@@ -644,7 +644,7 @@ void help() {
               << "      Ctrl+Shift+W save the quad to --warp-file),\n"
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
               << "      PgUp/PgDn step snapshots, g slideshow on/off, z/x A/B fader, Ctrl+X arm B,\n"
-              << "      s/-/= render scale,\n"
+              << "      Ctrl+D dock panel left/right, s/-/= render scale,\n"
               << "      F11 fullscreen, R clear, Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
               << "Gamepad, audio and OSC mappings live in the playlist's [Gamepad],\n"
@@ -670,6 +670,7 @@ int main(int argc, char** argv) {
         double videoAlpha = 1.0;
         int videoFrameIndex = -1;              // --video-frame: deterministic stills
         std::string rendererMode = "auto";
+        std::string panelSide = "left";        // --panel-side / config panelSide
         double forcedScale = 0; // 0 means adaptive
         PostProcess postProcess;
         std::string v4l2Device;
@@ -738,6 +739,7 @@ int main(int argc, char** argv) {
             videoDriver = show.videoDriver;
             fullscreen = show.fullscreen;
             hideCursor = show.hideCursor;
+            panelSide = show.panelSide;
             midiSource = show.midiSource;
             midiMode = show.midiMode;
             midiTakeover = show.midiTakeover;
@@ -765,6 +767,13 @@ int main(int argc, char** argv) {
             }
             if (arg == "--invert") { postProcess.invertColor = true; continue; }
             if (arg == "--headless") { headless = true; continue; }
+            if (arg == "--panel-side") {
+                if (i + 1 >= argc) throw std::runtime_error("Missing value for " + arg);
+                panelSide = argv[++i];
+                if (panelSide != "left" && panelSide != "right")
+                    throw std::runtime_error("--panel-side must be left or right");
+                continue;
+            }
             if (arg == "--fullscreen") { fullscreen = true; continue; }
             if (arg == "--hide-cursor") { hideCursor = true; continue; }
             if (arg == "--audio") { audioEnabled = true; continue; }
@@ -953,6 +962,7 @@ int main(int argc, char** argv) {
             show.videoDriver = videoDriver;
             show.fullscreen = fullscreen;
             show.hideCursor = hideCursor;
+            show.panelSide = panelSide;
             show.midiSource = midiSource;
             show.midiMode = midiMode;
             show.midiTakeover = midiTakeover;
@@ -1406,6 +1416,7 @@ int main(int argc, char** argv) {
             std::fprintf(stderr, "canvas backend: %s (mode=%s)\n", useGl ? "opengl" : "cairo-sdl",
                          rendererMode.c_str());
         bool running = true, paused = false, hidden = false, dragging = false, entering = false;
+        bool panelRight = panelSide == "right"; // the dockable pane starts on the side --panel-side chooses
         bool cursorHidden = hideCursor; // --hide-cursor, cleared on mouse motion
         // Interactive warp (projection-mapping) corner editor, toggled with 'e'.
         bool warpEdit = false;
@@ -1628,6 +1639,14 @@ int main(int argc, char** argv) {
             }
         };
         auto canvasWidth = [&] { return width - (hidden ? 0 : sidebar); };
+        // Dockable panel geometry: the pane hugs the left edge by default and
+        // can dock on the right (Ctrl+D / --panel-side right), keeping the
+        // canvas cursor mapping and click hit tests correct in both layouts.
+        auto panelX = [&] { return hidden ? 0 : (panelRight ? width - sidebar : 0); };
+        auto canvasX = [&] { return hidden ? 0 : (panelRight ? 0 : sidebar); };
+        auto inPanel = [&](int x) {
+            return !hidden && (panelRight ? x >= width - sidebar : x < sidebar);
+        };
         auto warpEditStatus = [&]() -> std::string {
             const Point c = warpCornerPoint(postProcess.warp, warpCornerForIndex(warpEditSel));
             char buf[176];
@@ -1902,6 +1921,14 @@ int main(int argc, char** argv) {
                         input = crossfaderBName.empty() ? "patch-b.whp" : crossfaderBName;
                         entering = true; SDL_StartTextInput();
                         status = "crossfader B patch:";
+                    } else if (ctrl && key == SDLK_d) {
+                        // Docking: flip the control pane to the opposite edge
+                        // (left/right). The canvas and hit tests follow.
+                        panelRight = !panelRight;
+                        panelSide = panelRight ? "right" : "left";
+                        panelDirty = true;
+                        status = panelRight ? "Panel docked right (Ctrl+D toggles)"
+                                            : "Panel docked left (Ctrl+D toggles)";
                     } else if (ctrl && key == SDLK_v) {
                         if (videoLayer.active()) {
                             videoLayer.close();
@@ -2116,7 +2143,7 @@ int main(int argc, char** argv) {
                     status = summary.empty() ? "Controller disconnected" : summary;
                 } else if (ev.type == SDL_MOUSEWHEEL && !hidden) {
                     int x, y; SDL_GetMouseState(&x, &y);
-                    if (x < sidebar && y >= kListTop) {
+                    if (inPanel(x) && y >= kListTop) {
                         int visible = std::max(1, (std::max(kListTop, height - 157) - kListTop) / rowHeight);
                         scroll = std::clamp(scroll - ev.wheel.y * 2, 0, std::max(0, listRows() - visible));
                         if (showPlaylist) {
@@ -2128,9 +2155,10 @@ int main(int argc, char** argv) {
                         }
                     }
                 } else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
-                    const int leftEdge = hidden ? 0 : sidebar;
+                    const int leftEdge = canvasX();
+                    const int panelPx = panelX();
                     const int canvasW_ = std::max(1, width - leftEdge);
-                    if (warpEdit && (hidden || ev.button.x >= sidebar)) {
+                    if (warpEdit && (hidden || !inPanel(ev.button.x))) {
                         // Warp editor: hit-test the corner handles first; a miss
                         // falls through to the normal patch-origin drag.
                         const Point p{(ev.button.x - leftEdge) / double(canvasW_),
@@ -2145,11 +2173,11 @@ int main(int argc, char** argv) {
                         } else {
                             dragging = true;
                         }
-                    } else if (!hidden && ev.button.x < sidebar) {
+                    } else if (inPanel(ev.button.x)) {
                         const int bottom = std::max(kListTop, height - 157);
                         if (ev.button.y >= kShapeStripTop && ev.button.y < kShapeStripTop + kShapeStripHeight) {
                             // Click a shape chip to activate that primitive.
-                            const int chip = shapeChipAtX(ev.button.x);
+                            const int chip = shapeChipAtX(ev.button.x - panelPx);
                             if (chip >= 0) engine.patch.params[PARAM_Primitive].value = chip;
                         } else if (ev.button.y >= kListTop && ev.button.y < bottom) {
                             const int row = scroll + (ev.button.y - kListTop) / rowHeight;
@@ -2164,7 +2192,7 @@ int main(int argc, char** argv) {
                                 const PanelRow& sel = rows[selected];
                                 if (!sel.master && (ev.button.y - kListTop) % rowHeight >= 21) {
                                     const auto& info = paramInfo[sel.index];
-                                    double f = std::clamp((ev.button.x - 15.0) / (sidebar - 30.0), 0.0, 1.0);
+                                    double f = std::clamp((ev.button.x - panelPx - 15.0) / (sidebar - 30.0), 0.0, 1.0);
                                     engine.patch.params[sel.index].value =
                                         info.min + f * (info.max - info.min);
                                 }
@@ -2178,7 +2206,7 @@ int main(int argc, char** argv) {
                     // --hide-cursor hides the pointer for projection; moving the
                     // mouse brings it back so the operator can still find it.
                     if (cursorHidden) { SDL_ShowCursor(SDL_ENABLE); cursorHidden = false; }
-                    const int left = hidden ? 0 : sidebar;
+                    const int left = canvasX();
                     const double nx = (ev.motion.x - left) / double(std::max(1, width - left));
                     const double ny = ev.motion.y / double(std::max(1, height));
                     if (draggingWarpCorner != WarpCorner::None) {
@@ -2356,8 +2384,9 @@ int main(int argc, char** argv) {
                     std::cerr << "whorld: OSC: " << oscError << '\n';
                 }
             }
-            int left = hidden ? 0 : sidebar;
+            int left = canvasX();
             int cw = width - left;
+            const int panelPx = panelX();
             if (cw < 1 || height < 1) { SDL_Delay(20); continue; }
             auto frameStart = std::chrono::steady_clock::now();
             // Movie playback: advance frames by wall clock and display them via
@@ -2422,7 +2451,7 @@ int main(int argc, char** argv) {
             // stretches the result over the canvas rectangle.
             if (useGl) {
                 gl.render(frame, engine.patch.antialiasing, left, cw, height, width, height,
-                          uiSurface, hidden ? 0 : sidebar, height, renderScale, postProcess,
+                          uiSurface, hidden ? 0 : sidebar, height, panelPx, renderScale, postProcess,
                           videoFrame, videoBlendMode, videoAlpha);
                 if (warpEdit)
                     gl.drawWarpOverlay(postProcess.warp, warpEditSel,
@@ -2471,7 +2500,7 @@ int main(int argc, char** argv) {
                 SDL_RenderClear(renderer);
                 SDL_RenderCopy(renderer, canvas.texture, nullptr, &canvasDst);
                 if (!hidden) {
-                    SDL_Rect panelDst{0, 0, sidebar, height};
+                    SDL_Rect panelDst{panelPx, 0, sidebar, height};
                     SDL_RenderCopy(renderer, panel.texture, nullptr, &panelDst);
                 }
                 if (warpEdit)

@@ -30,10 +30,12 @@ public:
     // [canvasX, canvasX+canvasW) x [0, canvasH) of a windowW x windowH window.
     // `superScale` rasterizes the canvas offscreen at that multiple of its
     // logical size and downsamples on compositing (supersampling); 1.0 disables
-    // it. When `ui` is non-null it is uploaded and drawn over [0,uiW) x [0,uiH).
-    // `pp` supplies post-processing options (mirror, invert, feedback trails).
+    // it. When `ui` is non-null it is uploaded and drawn over
+    // [uiX,uiX+uiW) x [0,uiH) — a pane docked on the right passes uiX + 0 =
+    // windowW - uiW. `pp` supplies post-processing options (mirror, invert,
+    // feedback trails).
     void render(const Frame& frame, bool antialias, int canvasX, int canvasW, int canvasH,
-                int windowW, int windowH, cairo_surface_t* ui, int uiW, int uiH,
+                int windowW, int windowH, cairo_surface_t* ui, int uiW, int uiH, int uiX,
                 double superScale = 1.0, const PostProcess& pp = {},
                 const VideoFrame* videoFrame = nullptr, int videoBlend = VIDEO_BLEND_NORMAL,
                 double videoAlpha = 1.0);

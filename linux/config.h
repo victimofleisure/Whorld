@@ -99,6 +99,7 @@ struct ShowConfig {
     std::string videoDriver;
     bool fullscreen = false;
     bool hideCursor = false;
+    std::string panelSide = "left"; // ctrl+D toggles; also --panel-side
     std::string midiSource;
     MidiInputMode midiMode = MidiInputMode::Absolute;
     bool midiTakeover = false;

@@ -54,6 +54,10 @@ Arbitrary movie files (not WHM2) can run as a video layer beneath the rings: `--
 
 The overlay is built on ffmpeg: when the build finds `libavcodec/libavformat/libavutil/libswscale`, the decode runs on its own thread paced by the clip's frame rate and re-opens at EOF to loop; without those libraries the feature compiles out and `--video`/`Ctrl+V` reports that ffmpeg support is unavailable (everything else is unaffected). For deterministic output, `--video-frame N` decodes exactly frame *N* for `--render` (the `whorld_video` test drives this with an ffmpeg-generated fixture). The overlay is *not* baked into WHM2 recordings; live rendering and streaming paths include it.
 
+### Movie export (H.264/.avi/.mp4)
+
+`--movie-export FILE.avi|.mp4|.mov|.mkv` renders the same canvas the live viewer draws - including post-processing and blending - and encodes it with ffmpeg's H.264 encoder into the container implied by the extension, at `--movie-rate FPS` for `--frames N` frames. The CPU/cairo path is deterministic on any machine; `--feedback` trails (and `--renderer gpu`) switch to the offscreen OpenGL renderer with identical shader post-processing. Requires the ffmpeg dev libraries; without them the flag reports that video export is unavailable (WHM2 recording is independent). The `whorld_movie_export`/`whorld_movie_export_roundtrip` CTest pair records a clip and re-decodes it through the video overlay layer.
+
 ### Renderer selection
 
 `--renderer auto|gpu|cairo` picks the canvas backend (`auto` is the default). The OpenGL backend draws each ring with the stencil buffer so the even-odd (alternate) fill matches Direct2D exactly, into a multisampled offscreen framebuffer that is resolved and composited; it is typically several times faster than the Cairo path at high ring counts. `gpu` fails fast if OpenGL is unavailable; `auto` quietly falls back to Cairo. The sidebar is always drawn with Cairo (for crisp text) and uploaded as a texture.

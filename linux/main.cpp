@@ -8,6 +8,7 @@
 #include "snapshot.h"
 #include "gl_renderer.h"
 #include "movie.h"
+#include "movie_export.h"
 #include "cairo_canvas.h"
 #include "video_layer.h"
 #include "projection.h"
@@ -575,6 +576,7 @@ void help() {
               << "               [--midi-takeover] [--list-midi] [--midi-clock]\n"
               << "               [--midi-out [CLIENT:PORT]] [--midi-feedback]\n"
               << "               [--movie-out FILE.whm] [--movie-rate FPS] [--movie-frame N]\n"
+              << "               [--movie-export FILE.avi|.mp4]\n"
               << "               [--frames N] [--size WIDTHxHEIGHT] [--scale F]\n"
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
@@ -649,7 +651,7 @@ int main(int argc, char** argv) {
     try {
         int width = 1100, height = 740, frames = 240;
         std::string patchFile, renderFile, playlistFile, midiSource, snapshotFile;
-        std::string movieFile, movieOut;
+        std::string movieFile, movieOut, movieExport;
         double movieRate = 60;
         int movieFrame = 0;
         std::string videoFile;                 // --video: overlay movie/clip file
@@ -880,6 +882,7 @@ int main(int argc, char** argv) {
             else if (arg == "--frames") frames = std::stoi(value);
             else if (arg == "--movie") movieFile = value;
             else if (arg == "--movie-out") movieOut = value;
+            else if (arg == "--movie-export") movieExport = value;
             else if (arg == "--movie-frame") movieFrame = std::stoi(value);
             else if (arg == "--video") videoFile = value;
             else if (arg == "--video-blend") {
@@ -1172,6 +1175,82 @@ int main(int argc, char** argv) {
             if (!writer.close(error)) throw std::runtime_error(error);
             std::cout << "Saved " << movieOut << " (" << writer.frameCount() << " frames at "
                       << movieRate << " fps)\n";
+            return 0;
+        }
+        if (!movieExport.empty()) {
+            // H.264/.avi/.mp4 export of the rendered canvas: feedback trails
+            // only exist in the GL renderer, so those (and --renderer gpu)
+            // must use the offscreen GPU path; everything else rasterizes on
+            // the CPU for deterministic output on any machine.
+            const bool needGl = rendererMode == "gpu" || postProcess.feedback > 0.01;
+            MovieExporter exporter;
+            bool exported = false;
+            if (needGl && SDL_Init(SDL_INIT_VIDEO) == 0) {
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+                SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+                SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+                SDL_Window* offscreen = SDL_CreateWindow("whorld-export", 0, 0, width, height,
+                                                         SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+                GlRenderer gpu;
+                std::string glError;
+                if (offscreen && gpu.init(offscreen, glError)) {
+                    if (!exporter.open(movieExport, movieRate, width, height, error))
+                        throw std::runtime_error(error);
+                    std::vector<unsigned char> raw;
+                    std::vector<unsigned char> flipped(std::size_t(width) * height * 4);
+                    for (int i = 0; i < frames; ++i) {
+                        engine.tick(width, height);
+                        if (!gpu.renderOffscreen(engine.frame(width, height),
+                                                 engine.patch.antialiasing, width, height,
+                                                 raw, forcedScale > 0 ? forcedScale : 1.0,
+                                                 postProcess))
+                            throw std::runtime_error("GPU export render failed");
+                        // glReadPixels is bottom-up BGRA; the encoder wants rows.
+                        for (int y = 0; y < height; ++y)
+                            std::memcpy(flipped.data() + std::size_t(y) * width * 4,
+                                        raw.data() + std::size_t(height - 1 - y) * width * 4,
+                                        std::size_t(width) * 4);
+                        if (!exporter.write(flipped.data(), error))
+                            throw std::runtime_error(error);
+                    }
+                    if (!exporter.close(error)) throw std::runtime_error(error);
+                    exported = true;
+                } else if (rendererMode == "gpu") {
+                    throw std::runtime_error(offscreen
+                        ? "Cannot initialize GPU renderer: " + glError
+                        : std::string("Cannot create GPU window: ") + SDL_GetError());
+                }
+                if (offscreen) SDL_DestroyWindow(offscreen);
+                SDL_Quit();
+            } else if (needGl) {
+                throw std::runtime_error(sdlError("SDL initialization failed"));
+            }
+            if (!exported) {
+                if (postProcess.feedback > 0.01)
+                    std::cerr << "whorld: feedback trails require the GPU backend; rendering without them\n";
+                if (!exporter.open(movieExport, movieRate, width, height, error))
+                    throw std::runtime_error(error);
+                // Recreate the frame predicates the --render fast-forward uses
+                // so a cairo export matches a PNG render tick-for-tick.
+                auto surface = makeSurface(width, height);
+                Context cr(cairo_create(surface.get()), cairo_destroy);
+                for (int i = 0; i < frames; ++i) {
+                    engine.tick(width, height);
+                    const Frame frame = engine.frame(width, height);
+                    drawFrameCairo(cr.get(), frame, width, height,
+                                   engine.patch.antialiasing, postProcess.blendMode);
+                    postProcessCairo(surface.get(), postProcess, frame.background);
+                    cairo_surface_flush(surface.get());
+                    if (!exporter.write(cairo_image_surface_get_data(surface.get()), error))
+                        throw std::runtime_error(error);
+                }
+                if (!exporter.close(error)) throw std::runtime_error(error);
+            }
+            std::cout << "Saved " << movieExport << " (" << exporter.frameCount()
+                      << " frames at " << movieRate << " fps)\n";
             return 0;
         }
         MovieReader movie;

@@ -41,6 +41,7 @@ add_library(whorld_core
     linux/projection.cpp
     linux/config.cpp
     linux/video_layer.cpp
+    linux/movie_export.cpp
 )
 
 target_include_directories(whorld_core PUBLIC linux)
@@ -170,6 +171,22 @@ if(BUILD_TESTING)
         --movie-frame 10 --render ${CMAKE_CURRENT_BINARY_DIR}/test-movie-frame.png --size 480x360)
     set_tests_properties(whorld_movie_frame PROPERTIES FIXTURES_REQUIRED whorld_movie)
 
+    # H.264/.avi quicktime-style canvas export: record a clip, then render one
+    # of its frames back through the video overlay decoder (round trip). Only
+    # meaningful in ffmpeg-enabled builds.
+    if(FFMPEG_FOUND)
+        add_test(NAME whorld_movie_export COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
+            --movie-export ${CMAKE_CURRENT_BINARY_DIR}/test-export.avi
+            --frames 12 --size 320x240 --movie-rate 12)
+        set_tests_properties(whorld_movie_export PROPERTIES FIXTURES_SETUP whorld_movie_export)
+        add_test(NAME whorld_movie_export_roundtrip COMMAND whorld
+            --video ${CMAKE_CURRENT_BINARY_DIR}/test-export.avi --video-frame 2
+            --render ${CMAKE_CURRENT_BINARY_DIR}/test-export-frame.png
+            --frames 3 --size 320x240)
+        set_tests_properties(whorld_movie_export_roundtrip PROPERTIES
+            FIXTURES_REQUIRED whorld_movie_export)
+    endif()
+
     # The GPU canvas must match the cairo reference; skipped without OpenGL.
     add_executable(whorld_gpu_test linux/test_gpu.cpp linux/gl_renderer.cpp linux/cairo_canvas.cpp linux/video_streamer.cpp)
     target_link_libraries(whorld_gpu_test PRIVATE whorld_core
@@ -199,6 +216,7 @@ if(BUILD_TESTING)
             whorld_list_midi whorld_image whorld_playlist_image whorld_post_image
             whorld_warp_image whorld_config_save whorld_config_image
             whorld_snapshot_fixture whorld_snapshot_image whorld_movie whorld_movie_frame
+            whorld_movie_export whorld_movie_export_roundtrip
             whorld_gpu
             PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")
         set_tests_properties(whorld_headless_gpu PROPERTIES

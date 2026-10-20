@@ -3,7 +3,9 @@
 #include "midi_actions.h"
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 
 namespace whorld {
@@ -37,7 +39,8 @@ bool hasGlobal(int param) {
 }
 }
 bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playlist,
-                     bool& paused, int& currentPatch, std::string& status) {
+                     bool& paused, int& currentPatch, std::string& status,
+                     TapTempo* tap) {
     const double amount = std::isfinite(action.amount) ? std::clamp(action.amount, -100.0, 100.0) : 0;
     for (int i = 0; i < PARAM_COUNT; ++i) {
         if (action.target != paramInfo[i].name) continue;
@@ -90,6 +93,22 @@ bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playl
     } else if (target == "RandomPhase") {
         engine.randomizePhase();
         status = "Random oscillator phase";
+    } else if (target == "Tap") {
+        // Ignore the release edge so a mapped button taps once per press.
+        if (amount != 0 && tap) {
+            const double now = std::chrono::duration<double>(
+                std::chrono::steady_clock::now().time_since_epoch()).count();
+            const double bpm = tap->tap(now);
+            if (std::isfinite(bpm) && bpm > 0) {
+                engine.patch.master[MASTER_Tempo] = std::clamp(bpm, 20.0, 300.0);
+                char buf[48];
+                std::snprintf(buf, sizeof buf, "Tempo %.1f BPM (tap)",
+                              engine.patch.master[MASTER_Tempo]);
+                status = buf;
+            } else {
+                status = "Tap tempo: tap again";
+            }
+        }
     } else if (target == "Patch") {
         int index = static_cast<int>(std::lround(amount * 127));
         if (index < 0 || index >= static_cast<int>(playlist.patches.size())) {

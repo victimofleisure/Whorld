@@ -7,6 +7,7 @@
 #include "osc.h"
 #include "playlist.h"
 #include "snapshot.h"
+#include "tap_tempo.h"
 #include "whorld_core.h"
 #include <cmath>
 #include <cstdint>
@@ -454,6 +455,32 @@ int main(int argc, char** argv) {
         require(fx.patch.invertColor);
         require(applyMidiAction({"InvertColor", "Val", 0}, fx, none, fp, fc, fs));
         require(!fx.patch.invertColor);
+    }
+
+    // Tap tempo averages the last few intervals and restarts after a pause.
+    {
+        TapTempo tap;
+        require(tap.tap(10.0) == 0.0);
+        require(std::abs(tap.tap(10.5) - 120.0) < 1e-9);
+        require(tap.tap(20.0) == 0.0); // a long pause restarts the measurement
+        require(std::abs(tap.tap(20.4) - 150.0) < 1e-9);
+        require(std::abs(tap.tap(21.0) - 120.0) < 1e-9);   // intervals .4, .6
+        require(std::abs(tap.tap(21.5) - 120.0) < 1e-9);
+        // Only the last four taps count; this one averages .6, .5, .1 -> 150.
+        require(std::abs(tap.tap(21.6) - 150.0) < 1e-9);
+        tap.reset();
+        require(tap.tap(30.0) == 0.0);
+        // A mapped Tap button drives Tempo and ignores the release edge.
+        Engine tempoEngine;
+        Playlist none;
+        bool tp = false; int tc = 0; std::string ts;
+        tempoEngine.patch.master[MASTER_Tempo] = 100;
+        require(applyMidiAction({"Tap", "Val", 100}, tempoEngine, none, tp, tc, ts, &tap));
+        require(applyMidiAction({"Tap", "Val", 100}, tempoEngine, none, tp, tc, ts, &tap));
+        require(tempoEngine.patch.master[MASTER_Tempo] >= 20.0 &&
+                tempoEngine.patch.master[MASTER_Tempo] <= 300.0);
+        require(ts.find("BPM") != std::string::npos);
+        require(applyMidiAction({"Tap", "Val", 0}, tempoEngine, none, tp, tc, ts, &tap));
     }
 
     // Wheel zoom uses the upstream normalized master space: 0.5 is the

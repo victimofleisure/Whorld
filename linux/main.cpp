@@ -4,6 +4,7 @@
 #include "gamepad.h"
 #include "midi_actions.h"
 #include "midi_decode.h"
+#include "tap_tempo.h"
 #include "alsa_midi.h"
 #include "snapshot.h"
 #include "gl_renderer.h"
@@ -1456,6 +1457,7 @@ int main(int argc, char** argv) {
             std::fprintf(stderr, "canvas backend: %s (mode=%s)\n", useGl ? "opengl" : "cairo-sdl",
                          rendererMode.c_str());
         bool running = true, paused = false, hidden = false, dragging = false, entering = false;
+        TapTempo tapTempo; // Shift+T / a mapped "Tap" button drives Tempo
         bool panelRight = panelSide == "right"; // the dockable pane starts on the side --panel-side chooses
         bool cursorHidden = hideCursor; // --hide-cursor, cleared on mouse motion
         // Interactive warp (projection-mapping) corner editor, toggled with 'e'.
@@ -1615,7 +1617,7 @@ int main(int argc, char** argv) {
             return false;
         };
         auto applyAction = [&](const MappedAction& action) {
-            applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
             syncTarget(action.target);
             panelDirty = true;
         };
@@ -2075,6 +2077,19 @@ int main(int argc, char** argv) {
                                 postProcess.warp.bl.x, postProcess.warp.bl.y);
                             status = wbuf;
                         }
+                    } else if (shift && !ctrl && key == SDLK_t) {
+                        const double tapNow = std::chrono::duration<double>(
+                            std::chrono::steady_clock::now().time_since_epoch()).count();
+                        const double bpm = tapTempo.tap(tapNow);
+                        if (std::isfinite(bpm) && bpm > 0) {
+                            engine.patch.master[MASTER_Tempo] = std::clamp(bpm, 20.0, 300.0);
+                            char tbuf[48];
+                            std::snprintf(tbuf, sizeof tbuf, "Tempo %.1f BPM (tap)",
+                                          engine.patch.master[MASTER_Tempo]);
+                            status = tbuf;
+                        } else {
+                            status = "Tap tempo: tap again";
+                        }
                     } else if (!ctrl && key == SDLK_t) {
                         if (postProcess.feedback <= 0.01) postProcess.feedback = 0.70;
                         else if (postProcess.feedback < 0.80) postProcess.feedback = 0.85;
@@ -2424,7 +2439,7 @@ int main(int argc, char** argv) {
                         }
                     } else {
                         for (const MappedAction& action : mapGamepad(playlist, current, device.previous)) {
-                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
                             syncTarget(action.target);
                             panelDirty = true;
                             // Rumble once per press of a momentary/action target.
@@ -2439,7 +2454,7 @@ int main(int argc, char** argv) {
             if (audioReady) {
                 audio.poll();
                 for (const MappedAction& action : mapAudio(playlist, audio.features())) {
-                    applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                    applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
                     syncTarget(action.target);
                 }
             }
@@ -2468,7 +2483,7 @@ int main(int argc, char** argv) {
                     } else {
                         for (const MappedAction& action :
                              mapOsc(playlist, message.address, message.value)) {
-                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status);
+                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
                             syncTarget(action.target);
                         }
                     }

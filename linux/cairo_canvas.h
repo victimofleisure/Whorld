@@ -13,8 +13,11 @@ namespace whorld {
 // outline, exactly as the Direct2D original does.
 // `blendMode` selects the compositing operator for the shapes after the
 // background is painted: 0 = Normal (OVER), 1 = Additive (ADD), 2 = Screen.
+// `fastAntialias` uses CAIRO_ANTIALIAS_FAST instead of GOOD; it is intended for
+// canvases that are upscaled to the window, where GOOD's extra precision is
+// lost in the stretch.
 void drawFrameCairo(cairo_t* cr, const Frame& frame, int w, int h, bool antialias,
-                    int blendMode = 0);
+                    int blendMode = 0, bool fastAntialias = false);
 
 // Applies projection warp, mirror and/or color inversion to an ARGB32 image
 // surface in place, matching the GLSL post-process shader used by GlRenderer

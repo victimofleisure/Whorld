@@ -26,7 +26,8 @@ void addPath(cairo_t* cr, const Path& p) {
 
 } // namespace
 
-void drawFrameCairo(cairo_t* cr, const Frame& f, int w, int h, bool antialias, int blendMode) {
+void drawFrameCairo(cairo_t* cr, const Frame& f, int w, int h, bool antialias, int blendMode,
+                    bool fastAntialias) {
     cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
     setColor(cr, f.background);
     cairo_rectangle(cr, 0, 0, w, h);
@@ -36,7 +37,12 @@ void drawFrameCairo(cairo_t* cr, const Frame& f, int w, int h, bool antialias, i
     cairo_set_operator(cr, blendMode == 1 ? CAIRO_OPERATOR_ADD
                                           : blendMode == 2 ? CAIRO_OPERATOR_SCREEN
                                                            : CAIRO_OPERATOR_OVER);
-    cairo_set_antialias(cr, antialias ? CAIRO_ANTIALIAS_GOOD : CAIRO_ANTIALIAS_NONE);
+    // FAST halves raster time and is used when the canvas is upscaled to the
+    // window anyway (adaptive scale below native): the extra quality of GOOD
+    // is lost in the stretch.
+    cairo_set_antialias(cr, !antialias ? CAIRO_ANTIALIAS_NONE
+                                      : fastAntialias ? CAIRO_ANTIALIAS_FAST
+                                                      : CAIRO_ANTIALIAS_GOOD);
     cairo_set_fill_rule(cr, CAIRO_FILL_RULE_EVEN_ODD);
     for (const Shape& s : f.shapes) {
         if (s.fill) {

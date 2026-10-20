@@ -2571,8 +2571,11 @@ int main(int argc, char** argv) {
                 {
                     Context cr(cairo_create(canvas.surface.get()), cairo_destroy);
                     cairo_scale(cr.get(), double(texW) / cw, double(texH) / height);
+                    // Below native scale the canvas is stretched to the window, so
+                    // cheap antialiasing is invisible while GOOD is several times
+                    // slower on dense ring counts (verified with perf_sweep).
                     drawFrameCairo(cr.get(), frame, cw, height, engine.patch.antialiasing,
-                                   postProcess.blendMode);
+                                   postProcess.blendMode, renderScale < 0.75);
                 }
                 // Mirror/invert on the CPU; feedback trails remain GPU-only.
                 if (postProcess.feedback > 0.01 && !warnedCairoFeedback) {

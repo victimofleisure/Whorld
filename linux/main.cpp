@@ -665,8 +665,8 @@ void help() {
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
               << "      PgUp/PgDn step snapshots, g slideshow on/off, z/x A/B fader, Ctrl+X arm B,\n"
               << "      Ctrl+D dock panel left/right, s/-/= render scale,\n"
-              << "      F11 fullscreen, Ctrl+F11 or Ctrl+Alt+V VJ mode, R clear,\n"
-              << "      Esc quit.\n"
+              << "      F11 fullscreen, Ctrl+F11 or Ctrl+Alt+V VJ mode,\n"
+              << "      Ctrl+F12 or Ctrl+Shift+F12 detach view, R clear, Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
               << "Gamepad, audio and OSC mappings live in the playlist's [Gamepad],\n"
               << "      [Audio] and [Osc] sections; see README.";
@@ -1463,6 +1463,8 @@ int main(int argc, char** argv) {
             if (!renderer) renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
             if (!renderer) throw std::runtime_error(std::string("Cannot create renderer: ") + SDL_GetError());
         }
+        const Uint32 mainWindowID = SDL_GetWindowID(window);
+        SDL_GLContext mainGlContext = useGl ? SDL_GL_GetCurrentContext() : nullptr;
         if (hideCursor) SDL_ShowCursor(SDL_DISABLE);
         if (std::getenv("WHORLD_TIMING"))
             std::fprintf(stderr, "canvas backend: %s (mode=%s)\n", useGl ? "opengl" : "cairo-sdl",
@@ -1733,6 +1735,98 @@ int main(int argc, char** argv) {
         auto inPanel = [&](int x) {
             return !hidden && (panelRight ? x >= width - sidebar : x < sidebar);
         };
+        // Detached view (upstream Ctrl+F12): a second top-level window shows the
+        // canvas for a projector or second monitor while the operator window
+        // keeps the control pane. The main window keeps drawing its own copy as
+        // a preview; the view window is fed from the same canvas pixels.
+        bool detached = false;
+        SDL_Window* viewWindow = nullptr;
+        SDL_Renderer* viewRenderer = nullptr;
+        SDL_Texture* viewTexture = nullptr;
+        int viewTexW = 0, viewTexH = 0;
+        Uint32 viewTexFormat = SDL_PIXELFORMAT_ARGB8888;
+        std::vector<unsigned char> viewFlip;
+        auto ensureViewTexture = [&](int w, int h, Uint32 format) {
+            if (viewTexture && viewTexW == w && viewTexH == h && viewTexFormat == format) return;
+            if (viewTexture) { SDL_DestroyTexture(viewTexture); viewTexture = nullptr; }
+            viewTexture = SDL_CreateTexture(viewRenderer, format, SDL_TEXTUREACCESS_STREAMING, w, h);
+            if (!viewTexture)
+                throw std::runtime_error(std::string("Cannot create view texture: ") + SDL_GetError());
+            SDL_SetTextureBlendMode(viewTexture, SDL_BLENDMODE_NONE);
+            viewTexW = w; viewTexH = h; viewTexFormat = format;
+        };
+        auto presentView = [&]() {
+            if (!viewRenderer || !viewTexture) return;
+            int vw = 0, vh = 0;
+            SDL_GetWindowSize(viewWindow, &vw, &vh);
+            SDL_SetRenderDrawColor(viewRenderer, 0, 0, 0, 255);
+            SDL_RenderClear(viewRenderer);
+            // Letterbox: pixels stay square whatever the projector mode is.
+            const double va = double(viewTexW) / std::max(1, viewTexH);
+            const double wa = double(vw) / std::max(1, vh);
+            SDL_Rect dst;
+            if (wa > va) {
+                const int w = static_cast<int>(std::lround(vh * va));
+                dst = {(vw - w) / 2, 0, w, vh};
+            } else {
+                const int h = static_cast<int>(std::lround(vw / va));
+                dst = {0, (vh - h) / 2, vw, h};
+            }
+            SDL_RenderCopy(viewRenderer, viewTexture, nullptr, &dst);
+            SDL_RenderPresent(viewRenderer);
+        };
+        auto uploadView = [&](const void* pixels, int w, int h, int pitch, Uint32 format, bool flip) {
+            if (!detached || !viewRenderer) return;
+            ensureViewTexture(w, h, format);
+            const void* src = pixels;
+            if (flip) {
+                const int row = w * 4;
+                viewFlip.resize(std::size_t(row) * h);
+                for (int y = 0; y < h; ++y)
+                    std::memcpy(viewFlip.data() + std::size_t(y) * row,
+                                static_cast<const unsigned char*>(pixels) +
+                                    std::size_t(h - 1 - y) * pitch, row);
+                src = viewFlip.data();
+                pitch = row;
+            }
+            if (SDL_UpdateTexture(viewTexture, nullptr, src, pitch) != 0)
+                throw std::runtime_error(SDL_GetError());
+            presentView();
+        };
+        auto setDetached = [&](bool on) {
+            if (on == detached) return;
+            if (on) {
+                const int vw = std::max(320, canvasWidth() / 2);
+                const int vh = std::max(240, height / 2);
+                const SDL_GLContext prevGl = useGl ? SDL_GL_GetCurrentContext() : nullptr;
+                viewWindow = SDL_CreateWindow("Whorld View", SDL_WINDOWPOS_UNDEFINED,
+                                              SDL_WINDOWPOS_UNDEFINED, vw, vh,
+                                              SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+                if (!viewWindow) {
+                    status = std::string("Cannot detach view: ") + SDL_GetError();
+                    return;
+                }
+                viewRenderer = SDL_CreateRenderer(viewWindow, -1, SDL_RENDERER_ACCELERATED);
+                if (!viewRenderer) viewRenderer = SDL_CreateRenderer(viewWindow, -1, SDL_RENDERER_SOFTWARE);
+                if (!viewRenderer) {
+                    SDL_DestroyWindow(viewWindow);
+                    viewWindow = nullptr;
+                    status = std::string("Cannot detach view: ") + SDL_GetError();
+                    return;
+                }
+                if (useGl) SDL_GL_MakeCurrent(window, prevGl);
+                detached = true;
+                status = "View detached (Ctrl+F12 / Ctrl+Shift+F12 attaches)";
+            } else {
+                detached = false;
+                if (viewTexture) { SDL_DestroyTexture(viewTexture); viewTexture = nullptr; }
+                viewTexW = viewTexH = 0;
+                if (viewRenderer) { SDL_DestroyRenderer(viewRenderer); viewRenderer = nullptr; }
+                if (viewWindow) { SDL_DestroyWindow(viewWindow); viewWindow = nullptr; }
+                status = "View attached";
+            }
+            panelDirty = true;
+        };
         auto warpEditStatus = [&]() -> std::string {
             const Point c = warpCornerPoint(postProcess.warp, warpCornerForIndex(warpEditSel));
             char buf[176];
@@ -1893,10 +1987,20 @@ int main(int argc, char** argv) {
             while (SDL_PollEvent(&ev)) {
                 panelDirty = true; // any event may change what the sidebar shows
                 if (ev.type == SDL_QUIT) running = false;
-                else if (ev.type == SDL_WINDOWEVENT && ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-                    width = ev.window.data1;
-                    height = ev.window.data2;
-                    panelDirty = true;
+                else if (ev.type == SDL_WINDOWEVENT) {
+                    if (ev.window.windowID == mainWindowID) {
+                        if (ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                            width = ev.window.data1;
+                            height = ev.window.data2;
+                            panelDirty = true;
+                        } else if (ev.window.event == SDL_WINDOWEVENT_CLOSE) {
+                            running = false;
+                        }
+                    } else if (viewWindow &&
+                               ev.window.windowID == SDL_GetWindowID(viewWindow) &&
+                               ev.window.event == SDL_WINDOWEVENT_CLOSE) {
+                        setDetached(false);
+                    }
                 } else if (ev.type == SDL_TEXTINPUT && entering) {
                     if (input.size() < 1024) input += ev.text.text;
                 } else if (ev.type == SDL_KEYDOWN) {
@@ -2035,6 +2139,10 @@ int main(int argc, char** argv) {
                         // VJ mode: Ctrl+F11 like V1, plus Ctrl+Alt+V because many
                         // desktops (XFCE, GNOME) grab Ctrl+F11 for a workspace.
                         setVjMode(!vjMode);
+                    } else if (ctrl && key == SDLK_F12) {
+                        // Detach the view: Ctrl+F12 like upstream, plus Ctrl+Shift+F12
+                        // because desktops such as XFCE grab Ctrl+F12 too.
+                        setDetached(!detached);
                     } else if (ctrl && key == SDLK_v) {
                         if (videoLayer.active()) {
                             videoLayer.close();
@@ -2112,8 +2220,12 @@ int main(int argc, char** argv) {
                         panelDirty = true;
                     }
                     else if (key == SDLK_F11) {
-                        if (!vjMode) SDL_SetWindowFullscreen(window,
-                            SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        if (!vjMode) {
+                            SDL_Window* target = detached ? viewWindow : window;
+                            SDL_SetWindowFullscreen(target,
+                                SDL_GetWindowFlags(target) & SDL_WINDOW_FULLSCREEN_DESKTOP
+                                    ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        }
                     }
                     else if (key == SDLK_m) {
                         postProcess.mirrorMode = (postProcess.mirrorMode + 1) % 4;
@@ -2275,7 +2387,7 @@ int main(int argc, char** argv) {
                     closeGameController(controllers, ev.cdevice.which);
                     const std::string summary = controllerSummary(gamepadNames(controllers));
                     status = summary.empty() ? "Controller disconnected" : summary;
-                } else if (ev.type == SDL_MOUSEWHEEL) {
+                } else if (ev.type == SDL_MOUSEWHEEL && ev.wheel.windowID == mainWindowID) {
                     int x, y; SDL_GetMouseState(&x, &y);
                     if (!hidden && inPanel(x)) {
                         // The panel owns the wheel: scroll its list when the
@@ -2312,7 +2424,8 @@ int main(int argc, char** argv) {
                         status = wheelStatus;
                         panelDirty = true;
                     }
-                } else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
+                } else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT &&
+                           ev.button.windowID == mainWindowID) {
                     const int leftEdge = canvasX();
                     const int panelPx = panelX();
                     const int canvasW_ = std::max(1, width - leftEdge);
@@ -2357,10 +2470,10 @@ int main(int argc, char** argv) {
                             }
                         }
                     } else dragging = true;
-                } else if (ev.type == SDL_MOUSEBUTTONUP) {
+                } else if (ev.type == SDL_MOUSEBUTTONUP && ev.button.windowID == mainWindowID) {
                     dragging = false;
                     draggingWarpCorner = WarpCorner::None;
-                } else if (ev.type == SDL_MOUSEMOTION) {
+                } else if (ev.type == SDL_MOUSEMOTION && ev.motion.windowID == mainWindowID) {
                     // --hide-cursor hides the pointer for projection; moving the
                     // mouse brings it back so the operator can still find it.
                     if (cursorHidden && !vjMode) { SDL_ShowCursor(SDL_ENABLE); cursorHidden = false; }
@@ -2685,7 +2798,20 @@ int main(int argc, char** argv) {
                                        warpCornerIndex(hoveredWarpCorner), left, cw, height,
                                        warpOverlayColor);
                 tCanvasDone = std::chrono::steady_clock::now();
+                static std::vector<unsigned char> viewPixels;
+                if (detached && viewRenderer) {
+                    const std::size_t need = std::size_t(cw) * height * 4;
+                    if (viewPixels.size() != need) viewPixels.resize(need);
+                    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                    glReadPixels(left, 0, cw, height, GL_RGBA, GL_UNSIGNED_BYTE, viewPixels.data());
+                    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+                }
                 gl.swap(window);
+                if (detached && viewRenderer) {
+                    uploadView(viewPixels.data(), cw, height, cw * 4, SDL_PIXELFORMAT_RGBA32, true);
+                    SDL_GL_MakeCurrent(window, mainGlContext);
+                    viewPixels.clear();
+                }
                 tPresent = std::chrono::steady_clock::now();
                 if (streamer.active()) {
                     const std::size_t fBytes = static_cast<std::size_t>(cw) * height * 3;
@@ -2741,6 +2867,12 @@ int main(int argc, char** argv) {
                                        warpOverlayColor);
                 tCanvasDone = std::chrono::steady_clock::now();
                 SDL_RenderPresent(renderer);
+                if (detached) {
+                    uploadView(cairo_image_surface_get_data(canvas.surface.get()),
+                               canvas.texW, canvas.texH,
+                               cairo_image_surface_get_stride(canvas.surface.get()),
+                               SDL_PIXELFORMAT_ARGB8888, false);
+                }
                 tPresent = std::chrono::steady_clock::now();
             }
             auto workEnd = tPresent;
@@ -2791,6 +2923,9 @@ int main(int argc, char** argv) {
             if (elapsed < frameMs) SDL_Delay(static_cast<Uint32>(frameMs - elapsed));
             last = std::chrono::steady_clock::now();
         }
+        if (viewTexture) SDL_DestroyTexture(viewTexture);
+        if (viewRenderer) SDL_DestroyRenderer(viewRenderer);
+        if (viewWindow) SDL_DestroyWindow(viewWindow);
         if (canvas.texture) SDL_DestroyTexture(canvas.texture);
         if (panel.texture) SDL_DestroyTexture(panel.texture);
         closeAllGameControllers(controllers);

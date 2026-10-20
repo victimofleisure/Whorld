@@ -109,7 +109,7 @@ oscDirectPort = 9000
 | `fullscreen`, `hideCursor` | `true` \| `false` |
 | `midiSource` | `CLIENT:PORT` |
 | `midiMode` | `absolute` \| `14bit` \| `rel-twos` \| `rel-sign` \| `rel-binary` |
-| `midiTakeover`, `midiFeedback`, `midiClock` | `true` \| `false` |
+| `midiTakeover`, `midiFeedback`, `midiClock`, `midiClockOut` | `true` \| `false` |
 | `midiOut` | `CLIENT:PORT` (empty = virtual output port) |
 | `midiOutEnabled` | `true` \| `false` |
 | `osc`, `oscPort` | `--osc` mapping mode and its UDP port |
@@ -158,6 +158,10 @@ End=100
 `Event` is `CONTROL`, `NOTE_ON`, `NOTE_OFF`, `KEY_AFT`, `PATCH`, `CHAN_AFT` or `WHEEL`; `Start`/`End` are percentages, so a knob can be scaled or inverted.
 
 **MIDI learn:** select a parameter or master row, press **Ctrl+M**, then move a control. The next message is bound to that row's current Tab property (`Val` by default), replacing any previous mapping for the same control. **Ctrl+Shift+M** forgets the mappings for the selected row. Save the playlist (**Ctrl+Shift+S**) to keep them.
+
+### MIDI clock and transport
+
+`--midi-clock` follows an external 24 PPQN clock as the master tempo (the status bar shows the incoming BPM and run/stop state). `--midi-clock-out` sends the master tempo the other way: a `Whorld:MIDI Output` port (or the `--midi-out CLIENT:PORT` destination) emits 24 clock bytes per quarter note plus `Start` when playback begins and `Stop` when it is paused, so drum machines, grooveboxes and DAWs follow Whorld. Both flags can be combined: an incoming clock drives Tempo and the outgoing clock re-emits it, making Whorld a clock thru with tempo regeneration. The port is also used for soft-takeover feedback (`--midi-feedback` echoes mapped CCs back to the controller).
 
 ### Choosing MIDI hardware
 

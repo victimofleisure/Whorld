@@ -73,7 +73,7 @@ const char* midiModeName(MidiInputMode mode);
 //   fullscreen, hideCursor                   true|false
 //   midiSource                               CLIENT:PORT
 //   midiMode                                 absolute|14bit|rel-twos|rel-sign|rel-binary
-//   midiTakeover, midiFeedback, midiClock    true|false
+//   midiTakeover, midiFeedback, midiClock, midiClockOut  true|false
 //   midiOut                                  CLIENT:PORT (empty = virtual port)
 //   midiOutEnabled                           true|false (off = no MIDI output)
 //   osc, oscPort                             --osc and its UDP port
@@ -107,6 +107,7 @@ struct ShowConfig {
     bool midiOutEnabled = false;
     bool midiFeedback = false;
     bool midiClock = false;
+    bool midiClockOut = false; // --midi-clock-out: send 24 PPQN + transport
     bool osc = false;
     int oscPort = 8000;
     bool oscDirect = false;

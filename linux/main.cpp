@@ -585,7 +585,7 @@ void help() {
               << "               [--movie FILE.whm] [--midi-source CLIENT:PORT] [--render IMAGE.png]\n"
               << "               [--midi-mode absolute|14bit|rel-twos|rel-sign|rel-binary]\n"
               << "               [--midi-takeover] [--list-midi] [--midi-clock]\n"
-              << "               [--midi-out [CLIENT:PORT]] [--midi-feedback]\n"
+              << "               [--midi-out [CLIENT:PORT]] [--midi-feedback] [--midi-clock-out]\n"
               << "               [--movie-out FILE.whm] [--movie-rate FPS] [--movie-frame N]\n"
               << "               [--movie-export FILE.avi|.mp4]\n"
               << "               [--slideshow] [--slideshow-seconds N] [--export-all DIR]\n"
@@ -623,6 +623,7 @@ void help() {
               << "        relative encoders. --midi-takeover ignores an absolute/14-bit control\n"
               << "        until it is moved to (or past) the target's current value.\n"
               << "--midi-clock follows an external MIDI clock (24 PPQN) as the master tempo;\n"
+              << "--midi-clock-out sends the master tempo as 24 PPQN clock plus Start/Stop transport;\n"
               << "        the status bar shows BPM while a clock is active.\n"
               << "--midi-out creates a virtual ALSA MIDI output (or connects CLIENT:PORT) for\n"
               << "        feedback to a controller; --midi-feedback echoes mapped controls back\n"
@@ -707,6 +708,7 @@ int main(int argc, char** argv) {
         MidiInputMode midiMode = MidiInputMode::Absolute;
         bool midiTakeover = false;
         bool midiClockEnabled = false;  // --midi-clock: follow an external clock
+        bool midiClockOut = false;      // --midi-clock-out: send clock + transport
         bool midiOutEnabled = false;    // --midi-out
         bool midiFeedback = false;      // --midi-feedback
         std::string midiOutDestination; // empty = virtual output port
@@ -761,6 +763,7 @@ int main(int argc, char** argv) {
             midiOutDestination = show.midiOut;
             midiFeedback = show.midiFeedback;
             midiClockEnabled = show.midiClock;
+            midiClockOut = show.midiClockOut;
             oscEnabled = show.osc;
             oscPort = show.oscPort;
             oscDirectEnabled = show.oscDirect;
@@ -799,6 +802,13 @@ int main(int argc, char** argv) {
             if (arg == "--audio") { audioEnabled = true; continue; }
             if (arg == "--list-midi") { listMidi = true; continue; }
             if (arg == "--midi-clock") { midiClockEnabled = true; continue; }
+            if (arg == "--midi-clock-out") {
+                midiClockOut = true;
+                // Clock output needs a port to speak through; a bare flag opens
+                // the virtual output (unless --midi-out names a destination).
+                if (!midiOutEnabled) midiOutEnabled = true;
+                continue;
+            }
             if (arg == "--midi-feedback") { midiFeedback = true; continue; }
             if (arg == "--midi-out") {
                 midiOutEnabled = true;
@@ -990,6 +1000,7 @@ int main(int argc, char** argv) {
             show.midiOutEnabled = midiOutEnabled;
             show.midiFeedback = midiFeedback;
             show.midiClock = midiClockEnabled;
+            show.midiClockOut = midiClockOut;
             show.osc = oscEnabled;
             show.oscPort = oscPort;
             show.oscDirect = oscDirectEnabled;
@@ -1678,6 +1689,10 @@ int main(int argc, char** argv) {
         std::string playingPatch;   // basename of the current playlist entry
         bool morphingShown = false; // whether the status bar currently says "Morphing"
         bool clockWasActive = false; // whether the external MIDI clock was followed
+        // MIDI clock/transport output state: send Start once per run and track
+        // the next 24 PPQN tick deadline.
+        bool clockOutRunning = false;
+        auto clockOutNext = std::chrono::steady_clock::now();
         auto playPatch = [&](int index) {
             if (index < 0 || index >= static_cast<int>(playlist.patches.size())) {
                 status = playlist.patches.empty() ? "Playlist is empty" : "No such playlist entry";
@@ -2321,6 +2336,35 @@ int main(int argc, char** argv) {
                 status = "MIDI clock stopped";
                 clockWasActive = false;
                 panelDirty = true;
+            }
+            // MIDI clock output: drive downstream gear from the master tempo.
+            // 24 PPQN clock bytes plus Start/Stop transport, so a drum machine
+            // or DAW follows Whorld's Tempo (including an external --midi-clock
+            // that is being followed, which turns this into a clock thru).
+            if (midiClockOut && midiOutOpen) {
+                const auto nowClock = std::chrono::steady_clock::now();
+                const double outBpm = std::clamp(engine.patch.master[MASTER_Tempo], 20.0, 300.0);
+                const auto tickStep = std::chrono::duration_cast<std::chrono::steady_clock::duration>(
+                    std::chrono::duration<double, std::milli>(60000.0 / (outBpm * 24.0)));
+                if (paused) {
+                    if (clockOutRunning) {
+                        midiOut.sendRaw({0xFC}); // Stop
+                        clockOutRunning = false;
+                    }
+                    clockOutNext = nowClock;
+                } else {
+                    if (!clockOutRunning) {
+                        midiOut.sendRaw({0xFA}); // Start
+                        clockOutRunning = true;
+                        clockOutNext = nowClock;
+                    }
+                    int burst = 0;
+                    while (nowClock >= clockOutNext && burst++ < 8) {
+                        midiOut.sendRaw({0xF8});
+                        clockOutNext += tickStep;
+                    }
+                    if (burst >= 8) clockOutNext = nowClock + tickStep; // resync, no flood
+                }
             }
             // Gamepad: refresh state once per frame, then read every open pad
             // (only changed buttons emit). Poll while learning too, even with no

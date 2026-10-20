@@ -299,6 +299,7 @@ bool loadShowConfig(const std::string& path, ShowConfig& show, std::string& erro
     parsed.midiOutEnabled = config.getBool("midiOutEnabled", parsed.midiOutEnabled);
     parsed.midiFeedback = config.getBool("midiFeedback", parsed.midiFeedback);
     parsed.midiClock = config.getBool("midiClock", parsed.midiClock);
+    parsed.midiClockOut = config.getBool("midiClockOut", parsed.midiClockOut);
     parsed.osc = config.getBool("osc", parsed.osc);
     parsed.oscPort = config.getInt("oscPort", parsed.oscPort);
     if (parsed.oscPort < 1 || parsed.oscPort > 65535) {
@@ -348,6 +349,7 @@ bool saveShowConfig(const std::string& path, const ShowConfig& show, std::string
     config.set("midiOutEnabled", show.midiOutEnabled ? "true" : "false");
     config.set("midiFeedback", show.midiFeedback ? "true" : "false");
     config.set("midiClock", show.midiClock ? "true" : "false");
+    config.set("midiClockOut", show.midiClockOut ? "true" : "false");
     config.set("osc", show.osc ? "true" : "false");
     config.set("oscPort", std::to_string(show.oscPort));
     config.set("oscDirect", show.oscDirect ? "true" : "false");

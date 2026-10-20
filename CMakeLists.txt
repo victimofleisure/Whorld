@@ -82,6 +82,13 @@ if(BUILD_TESTING)
     # message and still exits 0), so this smoke test is reliable without hardware.
     add_test(NAME whorld_list_midi COMMAND whorld --list-midi)
 
+    # Clock output opens a virtual ALSA port (or degrades with a warning when
+    # there is no sequencer) and must leave cleanly; the offscreen driver keeps
+    # it display-free.
+    add_test(NAME whorld_midi_clock_out COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
+        --quit-after 20 --size 120x90 --midi-out --midi-clock-out)
+    set_tests_properties(whorld_midi_clock_out PROPERTIES ENVIRONMENT "SDL_VIDEODRIVER=offscreen")
+
     add_executable(whorld_audio_test linux/test_audio.cpp linux/audio_analysis.cpp)
     target_link_libraries(whorld_audio_test PRIVATE whorld_core)
     add_test(NAME whorld_audio COMMAND whorld_audio_test)
@@ -243,7 +250,7 @@ if(BUILD_TESTING)
             whorld_snapshot_fixture whorld_snapshot_image whorld_snapshot_export_all
             whorld_snapshot_dir whorld_movie whorld_movie_frame
             whorld_movie_export whorld_movie_export_roundtrip
-            whorld_quit_after whorld_gpu
+            whorld_quit_after whorld_midi_clock_out whorld_gpu
             PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")
         set_tests_properties(whorld_headless_gpu PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=offscreen;ASAN_OPTIONS=detect_leaks=0")

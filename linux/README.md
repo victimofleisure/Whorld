@@ -317,6 +317,7 @@ The `deploy/` directory holds a systemd unit (`whorld-kiosk.service`), an idempo
 - **Shift+T** taps the tempo (averaged over the last few taps; a pause longer than two seconds restarts). The same is available as the MIDI/OSC target `Tap`, so a footswitch can tap along; the new tempo drives video cycling and MIDI clock output.
 - **F10** generates a random patch (tempo preserved; the mapped target `RandomPatch` does the same from a footswitch). Geometry, oscillators and mid-range masters are randomized, the view history is flushed, and the current draw mode survives.
 - **Shift+Space** steps one frame while paused (the mapped target `Step` does the same from a footswitch). One step advances the 60 Hz core by the two ticks a drawn frame would consume.
+- **Ctrl+F11** enters VJ performance mode: fullscreen with the control pane and pointer locked away, like the V1 feature. **Ctrl+Alt+V** does the same when the desktop owns Ctrl+F11 (XFCE binds it to a workspace); **Esc** or the same shortcut exits and restores the previous window state.
 - **F** toggles filled rings; **O** toggles outlines; **Space** pauses (or returns to live view from a snapshot); **R** clears rings & feedback trails; **F11** toggles fullscreen; **H** hides the controls; **Esc** quits. Drag the canvas to set the origin.
 - **M** cycles post-processing symmetry: Off -> 4-Way Quad Mirror -> 8-Way Kaleidoscope -> 12-Way Radial Kaleidoscope.
 - **B** cycles geometry blending: Normal -> Additive -> Screen.

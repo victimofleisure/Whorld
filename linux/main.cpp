@@ -665,7 +665,8 @@ void help() {
               << "      Ctrl+O/S patch, Ctrl+Shift+O/S/N playlist, Ctrl+T/L take/load snapshot,\n"
               << "      PgUp/PgDn step snapshots, g slideshow on/off, z/x A/B fader, Ctrl+X arm B,\n"
               << "      Ctrl+D dock panel left/right, s/-/= render scale,\n"
-              << "      F11 fullscreen, R clear, Esc quit.\n"
+              << "      F11 fullscreen, Ctrl+F11 or Ctrl+Alt+V VJ mode, R clear,\n"
+              << "      Esc quit.\n"
               << "      Ctrl+M learn a MIDI/gamepad control for the selected row; Ctrl+Shift+M forgets it.\n"
               << "Gamepad, audio and OSC mappings live in the playlist's [Gamepad],\n"
               << "      [Audio] and [Osc] sections; see README.";
@@ -1471,6 +1472,7 @@ int main(int argc, char** argv) {
         bool singleStep = false; // Shift+Space / the "Step" target, acted on by the tick block
         bool panelRight = panelSide == "right"; // the dockable pane starts on the side --panel-side chooses
         bool cursorHidden = hideCursor; // --hide-cursor, cleared on mouse motion
+
         // Interactive warp (projection-mapping) corner editor, toggled with 'e'.
         bool warpEdit = false;
         int warpEditSel = 0; // 0..3 = TL,TR,BR,BL
@@ -1491,6 +1493,36 @@ int main(int argc, char** argv) {
         CanvasCache canvas;
         PanelCache panel;
         bool panelDirty = true;
+        // VJ performance mode (Ctrl+F11, or Ctrl+Alt+V when the desktop owns
+        // Ctrl+F11, as XFCE does): fullscreen with all screen UI locked
+        // out, like the V1 feature. The previous window state is restored on exit.
+        bool vjMode = false;
+        bool vjPrevFullscreen = false, vjPrevHidden = false, vjPrevCursor = false;
+        auto setVjMode = [&](bool on) {
+            if (on == vjMode) return;
+            vjMode = on;
+            if (on) {
+                vjPrevFullscreen = (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
+                vjPrevHidden = hidden;
+                vjPrevCursor = cursorHidden;
+                if (!vjPrevFullscreen) SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                hidden = true;
+                SDL_ShowCursor(SDL_DISABLE);
+                cursorHidden = true;
+                // V1 defaults an idle origin to drag when VJ mode starts.
+                if (engine.patch.orgMotion == OM_PARK) engine.patch.orgMotion = OM_DRAG;
+                status = "VJ mode: Ctrl+F11 / Ctrl+Alt+V exits";
+            } else {
+                if (!vjPrevFullscreen) SDL_SetWindowFullscreen(window, 0);
+                hidden = vjPrevHidden;
+                if (!vjPrevCursor) {
+                    SDL_ShowCursor(SDL_ENABLE);
+                    cursorHidden = false;
+                }
+                status = "VJ mode: off";
+            }
+            panelDirty = true;
+        };
         auto lastAdjust = std::chrono::steady_clock::now();
         auto lastPanel = std::chrono::steady_clock::now();
         double mx = .5, my = .5;
@@ -1871,6 +1903,7 @@ int main(int argc, char** argv) {
                     SDL_Keycode key = ev.key.keysym.sym;
                     bool ctrl = (ev.key.keysym.mod & KMOD_CTRL) != 0;
                     bool shift = (ev.key.keysym.mod & KMOD_SHIFT) != 0;
+                    bool alt = (ev.key.keysym.mod & KMOD_ALT) != 0;
                     if (entering) {
                         if (key == SDLK_ESCAPE) { entering = false; SDL_StopTextInput(); }
                         else if (key == SDLK_BACKSPACE && !input.empty()) input.pop_back();
@@ -1998,6 +2031,10 @@ int main(int argc, char** argv) {
                         panelDirty = true;
                         status = panelRight ? "Panel docked right (Ctrl+D toggles)"
                                             : "Panel docked left (Ctrl+D toggles)";
+                    } else if (ctrl && (key == SDLK_F11 || (alt && key == SDLK_v))) {
+                        // VJ mode: Ctrl+F11 like V1, plus Ctrl+Alt+V because many
+                        // desktops (XFCE, GNOME) grab Ctrl+F11 for a workspace.
+                        setVjMode(!vjMode);
                     } else if (ctrl && key == SDLK_v) {
                         if (videoLayer.active()) {
                             videoLayer.close();
@@ -2054,6 +2091,8 @@ int main(int argc, char** argv) {
                             warpEdit = false;
                             draggingWarpCorner = WarpCorner::None;
                             status = "Warp edit: off";
+                        } else if (vjMode) {
+                            setVjMode(false);
                         } else {
                             running = false;
                         }
@@ -2072,8 +2111,10 @@ int main(int argc, char** argv) {
                         status = "Random patch";
                         panelDirty = true;
                     }
-                    else if (key == SDLK_F11) SDL_SetWindowFullscreen(window,
-                        SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+                    else if (key == SDLK_F11) {
+                        if (!vjMode) SDL_SetWindowFullscreen(window,
+                            SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+                    }
                     else if (key == SDLK_m) {
                         postProcess.mirrorMode = (postProcess.mirrorMode + 1) % 4;
                         const char* mNames[] = {"Mirror: Off", "Mirror: 4-Way Quad", "Mirror: 8-Way Kaleidoscope", "Mirror: 12-Way Radial"};
@@ -2124,7 +2165,9 @@ int main(int argc, char** argv) {
                             std::snprintf(fbuf, sizeof(fbuf), "Feedback trails: %.2f", postProcess.feedback);
                             status = fbuf;
                         }
-                    } else if (key == SDLK_h) hidden = !hidden;
+                    } else if (key == SDLK_h) {
+                        if (!vjMode) hidden = !hidden;
+                    }
                     else if (key == SDLK_r) { engine.clear(); if (useGl) gl.clearFeedback(); }
                     else if (key == SDLK_f) engine.setDrawMode(engine.patch.drawMode ^ DM_FILL);
                     else if (key == SDLK_o) engine.setDrawMode(engine.patch.drawMode ^ DM_OUTLINE);
@@ -2320,7 +2363,7 @@ int main(int argc, char** argv) {
                 } else if (ev.type == SDL_MOUSEMOTION) {
                     // --hide-cursor hides the pointer for projection; moving the
                     // mouse brings it back so the operator can still find it.
-                    if (cursorHidden) { SDL_ShowCursor(SDL_ENABLE); cursorHidden = false; }
+                    if (cursorHidden && !vjMode) { SDL_ShowCursor(SDL_ENABLE); cursorHidden = false; }
                     const int left = canvasX();
                     const double nx = (ev.motion.x - left) / double(std::max(1, width - left));
                     const double ny = ev.motion.y / double(std::max(1, height));

@@ -39,7 +39,8 @@ void removeFile(const char* path) { std::remove(path); }
 
 bool equal(const ShowConfig& a, const ShowConfig& b) {
     return a.patch == b.patch && a.playlist == b.playlist && a.renderer == b.renderer &&
-           a.scale == b.scale && a.mirror == b.mirror && a.invert == b.invert &&
+           a.scale == b.scale && a.fps == b.fps && a.wheelSense == b.wheelSense &&
+           a.midiClockOut == b.midiClockOut && a.mirror == b.mirror && a.invert == b.invert &&
            a.feedback == b.feedback && a.blend == b.blend && a.morph == b.morph &&
            a.warp == b.warp && a.warpFile == b.warpFile && a.videoDriver == b.videoDriver &&
            a.fullscreen == b.fullscreen && a.hideCursor == b.hideCursor &&
@@ -134,6 +135,9 @@ int main() {
         show.playlist = "/shows/main.whl";
         show.renderer = "cairo";
         show.scale = 0.75;
+        show.fps = 45;
+        show.wheelSense = 4.5;
+        show.midiClockOut = true;
         show.mirror = 3;
         show.invert = true;
         show.feedback = 0.72;
@@ -166,6 +170,8 @@ int main() {
         require(loadShowConfig(kFile, first, error));
         require(first.patch == show.patch && first.playlist == show.playlist);
         require(first.renderer == "cairo" && first.scale == 0.75);
+        require(first.fps == 45 && std::abs(first.wheelSense - 4.5) < 1e-9);
+        require(first.midiClockOut);
         require(first.mirror == 3 && first.invert && first.feedback == 0.72);
         require(first.blend == 2 && first.morph == 2.5);
         WarpQuad quad;
@@ -198,6 +204,12 @@ int main() {
         require(writeFile(kFile, "mirror = flip\n"));
         require(!loadShowConfig(kFile, show, error));
         require(writeFile(kFile, "scale = 9\n"));
+        require(!loadShowConfig(kFile, show, error));
+        require(writeFile(kFile, "fps = 0\n"));
+        require(!loadShowConfig(kFile, show, error));
+        require(writeFile(kFile, "fps = 500\n"));
+        require(!loadShowConfig(kFile, show, error));
+        require(writeFile(kFile, "wheelSense = 0\n"));
         require(!loadShowConfig(kFile, show, error));
         require(writeFile(kFile, "warp = 0 0 1 0 1\n"));
         require(!loadShowConfig(kFile, show, error));

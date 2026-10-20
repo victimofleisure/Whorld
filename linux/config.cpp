@@ -244,6 +244,11 @@ bool loadShowConfig(const std::string& path, ShowConfig& show, std::string& erro
     }
     if (parsed.renderer.empty()) parsed.renderer = "auto";
     parsed.scale = config.getDouble("scale", parsed.scale);
+    parsed.fps = config.getInt("fps", parsed.fps);
+    if (parsed.fps < 1 || parsed.fps > 200) {
+        error = "config fps must be between 1 and 200";
+        return false;
+    }
     parsed.wheelSense = config.getDouble("wheelSense", parsed.wheelSense);
     if (parsed.wheelSense < 0.1 || parsed.wheelSense > 10.0) {
         error = "config wheelSense must be between 0.1 and 10 (percent per notch)";
@@ -336,6 +341,7 @@ bool saveShowConfig(const std::string& path, const ShowConfig& show, std::string
     config.set("playlist", show.playlist);
     config.set("renderer", show.renderer);
     config.set("scale", formatDouble(show.scale));
+    config.set("fps", std::to_string(show.fps));
     config.set("wheelSense", formatDouble(show.wheelSense));
     config.set("mirror", mirrorModeName(show.mirror));
     config.set("invert", show.invert ? "true" : "false");

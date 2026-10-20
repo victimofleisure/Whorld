@@ -109,6 +109,7 @@ struct ShowConfig {
     bool midiClock = false;
     bool midiClockOut = false; // --midi-clock-out: send 24 PPQN + transport
     double wheelSense = 6.25;  // percent of the Zoom range per wheel notch (upstream default)
+    int fps = 30;              // draw-rate cap in Hz (1..200, V1's display frame rate)
     bool osc = false;
     int oscPort = 8000;
     bool oscDirect = false;

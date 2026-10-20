@@ -593,7 +593,7 @@ void help() {
               << "               [--movie-export FILE.avi|.mp4]\n"
               << "               [--slideshow] [--slideshow-seconds N] [--export-all DIR]\n"
               << "               [--frames N] [--quit-after N] [--size WIDTHxHEIGHT] [--scale F]\n"
-              << "               [--wheel-sense PERCENT]\n"
+              << "               [--fps N] [--wheel-sense PERCENT]\n"
               << "               [--panel-side left|right]\n"
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
@@ -610,6 +610,7 @@ void help() {
               << "               [--config FILE] [--config-save FILE]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
               << "--quit-after N ends the display loop after N draws (performance runs).\n"
+              << "--fps caps the draw rate in Hz (1-200, default 30).\n"
               << "--wheel-sense sets the zoom step per wheel notch as a percentage (default 6.25).\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
@@ -690,6 +691,7 @@ int main(int argc, char** argv) {
         int videoFrameIndex = -1;              // --video-frame: deterministic stills
         std::string rendererMode = "auto";
         double wheelSense = 6.25;              // percent of the master range per wheel notch
+        int targetFps = 30;                    // --fps: draw-rate cap in Hz (1..200)
         int quitAfter = 0;                     // --quit-after N: stop the draw loop after N frames (perf runs)
         std::string panelSide = "left";        // --panel-side / config panelSide
         double forcedScale = 0; // 0 means adaptive
@@ -771,6 +773,7 @@ int main(int argc, char** argv) {
             midiClockEnabled = show.midiClock;
             midiClockOut = show.midiClockOut;
             wheelSense = show.wheelSense;
+            targetFps = show.fps;
             oscEnabled = show.osc;
             oscPort = show.oscPort;
             oscDirectEnabled = show.oscDirect;
@@ -969,6 +972,10 @@ int main(int argc, char** argv) {
             } else if (arg == "--video-frame") {
                 videoFrameIndex = std::stoi(value);
                 if (videoFrameIndex < 0) throw std::runtime_error("--video-frame must be >= 0");
+            } else if (arg == "--fps") {
+                targetFps = std::stoi(value);
+                if (targetFps < 1 || targetFps > 200)
+                    throw std::runtime_error("--fps must be between 1 and 200");
             } else if (arg == "--wheel-sense") {
                 wheelSense = std::stod(value);
                 if (wheelSense < 0.1 || wheelSense > 10.0)
@@ -995,6 +1002,7 @@ int main(int argc, char** argv) {
             show.renderer = rendererMode;
             show.scale = forcedScale;
             show.wheelSense = wheelSense;
+            show.fps = targetFps;
             show.mirror = postProcess.mirrorMode;
             show.invert = postProcess.invertColor;
             show.feedback = postProcess.feedback;
@@ -1802,6 +1810,8 @@ int main(int argc, char** argv) {
         double fps = 0, lastFps = -1;
         int fpsFrames = 0, frameDrops = 0;
         auto fpsStart = std::chrono::steady_clock::now();
+        auto lastTick = std::chrono::steady_clock::now();
+        double tickAccum = 0; // fractional 60 Hz simulation ticks carried between frames
         auto lastIter = std::chrono::steady_clock::now();
         int framesDrawn = 0;
         // --video starts the overlay immediately after the backend is set up.
@@ -2525,11 +2535,14 @@ int main(int argc, char** argv) {
             const double iterMs = msSince(lastIter, now0);
             lastIter = now0;
             ++fpsFrames;
-            if (iterMs > 2.0 * 1000.0 / 60.0) ++frameDrops;
+            // A drop is a missed draw, so measure against the configured budget.
+            const double frameBudgetMs = 1000.0 / std::max(1, targetFps);
+            if (iterMs > 1.5 * frameBudgetMs) ++frameDrops;
             const double sinceFps = msSince(fpsStart, now0);
             if (sinceFps >= 500) {
                 fps = fpsFrames * 1000.0 / sinceFps;
                 fpsFrames = 0;
+                frameDrops = 0; // the footer reports slow draws in the current window
                 fpsStart = now0;
                 if (std::fabs(fps - lastFps) > 0.8) { panelDirty = true; lastFps = fps; }
             }
@@ -2556,11 +2569,28 @@ int main(int argc, char** argv) {
                     }
                 }
             }
-            // The core runs at 60 simulation ticks/second; draw at 30 FPS.
-            // A single step advances exactly what one drawn frame would.
-            if (!paused || singleStep) {
-                engine.tick(cw, height, mx, my);
-                engine.tick(cw, height, mx, my);
+            // The core runs at 60 simulation ticks/second regardless of the
+            // draw rate (--fps), so animation speed follows the wall clock the
+            // way upstream's rate-driven oscillator timers do.
+            const auto tickNow = std::chrono::steady_clock::now();
+            const double tickDt = std::chrono::duration<double>(tickNow - lastTick).count();
+            lastTick = tickNow;
+            if (!paused) {
+                tickAccum += tickDt * 60.0;
+                int ticks = static_cast<int>(tickAccum);
+                tickAccum -= ticks;
+                // A slow draw must not slow the animation: catch up fully, but
+                // drop a backlog longer than one second (a real stall) instead
+                // of freezing the next draws.
+                if (ticks > 60) { ticks = 60; tickAccum = 0; }
+                for (int i = 0; i < ticks; ++i) engine.tick(cw, height, mx, my);
+            } else {
+                tickAccum = 0;
+                if (singleStep) {
+                    // One step is one drawn frame's worth of simulation.
+                    const int stepTicks = std::max(1, static_cast<int>(std::lround(60.0 / std::max(1, targetFps))));
+                    for (int i = 0; i < stepTicks; ++i) engine.tick(cw, height, mx, my);
+                }
             }
             singleStep = false;
             // Keep a status note visible for the duration of a patch crossfade.
@@ -2695,9 +2725,12 @@ int main(int argc, char** argv) {
                 const auto sinceAdjust = std::chrono::duration_cast<std::chrono::milliseconds>(
                     workEnd - lastAdjust).count();
                 if (sinceAdjust >= 500) {
-                    if (smoothWorkMs > 30 && renderScale > minScale + 1e-6)
+                    // Scale against the draw budget, so a low --fps keeps the
+                    // resolution it can afford instead of collapsing to minScale.
+                    const double budgetMs = 1000.0 / std::max(1, targetFps);
+                    if (smoothWorkMs > budgetMs * 0.9 && renderScale > minScale + 1e-6)
                         renderScale = std::max(minScale, renderScale - .1);
-                    else if (smoothWorkMs < 12 && renderScale < 1.0 - 1e-6)
+                    else if (smoothWorkMs < budgetMs * 0.4 && renderScale < 1.0 - 1e-6)
                         renderScale = std::min(1.0, renderScale + .1);
                     lastAdjust = workEnd;
                 }
@@ -2711,7 +2744,8 @@ int main(int argc, char** argv) {
             if (!showPlaylist) selected = std::clamp(selected, 0, std::max(0, listRows() - 1));
             auto now = std::chrono::steady_clock::now();
             auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last).count();
-            if (elapsed < 33) SDL_Delay(static_cast<Uint32>(33 - elapsed));
+            const long frameMs = std::max(1L, 1000L / std::max(1, targetFps));
+            if (elapsed < frameMs) SDL_Delay(static_cast<Uint32>(frameMs - elapsed));
             last = std::chrono::steady_clock::now();
         }
         if (canvas.texture) SDL_DestroyTexture(canvas.texture);

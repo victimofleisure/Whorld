@@ -314,6 +314,7 @@ The `deploy/` directory holds a systemd unit (`whorld-kiosk.service`), an idempo
 
 - Click a parameter or master row, use **Left/Right** to edit and **Shift+Left/Right** for larger steps; **Up/Down** selects a row. **Tab** cycles between base value, oscillator waveform, amplitude, frequency, pulse width and global offset. Mouse wheel over the canvas zooms (**Shift+wheel** adjusts damping, 6.25% per notch by default, `--wheel-sense`/`wheelSense`); over the panel it scrolls the list.
 - **Shift+T** taps the tempo (averaged over the last few taps; a pause longer than two seconds restarts). The same is available as the MIDI/OSC target `Tap`, so a footswitch can tap along; the new tempo drives video cycling and MIDI clock output.
+- **Shift+Space** steps one frame while paused (the mapped target `Step` does the same from a footswitch). One step advances the 60 Hz core by the two ticks a drawn frame would consume.
 - **F** toggles filled rings; **O** toggles outlines; **Space** pauses (or returns to live view from a snapshot); **R** clears rings & feedback trails; **F11** toggles fullscreen; **H** hides the controls; **Esc** quits. Drag the canvas to set the origin.
 - **M** cycles post-processing symmetry: Off -> 4-Way Quad Mirror -> 8-Way Kaleidoscope -> 12-Way Radial Kaleidoscope.
 - **B** cycles geometry blending: Normal -> Additive -> Screen.

@@ -1458,6 +1458,7 @@ int main(int argc, char** argv) {
                          rendererMode.c_str());
         bool running = true, paused = false, hidden = false, dragging = false, entering = false;
         TapTempo tapTempo; // Shift+T / a mapped "Tap" button drives Tempo
+        bool singleStep = false; // Shift+Space / the "Step" target, acted on by the tick block
         bool panelRight = panelSide == "right"; // the dockable pane starts on the side --panel-side chooses
         bool cursorHidden = hideCursor; // --hide-cursor, cleared on mouse motion
         // Interactive warp (projection-mapping) corner editor, toggled with 'e'.
@@ -1617,7 +1618,8 @@ int main(int argc, char** argv) {
             return false;
         };
         auto applyAction = [&](const MappedAction& action) {
-            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
+            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo,
+                            &singleStep);
             syncTarget(action.target);
             panelDirty = true;
         };
@@ -2044,6 +2046,10 @@ int main(int argc, char** argv) {
                             running = false;
                         }
                     }
+                    else if (shift && !ctrl && key == SDLK_SPACE) {
+                        if (!paused) status = "Step: only while paused";
+                        else singleStep = true;
+                    }
                     else if (key == SDLK_SPACE) {
                         if (movieActive) { movieActive = false; engine.stopSnapshot(); paused = false; slideshow = false; }
                         else if (engine.snapshotActive()) { engine.stopSnapshot(); paused = false; slideshow = false; }
@@ -2439,7 +2445,8 @@ int main(int argc, char** argv) {
                         }
                     } else {
                         for (const MappedAction& action : mapGamepad(playlist, current, device.previous)) {
-                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
+                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo,
+                            &singleStep);
                             syncTarget(action.target);
                             panelDirty = true;
                             // Rumble once per press of a momentary/action target.
@@ -2454,7 +2461,8 @@ int main(int argc, char** argv) {
             if (audioReady) {
                 audio.poll();
                 for (const MappedAction& action : mapAudio(playlist, audio.features())) {
-                    applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
+                    applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo,
+                            &singleStep);
                     syncTarget(action.target);
                 }
             }
@@ -2483,7 +2491,8 @@ int main(int argc, char** argv) {
                     } else {
                         for (const MappedAction& action :
                              mapOsc(playlist, message.address, message.value)) {
-                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo);
+                            applyMidiAction(action, engine, playlist, paused, playlistIndex, status, &tapTempo,
+                            &singleStep);
                             syncTarget(action.target);
                         }
                     }
@@ -2541,10 +2550,12 @@ int main(int argc, char** argv) {
                 }
             }
             // The core runs at 60 simulation ticks/second; draw at 30 FPS.
-            if (!paused) {
+            // A single step advances exactly what one drawn frame would.
+            if (!paused || singleStep) {
                 engine.tick(cw, height, mx, my);
                 engine.tick(cw, height, mx, my);
             }
+            singleStep = false;
             // Keep a status note visible for the duration of a patch crossfade.
             if (engine.morphing()) {
                 if (!morphingShown) panelDirty = true;

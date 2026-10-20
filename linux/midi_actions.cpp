@@ -40,7 +40,7 @@ bool hasGlobal(int param) {
 }
 bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playlist,
                      bool& paused, int& currentPatch, std::string& status,
-                     TapTempo* tap) {
+                     TapTempo* tap, bool* step) {
     const double amount = std::isfinite(action.amount) ? std::clamp(action.amount, -100.0, 100.0) : 0;
     for (int i = 0; i < PARAM_COUNT; ++i) {
         if (action.target != paramInfo[i].name) continue;
@@ -93,6 +93,16 @@ bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playl
     } else if (target == "RandomPhase") {
         engine.randomizePhase();
         status = "Random oscillator phase";
+    } else if (target == "Step") {
+        // Advance one frame at a time while paused; ignore the release edge.
+        if (amount != 0 && step) {
+            if (paused) {
+                *step = true;
+                status = "Step";
+            } else {
+                status = "Step: only while paused";
+            }
+        }
     } else if (target == "Tap") {
         // Ignore the release edge so a mapped button taps once per press.
         if (amount != 0 && tap) {

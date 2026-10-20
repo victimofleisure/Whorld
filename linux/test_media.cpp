@@ -483,6 +483,21 @@ int main(int argc, char** argv) {
         require(applyMidiAction({"Tap", "Val", 0}, tempoEngine, none, tp, tc, ts, &tap));
     }
 
+    // Single step advances only while paused, and ignores the release edge.
+    {
+        Engine stepper;
+        Playlist none;
+        bool sp = false; int sc = 0; std::string ss; bool step = false;
+        require(applyMidiAction({"Step", "Val", 100}, stepper, none, sp, sc, ss, nullptr, &step));
+        require(!step); // running: nothing to step
+        sp = true;
+        require(applyMidiAction({"Step", "Val", 100}, stepper, none, sp, sc, ss, nullptr, &step));
+        require(step);
+        step = false;
+        require(applyMidiAction({"Step", "Val", 0}, stepper, none, sp, sc, ss, nullptr, &step));
+        require(!step); // release must not step again
+    }
+
     // Wheel zoom uses the upstream normalized master space: 0.5 is the
     // property's nominal value (1.0x zoom) and the ends clamp.
     {

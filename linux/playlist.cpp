@@ -592,7 +592,7 @@ std::string midiEventName(MidiEvent event) {
 bool momentaryTarget(const std::string& target) {
     return target == "Clear" || target == "RandomOrigin" || target == "RandomPhase" ||
            target == "Pause" || target == "Patch" || target == "NextShape" ||
-           target == "PrevShape" || target == "Tap";
+           target == "PrevShape" || target == "Tap" || target == "Step";
 }
 
 const char* gamepadControlName(int index) {

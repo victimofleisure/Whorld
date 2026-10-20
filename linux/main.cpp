@@ -1451,7 +1451,7 @@ int main(int argc, char** argv) {
         // Render scale: 1.0 is native resolution. cairo rasterizes at that scale
         // (and adaptive mode lowers it when a frame costs too much CPU); OpenGL
         // supersamples the offscreen canvas at that scale and still applies MSAA.
-        constexpr double minScale = 0.5;
+        constexpr double minScale = 0.25;
         double renderScale = forcedScale > 0 ? forcedScale : 1.0;
         bool autoScale = forcedScale <= 0 && !useGl;
         double smoothWorkMs = 0;
@@ -2464,7 +2464,6 @@ int main(int argc, char** argv) {
                 panelDirty = true;
             }
             auto tTick = std::chrono::steady_clock::now();
-            auto tPresent = tTick;
             const Frame frame = engine.frame(cw, height);
             auto tFrame = std::chrono::steady_clock::now();
 
@@ -2491,6 +2490,9 @@ int main(int argc, char** argv) {
             // Canvas: OpenGL draws the geometry with the GPU (stencil even-odd
             // fills, MSAA); otherwise cairo rasterizes at renderScale and SDL
             // stretches the result over the canvas rectangle.
+            const auto tCanvasStart = std::chrono::steady_clock::now();
+            auto tCanvasDone = tCanvasStart;
+            auto tPresent = tCanvasStart;
             if (useGl) {
                 gl.render(frame, engine.patch.antialiasing, left, cw, height, width, height,
                           uiSurface, hidden ? 0 : sidebar, height, panelPx, renderScale, postProcess,
@@ -2499,8 +2501,9 @@ int main(int argc, char** argv) {
                     gl.drawWarpOverlay(postProcess.warp, warpEditSel,
                                        warpCornerIndex(hoveredWarpCorner), left, cw, height,
                                        warpOverlayColor);
+                tCanvasDone = std::chrono::steady_clock::now();
                 gl.swap(window);
-                if (timing) tPresent = std::chrono::steady_clock::now();
+                tPresent = std::chrono::steady_clock::now();
                 if (streamer.active()) {
                     const std::size_t fBytes = static_cast<std::size_t>(cw) * height * 3;
                     static std::vector<unsigned char> streamBuf;
@@ -2550,18 +2553,17 @@ int main(int argc, char** argv) {
                     drawWarpOverlaySdl(renderer, postProcess.warp, warpEditSel,
                                        warpCornerIndex(hoveredWarpCorner), left, cw, height,
                                        warpOverlayColor);
+                tCanvasDone = std::chrono::steady_clock::now();
                 SDL_RenderPresent(renderer);
-                if (timing) tPresent = std::chrono::steady_clock::now();
+                tPresent = std::chrono::steady_clock::now();
             }
-            auto tPanel = std::chrono::steady_clock::now();
-            auto tCanvas = tPanel;
             auto workEnd = tPresent;
             if (timing) {
                 accTick += msSince(frameStart, tTick);
                 accFrame += msSince(tTick, tFrame);
-                accCanvas += msSince(tFrame, tCanvas);
-                accPanel += msSince(tCanvas, tPanel);
-                accPresent += msSince(tPanel, tPresent);
+                accPanel += msSince(tFrame, tCanvasStart);
+                accCanvas += msSince(tCanvasStart, tCanvasDone);
+                accPresent += msSince(tCanvasDone, tPresent);
                 if (++accN >= 60) {
                     std::fprintf(stderr, "timing ms: tick=%.2f frame=%.2f canvas=%.2f "
                         "panel=%.2f present=%.2f scale=%.2f %s rings=%zu\n", accTick / accN, accFrame / accN,

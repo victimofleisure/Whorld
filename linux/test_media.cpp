@@ -456,6 +456,20 @@ int main(int argc, char** argv) {
         require(!fx.patch.invertColor);
     }
 
+    // Wheel zoom uses the upstream normalized master space: 0.5 is the
+    // property's nominal value (1.0x zoom) and the ends clamp.
+    {
+        require(std::abs(normalizeMaster(MASTER_Zoom, 1.0) - 0.5) < 1e-6);
+        require(std::abs(denormalizeMaster(MASTER_Zoom, 0.5) - 1.0) < 1e-6);
+        const double up = normalizeMaster(MASTER_Zoom, 2.0);
+        require(up > 0.5 && up < 1.0);
+        require(std::abs(denormalizeMaster(MASTER_Zoom, 1.0) - 10.0) < 1e-9);
+        require(std::abs(denormalizeMaster(MASTER_Zoom, -1.0) - denormalizeMaster(MASTER_Zoom, 0.0)) < 1e-9);
+        const double round = denormalizeMaster(MASTER_Damping, normalizeMaster(MASTER_Damping, 0.42));
+        require(std::abs(round - 0.42) < 1e-6);
+        require(std::abs(denormalizeMaster(MASTER_Zoom, normalizeMaster(MASTER_Zoom, 1.7)) - 1.7) < 1e-4);
+    }
+
     // Gamepad learn binds a control and replaces any prior mapping for it.
     {
         Playlist learned;

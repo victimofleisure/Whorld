@@ -13,4 +13,9 @@ bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playl
 // takeover to compare a control's position with where the target already is.
 // Targets without a continuous position (Clear, Pause, ...) return NaN.
 double targetAmount(const std::string& target, const std::string& property, const Engine& engine);
+// Master property conversions in the upstream (CMasterRowDlg) normalized space:
+// 0..1 maps to the property's range the way the dialog's slider does. Used by
+// interactive controls such as mouse-wheel zoom. Index must be a MASTER_* value.
+double normalizeMaster(int index, double value);
+double denormalizeMaster(int index, double normalized);
 }

@@ -127,4 +127,21 @@ double targetAmount(const std::string& target, const std::string& property, cons
     }
     return NAN;
 }
+double denormalizeMaster(int index, double normalized) {
+    if (index < 0 || index >= MASTER_COUNT) return 0;
+    return masterDenorm(index, std::clamp(normalized, 0.0, 1.0));
+}
+double normalizeMaster(int index, double value) {
+    if (index < 0 || index >= MASTER_COUNT) return 0;
+    // masterDenorm is monotonic in the 0..1 slider space; invert it by bisection.
+    const bool increasing = masterDenorm(index, 1.0) >= masterDenorm(index, 0.0);
+    double lo = 0.0, hi = 1.0;
+    for (int n = 0; n < 40; ++n) {
+        const double mid = (lo + hi) / 2;
+        const bool below = masterDenorm(index, mid) < value;
+        if (below == increasing) lo = mid;
+        else hi = mid;
+    }
+    return std::clamp((lo + hi) / 2, 0.0, 1.0);
+}
 } // namespace whorld

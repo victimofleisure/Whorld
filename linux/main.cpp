@@ -590,6 +590,7 @@ void help() {
               << "               [--movie-export FILE.avi|.mp4]\n"
               << "               [--slideshow] [--slideshow-seconds N] [--export-all DIR]\n"
               << "               [--frames N] [--quit-after N] [--size WIDTHxHEIGHT] [--scale F]\n"
+              << "               [--wheel-sense PERCENT]\n"
               << "               [--panel-side left|right]\n"
               << "               [--renderer auto|gpu|cairo]\n"
               << "               [--mirror off|quad|kaleidoscope|radial] [--invert]\n"
@@ -606,6 +607,7 @@ void help() {
               << "               [--config FILE] [--config-save FILE]\n"
               << "--render creates an image without requiring a display. --frames defaults to 240.\n"
               << "--quit-after N ends the display loop after N draws (performance runs).\n"
+              << "--wheel-sense sets the zoom step per wheel notch as a percentage (default 6.25).\n"
               << "--mirror post-processing symmetry: off, quad (4-way), kaleidoscope (8-way), radial (12-way).\n"
               << "--invert inverts color channels.\n"
               << "--blend geometry compositing: normal (alpha over), add (additive glow) or screen.\n"
@@ -684,6 +686,7 @@ int main(int argc, char** argv) {
         double videoAlpha = 1.0;
         int videoFrameIndex = -1;              // --video-frame: deterministic stills
         std::string rendererMode = "auto";
+        double wheelSense = 6.25;              // percent of the master range per wheel notch
         int quitAfter = 0;                     // --quit-after N: stop the draw loop after N frames (perf runs)
         std::string panelSide = "left";        // --panel-side / config panelSide
         double forcedScale = 0; // 0 means adaptive
@@ -764,6 +767,7 @@ int main(int argc, char** argv) {
             midiFeedback = show.midiFeedback;
             midiClockEnabled = show.midiClock;
             midiClockOut = show.midiClockOut;
+            wheelSense = show.wheelSense;
             oscEnabled = show.osc;
             oscPort = show.oscPort;
             oscDirectEnabled = show.oscDirect;
@@ -962,6 +966,10 @@ int main(int argc, char** argv) {
             } else if (arg == "--video-frame") {
                 videoFrameIndex = std::stoi(value);
                 if (videoFrameIndex < 0) throw std::runtime_error("--video-frame must be >= 0");
+            } else if (arg == "--wheel-sense") {
+                wheelSense = std::stod(value);
+                if (wheelSense < 0.1 || wheelSense > 10.0)
+                    throw std::runtime_error("--wheel-sense must be 0.1-10 (percent per notch)");
             } else if (arg == "--movie-rate") {
                 movieRate = std::stod(value);
                 if (movieRate < 1 || movieRate > 240) throw std::runtime_error("--movie-rate must be 1-240");
@@ -983,6 +991,7 @@ int main(int argc, char** argv) {
             show.playlist = playlistFile;
             show.renderer = rendererMode;
             show.scale = forcedScale;
+            show.wheelSense = wheelSense;
             show.mirror = postProcess.mirrorMode;
             show.invert = postProcess.invertColor;
             show.feedback = postProcess.feedback;
@@ -2185,18 +2194,42 @@ int main(int argc, char** argv) {
                     closeGameController(controllers, ev.cdevice.which);
                     const std::string summary = controllerSummary(gamepadNames(controllers));
                     status = summary.empty() ? "Controller disconnected" : summary;
-                } else if (ev.type == SDL_MOUSEWHEEL && !hidden) {
+                } else if (ev.type == SDL_MOUSEWHEEL) {
                     int x, y; SDL_GetMouseState(&x, &y);
-                    if (inPanel(x) && y >= kListTop) {
-                        int visible = std::max(1, (std::max(kListTop, height - 157) - kListTop) / rowHeight);
-                        scroll = std::clamp(scroll - ev.wheel.y * 2, 0, std::max(0, listRows() - visible));
-                        if (showPlaylist) {
-                            playlistIndex = std::clamp(playlistIndex, scroll,
-                                std::min(listRows() - 1, scroll + visible - 1));
-                        } else {
-                            selected = std::clamp(selected, scroll,
-                                std::min(listRows() - 1, scroll + visible - 1));
+                    if (!hidden && inPanel(x)) {
+                        // The panel owns the wheel: scroll its list when the
+                        // cursor is over it, and otherwise ignore the event.
+                        if (y >= kListTop) {
+                            int visible = std::max(1, (std::max(kListTop, height - 157) - kListTop) / rowHeight);
+                            scroll = std::clamp(scroll - ev.wheel.y * 2, 0, std::max(0, listRows() - visible));
+                            if (showPlaylist) {
+                                playlistIndex = std::clamp(playlistIndex, scroll,
+                                    std::min(listRows() - 1, scroll + visible - 1));
+                            } else {
+                                selected = std::clamp(selected, scroll,
+                                    std::min(listRows() - 1, scroll + visible - 1));
+                            }
                         }
+                    } else {
+                        // Upstream wheel behavior: the wheel zooms the view and
+                        // Shift+wheel adjusts origin/zoom damping. The master lerp
+                        // in the engine supplies the damping, so the wheel only
+                        // moves the target value.
+                        const bool shift = (SDL_GetModState() & KMOD_SHIFT) != 0;
+                        const int index = shift ? MASTER_Damping : MASTER_Zoom;
+                        const double step = wheelSense / 100.0;
+                        const double norm = normalizeMaster(index, engine.patch.master[index]);
+                        engine.patch.master[index] = denormalizeMaster(
+                            index, std::clamp(norm + ev.wheel.y * step, 0.0, 1.0));
+                        char wheelStatus[64];
+                        if (index == MASTER_Zoom)
+                            std::snprintf(wheelStatus, sizeof wheelStatus, "Zoom %.2fx",
+                                          engine.patch.master[index]);
+                        else
+                            std::snprintf(wheelStatus, sizeof wheelStatus, "Damping %.2f",
+                                          engine.patch.master[index]);
+                        status = wheelStatus;
+                        panelDirty = true;
                     }
                 } else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
                     const int leftEdge = canvasX();

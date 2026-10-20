@@ -104,6 +104,7 @@ oscDirectPort = 9000
 | `blend` | `normal` \| `add` \| `screen` |
 | `morph` | seconds, `0`..`3600` |
 | `panelSide` | `left` or `right`; which edge the control pane docks to (Ctrl+D) |
+| `wheelSense` | percent per wheel notch (0.1–10, default 6.25), matches upstream `fWheelSense`; `--wheel-sense` |
 | `warp`, `warpFile` | the `--warp` 8-number string, or a four-`x y`-pair file |
 | `videoDriver` | `SDL_VIDEODRIVER` name (`kmsdrm`, `x11`, ...) |
 | `fullscreen`, `hideCursor` | `true` \| `false` |
@@ -311,7 +312,7 @@ The `deploy/` directory holds a systemd unit (`whorld-kiosk.service`), an idempo
 
 ## Controls
 
-- Click a parameter or master row, use **Left/Right** to edit and **Shift+Left/Right** for larger steps; **Up/Down** selects a row. **Tab** cycles between base value, oscillator waveform, amplitude, frequency, pulse width and global offset. Mouse wheel scrolls the panel.
+- Click a parameter or master row, use **Left/Right** to edit and **Shift+Left/Right** for larger steps; **Up/Down** selects a row. **Tab** cycles between base value, oscillator waveform, amplitude, frequency, pulse width and global offset. Mouse wheel over the canvas zooms (**Shift+wheel** adjusts damping, 6.25% per notch by default, `--wheel-sense`/`wheelSense`); over the panel it scrolls the list.
 - **F** toggles filled rings; **O** toggles outlines; **Space** pauses (or returns to live view from a snapshot); **R** clears rings & feedback trails; **F11** toggles fullscreen; **H** hides the controls; **Esc** quits. Drag the canvas to set the origin.
 - **M** cycles post-processing symmetry: Off -> 4-Way Quad Mirror -> 8-Way Kaleidoscope -> 12-Way Radial Kaleidoscope.
 - **B** cycles geometry blending: Normal -> Additive -> Screen.

@@ -1,12 +1,14 @@
 // Mapping semantics ported from trunk/Whorld/MidiManager.cpp and MasterRowDlg.cpp.
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "midi_actions.h"
+#include "patch_random.h"
 #include <algorithm>
 #include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <random>
 
 namespace whorld {
 namespace {
@@ -93,6 +95,12 @@ bool applyMidiAction(const MappedAction& action, Engine& engine, Playlist& playl
     } else if (target == "RandomPhase") {
         engine.randomizePhase();
         status = "Random oscillator phase";
+    } else if (target == "RandomPatch") {
+        // Ignore the release edge so a mapped button randomizes once per press.
+        if (amount != 0) {
+            randomizePatch(engine, static_cast<unsigned>(std::random_device{}()));
+            status = "Random patch";
+        }
     } else if (target == "Step") {
         // Advance one frame at a time while paused; ignore the release edge.
         if (amount != 0 && step) {

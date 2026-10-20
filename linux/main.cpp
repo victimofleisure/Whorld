@@ -4,6 +4,7 @@
 #include "gamepad.h"
 #include "midi_actions.h"
 #include "midi_decode.h"
+#include "patch_random.h"
 #include "tap_tempo.h"
 #include "alsa_midi.h"
 #include "snapshot.h"
@@ -31,6 +32,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -2054,6 +2056,11 @@ int main(int argc, char** argv) {
                         if (movieActive) { movieActive = false; engine.stopSnapshot(); paused = false; slideshow = false; }
                         else if (engine.snapshotActive()) { engine.stopSnapshot(); paused = false; slideshow = false; }
                         else paused = !paused;
+                    }
+                    else if (key == SDLK_F10) {
+                        randomizePatch(engine, std::random_device{}());
+                        status = "Random patch";
+                        panelDirty = true;
                     }
                     else if (key == SDLK_F11) SDL_SetWindowFullscreen(window,
                         SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);

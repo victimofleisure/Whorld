@@ -7,6 +7,7 @@
 #include "osc.h"
 #include "playlist.h"
 #include "snapshot.h"
+#include "patch_random.h"
 #include "tap_tempo.h"
 #include "whorld_core.h"
 #include <cmath>
@@ -481,6 +482,44 @@ int main(int argc, char** argv) {
                 tempoEngine.patch.master[MASTER_Tempo] <= 300.0);
         require(ts.find("BPM") != std::string::npos);
         require(applyMidiAction({"Tap", "Val", 0}, tempoEngine, none, tp, tc, ts, &tap));
+    }
+
+    // Random patch generation stays inside the declared ranges, preserves the
+    // tempo, and differs per seed.
+    {
+        Engine rnd;
+        rnd.patch.master[MASTER_Tempo] = 133;
+        randomizePatch(rnd, 1);
+        require(std::abs(rnd.patch.master[MASTER_Tempo] - 133.0) < 1e-9);
+        bool differs = false;
+        for (int i = 0; i < PARAM_COUNT; ++i) {
+            const auto& row = rnd.patch.params[i];
+            require(row.value >= paramInfo[i].min && row.value <= paramInfo[i].max);
+            require(row.wave >= 0 && row.wave <= 7);
+            require(row.amp >= 0 && row.amp <= 1);
+            require(row.freq >= 0 && row.freq <= 1);
+            require(row.pw >= 0.05 && row.pw <= 0.95);
+            require(std::isfinite(row.value));
+            if (std::abs(row.value - 0.5 * (paramInfo[i].min + paramInfo[i].max)) > 1e-9) differs = true;
+        }
+        require(differs);
+        require(rnd.patch.master[MASTER_Zoom] >= 0.35 && rnd.patch.master[MASTER_Zoom] <= 2.6);
+        require(rnd.patch.master[MASTER_Damping] >= 0 && rnd.patch.master[MASTER_Damping] <= 1);
+        require(rnd.patch.master[MASTER_Rings] >= 1 && rnd.patch.master[MASTER_Rings] <= 1000);
+        require(rnd.patch.origin.x >= 0.2 && rnd.patch.origin.x <= 0.8);
+        Patch first = rnd.patch;
+        randomizePatch(rnd, 2);
+        bool changed = false;
+        for (int i = 0; i < PARAM_COUNT; ++i) {
+            if (std::abs(first.params[i].value - rnd.patch.params[i].value) > 1e-9) changed = true;
+        }
+        require(changed);
+        // The mapped RandomPatch target uses the same generator.
+        Engine fx;
+        Playlist none;
+        bool rp = false; int rc = 0; std::string rs;
+        require(applyMidiAction({"RandomPatch", "Val", 100}, fx, none, rp, rc, rs));
+        require(rs == "Random patch");
     }
 
     // Single step advances only while paused, and ignores the release edge.

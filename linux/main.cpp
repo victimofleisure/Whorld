@@ -2554,8 +2554,8 @@ int main(int argc, char** argv) {
                 if (timing) tPresent = std::chrono::steady_clock::now();
             }
             auto tPanel = std::chrono::steady_clock::now();
-            auto tCanvas = std::chrono::steady_clock::now();
-            auto workEnd = tCanvas;
+            auto tCanvas = tPanel;
+            auto workEnd = tPresent;
             if (timing) {
                 accTick += msSince(frameStart, tTick);
                 accFrame += msSince(tTick, tFrame);

@@ -105,6 +105,12 @@ if(BUILD_TESTING)
     # video driver must produce a PNG with no X server (the kiosk case). If this
     # SDL build has no usable offscreen driver or GL, the run exits 77 and the
     # test is skipped rather than failing an otherwise healthy machine.
+    # --quit-after bounds the interactive draw loop, so performance scripts can
+    # run the plain windowed path without a display: N draws then exit 0.
+    add_test(NAME whorld_quit_after COMMAND whorld --patch ${CMAKE_SOURCE_DIR}/linux/demo.whp
+        --quit-after 3 --size 120x90)
+    set_tests_properties(whorld_quit_after PROPERTIES ENVIRONMENT "SDL_VIDEODRIVER=offscreen")
+
     add_test(NAME whorld_headless_gpu COMMAND sh -c
         "$<TARGET_FILE:whorld> --patch '${CMAKE_SOURCE_DIR}/linux/demo.whp' --render '${CMAKE_CURRENT_BINARY_DIR}/test-headless.png' --frames 5 --size 160x120 --renderer gpu || exit 77")
     set_tests_properties(whorld_headless_gpu PROPERTIES
@@ -237,7 +243,7 @@ if(BUILD_TESTING)
             whorld_snapshot_fixture whorld_snapshot_image whorld_snapshot_export_all
             whorld_snapshot_dir whorld_movie whorld_movie_frame
             whorld_movie_export whorld_movie_export_roundtrip
-            whorld_gpu
+            whorld_quit_after whorld_gpu
             PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")
         set_tests_properties(whorld_headless_gpu PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=offscreen;ASAN_OPTIONS=detect_leaks=0")

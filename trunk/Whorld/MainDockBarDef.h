@@ -12,6 +12,7 @@
 		02		02mar25	add globals
 		03		17mar25	add movie
 		04		27mar25	add playlist
+		05		24oct26	add numbers
 		
 */
 
@@ -26,6 +27,7 @@ MAINDOCKBARDEF(Mapping,		300,	200,	dwBaseStyle | CBRS_BOTTOM)
 MAINDOCKBARDEF(Globals,		200,	300,	dwBaseStyle | CBRS_RIGHT)
 MAINDOCKBARDEF(Movie,		300,	20,		dwBaseStyle | CBRS_BOTTOM)
 MAINDOCKBARDEF(Playlist,	200,	300,	dwBaseStyle | CBRS_LEFT)
+MAINDOCKBARDEF(Numbers,		150,	480,	dwBaseStyle | CBRS_RIGHT)
 
 // After adding a new dockable bar here:
 // 1. Add a resource string IDS_BAR_Foo where Foo is the bar name.

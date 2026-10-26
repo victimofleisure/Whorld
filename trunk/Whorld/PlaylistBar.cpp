@@ -58,6 +58,7 @@
 		48		30jan08	while dragging, if Esc pressed, cancel drag
         49		27mar25	refactor for V2
 		50		30mar25	add playing state icon
+		51		24oct26	overload get min/max info
 
 */
 
@@ -219,6 +220,11 @@ bool CPlaylistBar::Play(int iPatch)
 	m_iPlayingPatch = iPatch;	// set playing patch index
 	m_list.RedrawItem(iPatch);	// show playing icon on new patch
 	return true;
+}
+
+void CPlaylistBar::OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI)
+{
+	CMainFrame::OnFrameGetMinMaxInfo(this, hFrameWnd, pMMI);	// delegate to common handler
 }
 
 // CPlaylistBar undo

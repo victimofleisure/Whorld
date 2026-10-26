@@ -233,6 +233,7 @@
     <ClInclude Include="MovieExportDlg.h" />
     <ClInclude Include="MyDockablePane.h" />
     <ClInclude Include="MyRowView.h" />
+    <ClInclude Include="NumbersBar.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="OptionsDef.h" />
     <ClInclude Include="OptionsDlg.h" />
@@ -334,6 +335,7 @@
     <ClCompile Include="MovieExportDlg.cpp" />
     <ClCompile Include="MyDockablePane.cpp" />
     <ClCompile Include="MyRowView.cpp" />
+    <ClCompile Include="NumbersBar.cpp" />
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="Oscillator.cpp" />

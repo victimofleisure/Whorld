@@ -30,6 +30,7 @@
 		20		29mar25	add play patch message handler
 		21		04apr25	file export must make path before enqueuing command
 		22		24apr25	suppress undo in set draw mode handler
+		23		24oct26	add numbers bar
 
 */
 
@@ -641,6 +642,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(UWM_RENDER_QUEUE_FULL, OnRenderQueueFull)
 	ON_MESSAGE(UWM_RENDER_TASK_DONE, OnRenderTaskDone)
 	ON_MESSAGE(UWM_PLAY_PATCH, OnPlayPatch)
+	ON_MESSAGE(UWM_GET_STATUS_REPLY, OnGetStatusReply)
 	ON_COMMAND(ID_FILE_EXPORT, OnFileExport)
 	ON_UPDATE_COMMAND_UI(ID_FILE_EXPORT, OnUpdateFileExport)
 	ON_COMMAND(ID_FILE_TAKE_SNAPSHOT, OnFileTakeSnapshot)
@@ -1101,6 +1103,14 @@ LRESULT CMainFrame::OnPlayPatch(WPARAM wParam, LPARAM lParam)
 	int iPatch = static_cast<int>(wParam);
 	UNREFERENCED_PARAMETER(lParam);
 	m_wndPlaylistBar.Play(iPatch);
+	return 0;
+}
+
+LRESULT	CMainFrame::OnGetStatusReply(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(wParam);
+	CStatus*	pStatus = reinterpret_cast<CStatus*>(lParam);
+	m_wndNumbersBar.OnGetStatusReply(pStatus);
 	return 0;
 }
 

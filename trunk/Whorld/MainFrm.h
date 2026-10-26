@@ -25,6 +25,7 @@
 		15		20mar25	add movie record time to status bar
 		16		27mar25	add playlist bar
 		17		29mar25	add play patch message handler
+		18		24oct26	add numbers bar
 
 */
 
@@ -40,6 +41,7 @@
 #include "GlobalsBar.h"
 #include "MovieBar.h"
 #include "PlaylistBar.h"
+#include "NumbersBar.h"
 
 // docking bar IDs are relative to AFX_IDW_CONTROLBAR_FIRST
 enum {	// docking bar IDs; don't change, else bar placement won't be restored
@@ -186,6 +188,7 @@ public:
 	afx_msg LRESULT	OnRenderQueueFull(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnRenderTaskDone(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT	OnPlayPatch(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT	OnGetStatusReply(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnFileExport();
 	afx_msg void OnUpdateFileExport(CCmdUI* pCmdUI);
 	afx_msg void OnFileTakeSnapshot();

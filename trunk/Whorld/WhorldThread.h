@@ -20,6 +20,7 @@
 		10		25mar25	add random origin command
 		11		11apr25	add class to set and restore antialiasing
 		12		10oct26	add get origin message
+		13		24oct26	add get patch and get status
 
 */
 
@@ -51,6 +52,8 @@ public:
 	bool	SetMasterProp(int iProp, double fVal);
 	bool	SetMainProp(int iProp, VARIANT_PROP& prop);
 	bool	SetPatch(const CPatch& patch);
+	bool	GetPatch(CPatch* pPatch);
+	bool	GetStatus(CStatus* pStatus);
 	bool	SetFrameRate(DWORD nFrameRate);
 	bool	SetPause(bool bEnable);
 	bool	SingleStep();
@@ -74,6 +77,10 @@ public:
 	bool	MovieSeek(LONGLONG iFrame);
 	bool	MovieExport(const CMovieExportParams& params, LONG& nTaskID);
 	static CString MakeImageSequenceFileName(CString sFolderPath, LONGLONG iFrame);
+	static bool	WaitForMsg(HWND hWnd, MSG& msg, UINT nMsgID, UINT nTimeout);
+
+// Overrides
+	bool	PushCommand(const CRenderCmd& cmd);
 
 protected:
 // Data members
@@ -92,7 +99,6 @@ protected:
 
 // Overrides
 	virtual void	OnRenderCommand(const CRenderCmd& cmd);
-	bool	PushCommand(const CRenderCmd& cmd);
 
 // Helpers
 	void	OnMasterPropChange(int iProp);
@@ -103,7 +109,6 @@ protected:
 	static CString	RenderCommandToString(const CRenderCmd& cmd);
 	static WPARAM	PackDouble(double d);
 	static double	UnpackDouble(WPARAM w);
-	static bool	WaitForMsg(HWND hWnd, MSG& msg, UINT nMsgID, UINT nTimeout);
 	bool	PushCommand(const CRenderCmd& cmd, MSG& msgReply, UINT nReplyMsgID, UINT nReplyTimeout);
 
 // Command handlers
@@ -116,6 +121,8 @@ protected:
 	void	OnSetMasterProp(int iProp, double fVal);
 	void	OnSetMainProp(int iProp, const VARIANT_PROP& prop);
 	void	OnSetPatch(const CPatch *pPatch);
+	void	OnGetPatch(CPatch *pPatch);
+	void	OnGetStatus(CStatus *pStatus);
 	bool	OnSetFrameRate(DWORD nFrameRate);
 	void	OnSetPause(bool bIsPaused);
 	void	OnSingleStep();

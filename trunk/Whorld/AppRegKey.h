@@ -12,6 +12,7 @@
 		02		02mar25	add globals
 		03		17mar25	add movie
 		04		27mar25	add playlist
+		05		24oct26	add numbers
 
 */
 
@@ -26,3 +27,4 @@
 #define RK_GlobalsBar	_T("GlobalsBar")
 #define RK_MovieBar		_T("MovieBar")
 #define RK_PlaylistBar	_T("PlaylistBar")
+#define RK_NumbersBar	_T("NumbersBar")

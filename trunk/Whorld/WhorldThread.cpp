@@ -21,6 +21,7 @@
 		11      11apr25	add antialiasing main property
 		12		10oct26	add thread-safe get origin method
 		13		10oct26	add set origin case to OnMainPropChange
+		14		24oct26	add get patch and get status
 
 */
 
@@ -82,6 +83,32 @@ bool CWhorldThread::SetPatch(const CPatch& patch)
 		return false;	// return failure
 	}
 	return true;	// patch belongs to render thread now
+}
+
+bool CWhorldThread::GetPatch(CPatch* pPatch)
+{
+	// The render thread writes the requested data to the caller's buffer
+	// and then posts a reply message to the notification window. The reply
+	// includes the address to which the data was written, and the caller
+	// should verify that it matches their buffer's address and ignore the 
+	// reply if it doesn't. The caller must ensure that the destination 
+	// buffer stays allocated until the corresponding reply is received,
+	// and must not access the buffer while the command is in progress,
+	// because the write is asynchronous with respect to the caller.
+	//
+	ASSERT(pPatch != NULL);
+	CRenderCmd	cmd(RC_GET_PATCH);
+	cmd.m_prop.byref = pPatch;
+	return PushCommand(cmd);
+}
+
+bool CWhorldThread::GetStatus(CStatus* pStatus)
+{
+	// see GetPatch; same restrictions apply to this method
+	ASSERT(pStatus != NULL);
+	CRenderCmd	cmd(RC_GET_STATUS);
+	cmd.m_prop.byref = pStatus;
+	return PushCommand(cmd);
 }
 
 bool CWhorldThread::SetFrameRate(DWORD nFrameRate)
@@ -475,6 +502,23 @@ void CWhorldThread::OnSetPatch(const CPatch *pPatch)
 	m_bFlushHistory = true;	// suppress interpolation to avoid glitch
 }
 
+void CWhorldThread::OnGetPatch(CPatch *pPatch)
+{
+	*pPatch = *this;
+	LPARAM	lParam = reinterpret_cast<LPARAM>(pPatch);	
+	PostMsgToMainWnd(UWM_GET_PATCH_REPLY, 0, lParam);	// post pointer to main window
+}
+
+void CWhorldThread::OnGetStatus(CStatus *pStatus)
+{
+	pStatus->params = m_params;
+	pStatus->dptOrigin = GetOrigin();
+	pStatus->fZoom = m_fZoom;
+	pStatus->nRings = m_aRing.GetSize();
+	LPARAM	lParam = reinterpret_cast<LPARAM>(pStatus);	
+	PostMsgToMainWnd(UWM_GET_STATUS_REPLY, 0, lParam);	// post pointer to main window
+}
+
 bool CWhorldThread::OnSetFrameRate(DWORD nFrameRate)
 {
 	return CWhorldDraw::SetFrameRate(nFrameRate);
@@ -730,6 +774,12 @@ void CWhorldThread::OnRenderCommand(const CRenderCmd& cmd)
 		break;
 	case RC_SET_PATCH:
 		OnSetPatch(static_cast<CPatch*>(cmd.m_prop.byref));
+		break;
+	case RC_GET_PATCH:
+		OnGetPatch(static_cast<CPatch*>(cmd.m_prop.byref));
+		break;
+	case RC_GET_STATUS:
+		OnGetStatus(static_cast<CStatus*>(cmd.m_prop.byref));
 		break;
 	case RC_SET_EMPTY:
 		OnSetEmpty();

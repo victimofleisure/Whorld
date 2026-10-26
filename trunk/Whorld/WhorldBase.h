@@ -10,6 +10,7 @@
         00      06feb25	initial version
 		01		02mar25	implement global parameters
         02      09mar25	add export scale to fit
+		03		24oct26	add status class
 
 */
 
@@ -117,6 +118,13 @@ public:
 		int		m_nExportFlags;	// see image export flags enum
 		LONGLONG	m_nStartFrame;	// first frame to export
 		LONGLONG	m_nEndFrame;	// last frame to export
+	};
+	class CStatus {		// status of dynamic members
+	public:
+		PARAM_VALS	params;	// parameter values
+		DPoint	dptOrigin;	// normalized origin
+		double	fZoom;		// zoom
+		INT_PTR	nRings;		// ring count
 	};
 
 // Constants

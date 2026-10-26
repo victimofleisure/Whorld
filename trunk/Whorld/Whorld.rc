@@ -266,6 +266,7 @@ BEGIN
         MENUITEM "&Globals",                    ID_VIEW_BAR_Globals
         MENUITEM "M&IDI Mapping",               ID_VIEW_BAR_Mapping
         MENUITEM "Pla&ylist",                   ID_VIEW_BAR_Playlist
+        MENUITEM "&Numbers",                    ID_VIEW_BAR_Numbers
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_VIEW_OPTIONS
         MENUITEM SEPARATOR
@@ -383,6 +384,7 @@ BEGIN
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
     "T",            ID_FILE_TAKE_SNAPSHOT,  VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_IMAGE_ANTIALIASING,  VIRTKEY, CONTROL, ALT, NOINVERT
     VK_TAB,         ID_IMAGE_CONVEX,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_IMAGE_FILL,          VIRTKEY, NOINVERT
     VK_F2,          ID_IMAGE_LOOP_HUE,      VIRTKEY, NOINVERT
@@ -416,7 +418,7 @@ BEGIN
     VK_F11,         ID_WINDOW_FULLSCREEN,   VIRTKEY, NOINVERT
     VK_SPACE,       ID_WINDOW_PAUSE,        VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_WINDOW_STEP,         VIRTKEY, SHIFT, NOINVERT
-    "A",            ID_IMAGE_ANTIALIASING,  VIRTKEY, CONTROL, ALT, NOINVERT
+    "N",            ID_VIEW_BAR_Numbers,    VIRTKEY, SHIFT, NOINVERT
 END
 
 
@@ -728,6 +730,7 @@ BEGIN
     IDS_APP_ERR_RENDERING_TOO_SLOW 
                             "Rendering is slower than usual.\nReset to defaults?"
     IDS_APP_ERR_RENDER_QUEUE_FULL "Too many render commands."
+    IDS_APP_ERR_WAIT_MSG_TIMEOUT "Timeout waiting for message."
     IDS_APP_LICENSE         "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA."
     IDS_APP_UNKNOWN_SYSTEM_ERROR "Unknown system error %d (0x%X)"
     IDS_BAR_Globals         "Globals"
@@ -739,11 +742,11 @@ BEGIN
     IDS_CHAN_STAT_CHAN_AFT  "Channel Aftertouch"
     IDS_CHAN_STAT_CONTROL   "Control"
     IDS_CHAN_STAT_INTERNAL  "Internal"
-    IDS_CHAN_STAT_KEY_AFT   "Key Aftertouch"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_CHAN_STAT_KEY_AFT   "Key Aftertouch"
     IDS_CHAN_STAT_MODULATOR "Modulator"
     IDS_CHAN_STAT_NOTE      "Note"
     IDS_CHAN_STAT_NOTE_OFF  "Note Off"
@@ -759,11 +762,11 @@ BEGIN
     IDS_EDIT_LEARN          "Learn"
     IDS_EDIT_LEARN_MULTI    "Learn Mappings"
     IDS_EDIT_MENU           "Edit"
-    IDS_EDIT_MOVE           "Move"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_EDIT_MOVE           "Move"
     IDS_EDIT_PASTE          "Paste"
     IDS_EDIT_PLAYLIST_DELETE "Delete"
     IDS_EDIT_PLAYLIST_INSERT "Insert"
@@ -779,11 +782,11 @@ BEGIN
     IDS_MAIN_Convex         "Convex"
     IDS_MAIN_DrawMode       "Draw Mode"
     IDS_MAIN_Hue            "Hue"
-    IDS_MAIN_InvertColor    "Invert Color"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAIN_InvertColor    "Invert Color"
     IDS_MAIN_LoopHue        "Loop Hue"
     IDS_MAIN_Mirror         "Mirror"
     IDS_MAIN_OrgMotion      "Origin Motion"
@@ -799,11 +802,11 @@ BEGIN
     IDS_MAPPING_COL_START   "Start"
     IDS_MAPPING_COL_TARGET  "Target"
     IDS_MAP_TARGET_Antialiasing "Antialiasing"
-    IDS_MAP_TARGET_Clear    "Clear"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MAP_TARGET_Clear    "Clear"
     IDS_MAP_TARGET_Convex   "Convex"
     IDS_MAP_TARGET_Fill     "Fill"
     IDS_MAP_TARGET_LoopHue  "Loop Hue"
@@ -819,11 +822,11 @@ BEGIN
     IDS_MAP_TARGET_RandomPhase "Random Phase"
     IDS_MAP_TARGET_Reverse  "Reverse"
     IDS_MAP_TARGET_ZoomCenter "Zoom Center"
-    IDS_MASTER_CanvasScale  "Canvas"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MASTER_CanvasScale  "Canvas"
     IDS_MASTER_Copies       "Copies"
     IDS_MASTER_Damping      "Damping"
     IDS_MASTER_HueSpan      "Hue Span"
@@ -839,11 +842,11 @@ BEGIN
     IDS_MIDI_INPUT          "Input"
     IDS_MIDI_OUTPUT         "Output"
     IDS_MIDI_SYS_STAT_ACTIVE_SENSING "Active Sensing"
-    IDS_MIDI_SYS_STAT_CLOCK "Clock"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_MIDI_SYS_STAT_CLOCK "Clock"
     IDS_MIDI_SYS_STAT_CONTINUE "Continue"
     IDS_MIDI_SYS_STAT_EOX   "EOX"
     IDS_MIDI_SYS_STAT_MTC_QTR_FRAME "MTC Qtr Frame"
@@ -860,12 +863,12 @@ BEGIN
     IDS_MOVIE_SAVE_AS       "Movie Save As"
     IDS_NONE                "<None>"
     IDS_NOT_APPLICABLE      "N/A"
-    IDS_OPT_DESC_Export_bPromptUser 
-                            "Prompt user for destination folder, filename, and options"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_DESC_Export_bPromptUser 
+                            "Prompt user for destination folder, filename, and options"
     IDS_OPT_DESC_Export_bUseViewSize 
                             "If true, use view size as image size, otherwise get image size from options"
     IDS_OPT_DESC_Export_nImageHeight "Desired image height in pixels"
@@ -886,11 +889,11 @@ BEGIN
     IDS_OPT_GROUP_Input     "Input"
     IDS_OPT_GROUP_Midi      "MIDI"
     IDS_OPT_GROUP_Snapshot  "Snapshot"
-    IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_LEGACY_SIZE_SVGA "800 x 600 (SVGA)"
     IDS_OPT_LEGACY_SIZE_VGA "640 x 480 (VGA)"
     IDS_OPT_LEGACY_SIZE_XGA "1024 x 768 (XGA)"
     IDS_OPT_NAME_Export_bPromptUser "Prompt User"
@@ -906,11 +909,11 @@ BEGIN
     IDS_OPT_NAME_Snapshot_iLegacySize "Legacy Size"
     IDS_OPT_SCALE_TO_FIT_Both "Both"
     IDS_OPT_SCALE_TO_FIT_Height "Height"
-    IDS_OPT_SCALE_TO_FIT_None "None"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_OPT_SCALE_TO_FIT_None "None"
     IDS_OPT_SCALE_TO_FIT_Width "Width"
     IDS_PARAM_Alpha         "Alpha"
     IDS_PARAM_AspectRatio   "Aspect Ratio"
@@ -926,11 +929,11 @@ BEGIN
     IDS_PARAM_OddCurve      "Odd Curve"
     IDS_PARAM_OddShear      "Odd Shear"
     IDS_PARAM_Pinwheel      "Pinwheel"
-    IDS_PARAM_PolySides     "Ring Sides"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PARAM_PolySides     "Ring Sides"
     IDS_PARAM_RingGrowth    "Ring Growth"
     IDS_PARAM_RingSpacing   "Ring Spacing"
     IDS_PARAM_RotateSpeed   "Rotate Speed"
@@ -946,11 +949,11 @@ BEGIN
     IDS_PROW_Global         "Global"
     IDS_PROW_NAME_STATIC    "Name"
     IDS_PROW_PW             "Pulse Width"
-    IDS_PROW_VAL_SLIDER     "Slider"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_PROW_VAL_SLIDER     "Slider"
     IDS_PROW_Val            "Value"
     IDS_PROW_Wave           "Waveform"
     IDS_RESET_ALL_OPTIONS   "Reset all options to default values?"
@@ -966,18 +969,19 @@ BEGIN
     IDS_WAVE_RAMP_DOWN      "Ramp Down"
     IDS_WAVE_RAMP_UP        "Ramp Up"
     IDS_WAVE_RANDOM         "Random"
-    IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
 END
 
 STRINGTABLE
 BEGIN
+    IDS_WAVE_RANDOM_RAMP    "Rand Ramp"
     IDS_WAVE_SINE           "Sine"
     IDS_WAVE_SQUARE         "Square"
     IDS_WAVE_TRIANGLE       "Triangle"
     IDS_WINDOW_RESET_LAYOUT_WARN 
                             "Reset all windows to their default layout? This action can't be undone, and the application will restart."
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
-    IDS_APP_ERR_WAIT_MSG_TIMEOUT "Timeout waiting for message."
+    IDS_BAR_Numbers         "Numbers"
+    ID_VIEW_BAR_Numbers     "Show or hide the Numbers pane\nShow Numbers"
 END
 
 STRINGTABLE
@@ -1169,7 +1173,7 @@ END
 STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
-    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_SCTASKLIST      "Show or hide the numbers pane\nShow Numbers"
 END
 
 #endif    // English (United States) resources

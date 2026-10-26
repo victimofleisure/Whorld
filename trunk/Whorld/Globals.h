@@ -20,6 +20,7 @@
 		10		27mar25	add selection range maker
 		11		29mar25	add play patch message
 		12		10oct26	add get origin reply message
+		13		24oct26	add get patch and get status reply messages
 
 */
 
@@ -157,6 +158,8 @@ enum {	// application-wide user window messages, based on WP_APP
 	UWM_SET_DRAW_MODE,			// wParam: mask, lParam: value
 	UWM_PLAY_PATCH,				// wParam: iPatch, lParam: none
 	UWM_GET_ORIGIN_REPLY,		// wParam: double, lParam: double
+	UWM_GET_PATCH_REPLY,		// wParam: none, lParam: CPatch*
+	UWM_GET_STATUS_REPLY,		// wParam: none, lParam: CStatus*
 };
 
 // undo natter should always be zero in a shipping version

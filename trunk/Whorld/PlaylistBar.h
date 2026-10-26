@@ -18,6 +18,7 @@
 		08		28jan08	support Unicode        
 		09		27mar25	refactor for V2
 		10		30mar25	add playing state icon
+		11		24oct26	overload get min/max info
 
 */
 
@@ -112,6 +113,7 @@ protected:
 	void	RestorePatchMove(const CUndoState& State);
 
 // Overrides
+	virtual void OnFrameGetMinMaxInfo(HWND hFrameWnd, MINMAXINFO *pMMI);
 
 // Generated message map functions
 	DECLARE_MESSAGE_MAP()

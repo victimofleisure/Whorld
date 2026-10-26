@@ -27,7 +27,8 @@
 		17      09apr25	add alpha and background alpha parameters
 		18      11apr25	add antialiasing main property
 		19		08oct26	add mirror flag to STATEDEF
-		20		10oct26	add get origin message
+		20		10oct26	add get origin command
+		21		24oct26	add get patch and get status commands
 
         define parameter attributes
 
@@ -186,6 +187,8 @@ MASTERCOLDEF(VAL_EDIT)
 RENDERCMDDEF(SET_MASTER,		dblVal	)	// sets a master property; m_nParam: property index, m_prop: fProp
 RENDERCMDDEF(SET_MAIN,			intVal	)	// sets a main property; m_nParam: property index, m_prop: variant property
 RENDERCMDDEF(SET_PATCH,			byref	)	// sets a patch; m_nParam: unused, m_prop: CPatch pointer allocated on heap
+RENDERCMDDEF(GET_PATCH,			byref	)	// gets a patch; m_nParam: unused, m_prop: CPatch pointer
+RENDERCMDDEF(GET_STATUS,		byref	)	// gets a status; m_nParam: unused, m_prop: CStatus pointer
 RENDERCMDDEF(SET_EMPTY,			intVal	)	// removes all geometry; no parameters
 RENDERCMDDEF(SET_FRAME_RATE,	intVal	)	// sets frame rate; m_nParam: integer frame rate in Hertz
 RENDERCMDDEF(SET_PAUSE,			intVal	)	// pauses updates; m_nParam: non-zero to pause, zero to unpause

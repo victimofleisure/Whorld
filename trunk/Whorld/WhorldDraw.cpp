@@ -25,6 +25,7 @@
 		15      09apr25	add alpha and background alpha parameters
 		16      11apr25	add antialiasing main property
 		17      08oct26	add quad mirroring
+		18		07nov26	set oscillator frequencies in SetFrameRate, not TimerHook
 
 */
 
@@ -476,7 +477,6 @@ void CWhorldDraw::TimerHook()
 	double	afPrevClock[PARAM_COUNT];
 	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {
 		afPrevClock[iParam] = m_aOsc[iParam].GetClock();
-		m_aOsc[iParam].SetTimerFreq(m_nFrameRate);
 	}
 	if (m_bFlushHistory) {	// if flushing history
 		m_aPrevParam = m_aParam;	// suppress oscillator interpolation
@@ -1049,6 +1049,9 @@ bool CWhorldDraw::SetFrameRate(DWORD nFrameRate)
 	}
 	m_nFrameRate = nFrameRate;
 	m_oscOrigin.SetTimerFreq(nFrameRate);
+	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
+		m_aOsc[iParam].SetTimerFreq(m_nFrameRate);	// set timer freq
+	}
 	return true;
 }
 

@@ -22,6 +22,7 @@
 		12		10oct26	add thread-safe get origin method
 		13		10oct26	add set origin case to OnMainPropChange
 		14		24oct26	add get patch and get status
+		15		07nov26	OnSetPatch must set oscillator waveforms and pulse widths
 
 */
 
@@ -500,6 +501,13 @@ void CWhorldThread::OnSetPatch(const CPatch *pPatch)
 	OnMainPropChange();	// handle main property changes
 	OnGlobalsChange();	// handle global parameter changes
 	m_bFlushHistory = true;	// suppress interpolation to avoid glitch
+	// set oscillator waveforms and pulse widths; these are plain assignments
+	for (int iParam = 0; iParam < PARAM_COUNT; iParam++) {	// for each parameter
+		const PARAM_ROW& row = GetParamRow(iParam);
+		m_aOsc[iParam].SetWaveform(row.iWave);	// set waveform
+		m_aOsc[iParam].SetPulseWidth(row.fPW);	// set pulsewidth
+		// oscillator frequencies are set in TimerHook flush history case
+	}
 }
 
 void CWhorldThread::OnGetPatch(CPatch *pPatch)

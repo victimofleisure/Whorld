@@ -95,6 +95,8 @@ id	open	close	type	description	rev	user
 125	10/09/26	10/09/26	done	snapshots with version > 4 fail to load, due to incorrect global ring size check	2.0.19.000	
 126	10/09/26	10/10/26	done	saving patch doesn't capture current origin; get fresh origin from render thread	2.0.19.000	
 127	10/09/26	10/10/26	done	opening patch doesn't restore origin	2.0.19.000	
+129	10/01/26	10/24/26	done	add numbers bar	2.0.20.000	
+131	11/07/26	11/07/26	done	opening a patch doesn't set oscillator waveforms or pulse widths	2.0.20.001	
 14	02/18/25		hold	master dialog should have spin controls		
 15	02/19/25		hold	line joins are angular instead of round as in V1; do round joins impact performance? Make it optional?		
 26	02/25/25		hold	snapshot slideshow (on snapshot submenu)		
@@ -120,6 +122,7 @@ id	open	close	type	description	rev	user
 118	04/09/25		hold	add option for new patch to reset all state, including oscillator phases and hue		
 119	04/09/25		hold	semi-transparent fill is always outlined: make overlap stroking in fill mode optional		
 121	04/11/25		hold	add non-exclusive borderless full screen mode; would allow access to dockable panes		
+128	10/12/26		hold	snapshot omits antialiasing state, though patch includes it; bug or feature?		
 8	02/10/25		punt	in row view, if no control has focus, tab key does nothing		
 9	02/10/25		punt	if floating row view is deactivated and then reactivated, previously focused child control doesn't regain focus		
 23	02/25/25		punt	sporadic error when trying to open legacy patch, invalid file handle; can't replicate		JM
@@ -127,3 +130,5 @@ id	open	close	type	description	rev	user
 66	03/04/25		punt	global line width can cause negative line width; Direct2D takes absolute value, it's fine		
 112	03/22/25		punt	global ring sides scales odd and even radii differently unless global star ratio is tuned; V1 bug		
 123	11/29/25		todo	implement Spout		
+130	10/31/26		todo	add option to specify random seed or get it from system time		
+132	11/07/26		todo	add regression test via snapshot movie		

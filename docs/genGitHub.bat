@@ -1,5 +1,6 @@
 @echo off
 copy C:\Chris\MyProjects\Whorld\web\*.html
+copy C:\Chris\MyProjects\Whorld\web\*.txt
 copy downloadGitHub.html download.html
 rem echo y | rd /s C:\Chris\MyProjects\Whorld\web\Help
 rem ren helpframe.html helpframe.txt
